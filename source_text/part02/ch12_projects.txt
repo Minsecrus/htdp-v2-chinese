@@ -1,0 +1,681 @@
+# Chapter 12: Projects: Lists / 第 12 章：综合项目：列表
+
+<h2>
+12.2 Real-World Data: iTunes
+</h2>
+
+<P>
+Apple’s iTunes software is widely used to collect music, videos, TV shows, and so on. You may wish to analyze the information that your iTunes application gathers. It is actually quite easy to extract its database. Select the application’s File menu, choose Library and then Export—and voilà, you can export a so-called XML representation of the iTunes information. Processing XML is covered in some depth by chapter 22; here we rely on the 2htdp/itunes library to get hold of the information. Specifically, the library enables you to retrieve the music tracks that your iTunes library contains.
+</P>
+
+<P>
+While the details vary, an iTunes library maintains some of the following kinds of information for each music track, occasionally a bit less:
+</P>
+
+<P>
+•  Track ID, a unique identifier for the track with respect to your library, example: 442
+</P>
+
+<P>
+•  Name, the title of the track, Wild Child
+</P>
+
+<P>
+•  Artist, the producing artists, Enya
+</P>
+
+<P>
+•  Album, the title of the album to which it belongs, A Day Without
+</P>
+
+<P>
+•  Genre, the music genre to which the track is assigned, New Age
+</P>
+
+<P>
+•  Kind, the encoding of the music, MPEG audio file
+</P>
+
+<P>
+•  Size, the size of the file, 4562044
+</P>
+
+<P>
+•  Total Time, the length of the track in milliseconds, 227996
+</P>
+
+<P>
+•  Track Number, the position of the track within the album, 2
+</P>
+
+<P>
+•  Track Count, the number of tracks on the album, 11
+</P>
+
+<P>
+•  Year, the year of release, 2000
+</P>
+
+<P>
+•  Date Added, when the track was added, 2002-7-17 3:55:14
+</P>
+
+<P>
+•  Play Count, how many times it was played, 20
+</P>
+
+<P>
+•  Play Date, when the track was last played, 3388484113 Unix seconds
+</P>
+
+<P>
+•  Play Date UTC, when it was last played, 2011-5-17 17:35:13
+</P>
+
+<P>
+As always, the first task is to choose a BSL data representation for this information. In this section, we use two representations for music tracks: a structure-based one and another based on lists. While the former records a fixed number of attributes per track and only if all information is available, the latter comes with whatever information is available represented as data. Each serves particular uses well; for some uses, both representations are useful.
+</P>
+
+<MARGIN_NOTE>
+In addition to the 2htdp/batch-io library, this section relies on the 2htdp/itunes library.
+</MARGIN_NOTE>
+
+<P>
+Figures 75 and 76 introduce the structure-based representation of tracks as implemented by the 2htdp/itunes library. The track structure type comes with eight fields, each representing a particular property of the track. Most fields contain atomic kinds of data, such as Strings and Ns; others contain Dates, which is a structure type with six fields. The 2htdp/itunes library exports all predicates and selectors for the track and date structure types, but in lieu of constructors it provides checked constructors.
+</P>
+
+<FIGURE src="images/00277.png">
+Figure 75: Representing iTunes tracks as structures (the structures)
+</FIGURE>
+
+<FIGURE src="images/00278.png">
+Figure 76: Representing iTunes tracks as structures (the functions)
+</FIGURE>
+
+<P>
+The last element of the description of the 2htdp/itunes library is a function that reads an iTunes XML library description and delivers a list of tracks, LTracks. Once you have exported the XML library from some iTunes app, you can run the following code snippet to retrieve all the records:
+</P>
+
+<CODE>
+; modify the following to use your chosen name (define ITUNES-LOCATION "itunes.xml") ; LTracks (define itunes-tracks   (read-itunes-as-tracks ITUNES-LOCATION))
+</CODE>
+
+<P>
+Save the snippet in the same folder as your iTunes XML export. Remember not to use itunes-tracks for examples; it is way too large for that. Indeed, it may be so large that reading the file every time you run your BSL program in DrRacket will take a lot of time. You may therefore wish to comment out this second line while you design functions. Uncomment it only when you wish to compute information about your iTunes collection.
+</P>
+
+<EXERCISE>
+Exercise 199. While the important data definitions are already provided, the first step of the design recipe is still incomplete. Make up examples of Dates, Tracks, and LTracks. These examples come in handy for the following exercises as inputs.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 200. Design the function total-time, which consumes an element of LTracks and produces the total amount of play time. Once the program is done, compute the total play time of your iTunes collection.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 201. Design select-all-album-titles. The function consumes an LTracks and produces the list of album titles as a List-of-strings.
+</EXERCISE>
+
+<P>
+Also design the function create-set. It consumes a List-of-strings and constructs one that contains every String from the given list exactly once. Hint If String s is at the front of the given list and occurs in the rest of the list, too, create-set does not keep s.
+</P>
+
+<P>
+Finally design select-album-titles/unique, which consumes an LTracks and produces a list of unique album titles. Use this function to determine all album titles in your iTunes collection and also find out how many distinct albums it contains.
+</P>
+
+<EXERCISE>
+Exercise 202. Design select-album. The function consumes the title of an album and an LTracks. It extracts from the latter the list of tracks that belong to the given album.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 203. Design select-album-date. The function consumes the title of an album, a date, and an LTracks. It extracts from the latter the list of tracks that belong to the given album and have been played after the given date. Hint You must design a function that consumes two Dates and determines whether the first occurs before the second.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 204. Design select-albums. The function consumes an element of LTracks. It produces a list of LTracks, one per album. Each album is uniquely identified by its title and shows up in the result only once. Hints (1) You want to use some of the solutions of the preceding exercises. (2) The function that groups consumes two lists: the list of album titles and the list of tracks; it considers the latter as atomic until it is handed over to an auxiliary function. See exercise 196.
+</EXERCISE>
+
+<P>
+Terminology The functions whose names starts with select- are so-called database queries. See chapter 23.7 for more details. End
+</P>
+
+<P>
+Figure 77 shows how the 2htdp/itunes library represents tracks with lists. An LLists is a list of track representations, each of which is a list of lists pairing Strings with four kinds of values. The read-itunes-as-lists function reads an iTunes XML library and produces an element of LLists. Hence, you get access to all track information if you add the following definitions to your program:
+</P>
+
+<CODE>
+; modify the following to use your chosen name (define ITUNES-LOCATION "itunes.xml") ; LLists (define list-tracks   (read-itunes-as-lists ITUNES-LOCATION))
+</CODE>
+
+<FIGURE src="images/00279.png">
+Figure 77: Representing iTunes tracks as lists
+</FIGURE>
+
+<P>
+Then save it in the same folder where the iTunes library is stored.
+</P>
+
+<EXERCISE>
+Exercise 205. Develop examples of LAssoc and LLists, that is, the list representation of tracks and lists of such tracks.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 206. Design the function find-association. It consumes three arguments: a String called key, an LAssoc, and an element of Any called default. It produces the first Association whose first item is equal to key, or default if there is no such Association.
+</EXERCISE>
+
+<P>
+Note Read up on assoc after you have designed this function.
+</P>
+
+<EXERCISE>
+Exercise 207. Design total-time/list, which consumes an LLists and produces the total amount of play time. Hint Solve exercise 206 first.
+</EXERCISE>
+
+<P>
+Once you have completed the design, compute the total play time of your iTunes collection. Compare this result with the time that the total-time function from exercise 200 computes. Why is there a difference?
+</P>
+
+<EXERCISE>
+Exercise 208. Design boolean-attributes. The function consumes an LLists and produces the Strings that are associated with a Boolean attribute. Hint Use create-set from exercise 201.
+</EXERCISE>
+
+<P>
+Once you are done, determine how many Boolean-valued attributes your iTunes library employs for its tracks. Do they make sense?
+</P>
+
+<P>
+Note A list-based representation is a bit less organized than a structure-based one. The word semi-structured is occasionally used in this context. Such list-representations accommodate properties that show up rarely and thus don’t fit the structure type. People often use such representations to explore unknown information and later introduce structures when the format is well-known. Design a function track-as-struct, which converts an LAssoc to a Track when possible. End
+</P>
+
+<h2>
+12.3 Word Games, Composition Illustrated
+</h2>
+
+<P>
+Some of you solve word puzzles in newspapers and magazines. Try this:
+</P>
+
+<P>
+Sample Problem Given a word, find all words that are made up from the same letters. For example “cat” also spells “act.”
+</P>
+
+<P>
+Let’s work through an example. Suppose you are given “dear.” There are twenty-four possible arrangements of the four letters:
+</P>
+
+<FIGURE src="images/00280.png">
+
+</FIGURE>
+
+<P>
+In this list, there are three legitimate words: “read,” “dear,” and “dare.”
+</P>
+
+<P>
+Note If a word contains the same letter twice, the collection of all re-arrangements may contain several copies of the same string. For our purposes, this is acceptable. For a realistic program, you may wish to avoid duplicate entries by using sets instead of lists. See chapter 9.6. End
+</P>
+
+<P>
+A systematic enumeration of all possible arrangements is clearly a task for a program, as is the search in an English-language dictionary. This section covers the design of the search function, leaving the solution of the other problem to the next section. By separating the two, this first section can focus on the high-level ideas of systematic program design.
+</P>
+
+<MARGIN_NOTE>
+See chapter 12.1 for dealing with real-world dictionaries.
+</MARGIN_NOTE>
+
+<P>
+Let’s imagine for a moment how we might solve the problem by hand. If you had enough time, you might enumerate all possible arrangements of all letters in a given word and then just pick those variants that also occur in a dictionary. Clearly, a program can proceed in this way too, and this suggests a natural design by composition, but, as always, we proceed systematically and start by choosing a data representation for our inputs and outputs.
+</P>
+
+<P>
+At least at first glance, it is natural to represent words as Strings and the result as a list of words or List-of-strings. Based on this choice, we can formulate a signature and purpose statement:
+</P>
+
+<CODE>
+; String -> List-of-strings ; finds all words that use the same letters as s (define (alternative-words s)   …)
+</CODE>
+
+<P>
+Next, we need some examples. If the given word is “cat,” we are dealing with three letters: c, a, and t. Some playing around suggests six arrangements of these letters: cat, cta, tca, tac, act, and atc. Two of these are actual words: “cat” and “act.” Because alternative-words produces a list of Strings, there are two ways to represent the result: (list "act" "cat") and (list "cat" "act"). Fortunately, BSL comes with a way to say the function returns one of two possible results:
+</P>
+
+<FIGURE src="images/00281.png">
+
+</FIGURE>
+
+<P>
+Stop! Read up on check-member-of in the documentation.
+</P>
+
+<P>
+Working through this example exposes two problems:
+</P>
+
+<P>
+•  The first one is about testing. Suppose we had used the word “rat” for which there are three alternatives: “rat,” “tar,” and “art.” In this case, we would have to formulate six lists, each of which might be the result of the function. For a word like “dear” with four possible alternatives, formulating a test would be even harder.
+</P>
+
+<P>
+•  The second problem concerns the choice of word representation. Although String looks natural at first, the examples clarify that some of our functions must view words as sequences of letters, with the possibility of rearranging them at will. It is possible to rearrange the letters within a String, but lists of letters are obviously better suited for this purpose.
+</P>
+
+<P>
+Let’s deal with these problems one at a time, starting with tests.
+</P>
+
+<P>
+Assume we wish to formulate a test for alternative-words and "rat". From the above, we know that the result must contain "rat", "tar", and "art", but we cannot know in which order these words show up in the result.
+</P>
+
+<P>
+In this situation, check-satisfied comes in handy. We can use it with a function that checks whether a list of Strings contains our three Strings:
+</P>
+
+<FIGURE src="images/00282.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+See intermezzo 1.
+</MARGIN_NOTE>
+
+<P>
+With this function, it is easy to formulate a test for alternative-words:
+</P>
+
+<FIGURE src="images/00283.png">
+
+</FIGURE>
+
+<P>
+Note on Data versus Design What this discussion suggests is that the alternative-words function constructs a set, not a list. For a detailed discussion of the differences, see chapter 9.6. Here it suffices to know that sets represent collections of values without regard to the ordering of the values or how often these values occur. When a language comes without support for data representations of sets, programmers tend to resort to a close alternative, such as the List-of-strings representation here. As programs grow, this choice may haunt programmers, but addressing this kind of problem is the subject of the second book. End
+</P>
+
+<P>
+For the problem with a word representation, we punt to the next section. Specifically, we say that the next section introduces (1) a data representation for Words suitable for rearranging letters, (2) a data definition for List-of-words, and (3) a function that maps a Word to a List-of-words, meaning a list of all possible rearrangements:
+</P>
+
+<CODE>
+; A Word is … ; A List-of-words is … ; Word -> List-of-words ; finds all rearrangements of word (define (arrangements word)   (list word))
+</CODE>
+
+<EXERCISE>
+Exercise 209. The above leaves us with two additional wishes: a function that consumes a String and produces its corresponding Word, and a function for the opposite direction. Here are the wish-list entries:
+</EXERCISE>
+
+<CODE>
+; String -> Word ; converts s to the chosen word representation (define (string->word s) …) ; Word -> String ; converts w to a string (define (word->string w) …)
+</CODE>
+
+<P>
+Look up the data definition for Word in the next section and complete the definitions of string->word and word->string. Hint You may wish to look in the list of functions that BSL provides.
+</P>
+
+<P>
+With those two small problems out of the way, we return to the design of alternative-words. We now have: (1) a signature, (2) a purpose statement, (3) examples and test, (4) an insight concerning our choice of data representation, and (5) an idea of how to decompose the problem into two major steps.
+</P>
+
+<P>
+So, instead of creating a template, we write down the composition we have in mind:
+</P>
+
+<CODE>
+(in-dictionary (arrangements s))
+</CODE>
+
+<P>
+The expression says that, given a word s, we use arrangements to create a list of all possible rearrangements of the letters and in-dictionary to select those rearrangements that also occur in a dictionary.
+</P>
+
+<P>
+Stop! Look up the signatures for the two functions to make sure the composition works out. What exactly do you need to check?
+</P>
+
+<P>
+What this expression fails to capture is the fourth point, the decision not to use plain strings to rearrange the letters. Before we hand s to arrangements, we need to convert it into a word. Fortunately, exercise 209 asks for just such a function:
+</P>
+
+<CODE>
+(in-dictionary   (… (arrangements (string->word s))))
+</CODE>
+
+<P>
+Similarly, we need to convert the resulting list of words to a list of strings. While exercise 209 asks for a function that converts a single word, here we need a function that deals with lists of them. Time to make another wish:
+</P>
+
+<CODE>
+(in-dictionary   (words->strings     (arrangements (string->word s))))
+</CODE>
+
+<P>
+Stop! What is the signature for words->strings and what is its purpose?
+</P>
+
+<P>
+Figure 78 collects all the pieces. The following exercises ask you to design the remaining functions.
+</P>
+
+<FIGURE src="images/00284.png">
+Figure 78: Finding alternative words
+</FIGURE>
+
+<EXERCISE>
+Exercise 210. Complete the design of the words->strings function specified in figure 78. Hint Use your solution to exercise 209.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 211. Complete the design of in-dictionary, specified in figure 78. Hint See chapter 12.1 for how to read a dictionary.
+</EXERCISE>
+
+<h2>
+12.4 Word Games, the Heart of the Problem
+</h2>
+
+<P>
+The goal is to design arrangements, a function that consumes a Word and produces a list of the word’s letter-by-letter rearrangements. This extended exercise reinforces the need for deep wish lists, that is, a list of desired functions that seems to grow with every function you finish.
+</P>
+
+<MARGIN_NOTE>
+The mathematical term is permutations.
+</MARGIN_NOTE>
+
+<P>
+As mentioned, Strings could serve as a representation of words, but a String is atomic and the very fact that arrangements needs to rearrange its letters calls for a different representation. Our chosen data representation of a word is therefore a list of 1Strings where each item in the input represents a letter:
+</P>
+
+<CODE>
+; A Word is one of: ; -- '() or ; -- (cons 1String Word) ; interpretation a Word is a list of 1Strings (letters)
+</CODE>
+
+<EXERCISE>
+Exercise 212. Write down the data definition for List-of-words. Make up examples of Words and List-of-words. Finally, formulate the functional example from above with check-expect. Instead of the full example, consider working with a word of just two letters, say "d" and "e".
+</EXERCISE>
+
+<P>
+The template of arrangements is that of a list-processing function:
+</P>
+
+<FIGURE src="images/00285.png">
+
+</FIGURE>
+
+<P>
+In preparation of the fifth step, let’s look at the template’s cond lines:
+</P>
+
+<P>
+1. If the input is '(), there is only one possible rearrangement of the input: the '() word. Hence the result is (list '()), the list that contains the empty list as the only item.
+</P>
+
+<P>
+2. Otherwise there is a first letter in the word, and (first w) is that letter. Also, the recursion produces the list of all possible rearrangements for the rest of the word. For example, if the list is
+</P>
+
+<P>
+(list "d" "e" "r")
+</P>
+
+<P>
+then the recursion is (arrangements (list "e" "r")). It will produce the result
+</P>
+
+<FIGURE src="images/00286.png">
+
+</FIGURE>
+
+<P>
+To obtain all possible rearrangements for the entire list, we must now insert the first item, "d" in our case, into all of these words between all possible letters and at the beginning and end.
+</P>
+
+<P>
+Our analysis suggests that we can complete arrangements if we can somehow insert one letter into all positions of many different words. The last aspect of this task description implicitly mentions lists and, following the advice of this chapter, calls for an auxiliary function. Let’s call this function insert-everywhere/in-all-words and let’s use it to complete the definition of arrangements:
+</P>
+
+<FIGURE src="images/00287.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 213. Design insert-everywhere/in-all-words. It consumes a 1String and a list of words. The result is a list of words like its second argument, but with the first argument inserted at the beginning, between all letters, and at the end of all words of the given list.
+</EXERCISE>
+
+<P>
+Start with a complete wish-list entry. Supplement it with tests for empty lists, a list with a one-letter word, and another list with a two-letter word, and the like. Before you continue, study the following three hints carefully.
+</P>
+
+<P>
+Hints (1) Reconsider the example from above. It says that "d" needs to be inserted into the words (list "e" "r") and (list "r" "e"). The following application is therefore one natural candidate for an example:
+</P>
+
+<FIGURE src="images/00288.png">
+
+</FIGURE>
+
+<P>
+(2) You want to use the BSL+ operation append, which consumes two lists and produces the concatenation of the two lists:
+</P>
+
+<CODE>
+> (append (list "a" "b" "c") (list "d" "e"))  (list "a" "b" "c" "d" "e")
+</CODE>
+
+<P>
+The development of functions like append is the subject of chapter 23.
+</P>
+
+<P>
+(3) This solution of this exercise is a series of functions. Patiently stick to the design recipe and systematically work through your wish list.
+</P>
+
+<EXERCISE>
+Exercise 214. Integrate arrangements with the partial program from chapter 12.3. After making sure that the entire suite of tests passes, run it on some of your favorite examples.
+</EXERCISE>
+
+<h2>
+12.5 Feeding Worms
+</h2>
+
+<P>
+Worm—also known as Snake—is one of the oldest computer games. When the game starts, a worm and a piece of food appear. The worm is moving toward a wall. Don’t let it reach the wall; otherwise the game is over. Instead, use the arrow keys to control the worm’s movements.
+</P>
+
+<P>
+The goal of the game is to have the worm eat as much food as possible. As the worm eats the food, it becomes longer; more and more segments appear. Once a piece of food is digested, another piece appears. The worm’s growth endangers the worm itself, though. As it grows long enough, it can run into itself and, if it does, the game is over, too.
+</P>
+
+<P>
+Figure 79 displays a sequence of screen shots that illustrates how the game works in practice. On the left, you see the initial setting. The worm consists of a single red segment, its head. It is moving toward the food, which is displayed as a green disk. The screen shot in the center shows a situation when the worm is about to eat some food. In the right-most screen shot the worm has run into the right wall. The game is over; the player scored 11 points.
+</P>
+
+<FIGURE src="images/00289.png">
+Figure 79: Playing Worm
+</FIGURE>
+
+<P>
+The following exercises guide you through the design and implementation of a Worm game. Like chapter 10.2, these exercises illustrate how to tackle a nontrivial problem via iterative refinement. That is, you don’t design the entire interactive program all at once but in several stages, called iterations. Each iteration adds details and refines the program—until it satisfies you or your customer. If you aren’t satisfied with the outcome of the exercises, feel free to create variations.
+</P>
+
+<EXERCISE>
+Exercise 215. Design a world program that continually moves a one-segment worm and enables a player to control the movement of the worm with the four cardinal arrow keys. Your program should use a red disk to render the one-and-only segment of the worm. For each clock tick, the worm should move a diameter.
+</EXERCISE>
+
+<P>
+Hints (1) Reread chapter 3.6 to recall how to design world programs. When you define the worm-main function, use the rate at which the clock ticks as its argument. See the documentation for on-tick on how to describe the rate. (2) When you develop a data representation for the worm, contemplate the use of two different kinds of representations: a physical representation and a logical one. The physical representation keeps track of the actual physical position of the worm on the canvas; the logical one counts how many (widths of) segments the worm is from the left and the top. For which of the two is it easier to change the physical appearances (size of worm segment, size of game box) of the “game”?
+</P>
+
+<EXERCISE>
+Exercise 216. Modify your program from exercise 215 so that it stops if the worm has reached the walls of the world. When the program stops because of this condition, it should render the final scene with the text "worm hit border" in the lower left of the world scene. Hint You can use the stop-when clause in big-bang to render the last world in a special way.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 217. Develop a data representation for worms with tails. A worm’s tail is a possibly empty sequence of “connected” segments. Here “connected” means that the coordinates of a segment differ from those of its predecessor in at most one direction. To keep things simple, treat all segments—head and tail segments—the same.
+</EXERCISE>
+
+<P>
+Now modify your program from exercise 215 to accommodate a multi-segment worm. Keep things simple: (1) your program may render all worm segments as red disks and (2) ignore that the worm may run into the wall or itself. Hint One way to realize the worm’s movement is to add a segment in the direction in which it is moving and to delete the last one.
+</P>
+
+<EXERCISE>
+Exercise 218. Redesign your program from exercise 217 so that it stops if the worm has run into the walls of the world or into itself. Display a message like the one in exercise 216 to explain whether the program stopped because the worm hit the wall or because it ran into itself.
+</EXERCISE>
+
+<P>
+Hints (1) To determine whether a worm is going to run into itself, check whether the position of the head would coincide with one of its old tail segments if it moved. (2) Read up on the member? function.
+</P>
+
+<EXERCISE>
+Exercise 219. Equip your program from exercise 218 with food. At any point in time, the box should contain one piece of food. To keep things simple, a piece of food is of the same size as a worm segment. When the worm’s head is located at the same position as the food, the worm eats the food, meaning the worm’s tail is extended by one segment. As the piece of food is eaten, another one shows up at a different location.
+</EXERCISE>
+
+<P>
+Adding food to the game requires changes to the data representation of world states. In addition to the worm, the states now also include a representation of the food, especially its current location. A change to the game representation suggests new functions for dealing with events, though these functions can reuse the functions for the worm (from exercise 218) and their test cases. It also means that the tick handler must not only move the worm; in addition it must manage the eating process and the creation of new food.
+</P>
+
+<P>
+Your program should place the food randomly within the box. To do so properly, you need a design technique that you haven’t seen before—so-called generative recursion, which is introduced in part V—so we provide these functions in figure 80. Before you use them, however, explain how these functions work—assuming MAX is greater than 1—and then formulate purpose statements.
+</P>
+
+<FIGURE src="images/00290.png">
+Figure 80: Random placement of food
+</FIGURE>
+
+<MARGIN_NOTE>
+For the workings of random, read the manual or exercise 99.
+</MARGIN_NOTE>
+
+<P>
+Hints (1) One way to interpret “eating” is to say that the head moves where the food used to be located and the tail grows by one segment, inserted where the head used to be. Why is this interpretation easy to design as a function? (2) We found it useful to add a second parameter to the worm-main function for this last step, a Boolean that determines whether big-bang displays the current state of the world in a separate window; see the documentation for state on how to ask for this information.
+</P>
+
+<P>
+Once you have finished this last exercise, you have a complete worm game. Now modify your worm-main function so that it returns the length of the final worm. Then use Create Executable (under the Racket menu) in DrRacket to turn your program into something that anybody can launch, not just someone who knows about BSL+.
+</P>
+
+<P>
+You may also wish to add extra twists to the game, to make it really your game. We experimented with funny end-of-game messages, having several different pieces of food around, with placing extra obstacles in the room, and a few other ideas. What can you think of?
+</P>
+
+<h2>
+12.6 Simple Tetris
+</h2>
+
+<P>
+Tetris is another game from the early days of software. Since the design of a full-fledged Tetris game demands a lot of labor with only marginal profit, this section focuses on a simplified version. If you feel ambitious, look up how Tetris really works and design a full-fledged version.
+</P>
+
+<P>
+In our simplified version, the game starts with individual blocks dropping from the top of the scene. Once one of them lands on the ground, it comes to a rest and another block starts dropping down from some random place. A player can control the dropping block with the “left” and “right” arrow keys. Once a block lands on the floor of the canvas or on top of some already resting block, it comes to rest and becomes immovable. In a short time, the blocks stack up; if a stack of blocks reaches the ceiling of the canvas, the game is over. Naturally the objective of this game is to land as many blocks as possible. See figure 81 for an illustration of the idea.
+</P>
+
+<FIGURE src="images/00291.png">
+Figure 81: Simple Tetris
+</FIGURE>
+
+<P>
+Given this description, we can turn to the design guidelines for interactive programs from chapter 3.6. They call for separating constant properties from variable ones. The former can be written down as “physical” and graphical constants; the latter suggest the data that makes up all possible states of the simple Tetris game. So here are some examples:
+</P>
+
+<P>
+•  The width and the height of the game are fixed as are the blocks. In terms of BSL+, you want definitions like these:
+</P>
+
+<FIGURE src="images/00292.png">
+
+</FIGURE>
+
+<P>
+Explain these definitions before you read on.
+</P>
+
+<P>
+•  The “landscapes” of blocks differ from game to game and from clock tick to clock tick. Let’s make this more precise. The appearance of the blocks remains the same; their positions differ.
+</P>
+
+<P>
+We are now left with the central problem of designing a data representation for the dropping blocks and the landscapes of blocks on the ground. When it comes to the dropping block, there are again two possibilities: one is to choose a “physical” representation, another would be a “logical” one. The physical representation keeps track of the actual physical position of the blocks on the canvas; the logical one counts how many block widths a block is from the left and the top. When it comes to the resting blocks, there are even more choices than for individual blocks: a list of physical positions, a list of logical positions, a list of stack heights, and so forth.
+</P>
+
+<MARGIN_NOTE>
+See exercise 215 for a related design decision.
+</MARGIN_NOTE>
+
+<P>
+In this section we choose the data representation for you:
+</P>
+
+<CODE>
+(define-struct tetris [block landscape]) (define-struct block [x y]) ; A Tetris is a structure: ; (make-tetris Block Landscape) ; A Landscape is one of: ; -- '() ; -- (cons Block Landscape) ; A Block is a structure: ; (make-block N N) ; interpretations ; (make-block x y) depicts a block whose left ; corner is (* x SIZE) pixels from the left and ; (* y SIZE) pixels from the top; ; (make-tetris b0 (list b1 b2 …)) means b0 is the ; dropping block, while b1, b2, and … are resting
+</CODE>
+
+<P>
+This is what we dubbed the logical representation, because the coordinates do not reflect the physical location of the blocks, just the number of block sizes they are from the origin. Our choice implies that x is always between 0 and WIDTH (exclusive) and that y is between 0 and HEIGHT (exclusive), but we ignore this knowledge.
+</P>
+
+<EXERCISE>
+Exercise 220. When you are presented with a complex data definition—like the one for the state of a Tetris game—you start by creating instances of the various data collections. Here are some suggestive names for examples you can later use for functional examples:
+</EXERCISE>
+
+<CODE>
+(define landscape0 …) (define block-dropping …) (define tetris0 …) (define tetris0-drop …) … (define block-landed (make-block 0 (- HEIGHT 1))) … (define block-on-block (make-block 0 (- HEIGHT 2)))
+</CODE>
+
+<P>
+Design the program tetris-render, which turns a given instance of Tetris into an Image. Use DrRacket’s interactions area to develop the expression that renders some of your (extremely) simple data examples. Then formulate the functional examples as unit tests and the function itself.
+</P>
+
+<EXERCISE>
+Exercise 221. Design the interactive program tetris-main, which displays blocks dropping in a straight line from the top of the canvas and landing on the floor or on blocks that are already resting. The input to tetris-main should determine the rate at which the clock ticks. See the documentation of on-tick for how to specify the rate.
+</EXERCISE>
+
+<P>
+To discover whether a block landed, we suggest you drop it and check whether it is on the floor or it overlaps with one of the blocks on the list of resting blocks. Hint Read up on the member? primitive.
+</P>
+
+<P>
+When a block lands, your program should immediately create another block that descends on the column to the right of the current one. If the current block is already in the right-most column, the next block should use the left-most one. Alternatively, define the function block-generate, which randomly selects a column different from the current one; see exercise 219 for inspiration.
+</P>
+
+<EXERCISE>
+Exercise 222. Modify the program from exercise 221 so that a player can control the horizontal movement of the dropping block. Each time the player presses the "left" arrow key, the dropping block should shift one column to the left unless it is in column 0 or there is already a stack of resting blocks to its left. Similarly, each time the player presses "right", the dropping block should move one column to the right if possible.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 223. Equip the program from exercise 222 with a stop-when clause. The game ends when one of the columns contains enough blocks to “touch” the top of the canvas.
+</EXERCISE>
+
+<P>
+Once you have solved exercise 223, you have a bare-bones Tetris game. You may wish to polish it a bit before you show it to your friends. For example, the final canvas could display a text that says how many blocks the player was able to stack up. Or every canvas could contain such a text. The choice is yours.
+</P>
+
+<h2>
+12.7 Full Space War
+</h2>
+
+<P>
+Chapter 6 alludes to a space invader game with little action; the player can merely move the ground force back and forth. Chapter 9.5 enables the player to fire as many shots as desired. This section poses exercises that help you complete this game.
+</P>
+
+<P>
+As always, a UFO is trying to land on Earth. The player’s task is to prevent the UFO from landing. To this end, the game comes with a tank that may fire an arbitrary number of shots. When one of these shots comes close enough to the UFO’s center of gravity, the game is over and the player won. If the UFO comes close enough to the ground, the player lost.
+</P>
+
+<EXERCISE>
+Exercise 224. Use the lessons learned from the preceding two sections and design the game extension slowly, adding one feature of the game after another. Always use the design recipe and rely on the guidelines for auxiliary functions. If you like the game, add other features: show a running text; equip the UFO with charges that can eliminate the tank; create an entire fleet of attacking UFOs; and above all, use your imagination.
+</EXERCISE>
+
+<P>
+If you don’t like UFOs and tanks shooting at each other, use the same ideas to produce a similar, civilized game.
+</P>
+
+<EXERCISE>
+Exercise 225. Design a fire-fighting game.
+</EXERCISE>
+
+<P>
+The game is set in the western states where fires rage through vast forests. It simulates an airborne fire-fighting effort. Specifically, the player acts as the pilot of an airplane that drops loads of water on fires on the ground. The player controls the plane’s horizontal movements and the release of water loads.
+</P>
+
+<P>
+Your game software starts fires at random places on the ground. You may wish to limit the number of fires, making them a function of how many fires are currently burning or other factors. The purpose of the game is to extinguish all fires in a limited amount of time. Hint Use an iterative design approach as illustrated in this chapter to create this game.
+</P>

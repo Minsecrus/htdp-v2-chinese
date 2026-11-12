@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_13"><a id="sec2-2" class="calibre16"></a>2.2 Computing</h2>
+<p class="tni">Function definitions and applications work in tandem. If you want to design programs, you must understand this collaboration because you need to imagine how DrRacket runs your programs and because you need to figure out <b class="calibre9">what</b> goes wrong <b class="calibre9">when</b> things go wrong—and they <b class="calibre9">will</b> go wrong.</p>
+<p class="calibre8">While you may have seen this idea in an algebra course, we prefer to explain it our way. So here we go. Evaluating a function application proceeds in three steps: DrRacket determines the values of the argument expressions; it checks that the number of arguments and the number of function parameters are the same; if so, DrRacket computes the value of the body of the function, with all parameters replaced by the corresponding argument values. This last value is the value of the function application. This is a mouthful, so we need examples.</p>
+<p class="calibre8">Here is a sample calculation for <samp class="mono">f</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(f (+</samp><samp class="mono"> 1 1))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket knows</samp><samp class="mono"> that (+</samp><samp class="mono"> 1 1)</samp><samp class="mono"> == 2</samp> <br class="calibre4"/><samp class="mono">(f 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket replaced</samp><samp class="mono"> all occurrences</samp><samp class="mono"> of x</samp><samp class="mono"> with 2</samp> <br class="calibre4"/><samp class="mono">1</samp></p>
+</div>
+<p class="tni">That last equation is weird because <samp class="mono">x</samp> does not occur in the body of <samp class="mono">f</samp>. Therefore, replacing the occurrences of <samp class="mono">x</samp> with <samp class="mono">2</samp> in the function body produces <samp class="mono">1</samp>, which is the function body itself.</p>
+<p class="calibre8">For <samp class="mono">ff</samp>, DrRacket performs a different kind of computation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(ff (+</samp><samp class="mono"> 1 1))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket again</samp><samp class="mono"> knows that</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1) ==</samp><samp class="mono"> 2</samp> <br class="calibre4"/><samp class="mono">(ff 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket replaces</samp><samp class="mono"> a with</samp><samp class="mono"> 2 in</samp><samp class="mono"> ff's body</samp> <br class="calibre4"/><samp class="mono">(* 10</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> and from</samp><samp class="mono"> here, DrRacket</samp><samp class="mono"> uses plain</samp><samp class="mono"> arithmetic</samp> <br class="calibre4"/><samp class="mono">20</samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_55" title="55"></span>The best point is that when you combine these laws of computation with those of arithmetic, you can pretty much predict the outcome of any program in BSL:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (ff</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 2)) 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket knows</samp><samp class="mono"> that (+</samp><samp class="mono"> 1 2)</samp><samp class="mono"> == 3</samp> <br class="calibre4"/><samp class="mono">(+ (ff</samp><samp class="mono"> 3) 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket replaces</samp><samp class="mono"> a with</samp><samp class="mono"> 3 in</samp><samp class="mono"> ff's body</samp> <br class="calibre4"/><samp class="mono">(+ (*</samp><samp class="mono"> 10 3)</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> now DrRacket</samp><samp class="mono"> uses the</samp><samp class="mono"> laws of</samp><samp class="mono"> arithmetic</samp> <br class="calibre4"/><samp class="mono">(+ 30</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">32</samp></p>
+</div>
+<p class="calibre8">Naturally, we can reuse the result of this computation in others:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(* (ff</samp><samp class="mono"> 4) (+</samp><samp class="mono"> (ff 3)</samp><samp class="mono"> 2))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket substitutes</samp><samp class="mono"> 4 for</samp><samp class="mono"> a in</samp><samp class="mono"> ff's body</samp> <br class="calibre4"/><samp class="mono">(* (*</samp><samp class="mono"> 10 4)</samp><samp class="mono"> (+ (ff</samp><samp class="mono"> 3) 2))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket knows</samp><samp class="mono"> that (*</samp><samp class="mono"> 10 4)</samp><samp class="mono"> == 40</samp> <br class="calibre4"/><samp class="mono">(* 40</samp><samp class="mono"> (+ (ff</samp><samp class="mono"> 3) 2))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> now it</samp><samp class="mono"> uses the</samp><samp class="mono"> result of</samp><samp class="mono"> the above</samp><samp class="mono"> calculation</samp> <br class="calibre4"/><samp class="mono">(* 40</samp><samp class="mono"> 32)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">1280 ;</samp><samp class="mono"> because it</samp><samp class="mono"> is really</samp><samp class="mono"> just math</samp></p>
+</div>
+<p class="calibre8">In sum, DrRacket is an incredibly fast algebra student; it knows all the laws of arithmetic and it is great at substitution. Even better, DrRacket cannot only determine the value of an expression; it can also show you <b class="calibre9">how</b> it does it. That is, it can show you step-by-step how to solve these algebra problems that ask you to determine the value of an expression.</p>
+<p class="calibre8">Take a second look at the buttons that come with DrRacket. One of them looks like an “advance to next track” button on an audio player. If you click this button, the <b class="calibre9">stepper</b> window pops up and you can step through the evaluation of the program in the definitions area.</p>
+<p class="calibre8">Enter the definition of <samp class="mono">ff</samp> into the definitions area. Add <samp class="mono">(ff (+ 1 1))</samp> at the bottom. Now click the <i class="calibre6">STEP</i>. The stepper window will show up; <a id="rfig11" href="part0005_split_012.html#fig11" class="calibre5">figure 11</a> shows what it looks like in version 6.2 of the software. At this point, you can use the forward and backward arrows to see all the computation steps that DrRacket uses to determine the value of an expression. Watch how the stepper performs the same calculations as we do.</p>
+<div class="figure">
+<figure class="img"><a id="fig11" class="calibre5"></a><img src="../images/00044.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_012.html#rfig11" class="calibre5">Figure 11</a>:</span> <span>The DrRacket stepper</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Stop! Yes, you could have used DrRacket to solve some of your algebra homework. Experiment with the various options that the stepper offers.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_56" title="56"></span><b class="calibre9">Exercise</b> 21. Use DrRacket’s stepper to evaluate <samp class="mono">(ff (ff 1))</samp> step-by-step. Also try <samp class="mono">(+ (ff 1)(ff 1))</samp>. Does DrRacket’s stepper reuse the results of computations? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">At this point, you might think that you are back in an algebra course with all these computations involving uninteresting functions and numbers. Fortunately, this approach generalizes to <b class="calibre9">all</b> programs, including the interesting ones, in this book.</p>
+<p class="calibre8">Let’s start by looking at functions that process strings. Recall some of the laws of string arithmetic:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(string-append "hello"</samp><samp class="mono"> " "</samp><samp class="mono"> "world") ==</samp><samp class="mono"> "hello world"</samp> <br class="calibre4"/><samp class="mono">(string-append "bye"</samp><samp class="mono"> ", "</samp><samp class="mono"> "world") ==</samp><samp class="mono"> "bye, world"</samp> <br class="calibre4"/><samp class="mono"><span>…</span></samp></p>
+</div>
+<p class="calibre8">Now suppose we define a function that creates the opening of a letter:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (opening</samp><samp class="mono"> first-name last-name)</samp> <br class="calibre4"/><samp class="mono">  (string-append</samp><samp class="mono"> "Dear "</samp><samp class="mono"> first-name ","))</samp></p>
+</div>
+<p class="tni">When you apply this function to two strings, you get a letter opening:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (opening</samp><samp class="mono"> "Matthew" "Fisler")</samp> <br class="calibre4"/><samp class="mono">"Dear Matthew,"</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_57" title="57"></span>More importantly, though, the laws of computing explain how DrRacket determines this result and how you can anticipate what DrRacket does:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(opening "Matthew"</samp><samp class="mono"> "Fisler")</samp> <br class="calibre4"/><samp class="mono">== </samp><samp class="mono"> ; DrRacket</samp><samp class="mono"> substitutes "Matthew"</samp><samp class="mono"> for first-name</samp> <br class="calibre4"/><samp class="mono">(string-append "Dear</samp><samp class="mono"> " "Matthew"</samp><samp class="mono"> ",")</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">"Dear Matthew,"</samp></p>
+</div>
+<p class="tni">Since <samp class="mono">last-name</samp> does not occur in the definition of <samp class="mono">opening</samp>, replacing it with <samp class="mono">"Fisler"</samp> has no effect.</p>
+<p class="calibre8">The rest of the book introduces more forms of data. To explain operations on data, we always use laws like those of arithmetic in this book.</p>
+<p class="marginpar">Eventually you will encounter imperative operations, which do not combine or extract values but <b class="calibre9">modify</b> them. To calculate with such operations, you will need to add some laws to those of arithmetic and substitution.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 22. Use DrRacket’s stepper on this program fragment:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (distance-to-origin</samp><samp class="mono"> x y)</samp> <br class="calibre4"/><samp class="mono">  (sqrt</samp><samp class="mono"> (+ (sqr</samp><samp class="mono"> x) (sqr</samp><samp class="mono"> y))))</samp> <br class="calibre4"/><samp class="mono">(distance-to-origin 3</samp><samp class="mono"> 4)</samp></p>
+</div>
+<p class="tni">Does the explanation match your intuition? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 23. The first 1String in <samp class="mono">"hello world"</samp> is <samp class="mono">"h"</samp>. How does the following function compute this result?</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (string-first</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (substring</samp><samp class="mono"> s 0</samp><samp class="mono"> 1))</samp></p>
+</div>
+<p class="tni">Use the stepper to confirm your ideas. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 24. Here is the definition of <samp class="mono">==&gt;</samp>: y</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (==&gt;</samp><samp class="mono"> x y)</samp> <br class="calibre4"/><samp class="mono">  (or</samp><samp class="mono"> (not x)</samp><samp class="mono"> y))</samp></p>
+</div>
+<p class="tni">Use the stepper to determine the value of <samp class="mono">(==&gt; #true #false)</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 25. Take a look at this attempt to solve exercise 17:</p>
+<figure class="co"><img src="../images/00045.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Does stepping through an application suggest a fix? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_58" title="58"></span><b class="calibre9">Exercise</b> 26. What do you expect as the value of this program:</p>
+<figure class="co"><img src="../images/00046.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Confirm your expectation with DrRacket and its stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

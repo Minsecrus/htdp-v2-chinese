@@ -1,0 +1,333 @@
+# Chapter 25: Non-standard Recursion / 第 25 章：非标准递归
+
+<h1>
+25 Non-standard Recursion
+</h1>
+
+<P>
+At this point you have designed numerous functions that employ structural recursion. When you design a function, you know you need to look at the data definition for its major input. If this input is described by a self-referential data definition, you end up with a function that refers to itself basically where the data definition refers to itself.
+</P>
+
+<P>
+This chapter presents two sample programs that use recursion differently. They are illustrative of the problems that require some “eureka,” ranging from the obvious idea to the sophisticated insight.
+</P>
+
+<h2>
+25.1 Recursion without Structure
+</h2>
+
+<P>
+Imagine you have joined the DrRacket team. The team is working on a sharing service to support collaborations among programmers. Concretely, the next revision of DrRacket is going to enable ISL programmers to share the content of their DrRacket’s definitions area across several computers. Each time one programmer modifies the buffer, the revised DrRacket broadcasts the content of the definitions area to the instances of DrRacket that participate in the sharing session.
+</P>
+
+<P>
+Sample Problem Your task is to design the function bundle, which prepares the content of the definitions area for broadcasting. DrRacket hands over the content as a list of 1Strings. The function’s task is to bundle up chunks of individual “letters” into chunks and to thus produce a list of strings—called chunks—of a given length, called chunk size.
+</P>
+
+<P>
+As you can see, the problem basically spells out the signature and there is no need for any problem-specific data definition:
+</P>
+
+<CODE>
+; [List-of 1String] N -> [List-of String] ; bundles chunks of s into strings of length n (define (bundle s n)   '())
+</CODE>
+
+<P>
+The purpose statement reformulates a sentence fragment from the problem statement and uses the parameters from the dummy function header.
+</P>
+
+<P>
+The third step calls for function examples. Here is a list of 1Strings:
+</P>
+
+<CODE>
+(list "a" "b" "c" "d" "e" "f" "g" "h")
+</CODE>
+
+<P>
+If we tell bundle to bundle this list into pairs—that is, n is 2—then the following list is the expected result:
+</P>
+
+<CODE>
+(list "ab" "cd" "ef" "gh")
+</CODE>
+
+<P>
+Now if n is 3 instead, there is a left-over “letter.” Since the problem statement does not tell us which of the characters is left over, we can imagine at least two valid scenarios:
+</P>
+
+<P>
+•  The function produces (list "abc" "def" "g"); that is, it considers the last letter as the left-over one.
+</P>
+
+<P>
+•  Or, it produces (list "a" "bcd" "efg"), which packs the lead character into a string by itself.
+</P>
+
+<P>
+Stop! Come up with at least one other choice.
+</P>
+
+<P>
+To make things simple, we pick the first choice as the desired result and say so by writing down a corresponding test:
+</P>
+
+<FIGURE src="images/00582.png">
+
+</FIGURE>
+
+<P>
+Note the use of explode; it makes the test readable.
+</P>
+
+<P>
+Examples and tests must also describe what happens at the boundary of data definitions. In this context, boundary clearly means bundle is given a list that is too short for the given chunk size:
+</P>
+
+<CODE>
+(check-expect (bundle '("a" "b") 3) (list "ab"))
+</CODE>
+
+<P>
+It also means we must consider what happens when bundle is given '(). For simplicity, we choose '() as the desired result:
+</P>
+
+<CODE>
+(check-expect (bundle '() 3) '())
+</CODE>
+
+<P>
+One natural alternative is to ask for '(""). Can you see others?
+</P>
+
+<P>
+The template step reveals that a structural approach cannot work. Figure 146 shows four possible templates. Since both arguments to bundle are complex, the first two consider one of the arguments atomic. That clearly cannot be the case because the function has to take apart each argument. The third template is based on the assumption that the two arguments are processed in lockstep, which is close—except that bundle clearly has to reset the chunk size to its original value at regular intervals. The final template says that the two arguments are processed independently, meaning there are four possibilities to proceed at each stage. This final design decouples the arguments too much because the list and the counting number must be processed together. In short, we must admit that the structural templates appear to be useless for this design problem.
+</P>
+
+<FIGURE src="images/00583.png">
+Figure 146: Useless templates for breaking up strings into chunks
+</FIGURE>
+
+<P>
+Figure 147 shows a complete definition for bundle. The definition uses the drop and take functions requested in exercise 395; these functions are also available in standard libraries. For completeness, the figure comes with their definitions: drop eliminates up to n items from the front of the list, take returns up to that many items. Using these functions, it is quite straightforward to define bundle:
+</P>
+
+<P>
+1. if the given list is '(), the result is '() as decided upon;
+</P>
+
+<P>
+2. otherwise bundle uses take to grab the first n 1Strings from s and implodes them into a plain String;
+</P>
+
+<P>
+3. it then recurs with a list that is shortened by n items, which is accomplished with drop; and
+</P>
+
+<P>
+4. finally, cons combines the string from 2 with the list of strings from 3 to create the result for the complete list.
+</P>
+
+<FIGURE src="images/00584.png">
+Figure 147: Generative recursion
+</FIGURE>
+
+<P>
+List item 3 highlights the key difference between bundle and any function in the first four parts of this book. Because the definition of List-of conses an item onto a list to create another one, all functions in the first four parts use first and rest to deconstruct a non-empty list. In contrast, bundle uses drop, which removes not just one but n items at once.
+</P>
+
+<P>
+While the definition of bundle is unusual, the underlying ideas are intuitive and not too different from the functions seen so far. Indeed, if the chunk size n is 1, bundle specializes to a structurally recursive definition. Also, drop is guaranteed to produce an integral part of the given list, not some arbitrarily rearranged version. And this idea is precisely what the next section presents.
+</P>
+
+<EXERCISE>
+Exercise 421. Is (bundle '("a" "b" "c") 0) a proper use of the bundle function? What does it produce? Why?
+</EXERCISE>
+
+<EXERCISE>
+Exercise 422. Define the function list->chunks. It consumes a list l of arbitrary data and a natural number n. The function’s result is a list of list chunks of size n. Each chunk represents a sub-sequence of items in l.
+</EXERCISE>
+
+<P>
+Use list->chunks to define bundle via function composition.
+</P>
+
+<EXERCISE>
+Exercise 423. Define partition. It consumes a String s and a natural number n. The function produces a list of string chunks of size n.
+</EXERCISE>
+
+<P>
+For non-empty strings s and positive natural numbers n,
+</P>
+
+<CODE>
+(equal? (partition s n) (bundle (explode s) n))
+</CODE>
+
+<P>
+is #true. But don’t use this equality as the definition for partition; use substring instead.
+</P>
+
+<P>
+Hint Have partition produce its natural result for the empty string. For the case where n is 0, see exercise 421.
+</P>
+
+<P>
+Note The partition function is somewhat closer to what a cooperative DrRacket environment would need than bundle.
+</P>
+
+<h2>
+25.2 Recursion that Ignores Structure
+</h2>
+
+<P>
+Recall that the sort> function from chapter 11 consumes a list of numbers and rearranges it in some order, typically ascending or descending. It proceeds by inserting the first number into the appropriate position of the sorted rest of the list. Put differently, it is a structurally recursive function that reprocesses the result of the natural recursions.
+</P>
+
+<P>
+Hoare’s quick-sort algorithm goes about sorting lists in a radically different manner and has become the classic example of generative recursion. The underlying generative step uses the time-honored strategy of divide-and-conquer. That is, it divides the nontrivial instances of the problem into two smaller, related problems; solves those smaller problems; and combines their solutions into a solution for the original problem. In the case of the quick-sort algorithm, the intermediate goal is to divide the list of numbers into two lists:
+</P>
+
+<P>
+•  one that contains all the numbers that are strictly smaller than the first
+</P>
+
+<P>
+•  and another one with all those items that are strictly larger.
+</P>
+
+<P>
+Then the two smaller lists are sorted via the quick-sort algorithm. Once the two lists are sorted, the results are composed with the first item placed in the middle. Owing to its special role, the first item on the list is called the pivot item.
+</P>
+
+<P>
+To develop an understanding of how the quick-sort algorithm works, let’s walk through an example, quick-sorting (list 11 8 14 7). Figure 148 illustrates the process in a graphical way. The figure consists of a top half, the divide phase, and the bottom half, the conquer phase.
+</P>
+
+<FIGURE src="images/00585.png">
+Figure 148: A graphical illustration of the quick-sort algorithm
+</FIGURE>
+
+<P>
+The partition phase is represented with boxes and solid arrows. Three arrows emerge from each boxed list and go to a box with three pieces: the circled pivot element in the middle, to its left the boxed list of numbers smaller than the pivot, and to its right the boxed list of those numbers that are larger than the pivot. Each of these steps isolates at least one number as the pivot, meaning the two neighboring lists are shorter than the given list. Consequently, the overall process terminates too.
+</P>
+
+<P>
+Consider the first step where the input is (list 11 8 14 7). The pivot item is 11. Partitioning the list into items larger and smaller than 11 produces (list 8 7) and (list 14). The remaining steps of the partitioning phase work in an analogous way. Partitioning ends when all numbers have been isolated as pivot elements. At this point, you can already read off the final result by reading the pivots from left to right.
+</P>
+
+<P>
+The conquering phase is represented with dashed arrows and boxed lists. Three arrows enter each result box: the middle one from a pivot, the left one from the boxed result of sorting the smaller numbers, and the right one from the boxed result of sorting the larger ones. Each step adds at least one number to the result list, the pivot, meaning the lists grow toward the bottom of the diagram. The box at the bottom is a sorted variant of the given list at the top.
+</P>
+
+<P>
+Take a look at the left-most, upper-most conquer step. It combines the pivot 7 with two empty lists, resulting in '(7). The next one down corresponds to the partitioning step that isolated 8 and thus yields '(7 8). Each level in the conquering phase mirrors a corresponding level from the partitioning phase. After all, the overall process is recursive.
+</P>
+
+<EXERCISE>
+Exercise 424. Draw a quick-sort diagram like the one in figure 148 for (list 11 9 2 18 12 14 4 1).
+</EXERCISE>
+
+<P>
+Now that we have a good understanding of the quick-sort idea, we can translate it into ISL+. Clearly, quick-sort< distinguishes two cases. If the input is '(), it produces '() because this list is sorted already; otherwise, it performs a generative recursion. This case split suggests the following cond expression:
+</P>
+
+<FIGURE src="images/00586.png">
+
+</FIGURE>
+
+<P>
+The answer for the first case is given. For the second case, when quick-sort<’s input is a non-empty list, the algorithm uses the first item to partition the rest of the list into two sublists: a list with all items smaller than the pivot item and another one with those larger than the pivot item.
+</P>
+
+<P>
+Since the rest of the list is of unknown size, we leave the task of partitioning the list to two auxiliary functions: smallers and largers. They process the list and filter out those items that are smaller and larger, respectively, than the pivot. Hence each auxiliary function accepts two arguments, namely, a list of numbers and a number. Designing these two functions is an exercise in structural recursion. Try on your own or read the definitions shown in figure 149.
+</P>
+
+<FIGURE src="images/00587.png">
+Figure 149: The quick-sort algorithm
+</FIGURE>
+
+<P>
+Each of these lists is sorted separately, using quick-sort<, which implies the use of recursion, specifically the following two expressions:
+</P>
+
+<P>
+1. (quick-sort< (smallers alon pivot)), which sorts the list of items smaller than the pivot; and
+</P>
+
+<P>
+2. (quick-sort< (largers alon pivot)), which sorts the list of items larger than the pivot.
+</P>
+
+<P>
+Once quick-sort< has the sorted versions of the two lists, it must combine the two lists and the pivot in the proper order: first all those items smaller than pivot, then pivot, and finally all those that are larger. Since the first and last list are already sorted, quick-sort< can simply use append:
+</P>
+
+<FIGURE src="images/00588.png">
+
+</FIGURE>
+
+<P>
+Figure 149 contains the full program; read it before proceeding.
+</P>
+
+<P>
+Now that we have an actual function definition, we can evaluate the example from above by hand:
+</P>
+
+<P>
+(quick-sort< (list 11 8 14 7))
+</P>
+
+<FIGURE src="images/00589.png">
+
+</FIGURE>
+
+<P>
+The calculation shows the essential steps of the sorting process, that is, the partitioning steps, the recursive sorting steps, and the concatenation of the three parts. From this calculation, it is easy to see how quick-sort< implements the process illustrated in figure 148.
+</P>
+
+<P>
+Both figure 148 and the calculation also show how quick-sort< completely ignores the structure of the given list. The first recursion works on two distant numbers from the originally given list and the second one on the list’s third item. These recursions aren’t random, but they are certainly not relying on the structure of the data definition.
+</P>
+
+<P>
+Contrast quick-sort<’s organization with that of the sort> function from chapter 11. The design of the latter follows the structural design recipe, yielding a program that processes a list item by item. By splitting the list, quick-sort< can speed up the process of sorting the list, though at the cost of not using plain first and rest.
+</P>
+
+<EXERCISE>
+Exercise 425. Articulate purpose statements for smallers and largers in figure 149.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 426. Complete the hand-evaluation from above. A close inspection of the evaluation suggests an additional trivial case for quick-sort<. Every time quick-sort< consumes a list of one item, it returns it as is. After all, the sorted version of a list of one item is the list itself.
+</EXERCISE>
+
+<P>
+Modify quick-sort< to take advantage of this observation. Evaluate the example again. How many steps does the revised algorithm save?
+</P>
+
+<EXERCISE>
+Exercise 427. While quick-sort< quickly reduces the size of the problem in many cases, it is inappropriately slow for small problems. Hence people use quick-sort< to reduce the size of the problem and switch to a different sort function when the list is small enough.
+</EXERCISE>
+
+<P>
+Develop a version of quick-sort< that uses sort< (an appropriately adapted variant of sort> from chapter 11.3) if the length of the input is below some threshold.
+</P>
+
+<EXERCISE>
+Exercise 428. If the input to quick-sort< contains the same number several times, the algorithm returns a list that is strictly shorter than the input. Why? Fix the problem so that the output is as long as the input.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 429. Use filter to define smallers and largers.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 430. Develop a variant of quick-sort< that uses only one comparison function, say, <. Its partitioning step divides the given list alon into a list that contains the items of alon smaller than the pivot and another one with those that are not smaller.
+</EXERCISE>
+
+<P>
+Use local to package up the program as a single function. Abstract this function so that it consumes a list and a comparison function.
+</P>

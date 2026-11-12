@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_14"><a id="sec33-3" class="calibre16"></a>33.3 Accumulators as Results</h2>
+<p class="tni">Take another look at <a href="part0013_split_011.html#fig157" class="calibre5">figure 157</a>. It displays a Sierpinski triangle and a suggestion how to create it. Specifically, the images on the right explain one version of the generative idea behind the process:</p>
+<div class="ex">
+<p class="exf">The given problem is a triangle. When the triangle is too small to be subdivided any further, the algorithm does nothing; otherwise, it finds the midpoints of its three sides and deals with the three outer triangles recursively.</p>
+</div>
+<p class="tni">In contrast, chapter 27.1 shows how to compose Sierpinski triangles algebraically, a process that does not correspond to this description.</p>
+<p class="calibre8">Most programmers expect “draw” to mean the action of adding a triangle to some canvas. The <samp class="mono">scene+line</samp> function from the <i class="calibre6">2htdp/image</i> library <span epub:type="pagebreak" id="pg_741" title="741"></span>makes this idea concrete. The function consumes an image <samp class="mono">s</samp> and the coordinates of two points and adds a line through these two points to <samp class="mono">s</samp>. It is easy to generalize from <samp class="mono">scene+line</samp> to <samp class="mono">add-triangle</samp> and from there to <samp class="mono">add-sierpinski</samp>:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the <samp class="mono">add-sierpinski</samp> function. It consumes an image and three Posns describing a triangle. It uses the latter to add a Sierpinski triangle to this image.</p>
+</div>
+<p class="tni">Note how this problem implicitly refers to the above process description of how to draw a Sierpinski triangle. In other words, we are confronted with a classical generative-recursive problem, and we can start with the classic template of generative recursion and the four central design questions:</p>
+<p class="blf">•  The problem is trivial if the triangle is too small to be subdivided.</p>
+<p class="blf">•  In the trivial case, the function returns the given image.</p>
+<p class="blf">•  Otherwise the midpoints of the sides of the given triangle are determined to add another triangle. Each “outer” triangle is then processed recursively.</p>
+<p class="bll">•  Each of these recursive steps produces an image. The remaining question is how to combine these images.</p>
+<p class="calibre8"><a id="rfig191" href="part0015_split_013.html#fig191" class="calibre5">Figure 191</a> shows the result of translating these answers into a skeletal definition. Since each midpoint is used twice, the skeleton uses <samp class="mono">local</samp> to formulate the generative step in ISL+. The <samp class="mono">local</samp> expression introduces the three new midpoints plus three recursive applications of <samp class="mono">add-sierpinski</samp>. The dots in its body suggest a combination of the scenes.</p>
+<div class="figure">
+<figure class="img"><a id="fig191" class="calibre5"></a><img src="../images/00772.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_013.html#rfig191" class="calibre5">Figure 191</a>:</span> <span>Accumulators as results of generative recursions, a skeleton</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 525. Tackle the wish list that the skeleton implies:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Image Posn Posn Posn<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> the black</samp><samp class="mono"> triangle a,</samp><samp class="mono"> b, c</samp><samp class="mono"> to scene</samp> <br class="calibre4"/><samp class="mono">(define (add-triangle</samp><samp class="mono"> scene a</samp><samp class="mono"> b c)</samp><samp class="mono"> scene)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Posn Posn Posn<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> the triangle</samp><samp class="mono"> a, b,</samp><samp class="mono"> c too</samp><samp class="mono"> small to</samp><samp class="mono"> be divided</samp> <br class="calibre4"/><samp class="mono">(define (too-small?</samp><samp class="mono"> a b</samp><samp class="mono"> c)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Posn Posn<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> the midpoint</samp><samp class="mono"> between a</samp><samp class="mono"> and b</samp> <br class="calibre4"/><samp class="mono">(define (mid-point</samp><samp class="mono"> a b)</samp> <br class="calibre4"/><samp class="mono">  a)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_742" title="742"></span>Design the three functions.</p>
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> (1) For the <samp class="mono">too-small?</samp> function it suffices to measure the distance between two points and to check whether it is below some chosen threshold, say, <samp class="mono">10</samp>. The distance between (<i class="calibre6">x</i><sub class="calibre17">0</sub>, <i class="calibre6">y</i><sub class="calibre17">0</sub>) and (<i class="calibre6">x</i><sub class="calibre17">1</sub>, <i class="calibre6">y</i><sub class="calibre17">1</sub>) is</p>
+<figure class="co"><img src="../images/00773.gif" alt="" class="calibre10"/></figure>
+<p class="tni">that is, the distance of (<i class="calibre6">x</i><sub class="calibre17">0</sub> − <i class="calibre6">x</i><sub class="calibre17">1</sub><i class="calibre6">, y</i><sub class="calibre17">0</sub> − <i class="calibre6">y</i><sub class="calibre17">1</sub>) to the origin.</p>
+<p class="calibre8">The midpoint between points (<i class="calibre6">x</i><sub class="calibre17">0</sub>, <i class="calibre6">y</i><sub class="calibre17">0</sub>) and (<i class="calibre6">x</i><sub class="calibre17">1</sub>, <i class="calibre6">y</i><sub class="calibre17">1</sub>) has as coordinates the midpoints between the respective x and y coordinates:</p>
+<figure class="co"><img src="../images/00774.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_743" title="743"></span>Now that we have all the auxiliary functions, it is time to return to the problem of combining the three images that are created by the recursive calls. One obvious guess is to use the <samp class="mono">overlay</samp> or <samp class="mono">underlay</samp> function, but an evaluation in the interactions area of DrRacket shows that the functions hide the underlying triangles.</p>
+<p class="calibre8">Specifically, imagine that the three recursive calls produce the following empty scenes, enriched with a single triangle in appropriate locations:</p>
+<figure class="co"><img src="../images/00775.gif" alt="" class="calibre10"/></figure>
+<p class="tni">A combination should look like this figure:</p>
+<figure class="co"><img src="../images/00776.gif" alt="" class="calibre10"/></figure>
+<p class="tni">But, combining these shapes with <samp class="mono">overlay</samp> or <samp class="mono">underlay</samp> does not yield this desired shape:</p>
+<figure class="co"><img src="../images/00777.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Indeed, the image library of ISL+ does not support a function that combines these scenes in an appropriate manner.</p>
+<p class="calibre8">Let’s take a second look at these interactions. If <samp class="mono">scene1</samp> is the result of adding the upper triangle to the given scene and <samp class="mono">scene2</samp> is the result of adding a triangle on the lower left, perhaps the second recursive call should add triangles to the result of the first call. Doing so would yield</p>
+<figure class="co"><img src="../images/00778.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_744" title="744"></span>and handing over this scene to the third recursive call produces exactly what is wanted:</p>
+<figure class="co"><img src="../images/00779.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><a id="rfig192" href="part0015_split_013.html#fig192" class="calibre5">Figure 192</a> shows the reformulation based on this insight. The three highlights pinpoint the key design idea. All concern the case when the triangle is sufficiently large and it is added to the given scene. Once its sides are subdivided, the first outer triangle is recursively processed using <samp class="mono">scene1</samp>, the result of adding the given triangle. Similarly, the result of this first recursion, dubbed <samp class="mono">scene2</samp>, is used for the second recursion, which is about processing the second triangle. Finally, <samp class="mono">scene3</samp> flows into the third recursive call. In sum, the novelty is that the accumulator is simultaneously an argument, a tool for collecting knowledge, and the result of the function.</p>
+<div class="figure">
+<figure class="img"><a id="fig192" class="calibre5"></a><img src="../images/00780.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_013.html#rfig192" class="calibre5">Figure 192</a>:</span> <span>Accumulators as results of generative recursion, the function</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">To explore <samp class="mono">add-sierpinski</samp> it is best to start from an equilateral triangle and an image that leaves a sufficiently large border. Here are definitions <span epub:type="pagebreak" id="pg_745" title="745"></span>that meet these two criteria:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define MT</samp><samp class="mono"> (empty-scene 400</samp><samp class="mono"> 400))</samp> <br class="calibre4"/><samp class="mono">(define A</samp><samp class="mono"> (make-posn 200</samp><samp class="mono">  50))</samp> <br class="calibre4"/><samp class="mono">(define B</samp><samp class="mono"> (make-posn 27</samp><samp class="mono">  350))</samp> <br class="calibre4"/><samp class="mono">(define C</samp><samp class="mono"> (make-posn 373</samp><samp class="mono"> 350))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(add-sierpinski MT</samp><samp class="mono"> A B</samp><samp class="mono"> C)</samp></p>
+</div>
+<p class="tni">Check what kind of Sierpinski fractal this code fragment delivers. Experiment with the definitions from exercise 525 to create sparser and denser Sierpinski triangles than the first one.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 526. To compute the endpoints of an equilateral Sierpinski triangle, draw a circle and pick three points on the circle that are 120 degrees apart, for example, 120, 240, and 360.</p>
+<p class="calibre8">Design the function <samp class="mono">circle-pt</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define CENTER</samp><samp class="mono"> (make-posn 200</samp><samp class="mono"> 200))</samp> <br class="calibre4"/><samp class="mono">(define RADIUS</samp><samp class="mono"> 200) <br class="calibre4"/>;</samp><samp class="mono"> the radius</samp><samp class="mono"> in pixels</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> the point</samp><samp class="mono"> on the</samp><samp class="mono"> circle with</samp><samp class="mono"> CENTER</samp> <br class="calibre4"/><samp class="mono">; and</samp><samp class="mono"> RADIUS whose</samp><samp class="mono"> angle is</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">examples</span> <br class="calibre4"/><samp class="mono">; what</samp><samp class="mono"> are the</samp><samp class="mono"> x and</samp><samp class="mono"> y coordinates</samp><samp class="mono"> of the</samp><samp class="mono"> desired</samp> <br class="calibre4"/><samp class="mono">; point,</samp><samp class="mono"> when given:</samp><samp class="mono"> 120/360, 240/360,</samp><samp class="mono"> 360/360</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (circle-pt</samp><samp class="mono"> factor)</samp> <br class="calibre4"/><samp class="mono">  (make-posn</samp><samp class="mono"> 0 0))</samp></p>
+</div>
+<p class="tni"><b class="calibre9">Domain Knowledge</b> This design problem calls on knowledge from mathematics. One way to view the problem is as a conversion of a complex number from the polar-coordinate representation to the Posn representation. Read up on <samp class="mono">make-polar</samp>, <samp class="mono">real-part</samp>, and <samp class="mono">imag-part</samp> in ISL+. Another way is to use trigonometry, <samp class="mono">sin</samp> and <samp class="mono">cos</samp>, to determine the coordinates. If you choose this route, recall that these trigonometry functions compute the sine and cosine in terms of radians, not degrees. Also keep in mind that on-screen positions grow downward, not upward. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 527. Take a look at the following two images:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_746" title="746"></span><img src="../images/00781.gif" alt="" class="calibre32"/></figure>
+<p class="tni">They demonstrate how to generate a fractal Savannah tree in the same way that <a href="part0013_split_011.html#fig156" class="calibre5">figure 156</a> shows how to draw a Sierpinski triangle. The image on the left shows what a fractal Savannah tree looks like. The right one explains the generative construction step.</p>
+<p class="calibre8">Design the function <samp class="mono">add-savannah</samp>. The function consumes an image and four numbers: (1) the x-coordinate of a line’s base point, (2) the y-coordinate of a line’s base point, (3) the length of the line, and (4) the angle of the line. It adds a fractal Savannah tree to the given image.</p>
+<p class="calibre8">Unless the line is too short, the function adds the specified line to the image. It then divides the line into three segments. It recursively uses the two intermediate points as the new starting points for two lines. The lengths and the angles of the two branches change in a fixed manner, but independently of each other. Use constants to define these changes and work with them until you like your tree well enough.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Experiment with shortening each left branch by at least one third and rotating it left by at least <samp class="mono">0.15</samp> degrees. For each right branch, shorten it by at least 20% and rotate it by <samp class="mono">0.2</samp> degrees in the opposite direction. <img class="inline" src="../images/00038.gif" alt=""/></p>
+
+<p class="marginpar">Géraldine Morin suggested this exercise.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 528. Graphics programmers often need to connect two points with a smooth curve where “smooth” is relative to some perspective. Here is are two sketches:</p>
+<figure class="co"><img src="../images/00782.gif" alt="" class="calibre32"/></figure>
+
+
+<p class="tni">The left one shows a smooth curve, connecting points <i class="calibre6">A</i> and <i class="calibre6">C</i>; the right one supplies the perspective point, <i class="calibre6">B</i>, and the angle of an observer.</p>
+<p class="calibre8">One method for drawing such curves is due to Bézier. It is a prime example of generative recursion, and the following sequence explains the <i class="calibre6">eureka!</i> behind the algorithm:</p>
+<figure class="co"><img src="../images/00783.gif" alt="" class="calibre11"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_747" title="747"></span>Consider the image on the left. It reminds you that the three given points determine a triangle and that the connection from <i class="calibre6">A</i> to <i class="calibre6">C</i> is the focal point of the algorithm. The goal is to pull the line from <i class="calibre6">A</i> to <i class="calibre6">C</i> toward <i class="calibre6">B</i> so that it turns into a smooth curve.</p>
+<p class="calibre8">Now turn to the image in the middle. It explains the essential idea of the generative step. The algorithm determines the midpoint on the two observer lines, <i class="calibre6">A-B</i> and <i class="calibre6">B-C</i>, as well as their midpoint, <i class="calibre6">A-B-C</i>.</p>
+<p class="calibre8">Finally, the right-most image shows how these three new points generate two distinct recursive calls: one deals with the new triangle on the left and the other one with the triangle on the right. More precisely, <i class="calibre6">A-B</i> and <i class="calibre6">B-C</i> become the new observer points and the lines from <i class="calibre6">A</i> to <i class="calibre6">A-B-C</i> and from <i class="calibre6">C</i> to <i class="calibre6">A-B-C</i> become the foci of the two recursive calls.</p>
+<p class="calibre8">When the triangle is small enough, we have a trivially solvable case. The algorithm just draws the triangle, and it appears as a point on the given image. As you implement this algorithm, you need to experiment with the notion of “small enough” to make the curve look smooth. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

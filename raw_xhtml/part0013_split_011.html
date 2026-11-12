@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_12"><a id="sec27-1" class="calibre16"></a>27.1 Fractals, a First Taste</h2>
+<p class="tni">Fractals play an important role in computational geometry. Flake writes in <i class="calibre6">The Computational Beauty of Nature</i> (The MIT Press, 1998) that “geometry can be extended to account for objects with a fractional dimension. Such objects, known as <i class="calibre6">fractals</i>, come very close to capturing the richness and variety of forms found in nature. Fractals possess structural self-similarity on multiple <span>⋯</span> scales, meaning that a piece of a fractal will often look like the whole.”</p>
+<p class="calibre8"><a id="rfig156" href="part0013_split_011.html#fig156" class="calibre5">Figure 156</a> displays an example of a fractal shape, known as the Sierpinski triangle. The basic shape is an (equilateral) triangle, like the one in the center. When this triangle is composed sufficiently many times in a triangular fashion, we get the left-most shape.</p>
+<div class="figure">
+<figure class="img"><a id="fig156" class="calibre5"></a><img src="../images/00600.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_011.html#rfig156" class="calibre5">Figure 156</a>:</span> <span>The Sierpinski triangle</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The right-most image in <a href="part0013_split_011.html#fig156" class="calibre5">figure 156</a> explains the generative step. When taken by itself, it says that, given a triangle, find the midpoint of each side and connect them to each other. This step yields four triangles; repeat the process for each of the outer of these three triangles unless these triangles are too small.</p>
+
+<p class="marginpar">We owe this solution to Marc Smith.</p>
+
+<p class="calibre8">An alternative explanation, well suited for the shape composition functions in the <i class="calibre6">2htdp/image</i> library, is based on the transition from the image in the center to the image on the right. By juxtaposing two of the center triangles and then placing one copy above these two, we also get the shape on the right:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_629" title="629"></span><img src="../images/00601.gif" alt="" class="calibre10"/></figure>
+
+<figure class="co"><img src="../images/00602.jpeg" alt="" class="calibre10"/></figure>
+<p class="calibre8">This section uses the alternative description to design the Sierpinski algorithm; chapter 34.3 deals with the first description. Given that the goal is to generate the image of an equilateral triangle, we encode the problem with a (positive) number, the length of the triangle’s side. This decision yields a signature, a purpose statement, and a header:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_630" title="630"></span><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; creates</samp><samp class="mono"> Sierpinski triangle</samp><samp class="mono"> of size</samp><samp class="mono"> side</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (sierpinski</samp><samp class="mono"> side)</samp> <br class="calibre4"/><samp class="mono">  (triangle</samp><samp class="mono"> side 'outline</samp><samp class="mono"> 'red))</samp></p>
+</div>
+<p class="calibre8">Now it is time to address the four questions of generative recursion:</p>
+<p class="blf">•  When the given number is so small that drawing triangles inside of it is pointless, the problem is trivial.</p>
+<p class="blf">•  In that case, it suffices to generate a triangle.</p>
+<p class="blf">•  Otherwise, the algorithm must generate a Sierpinski triangle of size <i class="calibre6">side /</i> 2 because juxtaposing two such triangles in either direction yields one of size <i class="calibre6">side</i>.</p>
+<p class="bll">•  If <samp class="mono">half-sized</samp> is the Sierpinski triangle of size <i class="calibre6">side /</i> 2, then</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(above half-sized</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (beside half-sized</samp><samp class="mono"> half-sized))</samp></samp></p>
+</div>
+<p class="ext__new">is a Sierpinski triangle of size <i class="calibre6">side</i>.</p>
+<p class="calibre8">With these answers, it is straightforward to define the function. <a id="rfig157" href="part0013_split_011.html#fig157" class="calibre5">Figure 157</a> spells out the details. The “triviality condition” translates to <samp class="mono">(&lt;= side SMALL)</samp> for some constant <samp class="mono">SMALL</samp>. For the trivial answer, the function returns a triangle of the given size. In the recursive case, a <samp class="mono">local</samp> expression introduces the name <samp class="mono">half-sized</samp> for the Sierpinski triangle that is half as big as the specified size. Once the recursive call has generated the small Sierpinski triangle, it composes this image via <samp class="mono">above</samp> and <samp class="mono">beside</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig157" class="calibre5"></a><img src="../images/00603.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_011.html#rfig157" class="calibre5">Figure 157</a>:</span> <span>The Sierpinski algorithm</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The figure highlights two other points. First, the purpose statement is articulated as an explanation of <b class="calibre9">what</b> the function accomplishes</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; creates</samp><samp class="mono"> Sierpinski triangle</samp><samp class="mono"> of size</samp><samp class="mono"> side by</samp><samp class="mono"> <span>…</span></samp></p>
+</div>
+<p class="tni">and <b class="calibre9">how</b> it accomplishes this goal:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; <span>…</span></samp><samp class="mono"> generating one</samp><samp class="mono"> of size</samp><samp class="mono"> (/ side</samp><samp class="mono"> 2) and</samp> <br class="calibre4"/><samp class="mono">; placing</samp><samp class="mono"> one copy</samp><samp class="mono"> above two</samp><samp class="mono"> composed copies</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_631" title="631"></span>Second, the examples illustrate the two possible cases: one if the given size is small enough, and one for a size that is too large still. In the latter case, the expression that computes the expected value explains exactly the meaning of the purpose statement.</p>
+<div class="half"></div>
+<p class="calibre8">Since <samp class="mono">sierpinski</samp> is based on generative recursion, defining the function and testing it is not the last step. We must also consider why the algorithm terminates for any given legal input. The input of <samp class="mono">sierpinski</samp> is a single positive number. If the number is smaller than <samp class="mono">SMALL</samp>, the algorithm terminates. Otherwise, the recursive call uses a number that is half as large as the given one. Hence, the algorithm must terminate for all positive <samp class="mono">side</samp>s, assuming <samp class="mono">SMALL</samp> is positive, too.</p>
+<div class="half"></div>
+<p class="calibre8">One view of the Sierpinski process is that it divides its problem in half until it is immediately solvable. With a little imagination, you can see that the process can be used to search for numbers with certain properties. The next section explains this idea in detail.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

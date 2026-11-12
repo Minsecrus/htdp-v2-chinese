@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_17"><a id="sec28-2" class="calibre16"></a>28.2 Numeric Integration</h2>
+<p class="tni">Many physics problems boil down to determining the area under a curve:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> A car drives at a constant speed of <i class="calibre6">v</i> meters per second. How far does it travel in <samp class="mono">5</samp>, <samp class="mono">10</samp>, <samp class="mono">15</samp> seconds?</p>
+<p class="ex1">A rocket lifts off at the constant rate of acceleration of 12 <i class="calibre6">m/s</i><sup class="calibre15">2</sup>. What height does it reach after <samp class="mono">5</samp>, <samp class="mono">10</samp>, <samp class="mono">15</samp> seconds?</p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_648" title="648"></span>Physics tells us that a vehicle travels <i class="calibre6">d</i><sub class="calibre17"><i class="calibre6">con</i></sub>(<i class="calibre6">t</i>) = <i class="calibre6">v</i> ·<i class="calibre6">t</i> meters if it moves at a constant speed <i class="calibre6">v</i> for <i class="calibre6">t</i> seconds. For vehicles that accelerate, the distance traveled depends on the square of the time <i class="calibre6">t</i> passed:</p>
+<figure class="co"><img src="../images/00624.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In general, the law tells us that the distance corresponds to the area under the graph of speed <i class="calibre6">v</i>(<i class="calibre6">t</i>) over time <i class="calibre6">t</i>.</p>
+<p class="calibre8"><a id="rfig163" href="part0013_split_016.html#fig163" class="calibre5">Figure 163</a> illustrates the idea in a graphical manner. On the left, we see an overlay of two graphs: the solid flat line is the speed of the vehicle and the rising dashed line is the distance traveled. A quick check shows that the latter is indeed the area determined by the former and the x-axis at <b class="calibre9">every point in time</b>. Similarly, the graphs on the right show the relationship between a rocket moving at constantly increasing speed and the height it reaches. Determining this area under the graph of a function for some specific interval is called (function) <i class="calibre6">integration</i>.</p>
+<div class="figure">
+<figure class="img"><a id="fig163" class="calibre5"></a><img src="../images/00625.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_016.html#rfig163" class="calibre5">Figure 163</a>:</span> <span>Distance traveled with constant vs accelerating speed</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">While mathematicians know formulas for the two sample problems that give precise answers, the general problem calls for computational solutions. The problem is that curves often come with complex shapes, more like those in <a id="rfig164" href="part0013_split_016.html#fig164" class="calibre5">figure 164</a>, which suggests that someone needs to know the area between the x-axis, the vertical lines labeled <i class="calibre6">a</i> and <i class="calibre6">b</i>, and the graph of <i class="calibre6">f</i>. Applied mathematicians determine such areas in an approximate manner, summing the areas of many small geometric shapes. It is therefore natural to develop algorithms that deal with these calculations.</p>
+<div class="figure">
+<figure class="img"><a id="fig164" class="calibre5"></a><img src="../images/00626.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_016.html#rfig164" class="calibre5">Figure 164</a>:</span> <span>Integrating a function <i class="calibre6">f</i> between <i class="calibre6">a</i> and <i class="calibre6">b</i></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_649" title="649"></span>An integration algorithm consumes three inputs: the function <samp class="mono">f</samp> and two borders, <samp class="mono">a</samp> and <samp class="mono">b</samp>. The fourth part, the x-axis, is implied. This suggests the following signature:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">] </samp>Number Number<samp class="mono"> -&gt; </samp>Number</p>
+</div>
+<p class="tni">In order to understand the idea behind integration, it is best to study simple examples such as a constant function or a linear one. Thus, consider</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (constant</samp><samp class="mono"> x) 20)</samp></p>
+</div>
+<p class="tni">Passing <samp class="mono">constant</samp> to <samp class="mono">integrate</samp>, together with <samp class="mono">12</samp> and <samp class="mono">22</samp>, describes a rectangle of width <samp class="mono">10</samp> and height <samp class="mono">20</samp>. The area of this rectangle is <samp class="mono">200</samp>, meaning we get this test:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (integrate</samp><samp class="mono"> constant 12</samp><samp class="mono"> 22) 200)</samp></p>
+</div>
+<p class="tni">Similarly, let’s use <samp class="mono">linear</samp> to create a second test:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (linear</samp><samp class="mono"> x) (*</samp><samp class="mono"> 2 x))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_650" title="650"></span>If we use <samp class="mono">linear</samp>, <samp class="mono">0</samp>, and <samp class="mono">10</samp> with <samp class="mono">integrate</samp>, the area is a triangle with a base width of <samp class="mono">10</samp> and a height of <samp class="mono">20</samp>. Here is the example as a test:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (integrate</samp><samp class="mono"> linear 0</samp><samp class="mono"> 10) 100)</samp></p>
+</div>
+<p class="tni">After all, a triangle’s area is half of the product of its base width and height.</p>
+<p class="calibre8">For a third example, we exploit some domain-specific knowledge. As mentioned, mathematicians know how to determine the area under some functions in a precise manner. For example, the area under the function</p>
+<figure class="co"><img src="../images/00627.gif" alt="" class="calibre10"/></figure>
+<p class="tni">on the interval [<i class="calibre6">a,b</i>] can be calculated with the following formula</p>
+<figure class="co"><img src="../images/00628.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Here is how to turn this idea into a concrete test:</p>
+<figure class="co"><img src="../images/00629.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_651" title="651"></span><a id="rfig165" href="part0013_split_016.html#fig165" class="calibre5">Figure 165</a> collects the result of the first three steps of the design recipe. The figure adds a purpose statement and an obvious assumption concerning the two interval boundaries. Instead of <samp class="mono">check-expect</samp> it uses <samp class="mono">check-within</samp>, which anticipates the numerical inaccuracies that come with computational approximations in such calculations. Analogously, the header of <samp class="mono">integrate</samp> specifies <samp class="mono">#i0.0</samp> as the return result, signaling that the function is expected to return an inexact number.</p>
+<div class="figure">
+<figure class="img"><a id="fig165" class="calibre5"></a><img src="../images/00630.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_016.html#rfig165" class="calibre5">Figure 165</a>:</span> <span>A generic integration function</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The following two exercises show how to turn domain knowledge into integration functions. Both functions compute rather crude approximations. While the design of the first uses only mathematical formulas, the second also exploits a bit of structural design ideas. Solving these exercises creates the necessary appreciation for the core of this section, which presents a generative-recursive integration algorithm.</p>
+
+<p class="marginpar">The method is known as <i class="calibre6">Kepler’s rule</i>.</p>
+
+<p class="calibre8"><b class="calibre9">Exercise</b> 458. Kepler suggested a simple integration method. To compute an estimate of the area under <i class="calibre6">f</i> between <i class="calibre6">a</i> and <i class="calibre6">b</i>, proceed as follows:</p>
+<p class="nlf">1. divide the interval into half at <i class="calibre6">mid</i> = (<i class="calibre6">a</i> + <i class="calibre6">b</i>)/2;</p>
+<p class="nlf">2. compute the areas of these two <i class="calibre6">trapezoids</i>:</p>
+<div class="ind">
+<p class="blf">•  (<i class="calibre6">a,</i>0)<i class="calibre6">,</i>(<i class="calibre6">a,f</i> (<i class="calibre6">a</i>))<i class="calibre6">,</i>(<i class="calibre6">mid,</i>0)<i class="calibre6">,</i>(<i class="calibre6">mid,f</i> (<i class="calibre6">mid</i>))</p>
+<p class="bll">•  (<i class="calibre6">mid,</i>0)<i class="calibre6">,</i>(<i class="calibre6">mid,f</i> (<i class="calibre6">mid</i>))<i class="calibre6">,</i>(<i class="calibre6">b,</i>0)<i class="calibre6">,</i>(<i class="calibre6">b,f</i> (<i class="calibre6">b</i>));</p>
+</div>
+<p class="nll">3. then add the two areas.</p>
+
+
+
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> Let’s take a look at these trapezoids. Here are the two possible shapes, with minimal annotations to reduce clutter:</p>
+<figure class="co"><img src="../images/00631.gif" alt="" class="calibre11"/></figure>
+<p class="tni">The left shape assumes <i class="calibre6">f</i> (<i class="calibre6">L</i>) &gt; <i class="calibre6">f</i> (<i class="calibre6">R</i>) while the right one shows the case where <i class="calibre6">f</i> (<i class="calibre6">L</i>) <i class="calibre6">&lt; f</i> (<i class="calibre6">R</i>). Despite the asymmetry, it is still possible to calculate the area of these trapezoids with a single formula:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_652" title="652"></span><img src="../images/00632.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Convince yourself that this formula <b class="calibre9">adds</b> the area of the triangle to the area of the lower rectangle for the left trapezoid, while it <b class="calibre9">subtracts</b> the triangle from the area of the large rectangle for the right one.</p>
+<p class="calibre8">Also show that the above formula is equal to</p>
+<figure class="co"><img src="../images/00633.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This is a mathematical validation of the asymmetry of the formula.</p>
+<p class="calibre8">Design the function <samp class="mono">integrate-kepler</samp>. That is, turn the mathematical knowledge into an ISL+ function. Adapt the test cases from <a href="part0013_split_016.html#fig165" class="calibre5">figure 165</a> to this use. Which of the three tests fails and by how much? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 459. Another simple integration method divides the area into many small rectangles. Each rectangle has a fixed width and is as tall as the function graph in the middle of the rectangle. Adding up the areas of the rectangles produces an estimate of the area under the function’s graph.</p>
+<p class="calibre8">Let’s use</p>
+<figure class="co"><img src="../images/00634.gif" alt="" class="calibre10"/></figure>
+<p class="tni">to stand for the number of rectangles to be considered. Hence the width of each rectangle is</p>
+<figure class="co"><img src="../images/00635.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The height of one of these rectangles is the value of <i class="calibre6">f</i> at its midpoint. The first midpoint is clearly at <i class="calibre6">a</i> plus half of the width of the rectangle,</p>
+<figure class="co"><img src="../images/00636.gif" alt="" class="calibre10"/></figure>
+<p class="tni">which means its area is</p>
+<figure class="co"><img src="../images/00637.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To compute the area of the second rectangle, we must add the width of one rectangle to the first midpoint:</p>
+<figure class="co"><img src="../images/00638.gif" alt="" class="calibre10"/></figure>
+<p class="tni">For the third one, we get</p>
+<figure class="co"><img src="../images/00639.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In general, we can use the following formula for the <i class="calibre6">i</i>th rectangle:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_653" title="653"></span><img src="../images/00640.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first rectangle has index 0, the last one <i class="calibre6">R -</i> 1.</p>
+<p class="calibre8">Using these rectangles, we can now determine the area under the graph:</p>
+<figure class="co"><img src="../images/00641.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Turn the description of the process into an ISL+ function. Adapt the test cases from <a href="part0013_split_016.html#fig165" class="calibre5">figure 165</a> to this case.</p>
+<p class="calibre8">The more rectangles the algorithm uses, the closer its estimate is to the actual area. Make <samp class="mono">R</samp> a top-level constant and increase it by factors of <samp class="mono">10</samp> until the algorithm’s accuracy eliminates problems with an <i class="calibre6">ε</i> value of <samp class="mono">0.1</samp>.</p>
+<p class="calibre8">Decrease <i class="calibre6">ε</i> to <samp class="mono">0.01</samp> and increase <samp class="mono">R</samp> enough to eliminate any failing test cases again. Compare the result to exercise 458. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The Kepler method of exercise 458 immediately suggests a divide-and-conquer strategy like binary search introduced in chapter 27.2. Roughly speaking, the algorithm would split the interval into two pieces, recursively compute the area of each piece, and add the two results.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 460. Develop the algorithm <samp class="mono">integrate-dc</samp>, which integrates a function <samp class="mono">f</samp> between the boundaries <samp class="mono">a</samp> and <samp class="mono">b</samp> using a divide-and-conquer strategy. Use Kepler’s method when the interval is sufficiently small. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The divide-and-conquer approach of exercise 460 is wasteful. Consider a function whose graph is level in one part and rapidly changes in another; see <a id="rfig166" href="part0013_split_016.html#fig166" class="calibre5">figure 166</a> for a concrete example. For the level part on the graph, it is pointless to keep splitting the interval. It is just as easy to compute the trapezoid for the complete interval as for the two halves. For the “wavy” part, however, the algorithm must continue dividing the interval until the irregularities of the graph are reasonably small.</p>
+<div class="figure">
+<figure class="img"><a id="fig166" class="calibre5"></a><img src="../images/00642.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_016.html#rfig166" class="calibre5">Figure 166</a>:</span> <span>A candidate for adaptive integration</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">To discover when <i class="calibre6">f</i> is level, we can change the algorithm as follows. Instead of just testing how large the interval is, the new algorithm computes the area of three trapezoids: the given one and the two halves. If the difference between the two is less than the area of a small rectangle of height <i class="calibre6">ε</i> and width <i class="calibre6">b</i> − <i class="calibre6">a</i>,</p>
+<figure class="co"><img src="../images/00643.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_654" title="654"></span>it is safe to assume that the overall area is a good approximation. In other words, the algorithm determines whether <i class="calibre6">f</i> changes so much that it affects the error margin. If so, it continues with the divide-and-conquer approach; otherwise it stops and uses the Kepler approximation.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 461. Design <samp class="mono">integrate-adaptive</samp>. That is, turn the recursive process description into an ISL+ algorithm. Make sure to adapt the test cases from <a href="part0013_split_016.html#fig165" class="calibre5">figure 165</a> to this use.</p>
+<p class="calibre8">Do not discuss the termination of <samp class="mono">integrate-adaptive</samp>.</p>
+<p class="calibre8">Does <samp class="mono">integrate-adaptive</samp> always compute a better answer than either <samp class="mono">integrate-kepler</samp> or <samp class="mono">integrate-rectangles</samp>? Which aspect is <samp class="mono">integrate-adaptive</samp> guaranteed to improve? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Terminology</b> The algorithm is called <i class="calibre6">adaptive integration</i> because it automatically allocates time to those parts of the graph that need it and spends little time on the others. Specifically, for those parts of <i class="calibre6">f</i> that are level, it performs just a few calculations; for the other parts, it inspects small intervals to decrease the error margin. Computer science knows many adaptive algorithms, and <samp class="mono">integrate-adaptive</samp> is just one of them.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

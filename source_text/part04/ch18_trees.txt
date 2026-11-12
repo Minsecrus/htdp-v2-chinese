@@ -1,0 +1,733 @@
+# Chapter 18: More on Forms of Data (Trees) / 第 18 章：更丰富的数据形态（树）
+
+<h1>
+19 The Poetry of S-expressions
+</h1>
+
+<P>
+Programming resembles poetry. Like poets, programmers practice their skill on seemingly pointless ideas. They revise and edit all the time, as the preceding chapter explains. This chapter introduces increasingly complex forms of data—seemingly without a real-world purpose. Even when we provide a motivational background, the chosen kinds of data are pure to an extreme, and it is unlikely that you will ever encounter them again.
+</P>
+
+<P>
+Nevertheless, this chapter shows the full power of the design recipe and introduces you to the kinds of data that real-world programs cope with. To connect this material with what you will encounter in your life as a programmer, we label each section with appropriate names: trees, forests, XML. The last one is a bit misleading because it is really about S-expressions; the connection between S-expressions and XML is clarified in chapter 22, which, in contrast to this chapter, comes much closer to real-world uses of complex forms of data.
+</P>
+
+<h2>
+19.1 Trees
+</h2>
+
+<P>
+All of us have a family tree. One way to draw a family tree is to add an element every time a child is born and to connect the elements of the father and mother. For those people whose parents are unknown, there is no connection to draw. The result is an ancestor family tree because, given any person, the tree points to all of the person’s known ancestors.
+</P>
+
+<P>
+Figure 111 displays a three-tier family tree. Gustav is the child of Eva and Fred, while Eva is the child of Carl and Bettina. In addition to people’s names and family relationships, the tree also records years of birth and eye colors. Based on this sketch, you can easily imagine a family tree reaching back many generations and one that records other kinds of information.
+</P>
+
+<FIGURE src="images/00450.png">
+Figure 111: A family tree
+</FIGURE>
+
+<P>
+Once a family tree is large, it makes sense to represent it as data and to design programs that process this kind of data. Given that a point in a family tree combines five pieces of information—the father, the mother, the name, the birth date, and the eye color—we should define a structure type:
+</P>
+
+<CODE>
+(define-struct child [father mother name date eyes])
+</CODE>
+
+<P>
+The structure type definition calls a data definition:
+</P>
+
+<CODE>
+; A Child is a structure:
+</CODE>
+
+<CODE>
+;   (make-child Child  Child String N String)
+</CODE>
+
+<P>
+While this data definition looks straightforward, it is also useless. It refers to itself, but, because it doesn’t have any clauses, there is no way to create a proper instance Child. Roughly, we would have to write
+</P>
+
+<CODE>
+(make-child (make-child (make-child …) …) …)
+</CODE>
+
+<P>
+without end. To avoid such pointless data definitions, we demand that a self-referential data definition have several clauses and that at least one of them does not refer back to the data definition.
+</P>
+
+<P>
+Let’s postpone the data definition for a moment, and experiment instead. Suppose we are about to add a child to an existing family tree and that we already have representations for the parents. In that case, we can simply construct a new child structure. For example, to represent Adam in a program that already represents Carl and Bettina, it suffices to add the following child structure:
+</P>
+
+<CODE>
+(define Adam   (make-child Carl Bettina "Adam" 1950 "hazel"))
+</CODE>
+
+<P>
+assuming Carl and Bettina stand for representations of Adam’s parents.
+</P>
+
+<P>
+Then again, a person’s parents may be unknown, like Bettina’s in the family tree of figure 111. Yet, even then, we must fill the corresponding parent field(s) in the child representation. Whatever data we choose, it must signal an absence of information. On the one hand, we could use #false, "none", or '() from the pool of existing values. On the other hand, we should really say that the information is missing from a family tree. We can achieve this objective best with the introduction of a structure type with an appropriate name:
+</P>
+
+<CODE>
+(define-struct no-parent [])
+</CODE>
+
+<P>
+Now, to construct a child structure for Bettina, we say
+</P>
+
+<FIGURE src="images/00451.png">
+
+</FIGURE>
+
+<P>
+Of course, if only one piece of information is missing, we fill just that field with this special value.
+</P>
+
+<P>
+Our experimentation suggests two insights. First, we are not looking for a data definition that describes how to generate instances of child structures but for a data definition that describes how to represent family trees. Second, the data definition consists of two clauses, one for the variant describing unknown family trees and another one for known family trees:
+</P>
+
+<CODE>
+(define-struct no-parent []) (define-struct child [father mother name date eyes]) ; An FT (short for family tree) is one of: ; -- (make-no-parent) ; -- (make-child FT FT String N String)
+</CODE>
+
+<P>
+Since the “no parent” tree is going to show up a lot in our programs, we define NP as a short-hand and revise the data definition a bit:
+</P>
+
+<CODE>
+(define NP (make-no-parent)) ; An FT is one of: ; -- NP ; -- (make-child FT FT String N String)
+</CODE>
+
+<P>
+Following the design recipe from chapter 9, we use the data definition to create examples of family trees. Specifically, we translate the family tree in figure 111 into our data representation. The information for Carl is easy to translate into data:
+</P>
+
+<CODE>
+(make-child NP NP "Carl" 1926 "green")
+</CODE>
+
+<P>
+Bettina and Fred are represented with similar instances of child. The case for Adam calls for nested children, one for Carl and one for Bettina:
+</P>
+
+<FIGURE src="images/00452.png">
+
+</FIGURE>
+
+<P>
+Since the records for Carl and Bettina are also needed to construct the records for Dave and Eva, it is better to introduce definitions that name specific instances of child and to use the variable names elsewhere. Figure 112 illustrates this approach for the complete data representation of the family tree from figure 111. Take a close look; the tree serves as our running example for the following design exercise.
+</P>
+
+<FIGURE src="images/00453.png">
+Figure 112: A data representation of the sample family tree
+</FIGURE>
+
+<P>
+Instead of designing a concrete function on family trees, let’s first look at the generic organization of such a function. That is, let’s work through the design recipe as much as possible without having a concrete task in mind. We start with the header material, that is, step 2 of the recipe:
+</P>
+
+<CODE>
+; FT -> ??? ; …(define (fun-FT an-ftree) …)
+</CODE>
+
+<P>
+Even though we aren’t stating the purpose of the function, we do know that it consumes a family tree and that this form of data is the main input. The “???” in the signature says that we don’t know what kind of data the function produces; the “⋯” remind us that we don’t know its purpose.
+</P>
+
+<P>
+The lack of purpose means we cannot make up functional examples. Nevertheless, we can exploit the organization of the data definition for FT to design a template. Since it consists of two clauses, the template must consist of a cond expression with two clauses:
+</P>
+
+<FIGURE src="images/00454.png">
+
+</FIGURE>
+
+<P>
+In case the argument to fun-FT satisfies no-parent?, the structure contains no additional data, so the first clause is complete. For the second clause, the input contains five pieces of data, which we indicate with five selectors in the template:
+</P>
+
+<FIGURE src="images/00455.png">
+
+</FIGURE>
+
+<P>
+The last addition to templates concerns self-references. If a data definition refers to itself, the function is likely to recur and templates indicate so with suggestive natural recursions. The definition for FT has two self-references, and the template therefore needs two such recursions:
+</P>
+
+<FIGURE src="images/00456.png">
+
+</FIGURE>
+
+<P>
+Specifically, fun-FT is applied to the data representation for fathers and mothers in the second cond clause because the second clause of the data definition contains corresponding self-references.
+</P>
+
+<P>
+Let’s now turn to a concrete example, the blue-eyed-child? function. Its purpose is to determine whether any child structure in a given family tree has blue eyes. You may copy, paste, and rename fun-FT to get its template; we replace “???” with Boolean and add a purpose statement:
+</P>
+
+<FIGURE src="images/00457.png">
+
+</FIGURE>
+
+<P>
+When you work in this fashion, you must replace the template’s generic name with a specific one.
+</P>
+
+<P>
+Checking with our recipe, we realize that we need to backtrack and develop some examples before we move on to the definition step. If we start with Carl, the first person in the family tree, we see that Carl’s family tree does not contain a child with a "blue" eye color. Specifically, the child representing Carl says the eye color is "green"; given that Carl’s ancestor trees are empty, they cannot possibly contain a child with "blue" eye color:
+</P>
+
+<CODE>
+(check-expect (blue-eyed-child? Carl) #false)
+</CODE>
+
+<P>
+In contrast, Gustav contains a child for Eva who does have blue eyes:
+</P>
+
+<CODE>
+(check-expect (blue-eyed-child? Gustav) #true)
+</CODE>
+
+<P>
+Now we are ready to define the actual function. The function distinguishes between two cases: a no-parent and a child. For the first case, the answer should be obvious even though we haven’t made up any examples. Since the given family tree does not contain any child whatsoever, it cannot contain one with "blue" as the eye color. Hence the result in the first cond clause is #false.
+</P>
+
+<P>
+For the second cond clause, the design requires a lot more work. Again following the design recipe, we first remind ourselves what the expressions in the template accomplish:
+</P>
+
+<P>
+1. according to the purpose statement for the function,
+</P>
+
+<P>
+(blue-eyed-child? (child-father an-ftree))
+</P>
+
+<P>
+determines whether some child in the father’s FT has "blue" eyes;
+</P>
+
+<P>
+2. likewise, (blue-eyed-child? (child-mother an-ftree)) determines whether someone in the mother’s FT has blue eyes; and
+</P>
+
+<P>
+3. the selector expressions (child-name an-ftree), (child-date an-ftree), and (child-eyes an-ftree) extract the name, birth date, and eye color from the given child structure, respectively.
+</P>
+
+<P>
+Now we just need to figure out how to combine these expressions.
+</P>
+
+<P>
+Clearly, if the child structure contains "blue" in the eyes field, the function’s answer is #true. Next, the expressions concerning names and birth dates are useless, which leaves us with the recursive calls. As stated, (blue-eyed-child? (child-father an-ftree)) traverses the tree on the father’s side, while the mother’s side of the family tree is processed with (blue-eyed-child? (child-mother an-ftree)). If either of these expressions returns #true, an-ftree contains a child with "blue" eyes.
+</P>
+
+<P>
+Our analysis suggests that the result should be #true if one of the following three expressions is #true:
+</P>
+
+<P>
+•  (string=? (child-eyes an-ftree) "blue")
+</P>
+
+<P>
+•  (blue-eyed-child? (child-father an-ftree))
+</P>
+
+<P>
+•  (blue-eyed-child? (child-mother an-ftree))
+</P>
+
+<P>
+which, in turn, means we need to combine these expressions with or:
+</P>
+
+<CODE>
+(or (string=? (child-eyes an-ftree) "blue")     (blue-eyed-child? (child-father an-ftree))     (blue-eyed-child? (child-mother an-ftree)))
+</CODE>
+
+<P>
+Figure 113 pulls everything together in a single definition.
+</P>
+
+<FIGURE src="images/00458.png">
+Figure 113: Finding a blue-eyed child in an ancestor tree
+</FIGURE>
+
+<P>
+Since this function is the very first one to use two recursions, we simulate the stepper’s action for (blue-eyed-child? Carl) to give you an impression of how it all works:
+</P>
+
+<CODE>
+(blue-eyed-child? Carl) == (blue-eyed-child?   (make-child NP NP "Carl" 1926 "green"))
+</CODE>
+
+<P>
+Let’s act as if NP were a value and let’s use carl as an abbreviation for the instance of child:
+</P>
+
+<FIGURE src="images/00459.png">
+
+</FIGURE>
+
+<P>
+After dropping the first cond line, it’s time to replace carl with its value and to perform the three auxiliary calculations in figure 114. Using these to replace equals with equals, the rest of the computation is explained easily:
+</P>
+
+<FIGURE src="images/00460.png">
+
+</FIGURE>
+
+<FIGURE src="images/00461.png">
+Figure 114: Calculating with trees
+</FIGURE>
+
+<P>
+While we trust that you have seen such auxiliary calculations in your mathematics courses, you also need to understand that the stepper would not perform such calculations; instead it works out only those calculations that are absolutely needed.
+</P>
+
+<EXERCISE>
+Exercise 310. Develop count-persons. The function consumes a family tree and counts the child structures in the tree.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 311. Develop the function average-age. It consumes a family tree and the current year. It produces the average age of all child structures in the family tree.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 312. Develop the function eye-colors, which consumes a family tree and produces a list of all eye colors in the tree. An eye color may occur more than once in the resulting list. Hint Use append to concatenate the lists resulting from the recursive calls.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 313. Suppose we need the function blue-eyed-ancestor?, which is like blue-eyed-child? but responds with #true only when a proper ancestor, not the given child itself, has blue eyes.
+</EXERCISE>
+
+<P>
+Although the goals clearly differ, the signatures are the same:
+</P>
+
+<CODE>
+; FT -> Boolean  (define (blue-eyed-ancestor? an-ftree) …)
+</CODE>
+
+<P>
+Stop! Formulate a purpose statement for the function.
+</P>
+
+<P>
+To appreciate the difference, we take a look at Eva:
+</P>
+
+<CODE>
+(check-expect (blue-eyed-child? Eva) #true)
+</CODE>
+
+<P>
+Eva is blue-eyed, but has no blue-eyed ancestor. Hence,
+</P>
+
+<CODE>
+(check-expect (blue-eyed-ancestor? Eva) #false)
+</CODE>
+
+<P>
+In contrast, Gustav is Eva’s son and does have a blue-eyed ancestor:
+</P>
+
+<CODE>
+(check-expect (blue-eyed-ancestor? Gustav) #true)
+</CODE>
+
+<P>
+Now suppose a friend comes up with this solution:
+</P>
+
+<FIGURE src="images/00462.png">
+
+</FIGURE>
+
+<P>
+Explain why this function fails one of its tests. What is the result of (blue-eyed-ancestor? A) no matter which A you choose? Can you fix your friend’s solution?
+</P>
+
+<h2>
+19.2 Forests
+</h2>
+
+<P>
+It is a short step from a family tree to a family forest:
+</P>
+
+<CODE>
+; An FF (short for family forest) is one of: ; -- '() ; -- (cons FT FF) ; interpretation a family forest represents several ; families (say, a town) and their ancestor trees
+</CODE>
+
+<P>
+Here are some tree excerpts from figure 111 arranged as forests:
+</P>
+
+<CODE>
+(define ff1 (list Carl Bettina)) (define ff2 (list Fred Eva)) (define ff3 (list Fred Eva Carl))
+</CODE>
+
+<P>
+The first two forests contain two unrelated families, and the third one illustrates that unlike in real forests, trees in family forests can overlap.
+</P>
+
+<P>
+Now consider this representative problem concerning family trees:
+</P>
+
+<P>
+Sample Problem Design the function blue-eyed-child-in-forest?, which determines whether a family forest contains a child with "blue" in the eyes field.
+</P>
+
+<P>
+The straightforward solution is displayed in figure 115. Study the signature, the purpose statement, and the examples on your own. We focus on the program organization. Concerning the template, the design may employ the list template because the function consumes a list. If each item on the list were a structure with an eyes field and nothing else, the function would iterate over those structures using the selector function for the eyes field and a string comparison. In this case, each item is a family tree, but, luckily, we already know how to process family trees.
+</P>
+
+<FIGURE src="images/00463.png">
+Figure 115: Finding a blue-eyed child in a family forest
+</FIGURE>
+
+<P>
+Let’s step back and inspect how we explained figure 115. The starting point is a pair of data definitions where the second refers to the first and both refer to themselves. The result is a pair of functions where the second refers to the first and both refer to themselves. In other words, the function definitions refer to each other the same way the data definitions refer to each other. Early chapters gloss over this kind of relationship, but now the situation is sufficiently complicated and deserves attention.
+</P>
+
+<EXERCISE>
+Exercise 314. Reformulate the data definition for FF with the List-of abstraction. Now do the same for the blue-eyed-child-in-forest? function. Finally, define blue-eyed-child-in-forest? using one of the list abstractions from the preceding chapter.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 315. Design the function average-age. It consumes a family forest and a year (N). From this data, it produces the average age of all child instances in the forest. Note If the trees in this forest overlap, the result isn’t a true average because some people contribute more than others. For this exercise, act as if the trees don’t overlap.
+</EXERCISE>
+
+<h2>
+19.3 S-expressions
+</h2>
+
+<P>
+While intermezzo 2 introduced S-expressions on an informal basis, it is possible to describe them with a combination of three data definitions:
+</P>
+
+<FIGURE src="images/00464.png">
+
+</FIGURE>
+
+<P>
+Recall that Symbols look like strings with a single quote at the beginning and with no quote at the end.
+</P>
+
+<P>
+The idea of S-expressions is due to John McCarthy and his Lispers, who created S-expressions in 1958 so that they could process Lisp programs with other Lisp programs. This seemingly circular reasoning may sound esoteric, but, as mentioned in intermezzo 2, S-expressions are a versatile form of data that is often rediscovered, most recently with applications to the world wide web. Working with S-expressions thus prepares a discussion of how to design functions for highly intertwined data definitions.
+</P>
+
+<EXERCISE>
+Exercise 316. Define the atom? function.
+</EXERCISE>
+
+<P>
+Up to this point in this book, no data has required a data definition as complex as the one for S-expressions. And yet, with one extra hint, you can design functions that process S-expressions if you follow the design recipe. To demonstrate this point, let’s work through a specific example:
+</P>
+
+<P>
+Sample Problem Design the function count, which determines how many times some symbol occurs in some S-expression.
+</P>
+
+<P>
+While the first step calls for data definitions and appears to have been completed, remember that it also calls for the creation of data examples, especially when the definition is complex.
+</P>
+
+<P>
+A data definition is supposed to be a prescription of how to create data, and its “test” is whether it is usable. One point that the data definition for S-expr makes is that every Atom is an element of S-expr, and you know that Atoms are easy to fabricate:
+</P>
+
+<CODE>
+'hello20.12"world"
+</CODE>
+
+<P>
+In the same vein, every SL is a list as well as an S-expr:
+</P>
+
+<FIGURE src="images/00465.png">
+
+</FIGURE>
+
+<P>
+The first two are obvious; the third one deserves a second look. It repeats the second S-expr but nested inside (cons… '()). What this means is that it is a list that contains a single item, namely, the second example. You can simplify the example with list:
+</P>
+
+<CODE>
+(list (cons 'hello (cons 20.12 (cons "world" '())))) ; or(list (list 'hello 20.12 "world"))
+</CODE>
+
+<P>
+Indeed, with the quotation mechanism of intermezzo 2 it is even easier to write down S-expressions. Here are the last three:
+</P>
+
+<CODE>
+> '() '() > '(hello 20.12 "world") (list 'hello #i20.12 "world") > '((hello 20.12 "world")) (list (list 'hello #i20.12 "world"))
+</CODE>
+
+<P>
+To help you out, we evaluate these examples in the interactions area of DrRacket so that you can see the result, which is closer to the above constructions than the quote notation.
+</P>
+
+<P>
+With quote, it is quite easy to make up complex examples:
+</P>
+
+<FIGURE src="images/00466.png">
+
+</FIGURE>
+
+<P>
+This example may strike you as odd because it looks like a definition in BSL, but, as the interaction with DrRacket shows, it is just a piece of data. Here is another one:
+</P>
+
+<FIGURE src="images/00467.png">
+
+</FIGURE>
+
+<P>
+This piece of data looks like a table, associating letters with numbers. The last example is a piece of art:
+</P>
+
+<CODE>
+> '(wing (wing body wing) wing) (list 'wing (list 'wing 'body 'wing) 'wing)
+</CODE>
+
+<P>
+It is now time to write down the rather obvious header for count:
+</P>
+
+<CODE>
+; S-expr Symbol -> N ; counts all occurrences of sy in sexp (define (count sexp sy)   0)
+</CODE>
+
+<P>
+Since the header is obvious, we move on to functional examples. If the given S-expr is 'world and the to-be-counted symbol is 'world, the answer is obviously 1. Here are some more examples, immediately formulated as tests:
+</P>
+
+<CODE>
+(check-expect (count 'world 'hello) 0)(check-expect (count '(world hello) 'hello) 1)(check-expect (count '(((world) hello) hello) 'hello) 2)
+</CODE>
+
+<P>
+You can see how convenient quotation notation is for test cases. When it comes to templates, however, thinking in terms of quote is disastrous.
+</P>
+
+<P>
+Before we move on to the template step, we need to prepare you for the next generalization of the design recipe:
+</P>
+
+<P>
+Hint For intertwined data definitions, create one template per data definition. Create them in parallel. Make sure they refer to each other in the same way the data definitions do. End
+</P>
+
+<P>
+This hint sounds more complicated than it is. For our problem, it means we need three templates:
+</P>
+
+<P>
+1. one for count, which counts occurrences of symbols in S-exprs;
+</P>
+
+<P>
+2. one for a function that counts occurrences of symbols in SLs; and
+</P>
+
+<P>
+3. one for a function that counts occurrences of symbols in Atoms.
+</P>
+
+<P>
+And here are three partial templates, with conditionals as suggested by the three data definitions:
+</P>
+
+<FIGURE src="images/00468.png">
+
+</FIGURE>
+
+<P>
+The template for count contains a two-pronged conditional because the data definition for S-expr has two clauses. It uses the atom? function to distinguish the case for Atoms from the case for SLs. The template named count-sl consumes an element of SL and a symbol, and because SL is basically a list, count-sl also contains a two-pronged cond. Finally, count-atom is supposed to work for both Atoms and Symbols. And this means that its template checks for the three distinct forms of data mentioned in the data definition of Atom.
+</P>
+
+<P>
+The next step is to take apart compound data in the relevant clauses:
+</P>
+
+<FIGURE src="images/00469.png">
+
+</FIGURE>
+
+<P>
+Why do we add just two selector expressions to count-sl?
+</P>
+
+<P>
+The last step in the template creation process calls for an inspection of self-references in the data definitions. In our context, this means self-references and references from one data definition to another and (possibly) back. Let’s inspect the cond lines in the three templates:
+</P>
+
+<P>
+1. The atom? line in count corresponds to the first line in the definition of S-expr. To indicate the cross-reference from here to Atom, we add (count-atom sexp sy), meaning we interpret sexp as an Atom and let the appropriate function deal with it.
+</P>
+
+<P>
+2. Following the same line of thought, the second cond line in count calls for the addition of (count-sl sexp sy).
+</P>
+
+<P>
+3. The empty? line in count-sl corresponds to a line in the data definition that makes no reference to another data definition.
+</P>
+
+<P>
+4. In contrast, the else line contains two selector expressions, and each extracts a different kind of value. Specifically, (first sl) is an element of S-expr, which means that we wrap it in (count …). After all, count is responsible for counting inside of arbitrary S-exprs. Next, (rest sl) corresponds to a self-reference, and we know that we need to deal with those via recursive function calls.
+</P>
+
+<P>
+5. Finally, all three cases in Atom refer to atomic forms of data. Therefore the count-atom function does not need to change.
+</P>
+
+<P>
+Figure 116 presents the three complete templates. Filling in the blanks in these templates is straightforward, as figure 117 shows. You ought to be able to explain any random line in the three definitions. For example:
+</P>
+
+<CODE>
+[(atom? sexp) (count-atom sexp sy)]
+</CODE>
+
+<FIGURE src="images/00470.png">
+Figure 116: A template for S-expressions
+</FIGURE>
+
+<FIGURE src="images/00471.png">
+Figure 117: A program for S-expressions
+</FIGURE>
+
+<P>
+determines whether sexp is an Atom and, if so, interprets the S-expr as an Atom via count-atom.
+</P>
+
+<CODE>
+[else  (+ (count (first sl) sy) (count-sl (rest sl) sy))]
+</CODE>
+
+<P>
+means the given list consists of two parts: an S-expr and an SL. By using count and count-sl, the corresponding functions are used to count how often sy appears in each part, and the two numbers are added up—yielding the total number of sys in all of sexp.
+</P>
+
+<CODE>
+[(symbol? at) (if (symbol=? at sy) 1 0)]
+</CODE>
+
+<P>
+tells us that if an Atom is a Symbol, sy occurs once if it is equal to sexp and otherwise it does not occur at all. Since the two pieces of data are atomic, there is no other possibility.
+</P>
+
+<EXERCISE>
+Exercise 317. A program that consists of three connected functions ought to express this relationship with a local expression.
+</EXERCISE>
+
+<P>
+Copy and reorganize the program from figure 117 into a single function using local. Validate the revised code with the test suite for count.
+</P>
+
+<P>
+The second argument to the local functions, sy, never changes. It is always the same as the original symbol. Hence you can eliminate it from the local function definitions to tell the reader that sy is a constant across the traversal process.
+</P>
+
+<EXERCISE>
+Exercise 318. Design depth. The function consumes an S-expression and determines its depth. An Atom has a depth of 1. The depth of a list of S-expressions is the maximum depth of its items plus 1.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 319. Design substitute. It consumes an S-expression s and two symbols, old and new. The result is like s with all occurrences of old replaced by new.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 320. Reformulate the data definition for S-expr so that the first clause is expanded into the three clauses of Atom and the second clause uses the List-of abstraction. Redesign the count function for this data definition.
+</EXERCISE>
+
+<P>
+Now integrate the definition of SL into the one for S-expr. Simplify count again. Consider using lambda.
+</P>
+
+<P>
+Note This kind of simplification is not always possible, but experienced programmers tend to recognize such opportunities.
+</P>
+
+<EXERCISE>
+Exercise 321. Abstract the data definitions for S-expr and SL so that they abstract over the kinds of Atoms that may appear.
+</EXERCISE>
+
+<h2>
+19.4 Designing with Intertwined Data
+</h2>
+
+<P>
+The jump from self-referential data definitions to collections of data definitions with mutual references is far smaller than the one from data definitions for finite data to self-referential data definitions. Indeed, the design recipe for self-referential data definitions—see chapter 9—needs only minor adjustments to apply to this seemingly complex situation:
+</P>
+
+<P>
+1. The need for “nests” of mutually related data definitions is similar to the one for the need for self-referential data definitions. The problem statement deals with many distinct kinds of information, and one form of information refers to other kinds.
+</P>
+
+<P>
+Before you proceed in such situations, draw arrows to connect references to definitions. Consider the left side of figure 118. It displays the definition for S-expr, which contains references to SL and Atom that are connected to their respective definitions via arrows. Similarly, the definition of SL contains one self-reference and one reference back to SL; again, both are connected by appropriate arrows.
+</P>
+
+<FIGURE src="images/00472.png">
+Figure 118: Arrows for nests of data definitions and templates
+</FIGURE>
+
+<P>
+Like self-referential data definitions, these nests of definitions also call for validation. At a minimum, you must be able to construct some examples for every individual definition. Start from clauses that do not refer to any of the other data definitions in the nest. Keep in mind that the definition may be invalid if it is impossible to generate examples from them.
+</P>
+
+<P>
+2. The key change is that you must design as many functions in parallel as there are data definitions. Each function specializes for one of the data definitions; all remaining arguments remain the same. Based on that, you start with a signature, a purpose statement, and a dummy definition for each function.
+</P>
+
+<P>
+3. Be sure to work through functional examples that use all mutual references in the nest of data definitions.
+</P>
+
+<P>
+4. For each function, design the template according to its primary data definition. Use figure 51 to guide the template creation up to the last step. The revised last step calls for a check for all self-references and cross-references. Use the data definitions annotated with arrows to guide this step. For each arrow in the data definitions, include an arrow in the templates. See the right side of figure 118 for the arrow-annotated version of the templates.
+</P>
+
+<P>
+Now replace the arrows with actual function calls. As you gain experience, you will naturally skip the arrow-drawing step and use function calls directly.
+</P>
+
+<P>
+Note Observe how both nests—the one for data definitions and the one for function templates—contain four arrows, and note how pairs of arrows correspond to each other. Researchers call this correspondence a symmetry. It is evidence that the design recipe provides a natural way for going from problems to solutions.
+</P>
+
+<P>
+5. For the design of the body, we start with those cond lines that do not contain natural recursions or calls to other functions. They are called base cases. The corresponding answers are typically easy to formulate or are already given by the examples. After that, you deal with the self-referential cases and the cases of cross-function calls. Let the questions and answers of figure 53 guide you.
+</P>
+
+<P>
+6. Run the tests when all definitions are completed. If an auxiliary function is broken, you may get two error reports, one for the main function and another one for the flawed auxiliary definition. A single fix should eliminate both. Do make sure that running the tests covers all the pieces of the function.
+</P>
+
+<P>
+Finally, if you are stuck in step 5, remember the table-based approach to guessing the combination function. In the case of intertwined data, you may need not only a table per case but also a table per case and per function to work out the combination.
+</P>

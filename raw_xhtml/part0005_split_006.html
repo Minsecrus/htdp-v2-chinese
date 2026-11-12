@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><a id="sec1-4" class="calibre16"></a>1.4 The Arithmetic of Images</h2>
+<p class="tni">An <i class="calibre6">Image</i> is a visual, rectangular piece of data, for example, a photo or a geometric figure and its frame. You can insert images in DrRacket wherever <span epub:type="pagebreak" id="pg_41" title="41"></span>you can write down an expression because images are values, just like numbers and strings.</p>
+<p class="marginpar">Remember to require the <i class="calibre6">2htdp/image</i> library in a new tab.</p>
+<p class="calibre8">Your programs can also manipulate images with primitive operations. These primitive operations come in three flavors. The first kind concerns the creation of basic images:</p>
+<p class="blf">•  <samp class="mono">circle</samp> produces a circle image from a radius, a mode string, and a color string;</p>
+<p class="blf">•  <samp class="mono">ellipse</samp> produces an ellipse from two radii, a mode string, and a color string;</p>
+<p class="blf">•  <samp class="mono">line</samp> produces a line from two points and a color string;</p>
+<p class="blf">•  <samp class="mono">rectangle</samp> produces a rectangle from a width, a height, a mode string, and a color string;</p>
+<p class="blf">•  <samp class="mono">text</samp> produces a text image from a string, a font size, and a color string; and</p>
+<p class="bll">•  <samp class="mono">triangle</samp> produces an upward-pointing equilateral triangle from a size, a mode string, and a color string.</p>
+<p class="tni">The names of these operations mostly explain what kind of image they create. All you must know is that <i class="calibre6">mode strings</i> means <samp class="mono">"solid"</samp> or <samp class="mono">"outline"</samp>, and <i class="calibre6">color strings</i> are strings such as <samp class="mono">"orange"</samp>, <samp class="mono">"black"</samp>, and so on.</p>
+<p class="calibre8">Play with these operations in the interactions window:</p>
+<figure class="co"><img src="../images/00040.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! The above uses a previously unmentioned operation. Look up its documentation and find out how many more such operations the <i class="calibre6">2htdp/image</i> library comes with. Experiment with the operations you find.</p>
+<p class="calibre8">The second kind of functions on images concern image properties:</p>
+<p class="blf">•  <samp class="mono">image-width</samp> determines the width of an image in terms of pixels;</p>
+<p class="bll">•  <samp class="mono">image-height</samp> determines the height of an image;</p>
+<p class="tni"><span epub:type="pagebreak" id="pg_42" title="42"></span>They extract the kind of values from images that you expect:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (image-width</samp><samp class="mono"> (circle 10</samp><samp class="mono"> "solid" "red"))</samp> <br class="calibre4"/><samp class="mono">20</samp> <br class="calibre4"/><samp class="mono">&gt; (image-height</samp><samp class="mono"> (rectangle 10</samp><samp class="mono"> 20 "solid"</samp><samp class="mono"> "blue"))</samp> <br class="calibre4"/><samp class="mono">20</samp></p>
+</div>
+<p class="tni">Stop! Explain how DrRacket determines the value of this expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (image-width</samp><samp class="mono"> (circle 10</samp><samp class="mono"> "solid" "red"))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (image-height (rectangle</samp><samp class="mono"> 10 20</samp><samp class="mono"> "solid" "blue")))</samp></p>
+</div>
+<p class="calibre8">A proper understanding of the third kind of image-composing primitives requires the introduction of one new idea: the <i class="calibre6">anchor point</i>. An image isn’t just a single pixel, it consists of many pixels. Specifically, each image is like a photograph, that is, a rectangle of pixels. One of these pixels is an implicit anchor point. When you use an image primitive to compose two images, the composition happens with respect to the anchor points, unless you specify some other point explicitly:</p>
+<p class="blf">•  <samp class="mono">overlay</samp> places all the images to which it is applied on top of each other, using the center as anchor point;</p>
+<p class="blf">•  <samp class="mono">overlay/xy</samp> is like <samp class="mono">overlay</samp> but accepts two numbers—<samp class="mono">x</samp> and <samp class="mono">y</samp>—between two image arguments. It shifts the second image by <samp class="mono">x</samp> pixels to the right and <samp class="mono">y</samp> pixels down—all with respect to the first image’s top-left corner; unsurprisingly, a negative <samp class="mono">x</samp> shifts the image to the left and a negative <samp class="mono">y</samp> up; and</p>
+<p class="bll">•  <samp class="mono">overlay/align</samp> is like <samp class="mono">overlay</samp> but accepts two strings that shift the anchor point(s) to other parts of the rectangles. There are nine different positions overall; experiment with all possibilities!</p>
+<p class="tni">The <i class="calibre6">2htdp/image</i> library comes with many other primitive functions for combining images. As you get familiar with image processing, you will want to read up on those. For now, we introduce three more because they are important for creating animated scenes and images for games:</p>
+<p class="blf">•  <samp class="mono">empty-scene</samp> creates a rectangle of some given width and height;</p>
+<p class="blf">•  <samp class="mono">place-image</samp> places an image into a scene at a specified position. If the image doesn’t fit into the given scene, it is appropriately cropped;</p>
+<p class="bll"><span epub:type="pagebreak" id="pg_43" title="43"></span>•  <samp class="mono">scene+line</samp> consumes a scene, four numbers, and a color to draw a line into the given image. Experiment with it to see how it works.</p>
+<p class="calibre8">The laws of arithmetic for images are analogous to those for numbers; see <a id="rfig10" href="part0005_split_006.html#fig10" class="calibre5">figure 10</a> for some examples and a comparison with numeric arithmetic. Again, no image gets destroyed or changed. Like <samp class="mono">+</samp>, these primitives just make up new images that combine the given ones in some manner.</p>
+<div class="figure">
+<figure class="img"><a id="fig10" class="calibre5"></a><img src="../images/00041.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_006.html#rfig10" class="calibre5">Figure 10</a>:</span> <span>Laws of image creation</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 5. Use the <i class="calibre6">2htdp/image</i> library to create the image of a simple boat or tree. Make sure you can easily change the scale of the entire image. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="marginpar">Copy and paste the image into your DrRacket.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 6. Add the following line to the definitions area:</p>
+<figure class="co"><img src="../images/00042.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Create an expression that counts the number of pixels in the image. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

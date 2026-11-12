@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_27"><a id="sec17-4" class="calibre16"></a>17.4 Specifying with <samp class="monospace-margin1">lambda</samp></h2>
+<p class="tni"><a href="part0009_split_015.html#fig99" class="calibre5">Figure 99</a> shows a generalized sorting function that consumes a list of values and a comparison function for such values. For convenience, <a id="rfig103" href="part0009_split_026.html#fig103" class="calibre5">figure 103</a> reproduces the essence of the definition. The body of <samp class="mono">sort-cmp</samp> introduces two <samp class="mono">local</samp> auxiliary functions: <samp class="mono">isort</samp> and <samp class="mono">insert</samp>. In addition, the figure also comes with two test cases that illustrate the workings of <samp class="mono">sort-cmp</samp>. One demonstrates how the function works on strings and the other one on numbers.</p>
+<div class="figure">
+<figure class="img"><a id="fig103" class="calibre5"></a><img src="../images/00398.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_026.html#rfig103" class="calibre5">Figure 103</a>:</span> <span>A general sorting function</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_450" title="450"></span>Now take a quick look at exercise 186. It asks you to formulate <samp class="mono">check-satisfied</samp> tests for <samp class="mono">sort&gt;</samp> using the <samp class="mono">sorted&gt;?</samp> predicate. The former is a function that sorts lists of numbers in descending order; the latter is a function that determines whether a list of numbers is sorted in descending order. Hence, the solution of this exercise is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-satisfied (sort&gt;</samp><samp class="mono"> '()) sorted&gt;?)</samp> <br class="calibre4"/><samp class="mono">(check-satisfied (sort&gt;</samp><samp class="mono"> '(12 20</samp><samp class="mono"> -5)) sorted&gt;?)</samp> <br class="calibre4"/><samp class="mono">(check-satisfied (sort&gt;</samp><samp class="mono"> '(3 2</samp><samp class="mono"> 1)) sorted&gt;?)</samp> <br class="calibre4"/><samp class="mono">(check-satisfied (sort&gt;</samp><samp class="mono"> '(1 2</samp><samp class="mono"> 3)) sorted&gt;?)</samp></p>
+</div>
+<p class="tni">The question is how to reformulate the tests for <samp class="mono">sort-cmp</samp> analogously.</p>
+<p class="calibre8">Since <samp class="mono">sort-cmp</samp> consumes a comparison function together with a list, the generalized version of <samp class="mono">sorted&gt;?</samp> must take one too. If so, the following test cases might look like this:</p>
+<figure class="co"><img src="../images/00399.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Both <samp class="mono">(sorted string&lt;?)</samp> and <samp class="mono">(sorted &lt;)</samp> must produce predicates. The first one checks whether some list of strings is sorted according to <samp class="mono">string&lt;?</samp>, and the second one whether a list of numbers is sorted via <samp class="mono">&lt;</samp>.</p>
+<p class="calibre8">We have thus worked out the desired signature and purpose of <samp class="mono">sorted</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> X -&gt;</samp><samp class="mono"> </samp>Boolean<samp class="mono">] -&gt;</samp><samp class="mono"> [ [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> </samp>Boolean<samp class="mono"> ]</samp> <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a function</samp><samp class="mono"> that determines</samp><samp class="mono"> whether</samp> <br class="calibre4"/><samp class="mono">; some</samp><samp class="mono"> list is</samp><samp class="mono"> sorted according</samp><samp class="mono"> to cmp</samp> <br class="calibre4"/><samp class="mono">(define (sorted</samp><samp class="mono"> cmp)</samp> <br class="calibre4"/><samp class="mono">  <span>…</span>)</samp></p>
+</div>
+<p class="tni">What we need to do now is to go through the rest of the design process.</p>
+<p class="calibre8">Let’s first finish the header. Remember that the header produces a value that matches the signature and is likely to break most of the tests/examples. Here we need <samp class="mono">sorted</samp> to produce a function that consumes a list and produces a Boolean. With <samp class="mono">lambda</samp>, that’s actually straightforward:</p>
+<figure class="co"><img src="../images/00400.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_451" title="451"></span>Stop! This is your first function-producing function. Read the definition again. Can you explain this definition in your own words?</p>
+<p class="calibre8">Next we need examples. According to our above analysis, <samp class="mono">sorted</samp> consumes predicates such as <samp class="mono">string&lt;?</samp> and <samp class="mono">&lt;</samp>, but clearly, <samp class="mono">&gt;</samp>, <samp class="mono">&lt;=</samp>, and your own comparison functions should be acceptable, too. At first glance, this suggests test cases of the shape</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (sorted</samp><samp class="mono"> string&lt;?) <span>…</span>)</samp> <br class="calibre4"/><samp class="mono">(check-expect (sorted</samp><samp class="mono"> &lt;) <span>…</span>)</samp></p>
+</div>
+<p class="tni">But, <samp class="mono">(sorted <span>…</span>)</samp> produces a function, and, according to exercise 245, it impossible to compare functions.</p>
+<p class="calibre8">Hence, to formulate reasonable test cases, we need to apply the result of <samp class="mono">(sorted <span>…</span>)</samp> to appropriate lists. And, based on this insight, the test cases almost formulate themselves; indeed, they can easily be derived from those for <samp class="mono">sort-cmp</samp> in <a href="part0009_split_026.html#fig103" class="calibre5">figure 103</a>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect [(sorted</samp><samp class="mono"> string&lt;?) '("b"</samp><samp class="mono"> "c")] #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect [(sorted</samp><samp class="mono"> &lt;) '(1</samp><samp class="mono"> 2 3</samp><samp class="mono"> 4 5</samp><samp class="mono"> 6)] #true)</samp></p>
+</div>
+<p class="tni"><b class="calibre9">Note</b> Using square instead of parentheses highlights that the first expression produces a function, which is then applied to arguments.</p>
+<p class="calibre8">From this point on, the design is quite conventional. What we basically wish to design is a generalization of <samp class="mono">sorted&gt;?</samp> from chapter 9.2; let’s call this function <samp class="mono">sorted/l</samp>. What is unusual about <samp class="mono">sorted/l</samp> is that it “lives” in the body of a <samp class="mono">lambda</samp> inside of <samp class="mono">sorted</samp>:</p>
+<figure class="co"><img src="../images/00401.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Note how <samp class="mono">sorted/l</samp> is defined locally yet refers to <samp class="mono">cmp</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 292. Design the function <samp class="mono">sorted?</samp>, which comes with the following signature and purpose statement:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> X -&gt;</samp><samp class="mono"> </samp><samp class="monospace-italic">Boolean</samp><samp class="mono">] [</samp>NEList-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> </samp>Boolean <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> whether l</samp><samp class="mono"> is sorted</samp><samp class="mono"> according to</samp><samp class="mono"> cmp</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (sorted?</samp><samp class="mono"> &lt; '(1</samp><samp class="mono"> 2 3))</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (sorted?</samp><samp class="mono"> &lt; '(2</samp><samp class="mono"> 1 3))</samp><samp class="mono"> #false)</samp> <br class="calibre4"/><samp class="mono">(define (sorted?</samp><samp class="mono"> cmp l)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_452" title="452"></span>The wish list even includes examples. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><a id="rfig104" href="part0009_split_026.html#fig104" class="calibre5">Figure 104</a> shows the result of the design process. The <samp class="mono">sorted</samp> function consumes a comparison function <samp class="mono">cmp</samp> and produces a predicate. The latter consumes a list <samp class="mono">l0</samp> and uses a locally defined function to determine whether all the items in <samp class="mono">l0</samp> are ordered via <samp class="mono">cmp</samp>. Specifically, the locally defined function checks a non-empty list; in the body of <samp class="mono">local</samp>, <samp class="mono">sorted</samp> first checks whether <samp class="mono">l0</samp> is empty, in which case it simply produces <samp class="mono">#true</samp> because the empty list is sorted.</p>
+<div class="figure">
+<figure class="img"><a id="fig104" class="calibre5"></a><img src="../images/00402.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_026.html#rfig104" class="calibre5">Figure 104</a>:</span> <span>A curried predicate for checking the ordering of a list</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Stop! Could you redefine <samp class="mono">sorted</samp> to use <samp class="mono">sorted?</samp> from exercise 292? Explain why <samp class="mono">sorted/l</samp> does not consume <samp class="mono">cmp</samp> as an argument.</p>
+<p class="calibre8">The <samp class="mono">sorted</samp> function in <a href="part0009_split_026.html#fig104" class="calibre5">figure 104</a> is a <i class="calibre6">curried</i> version of a function that consumes two arguments: <samp class="mono">cmp</samp> and <samp class="mono">l0</samp>. Instead of consuming two arguments at once, a curried function consumes one argument and then returns a function that consumes the second one.</p>
+<p class="marginpar">The verb “curry” honors Haskell Curry, the second person to invent the idea. The first one was Mosses Schönfinkel.</p>
+<p class="calibre8">Exercise 186 asks how to formulate a test case that exposes mistakes in sorting functions. Consider this definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; <span>List-of-numbers</span></samp><samp class="mono"> -&gt; <span>List-of-numbers</span></samp> <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a sorted</samp><samp class="mono"> version of</samp><samp class="mono"> l</samp> <br class="calibre4"/><samp class="mono">(define (sort-cmp/bad</samp><samp class="mono"> l)</samp> <br class="calibre4"/><samp class="mono"> '(9 8</samp><samp class="mono"> 7 6</samp><samp class="mono"> 5 4</samp><samp class="mono"> 3 2</samp><samp class="mono"> 1 0))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_453" title="453"></span>Formulating such a test case with <samp class="mono">check-expect</samp> is straightforward.</p>
+<p class="calibre8">To design a predicate that exposes <samp class="mono">sort-cmp/bad</samp> as flawed, we need to understand the purpose of <samp class="mono">sort-cmp</samp> or sorting in general. It clearly is unacceptable to throw away the given list and to produce some other list in its place. That’s why the purpose statement of <samp class="mono">isort</samp> says that the function “produces a <b class="calibre9">variant</b> of” the given list. “Variant” means that the function does not throw away any of the items on the given list.</p>
+<p class="calibre8">With these thoughts in mind, we can now say that we want a predicate that checks whether the result is sorted <b class="calibre9">and</b> contains all the items from the given list:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [List-of</samp><samp class="mono"> X] [X</samp><samp class="mono"> X -&gt;</samp><samp class="mono"> Boolean] -&gt;</samp><samp class="mono"> [[List-of X]</samp><samp class="mono"> -&gt; Boolean]</samp> <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> l0 sorted</samp><samp class="mono"> according to</samp><samp class="mono"> cmp</samp> <br class="calibre4"/><samp class="mono">; are</samp><samp class="mono"> all items</samp><samp class="mono"> in list</samp><samp class="mono"> k members</samp><samp class="mono"> of list</samp><samp class="mono"> l0</samp> <br class="calibre4"/><samp class="mono">(define (sorted-variant-of</samp><samp class="mono"> k cmp)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (lambda (l0)</samp><samp class="mono"> #false))</samp></p>
+</div>
+<p class="calibre8">The two lines of the purpose statement suggest examples:</p>
+<figure class="co"><img src="../images/00403.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Like <samp class="mono">sorted</samp>, <samp class="mono">sorted-variant-of</samp> consumes arguments and produces a function. For the first case, <samp class="mono">sorted-variant-of</samp> produces <samp class="mono">#true</samp> because the <samp class="mono">'(2 3)</samp> is sorted and it contains all numbers in <samp class="mono">'(3 2)</samp>. In contrast, the function produces <samp class="mono">#false</samp> in the second case because <samp class="mono">'(3)</samp> lacks <samp class="mono">2</samp> from the originally given list.</p>
+<p class="calibre8">A two-line purpose statement suggests two tasks, and two tasks means that the function itself is a combination of two functions:</p>
+<figure class="co"><img src="../images/00404.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The body of the function is an <samp class="mono">and</samp> expression that combines two function calls. With the call to the <samp class="mono">sorted?</samp> function from exercise 292, the <span epub:type="pagebreak" id="pg_454" title="454"></span>function realizes the first line of the purpose statement. The second call, <samp class="mono">(contains? k l0)</samp>, is an implicit wish for an auxiliary function.</p>
+<p class="calibre8">We immediately give the full definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of<samp class="mono"> X] [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> Boolean</samp> <br class="calibre4"/><samp class="mono">; are</samp><samp class="mono"> all items</samp><samp class="mono"> in list</samp><samp class="mono"> k members</samp><samp class="mono"> of list</samp><samp class="mono"> l</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (contains?</samp><samp class="mono"> '(1 2</samp><samp class="mono"> 3) '(1</samp><samp class="mono"> 4 3))</samp><samp class="mono"> #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (contains?</samp><samp class="mono"> '(1 2</samp><samp class="mono"> 3 4)</samp><samp class="mono"> '(1 3))</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (contains?</samp><samp class="mono"> l k)</samp> <br class="calibre4"/><samp class="mono">  (andmap</samp><samp class="mono"> (lambda (in-k)</samp><samp class="mono"> (member? in-k</samp><samp class="mono"> l)) k))</samp></p>
+</div>
+<p class="tni">On the one hand, we have never explained how to systematically design a function that consumes two lists, and it actually needs its own chapter; see chapter 23. On the other hand, the function definition clearly satisfies the purpose statement. The <samp class="mono">andmap</samp> expression checks that every item in <samp class="mono">k</samp> is a <samp class="mono">member?</samp> of <samp class="mono">l</samp>, which is what the purpose statement promises.</p>
+<p class="calibre8">Sadly, <samp class="mono">sorted-variant-of</samp> fails to describe sorting functions properly. Consider this variant of a sorting function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of Number<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a sorted</samp><samp class="mono"> version of</samp><samp class="mono"> l</samp> <br class="calibre4"/><samp class="mono">(define (sort-cmp/worse</samp><samp class="mono"> l)</samp> <br class="calibre4"/><samp class="mono">  (local</samp><samp class="mono"> ((define sorted</samp><samp class="mono"> (sort-cmp l</samp><samp class="mono"> &lt;)))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (cons</samp><samp class="mono"> (- (first</samp><samp class="mono"> sorted) 1)</samp><samp class="mono"> sorted)))</samp></p>
+</div>
+<p class="tni">It is again easy to expose a flaw in this function with a <samp class="mono">check-expect</samp> test that it ought to pass but clearly fails:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (sort-cmp/worse</samp><samp class="mono"> '(1 2</samp><samp class="mono"> 3)) '(1</samp><samp class="mono"> 2 3))</samp></p>
+</div>
+<p class="tni">Surprisingly, a <samp class="mono">check-satisfied</samp> test based on <samp class="mono">sorted-variant-of</samp> succeeds:</p>
+<figure class="co"><img src="../images/00405.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Indeed, such a test succeeds for any list of numbers, not just <samp class="mono">'(1 2 3)</samp>, because the predicate generator merely checks that all the items on the original list are members of the resulting list; it fails to check whether all items on the resulting list are also members of the original list.</p>
+<p class="calibre8">The easiest way to add this third check to <samp class="mono">sorted-variant-of</samp> is to add a third sub-expression to the <samp class="mono">and</samp> expression:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_455" title="455"></span><img src="../images/00406.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We choose to reuse <samp class="mono">contains?</samp> but with its arguments flipped.</p>
+<p class="calibre8">At this point, you may wonder why we are bothering with the development of such a predicate when we can rule out bad sorting functions with plain <samp class="mono">check-expect</samp> tests. The difference is that <samp class="mono">check-expect</samp> checks only that our sorting functions work on specific lists. With a predicate such as <samp class="mono">sorted-variant-of.v2</samp>, we can articulate the claim that a sorting function works for all possible inputs:</p>
+<figure class="co"><img src="../images/00407.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Let’s take a close look at these two lines. The first line generates a list of 500 numbers. Every time you ask DrRacket to evaluate this test, it is likely to generate a list never seen before. The second line is a test case that says sorting this generated list produces a list that (1) is sorted, (2) contains all the numbers on the generated list, and (3) contains nothing else. In other words, it is almost like saying that <b class="calibre9">for all</b> possible lists, <samp class="mono">sort-cmp</samp> produces outcomes that <samp class="mono">sorted-variant-of.v2</samp> blesses.</p>
+<p class="calibre8">Computer scientists call <samp class="mono">sorted-variant-of.v2</samp> a <i class="calibre6">specification</i> of a sorting function. The idea that <b class="calibre9">all</b> lists of numbers pass the above test case is a <b class="calibre9">theorem</b> about the relationship between the specification of the sorting function and its implementation. If a programmer can prove this theorem with a mathematical argument, we say that the function is <b class="calibre9">correct</b> with respect to its specification. How to prove functions or programs correct is beyond the scope of this book, but a good computer science curriculum shows you in a follow-up course how to construct such proofs.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 293. Develop <samp class="mono">found?</samp>, a specification for the <samp class="mono">find</samp> function:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_456" title="456"></span><img src="../images/00408.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Use <samp class="mono">found?</samp> to formulate a <samp class="mono">check-satisfied</samp> test for <samp class="mono">find</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 294. Develop <samp class="mono">is-index?</samp>, a specification for <samp class="mono">index</samp>:</p>
+<figure class="co"><img src="../images/00409.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Use <samp class="mono">is-index?</samp> to formulate a <samp class="mono">check-satisfied</samp> test for <samp class="mono">index</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 295. Develop <samp class="mono">n-inside-playground?</samp>, a specification of the <samp class="mono">random-posns</samp> function below. The function generates a predicate that ensures that the length of the given list is some given count and that all Posns in this list are within a <samp class="mono">WIDTH</samp> by <samp class="mono">HEIGHT</samp> rectangle:</p>
+<figure class="co"><img src="../images/00410.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Define <samp class="mono">random-posns/bad</samp> that satisfies <samp class="mono">n-inside-playground?</samp> and does not live up to the expectations implied by the above purpose statement. <b class="calibre9">Note</b> This specification is <b class="calibre9">incomplete</b>. Although the word “partial” might come to mind, computer scientists reserve the phrase “partial specification” for a different purpose. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_16"><a id="sec28-1" class="calibre16"></a>28.1 Newton’s Method</h2>
+<p class="tni">Chapter 27.2 introduces one method for finding the root of a mathematical function. As the exercises in the same section sketch, the method naturally generalizes to computational problems, such as finding certain values in tables, vectors, and arrays. In mathematical applications, programmers tend to employ methods that originate from analytical mathematics. A prominent one is due to Newton. Like binary search, the so-called <i class="calibre6">Newton method</i> repeatedly improves an approximation to the root until it is “close enough.” Starting from a guess, say, <i class="calibre6">r</i><sub class="calibre17">1</sub>, the essence of the process is to construct the tangent of <i class="calibre6">f</i> at <i class="calibre6">r</i><sub class="calibre17">1</sub> and to determine its root. While the tangent approximates the function, it is also straightforward to determine its root. By repeating this process sufficiently often, an algorithm can find a root <i class="calibre6">r</i> for which (<i class="calibre6">f r</i>) is close enough to 0.</p>
+<p class="marginpar">Newton proved this fact.</p>
+<p class="calibre8">Clearly, this process relies on two pieces of domain knowledge about tangents: their slopes and roots. Informally, a tangent of <i class="calibre6">f</i> at some point <i class="calibre6">r</i><sub class="calibre17">1</sub> is the line that goes through the point (<i class="calibre6">r</i><sub class="calibre17">1</sub><i class="calibre6">, f</i> (<i class="calibre6">r</i><sub class="calibre17">1</sub>)) and has the same slope as <i class="calibre6">f</i>. One mathematical way to obtain the tangent’s slope is to pick two close points on the x-axis that are equidistant from <i class="calibre6">r</i><sub class="calibre17">1</sub> and to use the slope of the line determined by <i class="calibre6">f</i> at those two points. The convention is to choose a small number <i class="calibre6">ε</i> and to work with <i class="calibre6">r</i><sub class="calibre17">1</sub> + <i class="calibre6">ε</i> and <i class="calibre6">r</i><sub class="calibre17">1</sub> − <i class="calibre6">ε</i>. That is, the points are (<i class="calibre6">r</i><sub class="calibre17">1</sub> − <i class="calibre6">ε</i>, f(<i class="calibre6">r</i><sub class="calibre17">1</sub> − <i class="calibre6">ε</i>)) and (<i class="calibre6">r</i><sub class="calibre17">1</sub> + <i class="calibre6">ε</i>, f(<i class="calibre6">r</i><sub class="calibre17">1</sub> + <i class="calibre6">ε</i>)), which determine a line and a slope:</p>
+<figure class="co"><img src="../images/00618.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 455. Translate this mathematical formula into the ISL+ function <samp class="mono">slope</samp>, which maps function <samp class="mono">f</samp> and a number <samp class="mono">r1</samp> to the slope of <samp class="mono">f</samp> at <samp class="mono">r1</samp>. Assume that <i class="calibre6">ε</i> is a global constant. For your examples, use functions whose exact slope you can figure out, say, horizontal lines, linear functions, and perhaps polynomials if you know some calculus. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_644" title="644"></span>The second piece of domain knowledge concerns the root of a tangent, which is just a line or a linear function. The tangent goes through (<i class="calibre6">r</i><sub class="calibre17">1</sub><i class="calibre6">, f</i> (<i class="calibre6">r</i><sub class="calibre17">1</sub>)) and has the above <i class="calibre6">slope</i>. Mathematically, it is defined as</p>
+<figure class="co"><img src="../images/00619.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Finding the root of <i class="calibre6">tangent</i> means finding a value <i class="calibre6">root-of-tangent</i> so that <i class="calibre6">tangent</i>(<i class="calibre6">root-of-tangent</i>) equals 0:</p>
+<figure class="co"><img src="../images/00620.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We can solve this equation in a straightforward manner:</p>
+<figure class="co"><img src="../images/00621.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 456. Design <samp class="mono">root-of-tangent</samp>, a function that maps <samp class="mono">f</samp> and <samp class="mono">r1</samp> to the root of the tangent through (<samp class="mono">r1</samp><i class="calibre6">,</i><samp class="mono">(f r1</samp><samp class="mono">)</samp>). <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Now we can use the design recipe to translate the description of Newton’s process into an ISL+ program. The function—let’s call it <samp class="mono">newton</samp> in honor of its inventor—consumes a function <samp class="mono">f</samp> and a number <samp class="mono">r1</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">] </samp>Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> a number</samp><samp class="mono"> r such</samp><samp class="mono"> that (f</samp><samp class="mono"> r) is</samp><samp class="mono"> small</samp> <br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">generative</span><samp class="mono"> repeatedly generates</samp><samp class="mono"> improved guesses</samp> <br class="calibre4"/><samp class="mono">(define (newton</samp><samp class="mono"> f r1)</samp><samp class="mono"> 1.0)</samp></p>
+</div>
+<p class="calibre8">For the template of <samp class="mono">newton</samp>, we turn to the central four questions of the design recipe for generative recursion:</p>
+<p class="nlf">1. If <samp class="mono">(f r1)</samp> is close enough to <samp class="mono">0</samp>, the problem is solved. Close to <samp class="mono">0</samp> could mean <samp class="mono">(f r1)</samp> is a small positive number or a small negative number. Hence we check its absolute value:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(&lt;= (abs</samp><samp class="mono"> (f r1))</samp><samp class="mono"> </samp><span>𝜀</span><samp class="mono">)</samp></samp></p>
+</div>
+<p class="nlf">2. The solution is <samp class="mono">r1</samp>.</p>
+<p class="nlf">3. The generative step of the algorithm consists of finding the root of the tangent of <samp class="mono">f</samp> at <samp class="mono">r1</samp>, which generates the next guess. By applying <samp class="mono">newton</samp> to <samp class="mono">f</samp> and this new guess, we resume the process.</p>
+<p class="nll">4. The answer of the recursion is also the answer of the original problem.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_645" title="645"></span><a id="rfig161" href="part0013_split_015.html#fig161" class="calibre5">Figure 161</a> displays <samp class="mono">newton</samp>. It includes two tests that are derived from the tests in chapter 27.2 for <samp class="mono">find-root</samp>. After all, both functions search for the root of a function, and <samp class="mono">poly</samp> has two known roots.</p>
+<div class="figure">
+<figure class="img"><a id="fig161" class="calibre5"></a><img src="../images/00622.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_015.html#rfig161" class="calibre5">Figure 161</a>:</span> <span>The Newton process</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">We are not finished with the design of <samp class="mono">newton</samp>. The new, seventh step of the design recipe calls for an investigation into the termination behavior of the function. For <samp class="mono">newton</samp>, the problem shows up with <samp class="mono">poly</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">(define (poly</samp><samp class="mono"> x) (*</samp><samp class="mono"> (- x</samp><samp class="mono"> 2) (-</samp><samp class="mono"> x 4)))</samp></p>
+</div>
+<p class="tni">As mentioned, its roots are <samp class="mono">2</samp> and <samp class="mono">4</samp>. The graph of <samp class="mono">poly</samp> in <a id="rfig162" href="part0013_split_015.html#fig162" class="calibre5">figure 162</a> confirms these roots and also shows that between the two roots the function flattens out. For a mathematically inclined person, this shape raises the question of what <samp class="mono">newton</samp> computes for an initial guess of <samp class="mono">3</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (poly</samp><samp class="mono"> 3)</samp> <br class="calibre4"/><samp class="mono">-1</samp> <br class="calibre4"/><samp class="mono">&gt; (newton</samp><samp class="mono"> poly 3)</samp> <br class="calibre4"/><samp class="mono">/:division by</samp><samp class="mono"> zero</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig162" class="calibre5"></a><img src="../images/00623.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_015.html#rfig162" class="calibre5">Figure 162</a>:</span> <span>The graph of <samp class="mono">poly</samp> on the interval [-1<i class="calibre6">,</i><samp class="mono">5</samp>]</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">The explanation is that <samp class="mono">slope</samp> produces a “bad” value and the <samp class="mono">root-of-tangent</samp> function turns it into an error:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_646" title="646"></span><samp class="mono">&gt; (slope</samp><samp class="mono"> poly 3)</samp> <br class="calibre4"/><samp class="mono">0</samp> <br class="calibre4"/><samp class="mono">&gt; (root-of-tangent</samp><samp class="mono"> poly 3)</samp> <br class="calibre4"/><samp class="mono">/:division by</samp><samp class="mono"> zero</samp></p>
+</div>
+<p class="calibre8">In addition to this run-time error, <samp class="mono">newton</samp> exhibits two other problems with respect to termination. Fortunately, we can demonstrate both with <samp class="mono">poly</samp>. The first one concerns the nature of numbers, which we briefly touched on in chapter 1.1. It is safe to ignore the distinction between exact and inexact numbers for many beginner exercises in programming, but when it comes to translating mathematics into programs, you need to proceed with extreme caution. Consider the following:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (newton</samp><samp class="mono"> poly 2.9999)</samp></p>
+</div>
+<p class="tni">An ISL+ program treats <samp class="mono">2.9999</samp> as an exact number, and the computations in <samp class="mono">newton</samp> process it as such, though because the numbers aren’t integers, the computation uses exact rational fractions. Since the arithmetic for fractions can get much slower than the arithmetic for inexact numbers, the <span epub:type="pagebreak" id="pg_647" title="647"></span>above function call takes a significant amount of time in DrRacket. Depending on your computer, it may take between a few seconds and a minute or more. If you happen to choose other numbers that trigger this form of computation, it may seem as if the call to <samp class="mono">newton</samp> does not terminate at all.</p>
+<p class="calibre8">The second problem concerns non-termination. Here is the example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (newton</samp><samp class="mono"> poly #i3.0)</samp></p>
+</div>
+<p class="tni">It uses the inexact number <samp class="mono">#i3.0</samp> as the initial guess, which unlike <samp class="mono">3</samp> causes a different kind of problem. Specifically, the <samp class="mono">slope</samp> function now produces an inexact <samp class="mono">0</samp> for poly while <samp class="mono">root-of-tangent</samp> jumps to infinity:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (slope</samp><samp class="mono"> poly #i3.0)</samp> <br class="calibre4"/><samp class="mono">#i0.0</samp> <br class="calibre4"/><samp class="mono">&gt; (root-of-tangent</samp><samp class="mono"> poly #i3.0)</samp> <br class="calibre4"/><samp class="mono">#i+inf.0</samp></p>
+</div>
+<p class="tni">As a result, the evaluation immediately falls into an infinite loop.</p>
+<p class="calibre8">In short, <samp class="mono">newton</samp> exhibits the full range of problems when it comes to complex termination behavior. For some inputs, the function produces a correct result. For some others, it signals errors. And for yet others, it goes into infinite loop or appears to go into one. The header for <samp class="mono">newton</samp>—or some other piece of writing—must warn others who wish to use the function and future readers of these complexities, and good math libraries in common programming languages do so.</p>
+<p class="marginpar">The calculation in <samp class="monospace-margin">newton</samp> turns <samp class="monospace-margin">#i+inf.0</samp> into <samp class="monospace-margin">+nan.0</samp>, a piece of data that says “not a number.” Most arithmetic operations propagate this value, which explains the behavior of <samp class="monospace-margin">newton</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 457. Design the function <samp class="mono">double-amount</samp>, which computes how many months it takes to double a given amount of money when a savings account pays interest at a fixed rate on a monthly basis.</p>
+<p class="marginpar">This exercise was suggested by Adrian German.</p>
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> With a minor algebraic manipulation, you can show that the given amount is irrelevant. Only the interest rate matters. Also domain experts know that doubling occurs after roughly 72<i class="calibre6">/r</i> month as long as the interest rate <i class="calibre6">r</i> is “small.” <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

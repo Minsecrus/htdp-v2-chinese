@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head2" id="calibre_pb_35"><a id="sec5-2" class="calibre16"></a><b class="calibre21">5.2 Computing with</b> <samp class="monospace-margin1">posn</samp><b class="calibre21">s</b></h2>
+<p class="tni">While functions and the laws of functions are completely familiar from pre-algebra, <samp class="mono">posn</samp> structures appear to be a new idea. Then again, the concept of a <samp class="mono">posn</samp> ought to look like the Cartesian points or positions in the plane you may have encountered before.</p>
+<p class="calibre8">Selecting a Cartesian point’s pieces is also a familiar process. For example, when a teacher says, “take a look at the graph of <a id="rfig29" href="part0005_split_034.html#fig29" class="calibre5">figure 29</a> and tell me what <i class="calibre6">p</i><sub class="calibre17"><i class="calibre6">x</i></sub> and <i class="calibre6">p</i><sub class="calibre17"><i class="calibre6">y</i></sub> are,” you are likely to answer 31 and 26, respectively, because you know that you need to read off the values where the vertical and horizontal lines that radiate out from <i class="calibre6">p</i> hit the axes.</p>
+<div class="figure">
+<figure class="img"><a id="fig29" class="calibre5"></a><img src="../images/00095.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_034.html#rfig29" class="calibre5">Figure 29</a>:</span> <span>A Cartesian point</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">We thank Neil Toronto for the <samp class="monospace-margin">plot</samp> library.</p>
+<p class="calibre8">We can express this idea in BSL. Assume you add</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define p</samp><samp class="mono"> (make-posn 31</samp><samp class="mono"> 26))</samp></samp></p>
+</div>
+<p class="tni">to the definitions area, click <i class="calibre6">RUN</i>, and perform these interactions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_140" title="140"></span><samp class="mono">&gt; (posn-x</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">31</samp> <br class="calibre4"/><samp class="mono">&gt; (posn-y</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">26</samp></samp></p>
+</div>
+<p class="tni">Defining <samp class="mono">p</samp> is like marking the point in a Cartesian plane; using <samp class="mono">posn-x</samp> and <samp class="mono">posn-y</samp> is like subscripting <samp class="mono">p</samp> with indexes: <i class="calibre6">p</i><sub class="calibre17"><i class="calibre6">x</i></sub> and <i class="calibre6">p</i><sub class="calibre17"><i class="calibre6">y</i></sub>.</p>
+<p class="calibre8">Computationally speaking, <samp class="mono">posn</samp> structures come with two equations:</p>
+<div class="ind">
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(posn-x (make-posn</samp><samp class="mono"> x0 y0))</samp><samp class="mono"> == x0</samp> <br class="calibre4"/><samp class="mono">(posn-y (make-posn</samp><samp class="mono"> x0 y0))</samp><samp class="mono"> == y0</samp></samp></p>
+</div>
+</div>
+<p class="tni">DrRacket uses these equations during computations. Here is an example of a computation involving <samp class="mono">posn</samp> structures:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(posn-x p)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket replaces</samp><samp class="mono"> p with</samp><samp class="mono"> (make-posn 31</samp><samp class="mono"> 26)</samp> <br class="calibre4"/><samp class="mono">(posn-x (make-posn</samp><samp class="mono"> 31 26))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket uses</samp><samp class="mono"> the law</samp><samp class="mono"> for posn-x</samp> <br class="calibre4"/><samp class="mono">31</samp></samp></p>
+</div>
+<p class="tni">Stop! Confirm the second interaction above with your own computation. Also use DrRacket’s stepper to double-check.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

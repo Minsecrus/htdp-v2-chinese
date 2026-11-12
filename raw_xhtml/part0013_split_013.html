@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_14"><a id="sec27-3" class="calibre16"></a>27.3 A Glimpse at Parsing</h2>
+<p class="tni">As mentioned in chapter 20, computers come with files, which provide a form of permanent memory. From our perspective a <i class="calibre6">file</i> is just a list of 1Strings, though interrupted by a special string:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">File</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons "\n" </samp>File<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>1String File<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">interpretation</span><samp class="mono"> represents the</samp><samp class="mono"> content of</samp><samp class="mono"> a file</samp> <br class="calibre4"/><samp class="mono">; "\n" is</samp><samp class="mono"> the newline</samp><samp class="mono"> character</samp></p>
+</div>
+<p class="marginpar">The exact convention differs from one operating system to another, but for our purposes this is irrelevant.</p>
+<p class="tni">The idea is that Files are broken into lines, where <samp class="mono">"\n"</samp> represents the so-called newline character, which indicates the end of a line. Let’s also introduce lines before we move on:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Line</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of 1String<samp class="mono">].</samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_639" title="639"></span>Many functions need to process files as list of lines. The <samp class="mono">read-lines</samp> from the <i class="calibre6">2htdp/batch-io</i> library is one of them. Concretely, the function turns the file</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list</samp> <br class="calibre4"/><samp class="mono">  "h"</samp><samp class="mono"> "o" "w"</samp><samp class="mono"> " "</samp><samp class="mono"> "a" "r"</samp><samp class="mono"> "e" "</samp><samp class="mono"> " "y"</samp><samp class="mono"> "o" "u"</samp><samp class="mono"> "\n"</samp> <br class="calibre4"/><samp class="mono">  "d"</samp><samp class="mono"> "o" "i"</samp><samp class="mono"> "n" "g"</samp><samp class="mono"> "?" "</samp><samp class="mono">\n"</samp> <br class="calibre4"/><samp class="mono">  "a"</samp><samp class="mono"> "n" "y"</samp><samp class="mono"> " "</samp><samp class="mono"> "p" "r"</samp><samp class="mono"> "o" "g"</samp><samp class="mono"> "r" "e"</samp><samp class="mono"> "s" "s"</samp><samp class="mono"> "?")</samp></p>
+</div>
+<p class="tni">into a list of three lines:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list</samp> <br class="calibre4"/><samp class="mono">  (list</samp><samp class="mono"> "h" "o"</samp><samp class="mono"> "w" "</samp><samp class="mono"> " "a"</samp><samp class="mono"> "r" "e"</samp><samp class="mono"> " "</samp><samp class="mono"> "y" "o"</samp><samp class="mono"> "u")</samp> <br class="calibre4"/><samp class="mono">  (list</samp><samp class="mono"> "d" "o"</samp><samp class="mono"> "i" "n"</samp><samp class="mono"> "g" "?")</samp> <br class="calibre4"/><samp class="mono">  (list</samp><samp class="mono"> "a" "n"</samp><samp class="mono"> "y" "</samp><samp class="mono"> " "p"</samp><samp class="mono"> "r" "o"</samp><samp class="mono"> "g" "r"</samp><samp class="mono"> "e"</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  "s"</samp><samp class="mono"> "s" "?"))</samp></p>
+</div>
+<p class="tni">Similarly, the file</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "a"</samp><samp class="mono"> "b" "c"</samp><samp class="mono"> "\n" "d"</samp><samp class="mono"> "e" "\n" "f"</samp><samp class="mono"> "g" "h"</samp><samp class="mono"> "\n")</samp></p>
+</div>
+<p class="tni">also corresponds to a list of three lines:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list (list</samp><samp class="mono"> "a" "b"</samp><samp class="mono"> "c")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> "d" "e")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> "f" "g"</samp><samp class="mono"> "h"))</samp></p>
+</div>
+<p class="tni">Stop! What are the list-of-lines representations for these three cases: <samp class="mono">'()</samp>, <samp class="mono">(list "\n")</samp>, and <samp class="mono">(list "\n" "\n")</samp>? Why are these examples important test cases?</p>
+<p class="calibre8">The problem of turning a sequence of 1Strings into a list of lines is called the <i class="calibre6">parsing</i> problem. Many programming languages provide functions that retrieve lines, words, numbers, and other kinds of so-called tokens from files. But even if they do, it is common that programs need to parse these tokens even further. This section provides a glimpse at a parsing technique. Parsing is so complex and so central to the creation of full-fledged software applications, however, that most undergraduate curricula come with at least one course on parsing. So do not think you can tackle real parsing problems properly even after mastering this section.</p>
+<p class="calibre8">We start by stating the obvious—a signature, a purpose statement, one of the above examples, and a header—for a function that turns a File into a list of Lines:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_640" title="640"></span><img src="../images/00614.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">It is also easy to describe the parsing process, given our experience with chapter 26.1:</p>
+<p class="nlf">1. The problem is trivially solvable if the file is <samp class="mono">'()</samp>.</p>
+<p class="nlf">2. In that case, the file doesn’t contain a line.</p>
+<p class="nlf">3. Otherwise, the file contains at least one <samp class="mono">"\n"</samp> or some other 1String. These items—up to and including the first <samp class="mono">"\n"</samp>, if any—must be separated from the rest of the File. The remainder is a new problem of the same kind that <samp class="mono">file-&gt;list-of-lines</samp> can solve.</p>
+<p class="nll">4. It then suffices to <samp class="mono">cons</samp> the initial segment as a single line to the list of Lines that result from the rest of the File.</p>
+<p class="tni">The four questions suggest a straightforward instantiation of the template for generative recursive functions. Because the separation of the initial segment from the rest of the file requires a scan of an arbitrarily long list of 1Strings, we put two auxiliary functions on our wish list: <samp class="mono">first-line</samp>, which collects all 1Strings up to, but excluding, the first occurrence of <samp class="mono">"\n"</samp> or the end of the list; and <samp class="mono">remove-first-line</samp>, which removes the very same items that <samp class="mono">first-line</samp> collects.</p>
+<p class="calibre8">From here, it is easy to create the rest of the program. In <samp class="mono">file-&gt;list-of-lines</samp>, the answer in the first clause must be <samp class="mono">'()</samp> because an empty file does not contain any lines. The answer in the second clause must <samp class="mono">cons</samp> the value of <samp class="mono">(first-line afile)</samp> onto the value <samp class="mono">(file-&gt;list-of-lines (remove-first-line afile))</samp>, because the first expression computes the first line and the second one computes the rest of the lines. Finally, the auxiliary functions traverse their inputs in a structurally <span epub:type="pagebreak" id="pg_641" title="641"></span>recursive manner; their development is a straightforward exercise. <a id="rfig160" href="part0013_split_013.html#fig160" class="calibre5">Figure 160</a> presents the complete program code.</p>
+<div class="figure">
+<figure class="img"><a id="fig160" class="calibre5"></a><img src="../images/00615.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_013.html#rfig160" class="calibre5">Figure 160</a>:</span> <span>Translating a file into a list of lines</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Here is how <samp class="mono">file-&gt;list-of-lines</samp> processes the second test:</p>
+<figure class="co"><img src="../images/00616.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_642" title="642"></span>This evaluation is another reminder that the argument of the recursive application of <samp class="mono">file-&gt;list-of-lines</samp> is almost never the rest of the given file. It also shows why this generative recursion is guaranteed to terminate for every given File. Every recursive application consumes a list that is shorter than the given one, meaning the recursive process stops when the process reaches <samp class="mono">'()</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 452. Both <samp class="mono">first-line</samp> and <samp class="mono">remove-first-line</samp> are missing purpose statements. Articulate proper statements. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 453. Design the function <samp class="mono">tokenize</samp>. It turns a Line into a list of tokens. Here a token is either a 1String or a String that consists of lower-case letters and nothing else. That is, all white-space 1Strings are dropped; all other non-letters remain as is; and all consecutive letters are bundled into “words.” <b class="calibre9">Hint</b> Read up on the <samp class="mono">string-whitespace?</samp> function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 454. Design <samp class="mono">create-matrix</samp>. The function consumes a number <i class="calibre6">n</i> and a list of <i class="calibre6">n</i><sup class="calibre15">2</sup> numbers. It produces an <i class="calibre6">n</i> × <i class="calibre6">n</i> matrix, for example:</p>
+<figure class="co"><img src="../images/00617.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Make up a second example. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

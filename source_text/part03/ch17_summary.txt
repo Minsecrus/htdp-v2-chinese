@@ -1,0 +1,1337 @@
+# Chapter 17: Summary / 第 17 章：小结
+
+<h2>
+16.6 Designing with Abstractions
+</h2>
+
+<P>
+The three sample problems from the preceding section suffice for formulating a design recipe:
+</P>
+
+<P>
+1. Step 1 is to follow the design recipe for functions for three steps. Specifically, you should distill the problem statement into a signature, a purpose statement, an example, and a stub definition.
+</P>
+
+<P>
+Consider the problem of defining a function that places small red circles on a 200 × 200 canvas for a given list of Posns. The first three steps of the design recipe yields this much:
+</P>
+
+<FIGURE src="images/00382.png">
+
+</FIGURE>
+
+<P>
+Add definitions for the constants so DrRacket can run the code.
+</P>
+
+<P>
+2. Next we exploit the signature and purpose statement to find a matching abstraction. To match means to pick an abstraction whose purpose is more general than the one for the function to be designed; it also means that the signatures are related. It is often best to start with the desired output and to find an abstraction that has the same or a more general output.
+</P>
+
+<P>
+For our running example, the desired output is an Image. While none of the available abstractions produces an image, two of them have a variable to the right of
+</P>
+
+<FIGURE src="images/00383.png">
+
+</FIGURE>
+
+<P>
+meaning we can plug in any data collection we want. If we do use Image, the signature on the left of -> demands a helper function that consumes an X together with an Image and produces an Image. Furthermore, since the given list contains Posns, X does stand for the Posn collection.
+</P>
+
+<P>
+3. Write down a template. For the reuse of abstractions, a template uses local for two different purposes. The first one is to note which abstraction to use, and how, in the body of the local expression. The second one is to write down a stub for the helper function: its signature, its purpose (optionally), and its header. Keep in mind that the signature comparison in the preceding step suggests most of the signature for the auxiliary function.
+</P>
+
+<P>
+Here is what this template looks like for our running example if we choose the foldr function:
+</P>
+
+<FIGURE src="images/00384.png">
+
+</FIGURE>
+
+<P>
+The foldr description calls for a “base” Image value, to be used if or when the list is empty. In our case, we clearly want the empty canvas for this case. Otherwise, foldr uses a helper function and traverses the list of Posns.
+</P>
+
+<P>
+4. Finally, it is time to define the auxiliary function inside local. In most cases, this function consumes relatively simple kinds of data, like those encountered in part I. You know how to design those in principle. The difference is that now you use not only the function’s arguments and global constants but also the arguments of the surrounding function.
+</P>
+
+<P>
+In our running example, the purpose of the helper function is to add one dot to the given scene, which you can (1) guess or (2) derive from the example:
+</P>
+
+<FIGURE src="images/00385.png">
+
+</FIGURE>
+
+<P>
+5. The last step is to test the definition in the usual manner.
+</P>
+
+<P>
+For abstract functions, it is occasionally possible to use the abstract example of their purpose statement to confirm their workings at a more general level. You may wish to use the abstract example for foldr to confirm that dots does add one dot after another to the background scene.
+</P>
+
+<P>
+In the third step, we picked foldr without further ado. Experiment with foldl to see how it would help complete this function. Functions like foldl and foldr are well-known and are spreading in usage in various forms. Becoming familiar with them is a good idea, and that’s the point of the next two sections.
+</P>
+
+<h2>
+16.7 Finger Exercises: Abstraction
+</h2>
+
+<EXERCISE>
+Exercise 267. Use map to define the function convert-euro, which converts a list of US$ amounts into a list of € amounts based on an exchange rate of US$1.06 per € (on April 13, 2017).
+</EXERCISE>
+
+<P>
+Also use map to define convertFC, which converts a list of Fahrenheit measurements to a list of Celsius measurements.
+</P>
+
+<P>
+Finally, try your hand at translate, a function that translates a list of Posns into a list of lists of pairs of numbers.
+</P>
+
+<EXERCISE>
+Exercise 268. An inventory record specifies the name of an item, a description, the acquisition price, and the recommended sales price.
+</EXERCISE>
+
+<P>
+Define a function that sorts a list of inventory records by the difference between the two prices.
+</P>
+
+<EXERCISE>
+Exercise 269. Define eliminate-expensive. The function consumes a number, ua, and a list of inventory records, and it produces a list of all those structures whose sales price is below ua.
+</EXERCISE>
+
+<P>
+Then use filter to define recall, which consumes the name of an inventory item, called ty, and a list of inventory records and which produces a list of inventory records that do not use the name ty.
+</P>
+
+<P>
+In addition, define selection, which consumes two lists of names and selects all those from the second one that are also on the first.
+</P>
+
+<EXERCISE>
+Exercise 270. Use build-list to define a function that
+</EXERCISE>
+
+<P>
+1. creates the list (list 0 … (- n 1)) for any natural number n;
+</P>
+
+<P>
+2. creates the list (list 1 … n) for any natural number n;
+</P>
+
+<P>
+3. creates the list (list 1 1/2 … 1/n) for any natural number n;
+</P>
+
+<P>
+4. creates the list of the first n even numbers; and
+</P>
+
+<P>
+5. creates a diagonal square of 0s and 1s; see exercise 262.
+</P>
+
+<P>
+Finally, define tabulate from exercise 250 using build-list.
+</P>
+
+<EXERCISE>
+Exercise 271. Use ormap to define find-name. The function consumes a name and a list of names. It determines whether any of the names on the latter are equal to or an extension of the former.
+</EXERCISE>
+
+<P>
+With andmap you can define a function that checks all names on a list of names that start with the letter "a".
+</P>
+
+<P>
+Should you use ormap or andmap to define a function that ensures that no name on some list exceeds a given width?
+</P>
+
+<EXERCISE>
+Exercise 272. Recall that the append function in ISL concatenates the items of two lists or, equivalently, replaces '() at the end of the first list with the second list:
+</EXERCISE>
+
+<FIGURE src="images/00386.png">
+
+</FIGURE>
+
+<P>
+Use foldr to define append-from-fold. What happens if you replace foldr with foldl?
+</P>
+
+<P>
+Now use one of the fold functions to define functions that compute the sum and the product, respectively, of a list of numbers.
+</P>
+
+<P>
+With one of the fold functions, you can define a function that horizontally composes a list of Images. Hints (1) Look up beside and empty-image. Can you use the other fold function? Also define a function that stacks a list of images vertically. (2) Check for above in the libraries.
+</P>
+
+<EXERCISE>
+Exercise 273. The fold functions are so powerful that you can define almost any list processing functions with them. Use fold to define map.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 274. Use existing abstractions to define the prefixes and suffixes functions from exercise 190. Ensure that they pass the same tests as the original function.
+</EXERCISE>
+
+<h2>
+16.8 Projects: Abstraction
+</h2>
+
+<P>
+Now that you have some experience with the existing list-processing abstractions in ISL, it is time to tackle some of the small projects for which you already have programs. The challenge is to look for two kinds of improvements. First, inspect the programs for functions that traverse lists. For these functions, you already have signatures, purpose statements, tests, and working definitions that pass the tests. Change the definitions to use abstractions from figures 95 and 96. Second, also determine whether there are opportunities to create new abstractions. Indeed, you might be able to abstract across these classes of programs and provide generalized functions that help you write additional programs.
+</P>
+
+<MARGIN_NOTE>
+You may wish to tackle these exercises again after studying chapter 17.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 275. Chapter 12.1 deals with relatively simple tasks relating to English dictionaries. The design of two of them just call out for the use of existing abstractions:
+</EXERCISE>
+
+<P>
+•  Design most-frequent. The function consumes a Dictionary and produces the Letter-Count for the letter that is most frequently used as the first one in the words of the given Dictionary.
+</P>
+
+<P>
+•  Design words-by-first-letter. The function consumes a Dictionary and produces a list of Dictionarys, one per Letter. Do not include '() if there are no words for some letter; ignore the empty grouping instead.
+</P>
+
+<P>
+For the data definitions, see figure 74.
+</P>
+
+<EXERCISE>
+Exercise 276. Chapter 12.2 explains how to analyze the information in an iTunes XML library.
+</EXERCISE>
+
+<P>
+•  Design select-album-date. The function consumes the title of an album, a date, and an LTracks. It extracts from the latter the list of tracks from the given album that have been played after the date.
+</P>
+
+<P>
+•  Design select-albums. The function consumes an LTracks. It produces a list of LTracks, one per album. Each album is uniquely identified by its title and shows up in the result only once.
+</P>
+
+<P>
+See figure 77 for the services provided by the 2htdp/itunes library.
+</P>
+
+<EXERCISE>
+Exercise 277. Chapter 12.7 spells out a game of space war. In the basic version, a UFO descends and a player defends with a tank. One additional suggestion is to equip the UFO with charges that it can drop at the tank; the tank is destroyed if a charge comes close enough.
+</EXERCISE>
+
+<P>
+Inspect the code of your project for places where it can benefit from existing abstraction, that is, processing lists of shots or charges.
+</P>
+
+<P>
+Once you have simplified the code with the use of existing abstractions, look for opportunities to create abstractions. Consider moving lists of objects as one example where abstraction may pay off.
+</P>
+
+<EXERCISE>
+Exercise 278. Chapter 12.5 explains how another one of the oldest computer games work. The game features a worm that moves at a constant speed in a player-controlled direction. When it encounters food, it eats the food and grows. When it runs into the wall or into itself, the game is over.
+</EXERCISE>
+
+<P>
+This project can also benefit from the abstract list-processing functions in ISL. Look for places to use them and replace existing code, a piece at a time. Tests will ensure that you aren’t introducing mistakes.
+</P>
+
+<h1>
+17 Nameless Functions
+</h1>
+
+<P>
+Using abstract functions needs functions as arguments. Occasionally these functions are existing primitive functions, library functions, or functions that you defined:
+</P>
+
+<P>
+•  (build-list n add1) creates (list 1… n);
+</P>
+
+<P>
+•  (foldr cons another-list a-list) concatenates the items in a-list and another-list into a single list; and
+</P>
+
+<P>
+•  (foldr above empty-image images) stacks the given images.
+</P>
+
+<P>
+At other times, it requires the definition of a simple helper function, a definition that often consists of a single line. Consider this use of filter:
+</P>
+
+<FIGURE src="images/00387.png">
+
+</FIGURE>
+
+<P>
+It finds all items on an inventory list whose price is below th. The auxiliary function is nearly trivial yet its definition takes up three lines.
+</P>
+
+<MARGIN_NOTE>
+In DrRacket, choose “Intermediate Student with lambda” from the “How to Design Programs” submenu in the “Language” menu. The history of lambda is intimately involved with the early history of programming and programming language design.
+</MARGIN_NOTE>
+
+<P>
+This situation calls for an improvement to the language. Programmers should be able to create such small and insignificant functions without much effort. The next level in our hierarchy of teaching languages, “Intermediate Student Language with lambda,” solves the problem with a new concept, nameless functions. This chapter introduces the concept: its syntax, its meaning, and its pragmatics. With lambda, the above definition is, conceptually speaking, a one-liner:
+</P>
+
+<CODE>
+; [List-of IR] Number -> Boolean (define (find l th)   (filter (lambda (ir) (<= (ir-price ir) th)) l))
+</CODE>
+
+<P>
+The first two sections focus the mechanics of lambda; the remaining ones use lambda for instantiating abstractions, for testing and specifying, and for representing infinite data.
+</P>
+
+<h2>
+17.1 Functions from lambda
+</h2>
+
+<P>
+The syntax of lambda is straightforward:
+</P>
+
+<CODE>
+(lambda (variable-1 … variable-N) expression)
+</CODE>
+
+<P>
+Its distinguishing characteristic is the keyword lambda. The keyword is followed by a sequence of variables, enclosed in a pair of parentheses. The last piece is an arbitrary expression, and it computes the result of the function when it is given values for its parameters.
+</P>
+
+<P>
+Here are three simple examples, all of which consume one argument:
+</P>
+
+<P>
+1. (lambda (x) (expt 10 x)), which assumes that the argument is a number and computes the exponent of 10 to the number;
+</P>
+
+<P>
+2. (lambda (n) (string-append "To " n ",")), which uses a given string to synthesize an address with string-append; and
+</P>
+
+<P>
+3. (lambda (ir) (<= (ir-price ir) th)), which is a function on an IR structure that extracts the price and compares it with th.
+</P>
+
+<P>
+One way to understand how lambda works is to view it as an abbreviation for a local expression. For example,
+</P>
+
+<CODE>
+(lambda (x) (* 10 x))
+</CODE>
+
+<P>
+is short for
+</P>
+
+<CODE>
+(local ((define some-name (lambda (x) (* 10 x))))    some-name)
+</CODE>
+
+<MARGIN_NOTE>
+This way of thinking about lambda shows one more time why the rule for computing with local is complicated.
+</MARGIN_NOTE>
+
+<P>
+This “trick” works, in general, as long as some-name does not appear in the body of the function. What this means is that lambda creates a function with a name that nobody knows. If nobody knows the name, it might as well be nameless.
+</P>
+
+<P>
+To use a function created from a lambda expression, you apply it to the correct number of arguments. It works as expected:
+</P>
+
+<CODE>
+> ((lambda (x) (expt 10 x)) 2) 100 > ((lambda (name rst) (string-append name ", " rst))    "Robby"    "etc.") "Robby, etc." > ((lambda (ir) (<= (ir-price ir) th))    (make-ir "bear" 10)) #true
+</CODE>
+
+<P>
+Note how the second sample function requires two arguments and that the last example assumes a definition for th in the definitions window such as this one:
+</P>
+
+<CODE>
+(define th 20)
+</CODE>
+
+<P>
+The result of the last example is #true because the price field of the inventory record contains 10, and 10 is less than 20.
+</P>
+
+<P>
+The important point is that these nameless functions can be used wherever a function is required, including with the abstractions from figure 95:
+</P>
+
+<FIGURE src="images/00388.png">
+
+</FIGURE>
+
+<P>
+Once again, the last example assumes a definition for th.
+</P>
+
+<MARGIN_NOTE>
+The dots are not part of the output.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 279. Decide which of the following phrases are legal lambda expressions:
+</EXERCISE>
+
+<P>
+1. (lambda (x y) (x y y))
+</P>
+
+<P>
+2. (lambda () 10)
+</P>
+
+<P>
+3. (lambda (x) x)
+</P>
+
+<P>
+4. (lambda (x y) x)
+</P>
+
+<P>
+5. (lambda x 10)
+</P>
+
+<P>
+Explain why they are legal or illegal. If in doubt, experiment in the interactions area of DrRacket.
+</P>
+
+<EXERCISE>
+Exercise 280. Calculate the result of the following expressions:
+</EXERCISE>
+
+<FIGURE src="images/00389.png">
+
+</FIGURE>
+
+<P>
+Check your results in DrRacket.
+</P>
+
+<EXERCISE>
+Exercise 281. Write down a lambda expression that
+</EXERCISE>
+
+<P>
+1. consumes a number and decides whether it is less than 10;
+</P>
+
+<P>
+2. multiplies two given numbers and turns the result into a string;
+</P>
+
+<P>
+3. consumes a natural number and returns 0 for evens and 1 for odds;
+</P>
+
+<P>
+4. consumes two inventory records and compares them by price; and
+</P>
+
+<P>
+5. adds a red dot at a given Posn to a given Image.
+</P>
+
+<P>
+Demonstrate how to use these functions in the interactions area.
+</P>
+
+<h2>
+17.2 Computing with lambda
+</h2>
+
+<P>
+The insight that lambda abbreviates a certain kind of local also connects constant definitions and function definitions. Instead of viewing function definitions as given, we can take lambdas as another fundamental concept and say that a function definition abbreviates a plain constant definition with a lambda expression on the right-hand side.
+</P>
+
+<P>
+It’s best to look at some concrete examples:
+</P>
+
+<FIGURE src="images/00390.png">
+
+</FIGURE>
+
+<P>
+What this line says is that a function definition consists of two steps: the creation of the function and its naming. Here, the lambda on the right-hand side creates a function of one argument x that computes 10 · x; it is define that names the lambda expression f. We give names to functions for two distinct reasons. On the one hand, a function is often called more than once from other functions, and we wouldn’t want to spell out the function with a lambda each time it is called. On the other hand, functions are often recursive because they process recursive forms of data, and naming functions makes it easy to create recursive functions.
+</P>
+
+<EXERCISE>
+Exercise 282. Experiment with the above definitions in DrRacket.
+</EXERCISE>
+
+<P>
+Also add
+</P>
+
+<CODE>
+; Number -> Boolean (define (compare x)   (= (f-plain x) (f-lambda x)))
+</CODE>
+
+<P>
+to the definitions area after renaming the left-hand f to f-plain and the right-hand one to f-lambda. Then run
+</P>
+
+<CODE>
+(compare (random 100000))
+</CODE>
+
+<P>
+a few times to make sure the two functions agree on all kinds of inputs.
+</P>
+
+<P>
+If function definitions are just abbreviations for constant definitions, we can replace the function name by its lambda expression:
+</P>
+
+<CODE>
+(f (f 42)) == ((lambda (x) (* 10 x)) ((lambda (x) (* 10 x)) 42))
+</CODE>
+
+<P>
+Strangely though, this substitution appears to create an expression that violates the grammar as we know it. To be precise, it generates an application expression whose function position is a lambda expression.
+</P>
+
+<P>
+The point is that ISL+’s grammar differs from ISL’s in two aspects: it obviously comes with lambda expressions, but it also allows arbitrary expressions to show up in the function position of an application. This means that you may need to evaluate the function position before you can proceed with an application, but you know how to evaluate most expressions. Of course, the real difference is that the evaluation of an expression may yield a lambda expression. Functions really are values. The following grammar revises the one from intermezzo 1 to summarize these differences:
+</P>
+
+<FIGURE src="images/00391.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+Alonzo Church, who invented lambda in the late 1920s, hoped to create a unifying theory of functions. He stated the beta axiom roughly like this.—From his work we know that from a theoretical perspective, a language does not need local once it has lambda. But the margin of this page is too small to explain this idea properly. If you are curious, read up on the Y combinator.
+</MARGIN_NOTE>
+
+<P>
+What you really need to know is how to evaluate the application of a lambda expression to arguments, and that is surprisingly straightforward:
+</P>
+
+<CODE>
+((lambda (x-1 … x-n) f-body) v-1 … v-n) == f-body ; with all occurrences of x-1 … x-n ; replaced with v-1 … v-n, respectively [beta-v]
+</CODE>
+
+<P>
+That is, the application of a lambda expression proceeds just like that of an ordinary function. We replace the parameters of the function with the actual argument values and compute the value of the function body.
+</P>
+
+<P>
+Here is how to use this law on the first example in this chapter:
+</P>
+
+<CODE>
+((lambda (x) (* 10 x)) 2) == (* 10 2) == 20
+</CODE>
+
+<P>
+The second one proceeds in an analogous manner:
+</P>
+
+<CODE>
+((lambda (name rst) (string-append name ", " rst))  "Robby" "etc.") == (string-append "Robby" ", " "etc.") == "Robby, etc."
+</CODE>
+
+<P>
+Stop! Use your intuition to calculate the third example:
+</P>
+
+<CODE>
+((lambda (ir) (<= (ir-price ir) th))  (make-ir "bear" 10))
+</CODE>
+
+<P>
+Assume th is larger than or equal to 10.
+</P>
+
+<EXERCISE>
+Exercise 283. Confirm that DrRacket’s stepper can deal with lambda. Use it to step through the third example and also to determine how DrRacket evaluates the following expressions:
+</EXERCISE>
+
+<FIGURE src="images/00392.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 284. Step through the evaluation of this expression:
+</EXERCISE>
+
+<CODE>
+((lambda (x) x) (lambda (x) x))
+</CODE>
+
+<P>
+Now step through this one:
+</P>
+
+<CODE>
+((lambda (x) (x x)) (lambda (x) x))
+</CODE>
+
+<P>
+Stop! What do you think we should try next?
+</P>
+
+<P>
+Yes, try to evaluate
+</P>
+
+<CODE>
+((lambda (x) (x x)) (lambda (x) (x x)))
+</CODE>
+
+<P>
+Be ready to hit STOP.
+</P>
+
+<h2>
+17.3 Abstracting with lambda
+</h2>
+
+<P>
+Although it may take you a while to get used to lambda notation, you’ll soon notice that lambda makes short functions much more readable than local definitions. Indeed, you will find that you can adapt step 4 of the design recipe from chapter 16.6 to use lambda instead of local. Consider the running example from that section. Its template based on local is this:
+</P>
+
+<FIGURE src="images/00393.png">
+
+</FIGURE>
+
+<P>
+If you spell out the parameters so that their names include signatures, you can easily pack all the information from local into a single lambda:
+</P>
+
+<FIGURE src="images/00394.png">
+
+</FIGURE>
+
+<P>
+From here, you should be able to complete the definition as well as you did from the original template:
+</P>
+
+<FIGURE src="images/00395.png">
+
+</FIGURE>
+
+<P>
+Let’s illustrate lambda with some more examples from chapter 16.5:
+</P>
+
+<P>
+•  the purpose of the first function is to add 3 to each x-coordinate on a given list of Posns:
+</P>
+
+<FIGURE src="images/00396.png">
+
+</FIGURE>
+
+<P>
+Because map expects a function of one argument, we clearly want (lambda (p)…). The function then deconstructs p, adds 3 to the x-coordinate, and repackages the data into a Posn.
+</P>
+
+<P>
+•  the second one eliminates Posns whose y-coordinate is above 100:
+</P>
+
+<P>
+; [List-of Posn] -> [List-of Posn] (define (keep-good lop)   (filter (lambda (p) (<= (posn-y p) 100)) lop))
+</P>
+
+<P>
+Here we know that filter needs a function of one argument that produces a Boolean. First, the lambda function extracts the y-coordinate from the Posn to which filter applies the function. Second, it checks whether it is less than or equal to 100, the desired limit.
+</P>
+
+<P>
+•  and the third one determines whether any Posn on lop is close to some given point:
+</P>
+
+<FIGURE src="images/00397.png">
+
+</FIGURE>
+
+<P>
+Like the preceding two examples, ormap is a function that expects a function of one argument and applies this functional argument to every item on the given list. If any result is #true, ormap returns #true, too; if all results are #false, ormap produces #false.
+</P>
+
+<P>
+It is best to compare the definitions from chapter 16.5 and the definitions above side by side. When you do so, you should notice how easy the transition from local to lambda is and how concise the lambda version is in comparison to the local version. Thus, if you are ever in doubt, design with local first and then convert this tested version into one that uses lambda. Keep in mind, however, that lambda is not a cure-all. The locally defined function comes with a name that explains its purpose, and, if it is long, the use of an abstraction with a named function is much easier to understand than one with a large lambda.
+</P>
+
+<P>
+The following exercises request that you solve the problems from chapter 16.7 with lambda in ISL+.
+</P>
+
+<EXERCISE>
+Exercise 285. Use map to define the function convert-euro, which converts a list of US$ amounts into a list of € amounts based on an exchange rate of US$1.06 per €.
+</EXERCISE>
+
+<P>
+Also use map to define convertFC, which converts a list of Fahrenheit measurements to a list of Celsius measurements.
+</P>
+
+<P>
+Finally, try your hand at translate, a function that translates a list of Posns into a list of lists of pairs of numbers.
+</P>
+
+<EXERCISE>
+Exercise 286. An inventory record specifies the name of an inventory item, a description, the acquisition price, and the recommended sales price.
+</EXERCISE>
+
+<P>
+Define a function that sorts a list of inventory records by the difference between the two prices.
+</P>
+
+<EXERCISE>
+Exercise 287. Use filter to define eliminate-exp. The function consumes a number, ua, and a list of inventory records (containing name and price), and it produces a list of all those structures whose acquisition price is below ua.
+</EXERCISE>
+
+<P>
+Then use filter to define recall, which consumes the name of an inventory item, called ty, and a list of inventory records and which produces a list of inventory records that do not use the name ty.
+</P>
+
+<P>
+In addition, define selection, which consumes two lists of names and selects all those from the second one that are also on the first.
+</P>
+
+<EXERCISE>
+Exercise 288. Use build-list and lambda to define a function that
+</EXERCISE>
+
+<P>
+1. creates the list (list 0 … (- n 1)) for any natural number n;
+</P>
+
+<P>
+2. creates the list (list 1 … n) for any natural number n;
+</P>
+
+<P>
+3. creates the list (list 1 1/2 … 1/n) for any natural number n;
+</P>
+
+<P>
+4. creates the list of the first n even numbers; and
+</P>
+
+<P>
+5. creates a diagonal square of 0s and 1s; see exercise 262.
+</P>
+
+<P>
+Also define tabulate with lambda.
+</P>
+
+<EXERCISE>
+Exercise 289. Use ormap to define find-name. The function consumes a name and a list of names. It determines whether any of the names on the latter are equal to or an extension of the former.
+</EXERCISE>
+
+<P>
+With andmap you can define a function that checks all names on a list of names that start with the letter "a".
+</P>
+
+<P>
+Should you use ormap or andmap to define a function that ensures that no name on some list exceeds some given width?
+</P>
+
+<EXERCISE>
+Exercise 290. Recall that the append function in ISL concatenates the items of two lists or, equivalently, replaces '() at the end of the first list with the second list:
+</EXERCISE>
+
+<CODE>
+(equal? (append (list 1 2 3) (list 4 5 6 7 8))         (list 1 2 3 4 5 6 7 8))
+</CODE>
+
+<P>
+Use foldr to define append-from-fold. What happens if you replace foldr with foldl?
+</P>
+
+<P>
+Now use one of the fold functions to define functions that compute the sum and the product, respectively, of a list of numbers.
+</P>
+
+<P>
+With one of the fold functions, you can define a function that horizontally composes a list of Images. Hints (1) Look up beside and empty-image. Can you use the other fold function? Also define a function that stacks a list of images vertically. (2) Check for above in the libraries.
+</P>
+
+<EXERCISE>
+Exercise 291. The fold functions are so powerful that you can define almost any list-processing functions with them. Use fold to define map-via-fold, which simulates map.
+</EXERCISE>
+
+<h2>
+17.4 Specifying with lambda
+</h2>
+
+<P>
+Figure 99 shows a generalized sorting function that consumes a list of values and a comparison function for such values. For convenience, figure 103 reproduces the essence of the definition. The body of sort-cmp introduces two local auxiliary functions: isort and insert. In addition, the figure also comes with two test cases that illustrate the workings of sort-cmp. One demonstrates how the function works on strings and the other one on numbers.
+</P>
+
+<FIGURE src="images/00398.png">
+Figure 103: A general sorting function
+</FIGURE>
+
+<P>
+Now take a quick look at exercise 186. It asks you to formulate check-satisfied tests for sort> using the sorted>? predicate. The former is a function that sorts lists of numbers in descending order; the latter is a function that determines whether a list of numbers is sorted in descending order. Hence, the solution of this exercise is
+</P>
+
+<CODE>
+(check-satisfied (sort> '()) sorted>?) (check-satisfied (sort> '(12 20 -5)) sorted>?) (check-satisfied (sort> '(3 2 1)) sorted>?) (check-satisfied (sort> '(1 2 3)) sorted>?)
+</CODE>
+
+<P>
+The question is how to reformulate the tests for sort-cmp analogously.
+</P>
+
+<P>
+Since sort-cmp consumes a comparison function together with a list, the generalized version of sorted>? must take one too. If so, the following test cases might look like this:
+</P>
+
+<FIGURE src="images/00399.png">
+
+</FIGURE>
+
+<P>
+Both (sorted string<?) and (sorted <) must produce predicates. The first one checks whether some list of strings is sorted according to string<?, and the second one whether a list of numbers is sorted via <.
+</P>
+
+<P>
+We have thus worked out the desired signature and purpose of sorted:
+</P>
+
+<CODE>
+; [X X -> Boolean] -> [ [List-of X] -> Boolean ] ; produces a function that determines whether ; some list is sorted according to cmp (define (sorted cmp)   …)
+</CODE>
+
+<P>
+What we need to do now is to go through the rest of the design process.
+</P>
+
+<P>
+Let’s first finish the header. Remember that the header produces a value that matches the signature and is likely to break most of the tests/examples. Here we need sorted to produce a function that consumes a list and produces a Boolean. With lambda, that’s actually straightforward:
+</P>
+
+<FIGURE src="images/00400.png">
+
+</FIGURE>
+
+<P>
+Stop! This is your first function-producing function. Read the definition again. Can you explain this definition in your own words?
+</P>
+
+<P>
+Next we need examples. According to our above analysis, sorted consumes predicates such as string<? and <, but clearly, >, <=, and your own comparison functions should be acceptable, too. At first glance, this suggests test cases of the shape
+</P>
+
+<CODE>
+(check-expect (sorted string<?) …) (check-expect (sorted <) …)
+</CODE>
+
+<P>
+But, (sorted …) produces a function, and, according to exercise 245, it impossible to compare functions.
+</P>
+
+<P>
+Hence, to formulate reasonable test cases, we need to apply the result of (sorted …) to appropriate lists. And, based on this insight, the test cases almost formulate themselves; indeed, they can easily be derived from those for sort-cmp in figure 103:
+</P>
+
+<CODE>
+(check-expect [(sorted string<?) '("b" "c")] #true) (check-expect [(sorted <) '(1 2 3 4 5 6)] #true)
+</CODE>
+
+<P>
+Note Using square instead of parentheses highlights that the first expression produces a function, which is then applied to arguments.
+</P>
+
+<P>
+From this point on, the design is quite conventional. What we basically wish to design is a generalization of sorted>? from chapter 9.2; let’s call this function sorted/l. What is unusual about sorted/l is that it “lives” in the body of a lambda inside of sorted:
+</P>
+
+<FIGURE src="images/00401.png">
+
+</FIGURE>
+
+<P>
+Note how sorted/l is defined locally yet refers to cmp.
+</P>
+
+<EXERCISE>
+Exercise 292. Design the function sorted?, which comes with the following signature and purpose statement:
+</EXERCISE>
+
+<CODE>
+; [X X -> Boolean] [NEList-of X] -> Boolean ; determines whether l is sorted according to cmp (check-expect (sorted? < '(1 2 3)) #true) (check-expect (sorted? < '(2 1 3)) #false) (define (sorted? cmp l)   #false)
+</CODE>
+
+<P>
+The wish list even includes examples.
+</P>
+
+<P>
+Figure 104 shows the result of the design process. The sorted function consumes a comparison function cmp and produces a predicate. The latter consumes a list l0 and uses a locally defined function to determine whether all the items in l0 are ordered via cmp. Specifically, the locally defined function checks a non-empty list; in the body of local, sorted first checks whether l0 is empty, in which case it simply produces #true because the empty list is sorted.
+</P>
+
+<FIGURE src="images/00402.png">
+Figure 104: A curried predicate for checking the ordering of a list
+</FIGURE>
+
+<P>
+Stop! Could you redefine sorted to use sorted? from exercise 292? Explain why sorted/l does not consume cmp as an argument.
+</P>
+
+<P>
+The sorted function in figure 104 is a curried version of a function that consumes two arguments: cmp and l0. Instead of consuming two arguments at once, a curried function consumes one argument and then returns a function that consumes the second one.
+</P>
+
+<MARGIN_NOTE>
+The verb “curry” honors Haskell Curry, the second person to invent the idea. The first one was Mosses Schönfinkel.
+</MARGIN_NOTE>
+
+<P>
+Exercise 186 asks how to formulate a test case that exposes mistakes in sorting functions. Consider this definition:
+</P>
+
+<CODE>
+; List-of-numbers -> List-of-numbers ; produces a sorted version of l (define (sort-cmp/bad l)  '(9 8 7 6 5 4 3 2 1 0))
+</CODE>
+
+<P>
+Formulating such a test case with check-expect is straightforward.
+</P>
+
+<P>
+To design a predicate that exposes sort-cmp/bad as flawed, we need to understand the purpose of sort-cmp or sorting in general. It clearly is unacceptable to throw away the given list and to produce some other list in its place. That’s why the purpose statement of isort says that the function “produces a variant of” the given list. “Variant” means that the function does not throw away any of the items on the given list.
+</P>
+
+<P>
+With these thoughts in mind, we can now say that we want a predicate that checks whether the result is sorted and contains all the items from the given list:
+</P>
+
+<CODE>
+; [List-of X] [X X -> Boolean] -> [[List-of X] -> Boolean] ; is l0 sorted according to cmp ; are all items in list k members of list l0 (define (sorted-variant-of k cmp)    (lambda (l0) #false))
+</CODE>
+
+<P>
+The two lines of the purpose statement suggest examples:
+</P>
+
+<FIGURE src="images/00403.png">
+
+</FIGURE>
+
+<P>
+Like sorted, sorted-variant-of consumes arguments and produces a function. For the first case, sorted-variant-of produces #true because the '(2 3) is sorted and it contains all numbers in '(3 2). In contrast, the function produces #false in the second case because '(3) lacks 2 from the originally given list.
+</P>
+
+<P>
+A two-line purpose statement suggests two tasks, and two tasks means that the function itself is a combination of two functions:
+</P>
+
+<FIGURE src="images/00404.png">
+
+</FIGURE>
+
+<P>
+The body of the function is an and expression that combines two function calls. With the call to the sorted? function from exercise 292, the function realizes the first line of the purpose statement. The second call, (contains? k l0), is an implicit wish for an auxiliary function.
+</P>
+
+<P>
+We immediately give the full definition:
+</P>
+
+<CODE>
+; [List-of X] [List-of X] -> Boolean ; are all items in list k members of list l (check-expect (contains? '(1 2 3) '(1 4 3)) #false) (check-expect (contains? '(1 2 3 4) '(1 3)) #true) (define (contains? l k)   (andmap (lambda (in-k) (member? in-k l)) k))
+</CODE>
+
+<P>
+On the one hand, we have never explained how to systematically design a function that consumes two lists, and it actually needs its own chapter; see chapter 23. On the other hand, the function definition clearly satisfies the purpose statement. The andmap expression checks that every item in k is a member? of l, which is what the purpose statement promises.
+</P>
+
+<P>
+Sadly, sorted-variant-of fails to describe sorting functions properly. Consider this variant of a sorting function:
+</P>
+
+<CODE>
+; [List-of Number] -> [List-of Number] ; produces a sorted version of l (define (sort-cmp/worse l)   (local ((define sorted (sort-cmp l <)))     (cons (- (first sorted) 1) sorted)))
+</CODE>
+
+<P>
+It is again easy to expose a flaw in this function with a check-expect test that it ought to pass but clearly fails:
+</P>
+
+<CODE>
+(check-expect (sort-cmp/worse '(1 2 3)) '(1 2 3))
+</CODE>
+
+<P>
+Surprisingly, a check-satisfied test based on sorted-variant-of succeeds:
+</P>
+
+<FIGURE src="images/00405.png">
+
+</FIGURE>
+
+<P>
+Indeed, such a test succeeds for any list of numbers, not just '(1 2 3), because the predicate generator merely checks that all the items on the original list are members of the resulting list; it fails to check whether all items on the resulting list are also members of the original list.
+</P>
+
+<P>
+The easiest way to add this third check to sorted-variant-of is to add a third sub-expression to the and expression:
+</P>
+
+<FIGURE src="images/00406.png">
+
+</FIGURE>
+
+<P>
+We choose to reuse contains? but with its arguments flipped.
+</P>
+
+<P>
+At this point, you may wonder why we are bothering with the development of such a predicate when we can rule out bad sorting functions with plain check-expect tests. The difference is that check-expect checks only that our sorting functions work on specific lists. With a predicate such as sorted-variant-of.v2, we can articulate the claim that a sorting function works for all possible inputs:
+</P>
+
+<FIGURE src="images/00407.png">
+
+</FIGURE>
+
+<P>
+Let’s take a close look at these two lines. The first line generates a list of 500 numbers. Every time you ask DrRacket to evaluate this test, it is likely to generate a list never seen before. The second line is a test case that says sorting this generated list produces a list that (1) is sorted, (2) contains all the numbers on the generated list, and (3) contains nothing else. In other words, it is almost like saying that for all possible lists, sort-cmp produces outcomes that sorted-variant-of.v2 blesses.
+</P>
+
+<P>
+Computer scientists call sorted-variant-of.v2 a specification of a sorting function. The idea that all lists of numbers pass the above test case is a theorem about the relationship between the specification of the sorting function and its implementation. If a programmer can prove this theorem with a mathematical argument, we say that the function is correct with respect to its specification. How to prove functions or programs correct is beyond the scope of this book, but a good computer science curriculum shows you in a follow-up course how to construct such proofs.
+</P>
+
+<EXERCISE>
+Exercise 293. Develop found?, a specification for the find function:
+</EXERCISE>
+
+<FIGURE src="images/00408.png">
+
+</FIGURE>
+
+<P>
+Use found? to formulate a check-satisfied test for find.
+</P>
+
+<EXERCISE>
+Exercise 294. Develop is-index?, a specification for index:
+</EXERCISE>
+
+<FIGURE src="images/00409.png">
+
+</FIGURE>
+
+<P>
+Use is-index? to formulate a check-satisfied test for index.
+</P>
+
+<EXERCISE>
+Exercise 295. Develop n-inside-playground?, a specification of the random-posns function below. The function generates a predicate that ensures that the length of the given list is some given count and that all Posns in this list are within a WIDTH by HEIGHT rectangle:
+</EXERCISE>
+
+<FIGURE src="images/00410.png">
+
+</FIGURE>
+
+<P>
+Define random-posns/bad that satisfies n-inside-playground? and does not live up to the expectations implied by the above purpose statement. Note This specification is incomplete. Although the word “partial” might come to mind, computer scientists reserve the phrase “partial specification” for a different purpose.
+</P>
+
+<h2>
+17.5 Representing with lambda
+</h2>
+
+<P>
+Because functions are first-class values in ISL+, we may think of them as another form of data and use them for data representation. This section provides a taste of this idea; the next few chapters do not rely on it. Its title uses “abstracting” because people consider data representations that use functions as abstract.
+</P>
+
+<P>
+As always, we start from a representative problem:
+</P>
+
+<P>
+Sample Problem Navy strategists represent fleets of ships as rectangles (the ships themselves) and circles (their weapons’ reach). The coverage of a fleet of ships is the combination of all these shapes. Design a data representation for rectangles, circles, and combinations of shapes. Then design a function that determines whether some point is within a shape.
+</P>
+
+<MARGIN_NOTE>
+This problem is also solvable with a self-referential data representation that says a shape is a circle, a rectangle, or a combination of two shapes. See the next part of the book for this design choice.
+</MARGIN_NOTE>
+
+<P>
+The problem comes with all kinds of concrete interpretations, which we leave out here. A slightly more complex version was the subject of a programming competition in the mid-1990s run by Yale University on behalf of the US Department of Defense.
+</P>
+
+<P>
+One mathematical approach considers shapes as predicates on points. That is, a shape is a function that maps a Cartesian point to a Boolean value. Let’s translate these English words into a data definition:
+</P>
+
+<CODE>
+; A Shape is a function: ; [Posn -> Boolean] ; interpretation if s is a shape and p a Posn, (s p) ; produces #true if p is in s, #false otherwise
+</CODE>
+
+<P>
+Its interpretation part is extensive because this data representation is so unusual. Such an unusual representation calls for an immediate exploration with examples. We delay this step for a moment, however, and instead define a function that checks whether a point is inside some shape:
+</P>
+
+<CODE>
+; Shape Posn -> Boolean (define (inside? s p)   (s p))
+</CODE>
+
+<P>
+Doing so is straightforward because of the given interpretation. It also turns out that it is simpler than creating examples, and, surprisingly, the function is helpful for formulating data examples.
+</P>
+
+<P>
+Stop! Explain how and why inside? works.
+</P>
+
+<P>
+Now let’s return to the problem of elements of Shape. Here is a simplistic element of the class:
+</P>
+
+<CODE>
+; Posn -> Boolean (lambda (p) (and (= (posn-x p) 3) (= (posn-y p) 4)))
+</CODE>
+
+<P>
+As required, it consumes a Posn p, and its body compares the coordinates of p to those of the point (3,4), meaning this function represents a single point. While the data representation of a point as a Shape might seem silly, it suggests how we can define functions that create elements of Shape:
+</P>
+
+<FIGURE src="images/00411.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+We use “mk” because this function is not an ordinary constructor.
+</MARGIN_NOTE>
+
+<P>
+Stop again! Convince yourself that the last line creates a data representation of (3,4). Consider using DrRacket’s stepper.
+</P>
+
+<P>
+If we were to design such a function, we would formulate a purpose statement and provide some illustrative examples. For the purpose we could go with the obvious:
+</P>
+
+<CODE>
+; creates a representation for a point at (x,y)
+</CODE>
+
+<P>
+or, more concisely and more appropriately,
+</P>
+
+<CODE>
+; represents a point at (x,y)
+</CODE>
+
+<P>
+For the examples we want to go with the interpretation of Shape. To illustrate, (mk-point 3 4) is supposed to evaluate to a function that returns #true if, and only if, it is given (make-posn 3 4). Using inside?, we can express this statement via tests:
+</P>
+
+<FIGURE src="images/00412.png">
+
+</FIGURE>
+
+<P>
+In short, to make a point representation, we define a constructor-like function that consumes the point’s two coordinates. Instead of a record, this function uses lambda to construct another function. The function that it creates consumes a Posn and determines whether its x and y fields are equal to the originally given coordinates.
+</P>
+
+<P>
+Next we generalize this idea from simple points to shapes, say circles. In your geometry courses, you learn that a circle is a collection of points that all have the same distance to the center of the circle—the radius. For points inside the circle, the distance is smaller than or equal to the radius. Hence, a function that creates a Shape representation of a circle must consume three pieces: the two coordinates for its center and the radius:
+</P>
+
+<CODE>
+; Number Number Number -> Shape ; creates a representation for a circle of radius r ;   located at (center-x, center-y) (define (mk-circle center-x center-y r)   …)
+</CODE>
+
+<P>
+Like mk-point, it produces a function via a lambda. The function that is returned determines whether some given Posn is inside the circle. Here are some examples, again formulated as tests:
+</P>
+
+<CODE>
+(check-expect   (inside? (mk-circle 3 4 5) (make-posn 0 0)) #true) (check-expect   (inside? (mk-circle 3 4 5) (make-posn 0 9)) #false) (check-expect   (inside? (mk-circle 3 4 5) (make-posn -1 3)) #true)
+</CODE>
+
+<P>
+The origin, (make-posn 0 0), is exactly five steps away from (3,4), the center of the circle; see chapter 5.4. Stop! Explain the remaining examples.
+</P>
+
+<EXERCISE>
+Exercise 296. Use compass-and-pencil drawings to check the tests.
+</EXERCISE>
+
+<P>
+Mathematically, we say that a Posn p is inside a circle if the distance between p and the circle’s center is smaller than the radius r. Let’s wish for the right kind of helper function and write down what we have.
+</P>
+
+<FIGURE src="images/00413.png">
+
+</FIGURE>
+
+<P>
+The distance-between function is a straightforward exercise.
+</P>
+
+<EXERCISE>
+Exercise 297. Design the function distance-between. It consumes two numbers and a Posn: x, y, and p. The function computes the distance between the points (x, y) and p.
+</EXERCISE>
+
+<P>
+Domain Knowledge The distance between (x0, y0) and (x1, y1) is
+</P>
+
+<FIGURE src="images/00414.png">
+
+</FIGURE>
+
+<P>
+that is, the distance of (x0 − y0, x1 − y1) to the origin.
+</P>
+
+<P>
+The data representation of a rectangle is expressed in a similar manner:
+</P>
+
+<FIGURE src="images/00415.png">
+
+</FIGURE>
+
+<P>
+Its constructor receives four numbers: the coordinates of the upper-left corner, its width, and height. The result is again a lambda expression. As for circles, this function consumes a Posn and produces a Boolean, checking whether the x and y fields of the Posn are in the proper intervals.
+</P>
+
+<P>
+At this point, we have only one task left, namely, the design of function that maps two Shape representations to their combination. The signature and the header are easy:
+</P>
+
+<FIGURE src="images/00416.png">
+
+</FIGURE>
+
+<P>
+Indeed, even the default value is straightforward. We know that a shape is represented as a function from Posn to Boolean, so we write down a lambda that consumes some Posn and produces #false, meaning it says no point is in the combination.
+</P>
+
+<P>
+So suppose we wish to combine the circle and the rectangle from above:
+</P>
+
+<CODE>
+(define circle1 (mk-circle 3 4 5)) (define rectangle1 (mk-rect 0 3 10 3)) (define union1 (mk-combination circle1 rectangle1))
+</CODE>
+
+<P>
+Some points are inside and some outside of this combination:
+</P>
+
+<CODE>
+(check-expect (inside? union1 (make-posn 0 0)) #true) (check-expect (inside? union1 (make-posn 0 9)) #false) (check-expect (inside? union1 (make-posn -1 3)) #true)
+</CODE>
+
+<P>
+Since (make-posn 0 0) is inside both, there is no question that it is inside the combination of the two. In a similar vein, (make-posn 0 -1) is in neither shape, and so it isn’t in the combination. Finally, (make-posn -1 3) is in circle1 but not in rectangle1. But the point must be in the combination of the two shapes because every point that is in one or the other shape is in their combination.
+</P>
+
+<P>
+This analysis of examples implies a revision of mk-combination:
+</P>
+
+<CODE>
+; Shape Shape -> Shape (define (mk-combination s1 s2)   ; Posn -> Boolean   (lambda (p)     (or (inside? s1 p) (inside? s2 p))))
+</CODE>
+
+<P>
+The or expression says that the result is #true if one of two expressions produces #true: (inside? s1 p) or (inside? s2 p). The first expression determines whether p is in s1 and the second one whether p is in s2. And that is precisely a translation of our above explanation into ISL+.
+</P>
+
+<EXERCISE>
+Exercise 298. Design my-animate. Recall that the animate function consumes the representation of a stream of images, one per natural number. Since streams are infinitely long, ordinary compound data cannot represent them. Instead, we use functions:
+</EXERCISE>
+
+<CODE>
+; An ImageStream is a function: ; [N -> Image] ; interpretation a stream s denotes a series of images
+</CODE>
+
+<P>
+Here is a data example:
+</P>
+
+<FIGURE src="images/00417.jpeg">
+
+</FIGURE>
+
+<P>
+You may recognize this as one of the first pieces of code in the Prologue.
+</P>
+
+<P>
+The job of (my-animate s n) is to show the images (s 0), (s 1), and so on at a rate of 30 images per second up to n images total. Its result is the number of clock ticks passed since launched.
+</P>
+
+<P>
+Note This case is an example where it is possible to write down examples/test cases easily, but these examples/tests per se do not inform the design process of this big-bang function. Using functions as data representations calls for more design concepts than this book supplies.
+</P>
+
+<EXERCISE>
+Exercise 299. Design a data representation for finite and infinite sets so that you can represent the sets of all odd numbers, all even numbers, all numbers divisible by 10, and so on.
+</EXERCISE>
+
+<P>
+Design the functions add-element, which adds an element to a set; union, which combines the elements of two sets; and intersect, which collects all elements common to two sets.
+</P>
+
+<P>
+Hint Mathematicians deal with sets as functions that consume a potential element ed and produce #true only if ed belongs to the set.
+</P>
+
+<h1>
+18 Summary
+</h1>
+
+<P>
+This third part of the book is about the role of abstraction in program design. Abstraction has two sides: creation and use. It is therefore natural if we summarize the chapter as two lessons:
+</P>
+
+<P>
+1. Repeated code patterns call for abstraction. To abstract means to factor out the repeated pieces of code—the abstraction—and to parameterize over the differences. With the design of proper abstractions, programmers save themselves future work and headaches because mistakes, inefficiencies, and other problems are all in one place. One fix to the abstraction thus eliminates any specific problem once and for all. In contrast, the duplication of code means that a programmer must find all copies and fix all of them when a problem is found.
+</P>
+
+<P>
+2. Most languages come with a large collection of abstractions. Some are contributions by the language design team; others are added by programmers who use the language. To enable effective reuse of these abstractions, their creators must supply the appropriate pieces of documentation—a purpose statement, a signature, and good examples—and programmers use them to apply abstractions.
+</P>
+
+<P>
+All programming languages come with the means to build abstractions though some means are better than others. All programmers must get to know the means of abstraction and the abstractions that a language provides. A discerning programmer will learn to distinguish programming languages along these axes.
+</P>
+
+<P>
+Beyond abstraction, this third part also introduces the idea that
+</P>
+
+<P>
+functions are values, and they can represent information.
+</P>
+
+<P>
+While the idea is ancient for the Lisp family of programming languages (such as ISL+) and for specialists in programming language research, it has only recently gained acceptance in most modern mainstream languages—C#, C++, Java, JavaScript, Perl, Python.
+</P>

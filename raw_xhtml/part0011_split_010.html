@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_11"><a id="sec20-1" class="calibre16"></a>20.1 Data Analysis</h2>
+<p class="tni">Before you turn off DrRacket, you want to make sure that all your work is safely stashed away somewhere. Otherwise you have to reenter everything when you fire up DrRacket next. So you ask your computer to save programs and data in <i class="calibre6">files</i>. A file is roughly a string.</p>
+<p class="marginpar">A file is really a sequence of <i class="calibre6">bytes</i>, one after another. Try to define the class of files.</p>
+<p class="calibre8">On most computer systems, files are organized in <i class="calibre6">directories</i> or <i class="calibre6">folders</i>. Roughly speaking, a directory contains some files and some more directories. The latter are called sub-directories and may contain yet more sub-directories and files. Because of the hierarchy, we speak of <i class="calibre6">directory trees</i>.</p>
+<p class="calibre8"><a id="rfig123" href="part0011_split_010.html#fig123" class="calibre5">Figure 123</a> contains a graphical sketch of a small directory tree, and the picture explains why computer scientists call them trees. Contrary to convention in computer science, the figure shows the tree growing upward, with a root directory named <samp class="mono">TS</samp>. The root directory contains one file, called <samp class="mono">read!</samp>, and two sub-directories, called <samp class="mono">Text</samp> and <samp class="mono">Libs</samp>, respectively. The first sub-directory, <samp class="mono">Text</samp>, contains only three files; the latter, <samp class="mono">Libs</samp>, contains only two sub-directories, each of which contains at least one file. Finally, each box has one of two annotations: a directory is annotated with <samp class="mono">DIR</samp>, and a file is annotated with a number, its size.</p>
+<div class="figure">
+<figure class="img"><a id="fig123" class="calibre5"></a><img src="../images/00481.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_010.html#rfig123" class="calibre5">Figure 123</a>:</span> <span>A sample directory tree</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 329. How many times does a file name <samp class="mono">read!</samp> occur in the directory tree <samp class="mono">TS</samp>? Can you describe the path from the root directory to the occurrences? What is the total size of all the files in the tree? What is the total size of the directory if each directory node has size <samp class="mono">1</samp>? How many levels of directories does it contain? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

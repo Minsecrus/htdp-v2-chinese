@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec1-1" class="calibre16"></a>1.1 The Arithmetic of Numbers</h2>
+<p class="tni">Most people think “numbers” and “operations on numbers” when they hear “arithmetic.” “Operations on numbers” means adding two numbers to yield a third, subtracting one number from another, determining the greatest common divisor of two numbers, and many more such things. If we don’t take arithmetic too literally, we may even include the sine of an angle, rounding a real number to the closest integer, and so on.</p>
+<p class="calibre8">The BSL language supports <i class="calibre6">Number</i>s and arithmetic on them. As discussed in the Prologue, an arithmetic operation such as <samp class="mono">+</samp> is used like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 3</samp><samp class="mono"> 4)</samp></p>
+</div>
+<p class="tni">that is, in <i class="calibre6">prefix notation</i> form. Here are some of the operations on numbers that our language provides: <samp class="mono">+</samp>, <samp class="mono">-</samp>, <samp class="mono">*</samp>, <samp class="mono">/</samp>, <samp class="mono">abs</samp>, <samp class="mono">add1</samp>, <samp class="mono">ceiling</samp>, <samp class="mono">denominator</samp>, <samp class="mono">exact-&gt;inexact</samp>, <samp class="mono">expt</samp>, <samp class="mono">floor</samp>, <samp class="mono">gcd</samp>, <samp class="mono">log</samp>, <samp class="mono">max</samp>, <samp class="mono">numerator</samp>, <samp class="mono">quotient</samp>, <samp class="mono">random</samp>, <samp class="mono">remainder</samp>, <samp class="mono">sqr</samp>, and <samp class="mono">tan</samp>. We picked our way through the alphabet just to show the variety of operations. Explore what they compute, and then find out how many more there are.</p>
+<p class="calibre8">If you need an operation on numbers that you know from your mathematics courses, chances are that BSL knows about it, too. Guess its name and experiment in the interactions area. Say you need to compute the <i class="calibre6">sin</i> of some angle; try</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (sin</samp><samp class="mono"> 0)</samp> <br class="calibre4"/><samp class="mono">0</samp></p>
+</div>
+<p class="tni">and use it happily ever after. Or look in the HelpDesk. You will find there that in addition to operations BSL also recognizes the names of some widely used numbers, for example, <samp class="mono">pi</samp> and <samp class="mono">e</samp>.</p>
+<p class="marginpar">You might know <samp class="monospace-margin">e</samp> from calculus. It’s a real number, close to 2.718, called “Euler’s constant.”</p>
+<p class="calibre8">When it comes to numbers, BSL programs may use natural numbers, integers, rational numbers, real numbers, and complex numbers. We assume that you have heard of all but the last one. The last one may have been mentioned in your high school class. If not, don’t worry; while complex numbers are useful for all kinds of calculations, a novice doesn’t have to know about them.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_36" title="36"></span>A truly important distinction concerns the precision of numbers. For now, it is important to understand that BSL distinguishes <i class="calibre6">exact numbers</i> and <i class="calibre6">inexact numbers</i>. When it calculates with exact numbers, BSL preserves this precision whenever possible. For example, <samp class="mono">(/ 4 6)</samp> produces the precise fraction <samp class="mono">2/3</samp>, which DrRacket can render as a proper fraction, an improper fraction, or a mixed decimal. Play with your computer’s mouse to find the menu that changes the fraction into decimal expansion.</p>
+<p class="calibre8">Some of BSL’s numeric operations cannot produce an exact result. For example, using the <samp class="mono">sqrt</samp> operation on <samp class="mono">2</samp> produces an irrational number that cannot be described with a finite number of digits. Because computers are of finite size and BSL must somehow fit such numbers into the computer, it chooses an approximation: <samp class="mono">1.4142135623730951</samp>. As mentioned in the Prologue, the <samp class="mono">#i</samp> prefix warns novice programmers of this lack of precision. While most programming languages choose to reduce precision in this manner, few advertise it and even fewer warn programmers.</p>
+<p class="calibre8"><b class="calibre9">Note on Numbers</b> The word “Number” refers to a wide variety of numbers, including counting numbers, integers, rational numbers, real numbers, and even complex numbers. For most uses, you can safely equate Number with the number line from elementary school, though on occasion this translation is too imprecise. If we wish to be precise, we use appropriate words: <i class="calibre6">Integer</i>, <i class="calibre6">Rational</i>, and so on. We may even refine these notions using such standard terms as <i class="calibre6">PositiveInteger</i>, <i class="calibre6">NonnegativeNumber</i>, <i class="calibre6">NegativeNumber</i>, and so on. <b class="calibre9">End</b></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 1. Add the following definitions for <samp class="mono">x</samp> and <samp class="mono">y</samp> to DrRacket’s definitions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> 3)</samp> <br class="calibre4"/><samp class="mono">(define y</samp><samp class="mono"> 4)</samp></p>
+</div>
+<p class="tni">Now imagine that <samp class="mono">x</samp> and <samp class="mono">y</samp> are the coordinates of a Cartesian point. Write down an expression that computes the distance of this point to the origin, that is, a point with the coordinates (<samp class="mono">0</samp>,<samp class="mono">0</samp>).</p>
+<p class="calibre8">The expected result for these values is <samp class="mono">5</samp>, but your expression should produce the correct result even after you change these definitions.</p>
+<p class="calibre8">Just in case you have not taken geometry courses or in case you forgot the formula that you encountered there, the point (<i class="calibre6">x,y</i>) has the distance</p>
+<figure class="co"><img src="../images/00037.gif" alt="" class="calibre10"/></figure>
+<p class="tni">from the origin. After all, we are teaching you how to design programs, not how to be a geometer.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_37" title="37"></span>To develop the desired expression, it is best to click <i class="calibre6">RUN</i> and to experiment in the interactions area. The <i class="calibre6">RUN</i> action tells DrRacket what the current values of <samp class="mono">x</samp> and <samp class="mono">y</samp> are so that you can experiment with expressions that involve <samp class="mono">x</samp> and <samp class="mono">y</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; x</samp> <br class="calibre4"/><samp class="mono">3</samp> <br class="calibre4"/><samp class="mono">&gt; y</samp> <br class="calibre4"/><samp class="mono">4</samp> <br class="calibre4"/><samp class="mono">&gt; (+</samp><samp class="mono"> x 10)</samp> <br class="calibre4"/><samp class="mono">13</samp> <br class="calibre4"/><samp class="mono">&gt; (*</samp><samp class="mono"> x y)</samp> <br class="calibre4"/><samp class="mono">12</samp></p>
+</div>
+<p class="tni">Once you have the expression that produces the correct result, copy it from the interactions area to the definitions area.</p>
+<p class="calibre8">To confirm that the expression works properly, change <samp class="mono">x</samp> to <samp class="mono">12</samp> and <samp class="mono">y</samp> to <samp class="mono">5</samp>, then click <i class="calibre6">RUN</i>. The result should be <samp class="mono">13</samp>.</p>
+<p class="calibre8">Your mathematics teacher would say that you computed the <b class="calibre9">distance formula</b>. To use the formula on alternative inputs, you need to open DrRacket, edit the definitions of <samp class="mono">x</samp> and <samp class="mono">y</samp> so they represent the desired coordinates, and click <i class="calibre6">RUN</i>. But this way of reusing the distance formula is cumbersome and naive. We will soon show you a way to define functions, which makes reusing formulas straightforward. For now, we use this kind of exercise to call attention to the idea of functions and to prepare you for programming with them. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_6"><b class="calibre9">Boolean Expressions</b></h1>
+<p class="tni">Our current definition of BSL omits <samp class="mono">or</samp> and <samp class="mono">and</samp> expressions. Adding them provides a case study of how to study new language constructs. We must first understand their syntax and then their semantics.</p>
+<p class="calibre8">Here is the revised grammar of expressions:</p>
+<p class="code-new"><samp class="mono">expr =</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> | (and</samp><samp class="mono"> <i class="calibre6">expr expr</i>)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> | (or</samp><samp class="mono"> <i class="calibre6">expr expr</i>)</samp></p>
+<p class="tni">The grammar says that <samp class="mono">and</samp> and <samp class="mono">or</samp> are keywords, each followed by two expressions. They are <b class="calibre9">not</b> function applications.</p>
+<p class="calibre8">To understand why <samp class="mono">and</samp> and <samp class="mono">or</samp> are not BSL-defined functions, we must look at their pragmatics first. Suppose we need to formulate a condition that determines whether <samp class="mono">(/ 1 n)</samp> is <samp class="mono">r</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (check</samp><samp class="mono"> n r)</samp> <br class="calibre4"/><samp class="mono">  (and</samp><samp class="mono"> (not (=</samp><samp class="mono"> n 0))</samp><samp class="mono"> (= (/</samp><samp class="mono"> 1 n)</samp><samp class="mono"> r)))</samp></p>
+</div>
+<p class="tni">We formulate the condition as an <samp class="mono">and</samp> combination because we don’t wish to divide by <samp class="mono">0</samp> accidentally. Now let’s apply <samp class="mono">check</samp> to <samp class="mono">0</samp> and <samp class="mono">1/5</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check 0</samp><samp class="mono"> 1/5)</samp> <br class="calibre4"/><samp class="mono">== (and</samp><samp class="mono"> (not (=</samp><samp class="mono"> 0 0))</samp><samp class="mono"> (= <span class="colorbox">(/ 1 0)</span> 1/5))</samp></p>
+</div>
+<p class="tni">If <samp class="mono">and</samp> were an ordinary operation, we would have to evaluate both sub-expressions, and doing so would trigger an error. Instead <samp class="mono">and</samp> simply does not evaluate the second expression when the first one is <samp class="mono">#false</samp>, meaning, <samp class="mono">and</samp> <i class="calibre6">short-circuits</i> evaluation.</p>
+<p class="marginpar">To make sure <samp class="monospace-italic">expr-2</samp> evaluates to a Boolean value, these abbreviations should use <samp class="monospace-margin">(if <i class="calibre6">expr-2</i> #true #false)</samp> instead of just <samp class="monospace-italic">expr-2</samp>. We gloss over this detail here.</p>
+
+<p class="calibre8">It would be easy to formulate evaluation rules for <samp class="mono">and</samp> and <samp class="mono">or</samp>. Another way to explain their meaning is to translate them into other expressions:</p>
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(and </samp><samp class="monospace-italic">exp-1 exp-2</samp><samp class="mono">) </samp>is short for<samp class="mono"> (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [</samp><samp class="monospace-italic">exp-1 exp-2</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [else #false])</samp></p>
+</div>
+<p class="tni">and</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(or </samp><samp class="monospace-italic">exp-1 exp-2</samp><samp class="mono">) </samp>is short for<samp class="mono"> (cond</samp> <br class="calibre4"/><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [</samp><samp class="monospace-italic">exp-1 <samp class="monospace-noitalic">#true</samp></samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> </samp><samp class="mono">  </samp><samp class="mono"> [else</samp><samp class="mono"> </samp><samp class="monospace-italic">exp-2</samp><samp class="mono">])</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_215" title="215"></span>So if you are ever in doubt about how to evaluate an <samp class="mono">and</samp> or <samp class="mono">or</samp> expression, use the above equivalences to calculate. But we trust that you understand these operations intuitively, and that is almost always enough.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 123. The use of <samp class="mono">if</samp> may have surprised you in another way because this intermezzo does not mention this form elsewhere. In short, the intermezzo appears to explain <samp class="mono">and</samp> with a form that has no explanation either. At this point, we are relying on your intuitive understanding of <samp class="mono">if</samp> as a short-hand for <samp class="mono">cond</samp>. Write down a rule that shows how to reformulate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(if </samp><samp class="monospace-italic">exp-test exp-then exp-else</samp><samp class="mono">)</samp></p>
+</div>
+<p class="tni">as a <samp class="mono">cond</samp> expression. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</article>
+</div>
+</body></html>

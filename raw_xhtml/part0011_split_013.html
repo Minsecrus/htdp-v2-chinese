@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_14"><a id="sec21" class="calibre16"></a>21 Refining Interpreters</h1>
+<p class="tni">DrRacket is a program. It is a complex one, dealing with many different kinds of data. Like most complex programs, DrRacket also consists of many functions: one that allows programmers to edit text, another one that acts like the interactions area, a third one that checks whether definitions and expressions are “grammatical,” and so on.</p>
+<p class="calibre8">In this chapter, we show you how to design the function that implements the heart of the interactions area. Naturally, we use iterative refinement for this design project. As a matter of fact, the very idea of focusing on this aspect of DrRacket is another instance of refinement, namely, the obvious one of implementing only one piece of functionality.</p>
+<p class="calibre8">Simply put, the interactions area performs the task of determining the values of expressions that you enter. After you click <i class="calibre6">RUN</i>, the interactions area knows about all the definitions. It is then ready to accept an expression that may refer to these definitions, to determine the value of this expression, and to repeat this cycle as often as you wish. For this reason, many people also refer to the interactions area as the <i class="calibre6">read-eval-print</i> loop, where <i class="calibre6">eval</i> is short for <i class="calibre6">evaluator</i>, a function that is also called <i class="calibre6">interpreter</i>.</p>
+<p class="calibre8">Like this book, our refinement process starts with numeric BSL expressions. They are simple; they do not assume an understanding of definitions; and even your sister in fifth grade can determine their value. Once you understand this first step, you know the difference between a BSL expression and its representation. Next we move on to expressions with variables. The last step is to add definitions.</p>
+</section>
+</article>
+</div>
+</body></html>

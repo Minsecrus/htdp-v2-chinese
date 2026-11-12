@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_8"><a id="sec32-2" class="calibre16"></a>32.2 Adding Accumulators</h2>
+<p class="tni">Once you have decided that an existing function should be equipped with an accumulator, take these two steps:</p>
+<p class="blf">•  Determine the knowledge that the accumulator represents, what kind of data to use, and how the knowledge is acquired as data.</p>
+<p class="myitemizeitem">For example, for the conversion of relative distances to absolute distances, it suffices to accumulate the total distance encountered so far. As the function processes the list of relative distances, it adds each new relative distance found to the accumulator’s current value. For the routing problem, the accumulator remembers every node encountered. As the path-checking function traverses the graph, it <samp class="mono">cons</samp>es each new node on to the accumulator.</p>
+<p class="myitemizeitem">In general, you will want to proceed as follows.</p>
+<div class="ind">
+<p class="nlf">1. Create an accumulator template:</p>
+<figure class="co"><img src="../images/00728.gif" alt="" class="calibre10"/></figure>
+<p class="nltni"><span epub:type="pagebreak" id="pg_709" title="709"></span>Sketch a manual evaluation of an application of <samp class="mono">function</samp> to understand the nature of the accumulator.</p>
+<p class="nlf">2. Determine the kind of data that the accumulator tracks.</p>
+<p class="nltni">Write down a statement that explains the accumulator as a relationship between the argument <samp class="mono">d</samp> of the auxiliary <samp class="mono">function/a</samp> and the original argument <samp class="mono">d0</samp>.</p>
+<p class="nltni"><b class="calibre9">Note</b> The relationship remains constant, also called <b class="calibre9">invariant</b>, over the course of the evaluation. Because of this property, an accumulator statement is often called an <i class="calibre6">invariant</i>.</p>
+<p class="nlf">3. Use the invariant to determine the initial value <samp class="mono">a0</samp> for <samp class="mono">a</samp>.</p>
+<p class="nlf">4. Also exploit the invariant to determine how to compute the accumulator for the recursive function calls within the definition of <samp class="mono">function/a</samp>.</p>
+</div>
+<p class="blf">•  Exploit the accumulator’s knowledge for the design of <samp class="mono">function/a</samp>.</p>
+<p class="myitemizeitem">For a structurally recursive function, the accumulator’s value is typically used in the base case, that is, the <samp class="mono">cond</samp> clause that does not recur. For functions that use generative-recursive functions, the accumulated knowledge might be used in an existing base case, in a new base case, or in the <samp class="mono">cond</samp> clauses that deal with generative recursion.</p>
+<p class="stni">As you can see, the key is the precise description of the role of the accumulator. It is therefore important to practice this skill.</p>
+<p class="calibre8">Let’s take a look at the <samp class="mono">invert</samp> example:</p>
+<figure class="co"><img src="../images/00729.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As illustrated in the preceding section, this template suffices to sketch a manual evaluation of an example such as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(invert '(a</samp><samp class="mono"> b c))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_710" title="710"></span>Here is the idea:</p>
+<figure class="co"><img src="../images/00730.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This sketch suggests that <samp class="mono">invert/a</samp> can keep track of all the items it has seen in a list that tracks the difference between <samp class="mono">alox0</samp> and <samp class="mono">a</samp> in reverse order. The initial value is clearly <samp class="mono">'()</samp>; updating the accumulator inside of <samp class="mono">invert/a</samp> with <samp class="mono">cons</samp> produces exactly the desired value when <samp class="mono">invert/a</samp> reaches <samp class="mono">'()</samp>.</p>
+<p class="calibre8">Here is a refined template that includes these insights:</p>
+<figure class="co"><img src="../images/00731.gif" alt="" class="calibre10"/></figure>
+<p class="tni">While the body of the <samp class="mono">local</samp> definition initializes the accumulator with <samp class="mono">'()</samp>, the recursive call uses <samp class="mono">cons</samp> to add the current head of <samp class="mono">alox</samp> to the accumulator. In the base case, <samp class="mono">invert/a</samp> uses the knowledge in the accumulator, the reversed list.</p>
+<p class="calibre8">Note how, once again, <samp class="mono">invert.v2</samp> merely traverses the list. In contrast, <samp class="mono">invert</samp> reprocesses every result of its natural recursion with <samp class="mono">add-as-last</samp>. Stop! Measure how much faster <samp class="mono">invert.v2</samp> runs than <samp class="mono">invert</samp>.</p>
+<p class="calibre8"><b class="calibre9">Terminology</b> Programmers use the phrase <i class="calibre6">accumulator-style function</i> to discuss functions that use an accumulator parameter. Examples of functions in accumulator style are <samp class="mono">relative-&gt;absolute/a</samp>, <samp class="mono">invert/a</samp>, and <samp class="mono">path-exists?/a</samp>.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

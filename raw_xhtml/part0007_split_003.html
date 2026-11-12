@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec8-1" class="calibre16"></a>8.1 Creating Lists</h2>
+<p class="tni">All of us make lists all the time. Before we go grocery shopping, we write down a list of items we wish to purchase. Some people write down a to-do list every morning. During December, many children prepare Christmas wish lists. To plan a party, we make a list of invitees. Arranging information in the form of lists is an ubiquitous part of our life.</p>
+<p class="calibre8">Given that information comes in the shape of lists, we must clearly learn how to represent such lists as BSL data. Indeed, because lists are so important, BSL comes with built-in support for creating and manipulating lists, similar to the support for Cartesian points (<samp class="mono">posn</samp>). In contrast to points, the data definition for lists is always left to you. But first things first. We start with the creation of lists.</p>
+<p class="calibre8">When we form a list, we always start out with the empty list. In BSL, we represent the <i class="calibre6">empty</i> list with</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">'()</samp></p>
+</div>
+<p class="tni">which is pronounced “empty,” short for “empty list.” Like <samp class="mono">#true</samp> or <samp class="mono">5</samp>, <samp class="mono">'()</samp> is just a constant. When we add something to a list, we construct another list; in BSL, the <samp class="mono">cons</samp> operation serves this purpose. For example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Mercury"</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">constructs a list from the <samp class="mono">'()</samp> list and the string <samp class="mono">"Mercury"</samp>. <a id="rfig44" href="part0007_split_003.html#fig44" class="calibre5">Figure 44</a> presents this list in the same pictorial manner we used for structures. The box for <samp class="mono">cons</samp> has two fields: <samp class="mono">first</samp> and <samp class="mono">rest</samp>. In this specific example the <samp class="mono">first</samp> field contains <samp class="mono">"Mercury"</samp> and the <samp class="mono">rest</samp> field contains <samp class="mono">'()</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig44" class="calibre5"></a><img src="../images/00164.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_003.html#rfig44" class="calibre5">Figure 44</a>:</span> <span>Building a list</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Once we have a list with one item in it, we can construct lists with two items by using <samp class="mono">cons</samp> again. Here is one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Venus"</samp><samp class="mono"> (cons "Mercury"</samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni">And here is another:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Earth"</samp><samp class="mono"> (cons "Mercury"</samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_233" title="233"></span>The middle row of <a href="part0007_split_003.html#fig44" class="calibre5">figure 44</a> shows how you can imagine lists that contain two items. It is also a box of two fields, but this time the <samp class="mono">rest</samp> field contains a box. Indeed, it contains the box from the top row of the same figure.</p>
+<p class="calibre8">Finally, we construct a list with three items:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Earth"</samp><samp class="mono"> (cons "Venus"</samp><samp class="mono"> (cons "Mercury"</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">The last row of <a href="part0007_split_003.html#fig44" class="calibre5">figure 44</a> illustrates the list with three items. Its <samp class="mono">rest</samp> field contains a box that contains a box again. So, as we create lists we put boxes into boxes into boxes, and so on. While this may appear strange at first glance, it is just like a set of Chinese gift boxes or a set of nested drinking cups, which we sometimes get for birthdays. The only difference is that BSL programs can nest lists much deeper than any artist could nest physical boxes.</p>
+<p class="calibre8">Because even good artists would have problems with drawing deeply nested structures, computer scientists resort to box-and-arrow diagrams instead. <a id="rfig45" href="part0007_split_003.html#fig45" class="calibre5">Figure 45</a> illustrates how to rearrange the last row of <a href="part0007_split_003.html#fig44" class="calibre5">figure 44</a>. Each <samp class="mono">cons</samp> structure becomes a separate box. If the rest field is too complex to be drawn inside of the box, we draw a bullet instead and a line with an arrow <span epub:type="pagebreak" id="pg_234" title="234"></span>to the box that it contains. Depending on how the boxes are arranged, you get two kinds of diagrams. The first, displayed in the top row of <a href="part0007_split_003.html#fig45" class="calibre5">figure 45</a>, lists the boxes in the order in which they are created. The second, displayed in the bottom row, lists the boxes in the order in which they are <samp class="mono">cons</samp>ed together. Hence the second diagram immediately tells you what <samp class="mono">first</samp> would have produced when applied to the list, no matter how long the list is. For this reason, programmers prefer the second arrangement.</p>
+<div class="figure">
+<figure class="img"><a id="fig45" class="calibre5"></a><img src="../images/00165.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_003.html#rfig45" class="calibre5">Figure 45</a>:</span> <span>Drawing a list</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 129. Create BSL lists that represent</p>
+<p class="nlf">1. a list of celestial bodies, say, at least all the planets in our solar system;</p>
+<p class="nlf">2. a list of items for a meal, for example, steak, french fries, beans, bread, water, Brie cheese, and ice cream; and</p>
+<p class="nll">3. a list of colors.</p>
+<p class="tni">Sketch some box representations of these lists, similar to those in <a href="part0007_split_003.html#fig44" class="calibre5">figures 44</a> and <a href="part0007_split_003.html#fig45" class="calibre5">45</a>. Which of the sketches do you like better? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">You can also make lists of numbers. Here is a list with the 10 digits:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_235" title="235"></span><img src="../images/00166.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To build this list requires 10 list constructions and one <samp class="mono">'()</samp>. For a list of three arbitrary numbers, for example,</p>
+<figure class="co"><img src="../images/00167.gif" alt="" class="calibre10"/></figure>
+<p class="tni">we need three <samp class="mono">cons</samp>es.</p>
+<p class="calibre8">In general a list does not have to contain values of one kind, but may contain arbitrary values:</p>
+<figure class="co"><img src="../images/00168.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first item of this list is a string, the second one is a number, and the last one a Boolean. You may consider this list as the representation of a personnel record with three pieces of data: the name of the employee, the number of years spent at the company, and whether the employee has health insurance through the company. Or, you could think of it as representing a virtual player in some game. Without a data definition, you just can’t know what data is all about.</p>
+<p class="marginpar">Then again, if this list is supposed to represent a record with a fixed number of pieces, use a structure type instead.</p>
+<p class="calibre8">Here is a first data definition that involves <samp class="mono">cons</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">3LON</i><samp class="mono"> is a</samp><samp class="mono"> list of</samp><samp class="mono"> three numbers:</samp> <br class="calibre4"/><samp class="mono">; (cons</samp><samp class="mono"> </samp>Number<samp class="mono"> (cons </samp>Number<samp class="mono"> (cons </samp>Number<samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> a point</samp><samp class="mono"> in 3-dimensional</samp><samp class="mono"> space</samp></p>
+</div>
+<p class="tni">Of course, this data definition uses <samp class="mono">cons</samp> like others use constructors for structure instances, and in a sense, <samp class="mono">cons</samp> is just a special constructor. What this data definition fails to demonstrate is how to form lists of arbitrary length: lists that contain nothing, one item, two items, ten items, or perhaps 1,438,901 items.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_236" title="236"></span>So let’s try again:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">List-of-names</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>String List-of-names<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> a list</samp><samp class="mono"> of invitees,</samp><samp class="mono"> by last</samp><samp class="mono"> name</samp></p>
+</div>
+<p class="tni">Take a deep breath, read it again. This data definition is one of the most unusual definitions you have ever encountered—you have never before seen a definition that refers to itself. It isn’t even clear whether it makes sense. After all, if you had told your English teacher that “a table is a table” defines the word “table,” the most likely response would have been “Nonsense!” because a self-referential definition doesn’t explain what a word means.</p>
+<p class="calibre8">In computer science and in programming, though, self-referential definitions play a central role, and with some care, such definitions actually do make sense. Here “making sense” means that we can use the data definition for what it is intended for, namely, to generate examples of data that belong to the class that is being defined or to check whether some given piece of data belongs to the defined class of data. From this perspective, the definition of List-of-names makes complete sense. At a minimum, we can generate <samp class="mono">'()</samp> as one example, using the first clause in the itemization. Given <samp class="mono">'()</samp> as an element of List-of-names, it is easy to make a second one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Findler"</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">Here we are using a String and the only list from List-of-names to generate a piece of data according to the second clause in the itemization. With the same rule, we can generate many more lists of this kind:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Flatt"</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">(cons "Felleisen"</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">(cons "Krishnamurthi"</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">And while these lists all contain one name (represented as a String), it is actually possible to use the second line of the data definition to create lists with more names in them:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Felleisen"</samp><samp class="mono"> (cons "Findler"</samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni">This piece of data belongs to List-of-names because <samp class="mono">"Felleisen"</samp> is a String and <samp class="mono">(cons "Findler" '())</samp> is a confirmed List-of-names.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_237" title="237"></span><b class="calibre9">Exercise</b> 130. Create an element of List-of-names that contains five Strings. Sketch a box representation of the list similar to those found in <a href="part0007_split_003.html#fig44" class="calibre5">figure 44</a>.</p>
+<p class="calibre8">Explain why</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "1"</samp><samp class="mono"> (cons "2"</samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni">is an element of List-of-names and why <samp class="mono">(cons 2 '())</samp> isn’t. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 131. Provide a data definition for representing lists of Boolean values. The class contains all arbitrarily long lists of Booleans. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

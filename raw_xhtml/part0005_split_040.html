@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_41"><span epub:type="pagebreak" id="pg_166" title="166" class="calibre1"></span><a id="sec5-8" class="calibre16"></a>5.8 Designing with Structures</h2>
+<p class="tni">The introduction of structure types reinforces the need for all six steps in the design recipe. It no longer suffices to rely on built-in data collections to represent information; it is now clear that programmers must create data definitions for all but the simplest problems.</p>
+<p class="calibre8">This section adds a design recipe, illustrating it with the following:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that computes the distance of objects in a 3-dimensional space to the origin.</p>
+</div>
+<p class="tni">Here we go:</p>
+<p class="nlf">1. When a problem calls for the representation of pieces of information that belong together or describe a natural whole, you need a structure type definition. It requires as many fields as there are relevant properties. An instance of this structure type corresponds to the whole, and the values in the fields correspond to its attributes.</p>
+<p class="nltni">A data definition for a structure type introduces a name for the collection of instances that are legitimate. Furthermore, it must describe which kind of data goes with which field. <b class="calibre9">Use only names of built-in data collections or previously defined data definitions.</b></p>
+<p class="nltni">In the end, we (and others) must be able to use the data definition to create sample structure instances. Otherwise, something is wrong with our data definition. To ensure that we can create instances, our data definitions should come with <b class="calibre9">data examples</b>.</p>
+<p class="nltni">Here is how we apply this idea to the sample problem:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct r3</samp><samp class="mono"> [x y</samp><samp class="mono"> z])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span><i class="calibre6">R3</i></span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-r3</samp><samp class="mono"> </samp><span>Number Number Number</span><samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define ex1</samp><samp class="mono"> (make-r3 1</samp><samp class="mono"> 2 13))</samp> <br class="calibre4"/><samp class="mono">(define ex2</samp><samp class="mono"> (make-r3 -1</samp><samp class="mono"> 0 3))</samp></samp></p>
+</div>
+<p class="nltni">The structure type definition introduces a new kind of structure, <samp class="mono">r3</samp>, and the data definition introduces R3 as the name for all instances of <samp class="mono">r3</samp> that contain only numbers.</p>
+<p class="nlf">2. You still need a signature, a purpose statement, and a function header but they remain the same. Stop! Do it for the sample problem.</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_167" title="167"></span>3. Use the examples from the first step to create functional examples. For each field associated with intervals or enumerations, make sure to pick end points and intermediate points to create functional examples. We expect you to continue working on the sample problem.</p>
+<p class="nlf">4. A function that consumes structures usually—though not always—extracts the values from the various fields in the structure. To remind yourself of this possibility, add a selector for each field to the templates for such functions.</p>
+<p class="nltni">Here is what we have for the sample problem:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">; </samp>R3<samp class="mono"> -&gt; </samp><span>Number</span> <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> the distance</samp><samp class="mono"> of p</samp><samp class="mono"> to the</samp><samp class="mono"> origin</samp> <br class="calibre4"/><samp class="mono">(define (r3-distance-to-0</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (r3-x p)</samp><samp class="mono"> <span>…</span> (r3-y</samp><samp class="mono"> p) <span>…</span></samp><samp class="mono"> (r3-z p)</samp><samp class="mono"> <span>…</span>))</samp></p>
+</div>
+<p class="nltni">You may want to write down next to each selector expression what kind of data it extracts from the given structure; you can find this information in the data definition. Stop! Just do it!</p>
+<p class="nlf">5. Use the selector expressions from the template when you define the function. Keep in mind that you may not need some of them.</p>
+<p class="nll">6. Test. Test as soon as the function header is written. Test until all expressions have been covered. Test again when you make changes.</p>
+<p class="tni">Finish the sample problem. If you cannot remember the distance of a 3-dimensional point to the origin, look it up in a geometry book.</p>
+<p class="marginpar">There you will find a formula such as <img class="inline1" src="../images/00109.gif" alt=""/>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 80. Create templates for functions that consume instances of the following structure types:</p>
+<p class="blf">•  <samp class="mono">(define-struct movie [title director year])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct pet [name number])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct CD [artist title price])</samp></p>
+<p class="bll">•  <samp class="mono">(define-struct sweater [material size color])</samp></p>
+<p class="tni">No, you do not need data definitions for this task. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 81. Design the function <samp class="mono">time-&gt;seconds</samp>, which consumes instances of time structures (see exercise 77) and produces the number of <span epub:type="pagebreak" id="pg_168" title="168"></span>seconds that have passed since midnight. For example, if you are representing 12 hours, 30 minutes, and 2 seconds with one of these structures and if you then apply <samp class="mono">time-&gt;seconds</samp> to this instance, the correct result is <samp class="mono">45002</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 82. Design the function <samp class="mono">compare-word</samp>. The function consumes two three-letter words (see exercise 78). It produces a word that indicates where the given ones agree and disagree. The function retains the content of the structure fields if the two agree; otherwise it places <samp class="mono">#false</samp> in the field of the resulting word. <b class="calibre9">Hint</b> The exercises mentions two tasks: the comparison of words and the comparison of “letters.” <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

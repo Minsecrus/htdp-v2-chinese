@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_21"><a id="sec3-4" class="calibre16"></a>3.4 From Functions to Programs</h2>
+<p class="tni">Not all programs consist of a single function definition. Some require several functions; many also use constant definitions. No matter what, it is always important to design every function systematically, though global constants as well as auxiliary functions change the design process a bit.</p>
+<p class="calibre8">When you have defined global constants, your functions may use them to compute results. To remind yourself of their existence, you may wish to add these constants to your templates; after all, they belong to the inventory of things that may contribute to the function definition.</p>
+<p class="calibre8">Multi-function programs come about because interactive programs automatically need functions that handle key and mouse events, functions that render the state as music, and possibly more. Even batch programs may require several different functions because they perform several separate tasks. Sometimes the problem statement itself suggests these tasks; other times you will discover the need for auxiliary functions as you are in the middle of designing some function.</p>
+<p class="calibre8">For these reasons, we recommend keeping around a list of needed functions or a <i class="calibre6">wish list</i>. Each entry on a wish list should consist of three things: a meaningful name for the function, a signature, and a purpose statement. For the design of a batch program, put the main function on the wish list and start designing it. For the design of an interactive program, you can put the event handlers, the <samp class="mono">stop-when</samp> function, and the scene-rendering <span epub:type="pagebreak" id="pg_88" title="88"></span>function on the list. As long as the list isn’t empty, pick a wish and design the function. If you discover during the design that you need another function, put it on the list. When the list is empty, you are done.</p>
+<p class="marginpar">We owe the term “wish list” to John Stone.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

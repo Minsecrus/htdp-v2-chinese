@@ -1,0 +1,38 @@
+# TeX auxiliary and build cache files
+*.aux
+*.log
+*.toc
+*.out
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.listing
+*.bbl
+*.blg
+*.idx
+*.ind
+*.ilg
+*.nav
+*.snm
+*.vrb
+*.xdv
+
+# Temporary test files
+test_*
+*.tmp
+
+# Legacy build outputs
+htdp_chinese.*
+main.aux
+main.log
+main.toc
+main.listing
+main.pdf
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

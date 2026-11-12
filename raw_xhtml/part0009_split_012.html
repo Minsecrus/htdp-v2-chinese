@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_13"><a id="sec15-4" class="calibre16"></a>15.4 Abstractions from Templates</h2>
+<p class="tni">The first two chapters of this part present many functions based on the same template. After all, the design recipe says to organize functions around the organization of the (major) input data definition. It is therefore not surprising that many function definitions look similar to each other.</p>
+<p class="calibre8">Indeed, you should abstract from the templates directly, and you should do so automatically; some experimental programming languages do so. Even though this topic is still a subject of research, you are now in a position to understand the basic idea. Consider the template for lists:</p>
+<figure class="co"><img src="../images/00350.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_411" title="411"></span>It contains two gaps, one in each clause. When you use this template to define a list-processing function, you usually fill these gaps with a value in the first <samp class="mono">cond</samp> clause and with a function <samp class="mono">combine</samp> in the second clause. The <samp class="mono">combine</samp> function consumes the first item of the list and the result of the natural recursion and creates the result from these two pieces of data.</p>
+<p class="calibre8">Now that you know how to create abstractions, you can complete the definition of the abstraction from this informal description:</p>
+<figure class="co"><img src="../images/00351.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It consumes two extra arguments: <samp class="mono">base</samp>, which is the value for the base case, and <samp class="mono">combine</samp>, which is the function that performs the value combination for the second clause.</p>
+<p class="calibre8">Using <samp class="mono">reduce</samp> you can define many plain list-processing functions as “one liners.” Here are definitions for <samp class="mono">sum</samp> and <samp class="mono">product</samp>, two functions used several times in the first few sections of this chapter:</p>
+<figure class="co"><img src="../images/00352.gif" alt="" class="calibre10"/></figure>
+<p class="tni">For <samp class="mono">sum</samp>, the base case always produces <samp class="mono">0</samp>; adding the first item and the result of the natural recursion combines the values of the second clause. Analogous reasoning explains <samp class="mono">product</samp>. Other list-processing functions can be defined in a similar manner using <samp class="mono">reduce</samp>.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

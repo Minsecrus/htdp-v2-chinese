@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_27"><span epub:type="pagebreak" id="pg_562" title="562" class="calibre1"></span><a id="sec23-3" class="calibre16"></a>23.3 Processing Two Lists Simultaneously: Case 3</h2>
+<p class="tni">Here is a third type of problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Given a list of symbols <samp class="mono">los</samp> and a natural number <samp class="mono">n</samp>, the function <samp class="mono">list-pick</samp> extracts the <samp class="mono">n</samp>th symbol from <samp class="mono">los</samp>; if there is no such symbol, it signals an error.</p>
+</div>
+<p class="tni">The question is how well the recipe works for the design of <samp class="mono">list-pick</samp>.</p>
+<p class="calibre8">While the data definition for a list of symbols is fairly familiar by now, recall the class of natural numbers from chapter 9.3:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><span class="calibre6">N</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 0</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (add1 </samp>N<samp class="mono">)</samp></p>
+</div>
+<p class="calibre8">Now we can proceed to the second step:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Symbol<samp class="mono">] </samp>N<samp class="mono"> -&gt; </samp>Symbol <br class="calibre4"/><samp class="mono">; extracts</samp><samp class="mono"> the nth</samp><samp class="mono"> symbol from</samp><samp class="mono"> l;</samp> <br class="calibre4"/><samp class="mono">; signals</samp><samp class="mono"> an error</samp><samp class="mono"> if there</samp><samp class="mono"> is no</samp><samp class="mono"> such symbol</samp> <br class="calibre4"/><samp class="mono">(define (list-pick</samp><samp class="mono"> l n)</samp> <br class="calibre4"/><samp class="mono">  'a)</samp></p>
+</div>
+<p class="tni">Both lists of symbols and natural numbers are classes with complex data definitions. This combination makes the problem nonstandard, meaning we must pay attention to every detail for every step of the design recipe.</p>
+<p class="calibre8">At this point, we usually pick some input examples and figure out what the desired output is. We start with inputs for which the function has to work flawlessly: <samp class="mono">'(a b c)</samp> and <samp class="mono">2</samp>. For a list of three symbols and the index <samp class="mono">2</samp>, <samp class="mono">list-pick</samp> must return a symbol. The question is whether it is <samp class="mono">'b</samp> or <samp class="mono">'c</samp>. In grade school, you would have counted <samp class="mono">1</samp>, <samp class="mono">2</samp>, and picked <samp class="mono">'b</samp> without a first thought. But this is computer science, not grade school. Here people start counting from <samp class="mono">0</samp>, meaning that <samp class="mono">'c</samp> is an equally appropriate choice. And indeed, this is the choice we use:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (list-pick</samp><samp class="mono"> '(a b</samp><samp class="mono"> c) 2)</samp><samp class="mono"> 'c)</samp></p>
+</div>
+<p class="calibre8">Now that we have eliminated this fine point of <samp class="mono">list-pick</samp>, let’s look at the actual problem, the choice of inputs. The goal of the example step is to cover the input space as much as possible. We do so by picking one input per clause in the description of complex forms of data. Here this procedure <span epub:type="pagebreak" id="pg_563" title="563"></span>suggests we pick at least two elements from each class because each data definition has two clauses. We choose <samp class="mono">'()</samp> and <samp class="mono">(cons 'a '())</samp> for the first argument, and <samp class="mono">0</samp> and <samp class="mono">3</samp> for the latter. Two choices per argument means four examples total; after all, there is no immediately obvious connection between the two arguments and no restriction in the signature.</p>
+<p class="calibre8">As it turns out, only one of these pairings produces a proper result; the remaining ones choose a position that does not exist because the list doesn’t contain enough symbols:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-error (list-pick</samp><samp class="mono"> '() 0)</samp><samp class="mono"> "list too</samp><samp class="mono"> short")</samp> <br class="calibre4"/><samp class="mono">(check-expect (list-pick</samp><samp class="mono"> (cons 'a</samp><samp class="mono"> '()) 0)</samp><samp class="mono"> 'a)</samp> <br class="calibre4"/><samp class="mono">(check-error (list-pick</samp><samp class="mono"> '() 3)</samp><samp class="mono"> "list too</samp><samp class="mono"> short")</samp></p>
+</div>
+<p class="tni">The function is expected to signal an error, and we pick our favorite message here.</p>
+<p class="calibre8">Stop! Put these fragments into DrRacket’s definitions area and run the partial program.</p>
+<p class="calibre8">The discussion on examples indicates that there are indeed four independent cases that we must inspect for the design of the function. One way to discover these cases is to arrange the conditions for each of the clauses into a two-dimensional table:</p>
+<figure class="co"><img src="../images/00525.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The horizontal dimension of the table lists those questions that <samp class="mono">list-pick</samp> must ask about lists; the vertical dimension lists the questions about natural numbers. By this arrangement, we naturally get four squares, where each represents the case when both the conditions on the horizontal and the vertical axis are true.</p>
+<p class="calibre8">Our table suggests that the <samp class="mono">cond</samp> for the function template has four clauses. We can figure out the appropriate condition for each of these clauses by <samp class="mono">and</samp>-ing the horizontal and vertical condition for each box in the table:</p>
+<figure class="co"><img src="../images/00526.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_564" title="564"></span>The <samp class="mono">cond</samp> outline of the template is merely a translation of this table into a conditional:</p>
+<figure class="co"><img src="../images/00527.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">As always, the <samp class="mono">cond</samp> expression allows us to distinguish the four possibilities and to focus on each individually as we add selector expressions to each <samp class="mono">cond</samp> clause:</p>
+<figure class="co"><img src="../images/00528.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first argument, <samp class="mono">l</samp>, is a list, and a template’s <samp class="mono">cond</samp> clause for non-empty lists contains two selector expressions. The second argument, <samp class="mono">n</samp>, belongs to N, and the template’s <samp class="mono">cond</samp> clause for non-<samp class="mono">0</samp> numbers needs only one selector expression. In those cases where either <samp class="mono">(empty? l)</samp> or <samp class="mono">(= n 0)</samp> holds, the respective argument is atomic and there is no need for a corresponding selector expression.</p>
+<p class="calibre8">The final step of the template construction demands that we annotate the template with recursions where the results of selector expressions belong to the same class as the inputs. For this first example, we focus on the last <samp class="mono">cond</samp> clause, which contains selector expressions for both arguments. It is, however, unclear how to form the natural recursions. If we disregard the purpose of the function, there are three possible recursions:</p>
+<p class="nlf">1. <samp class="mono">(list-pick (rest l) (sub1 n))</samp></p>
+<p class="nlf">2. <samp class="mono">(list-pick l (sub1 n))</samp></p>
+<p class="nll"><span epub:type="pagebreak" id="pg_565" title="565"></span>3. <samp class="mono">(list-pick (rest l) n)</samp></p>
+<p class="tni">Each one represents a feasible combination of the available expressions. Since we cannot know which one matters or whether all three matter, we move on to the next development stage.</p>
+<p class="calibre8">Following the design recipe for the fifth step, let’s analyze each <samp class="mono">cond</samp> clause in the template and decide what a proper answer is:</p>
+<p class="nlf">1. If <samp class="mono">(and (= n 0) (empty? l))</samp> holds, <samp class="mono">list-pick</samp> must pick the first symbol from an empty list, which is impossible. The answer must be an error signal.</p>
+<p class="nlf">2. If <samp class="mono">(and (&gt; n 0) (empty? l))</samp> holds, <samp class="mono">list-pick</samp> is again asked to pick a symbol from an empty list.</p>
+<p class="nlf">3. If <samp class="mono">(and (= n 0) (cons? l))</samp> holds, <samp class="mono">list-pick</samp> is supposed to produce the first symbol from <samp class="mono">l</samp>. The selector expression <samp class="mono">(first l)</samp> is the answer.</p>
+<p class="nll">4. If <samp class="mono">(and (&gt; n 0) (cons? l))</samp> holds, we must analyze what the available expressions compute. As we have seen, it is a good idea to work through an existing example for this step. We pick a shortened variant of the first example:</p>
+<div class="verbatim">
+<p class="code"><samp class="mono">(check-expect (list-pick</samp><samp class="mono"> '(a b)</samp><samp class="mono"> 1) 'b)</samp></p>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_566" title="566"></span>Here is what the three natural recursions compute with these values:</p>
+<p class="nlf-lower">(a) <samp class="mono">(list-pick '(b) 0)</samp> produces <samp class="mono">'b</samp>;</p>
+<p class="nl-lower">(b) <samp class="mono">(list-pick '(a b) 0)</samp> evaluates to <samp class="mono">'a</samp>, the wrong answer;</p>
+<p class="nll-lower">(c) and <samp class="mono">(list-pick '(b) 1)</samp> signals an error.</p>
+<p class="nltni">From this, we conclude that <samp class="mono">(list-pick (rest l) (sub1 n))</samp> computes the desired answer in the last <samp class="mono">cond</samp> clause.</p>
+<p class="stx"><b class="calibre9">Exercise</b> 390. Design the function <samp class="mono">tree-pick</samp>. The function consumes a tree of symbols and a list of directions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct branch</samp><samp class="mono"> [left right])</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">TOS</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> </samp>Symbol <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-branch </samp>TOS TOS<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Direction</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 'left</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 'right</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> list of</samp><samp class="mono"> </samp>Directions<samp class="mono"> is also</samp><samp class="mono"> called a</samp><samp class="mono"> path</samp></p>
+</div>
+<p class="tni">Clearly a Direction tells the function whether to choose the left or the right branch in a nonsymbolic tree. What is the result of the <samp class="mono">tree-pick</samp> function? Don’t forget to formulate a full signature. The function signals an error when given a symbol and a non-empty path. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

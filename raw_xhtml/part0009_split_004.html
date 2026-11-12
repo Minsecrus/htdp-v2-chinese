@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec14-2" class="calibre16"></a>14.2 Different Similarities</h2>
+<p class="tni">Abstraction looks easy in the case of the <samp class="mono">contains-dog?</samp> and <samp class="mono">contains-cat?</samp> functions. It takes only a comparison of two function definitions, a replacement of a literal string with a function parameter, and a quick check that it is easy to define the old functions with the abstract function. This kind of abstraction is so natural that it showed up in the preceding two parts of the book without much ado.</p>
+<p class="calibre8">This section illustrates how the very same principle yields a powerful form of abstraction. Take a look at <a id="rfig88" href="part0009_split_004.html#fig88" class="calibre5">figure 88</a>. Both functions consume a list of numbers and a threshold. The left one produces a list of all those numbers that are below the threshold, while the one on the right produces all those that are above the threshold.</p>
+<div class="figure">
+<figure class="img"><a id="fig88" class="calibre5"></a><img src="../images/00319.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_004.html#rfig88" class="calibre5">Figure 88</a>:</span> <span>Two more similar functions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The two functions differ in only one place: the comparison operator that determines whether a number from the given list should be a part of the result or not. The function on the left uses <samp class="mono">&lt;</samp>, and the right one <samp class="mono">&gt;</samp>. Other than that, the two functions look identical, not counting the function name.</p>
+<p class="calibre8">Let’s follow the first example and abstract over the two functions with an additional parameter. This time the additional parameter represents a comparison operator rather than a string:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_385" title="385"></span><img src="../images/00320.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To apply this new function, we must supply three arguments: a function <samp class="mono">R</samp> that compares two numbers, a list <samp class="mono">l</samp> of numbers, and a threshold <samp class="mono">t</samp>. The function then extracts all those items <samp class="mono">i</samp> from <samp class="mono">l</samp> for which <samp class="mono">(R i t)</samp> evaluates to <samp class="mono">#true</samp>.</p>
+<p class="calibre8">Stop! At this point you should ask whether this definition makes any sense. Without further fuss, we have created a function that consumes a function—something that you probably have not seen before. It turns out, however, that your simple little teaching language ISL supports these kinds of functions, and that defining such functions is one of the most powerful tools of good programmers—even in languages in which function-consuming functions do not seem to be available.</p>
+<p class="marginpar">If you have taken a calculus course, you have encountered the differential operator and the indefinite integral. Both of those are functions that consume and produce functions. But we do not assume that you have taken a calculus course.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_386" title="386"></span>Testing shows that <samp class="mono">(extract &lt; l t)</samp> computes the same result as <samp class="mono">(small l t)</samp>:</p>
+<figure class="co"><img src="../images/00321.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Similarly, <samp class="mono">(extract &gt; l t)</samp> produces the same result as <samp class="mono">(large l t)</samp>, which means that you can define the two original functions like this:</p>
+<figure class="co"><img src="../images/00322.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">The important insight is <b class="calibre9">not</b> that <samp class="mono">small-1</samp> and <samp class="mono">large-1</samp> are one-line definitions. Once you have an abstract function such as <samp class="mono">extract</samp>, you can put it to good uses elsewhere:</p>
+<p class="nlf">1. <samp class="mono">(extract = l t)</samp>: This expression extracts all those numbers in <samp class="mono">l</samp> that are equal to <samp class="mono">t</samp>.</p>
+<p class="nlf">2. <samp class="mono">(extract &lt;= l t)</samp>: This one produces the list of numbers in <samp class="mono">l</samp> that are less than or equal to <samp class="mono">t</samp>.</p>
+<p class="nll">3. <samp class="mono">(extract &gt;= l t)</samp>: This last expression computes the list of numbers that are greater than or equal to the threshold.</p>
+<p class="calibre8">As a matter of fact, the first argument for <samp class="mono">extract</samp> need not be one of ISL’s pre-defined operations. Instead, you can use any function that consumes two arguments and produces a Boolean. Consider this example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number Number<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> the area</samp><samp class="mono"> of a</samp><samp class="mono"> square with</samp><samp class="mono"> side x</samp><samp class="mono"> larger than</samp><samp class="mono"> c</samp> <br class="calibre4"/><samp class="mono">(define (squared&gt;?</samp><samp class="mono"> x c)</samp> <br class="calibre4"/><samp class="mono">  (&gt;</samp><samp class="mono"> (* x</samp><samp class="mono"> x) c))</samp></p>
+</div>
+<p class="tni">That is, <samp class="mono">squared&gt;?</samp> checks whether the claim <i class="calibre6">x</i><sup class="calibre15">2</sup> <i class="calibre6">&gt; c</i> holds, and it is usable with <samp class="mono">extract</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(extract squared&gt;?</samp><samp class="mono"> (list 3</samp><samp class="mono"> 4 5)</samp><samp class="mono"> 10)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_387" title="387"></span>This application extracts those numbers in <samp class="mono">(list 3 4 5)</samp> whose square is larger than <samp class="mono">10</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 237. Evaluate <samp class="mono">(squared&gt;? 3 10)</samp> and <samp class="mono">(squared&gt;? 4 10)</samp> in DrRacket. How about <samp class="mono">(squared&gt;? 5 10</samp><samp class="mono">)</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">So far you have seen that abstracted function definitions can be more useful than the original functions. For example, <samp class="mono">contains?</samp> is more useful than <samp class="mono">contains-dog?</samp> and <samp class="mono">contains-cat?</samp>, and <samp class="mono">extract</samp> is more useful than <samp class="mono">small</samp> and <samp class="mono">large</samp>. Another important aspect of abstraction is that you now have a single point of control over all these functions. If it turns out that the abstract function contains a mistake, fixing its definition suffices to fix all other definitions. Similarly, if you figure out how to accelerate the computations of the abstract function or how to reduce its energy consumption, then all functions defined in terms of this function are improved without any extra effort. The following exercises indicate how these single-point-of-control improvements work.</p>
+<p class="marginpar">These benefits of abstraction are available at all levels of programming: word documents, spreadsheets, small apps, and large industrial projects. Creating abstractions for the latter drives research on programming languages and software engineering.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 238. Abstract the two functions in <a id="rfig89" href="part0009_split_004.html#fig89" class="calibre5">figure 89</a> into a single function. Both consume non-empty lists of numbers (<i class="calibre6">Nelon</i>) and produce a single number. The left one produces the smallest number in the list, and the right one the largest.</p>
+<div class="figure">
+<figure class="img"><a id="fig89" class="calibre5"></a><img src="../images/00323.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_004.html#rfig89" class="calibre5">Figure 89</a>:</span> <span>Finding the <samp class="mono">inf</samp> and <samp class="mono">sup</samp> in a list of numbers</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Define <samp class="mono">inf-1</samp> and <samp class="mono">sup-1</samp> in terms of the abstract function. Test them with these two lists:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_388" title="388"></span><img src="../images/00324.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Why are these functions slow on some of the long lists?</p>
+<p class="calibre8">Modify the original functions with the use of <samp class="mono">max</samp>, which picks the larger of two numbers, and <samp class="mono">min</samp>, which picks the smaller one. Then abstract again, define <samp class="mono">inf-2</samp> and <samp class="mono">sup-2</samp>, and test them with the same inputs again. Why are these versions so much faster?</p>
+<p class="calibre8">For another answer to these questions, see chapter 16.2. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

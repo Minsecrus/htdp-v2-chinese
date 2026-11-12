@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_43"><a id="sec5-10" class="calibre16"></a>5.10 A Graphical Editor</h2>
+<p class="tni">To program in BSL, you open DrRacket, type on the keyboard, and watch text appear. Pressing the left arrow on the keyboard moves the cursor to the left; pressing the backspace (or delete) key erases a single letter to the left of the cursor—if there is a letter to start with.</p>
+<p class="calibre8">This process is called “editing,” though its precise name should be “text editing of programs” because we will use “editing” for a more demanding task than typing on a keyboard. When you write and revise other kinds of documents, say, an English assignment, you are likely to use other software applications, called word processors, though computer scientists dub all of them editors or even graphical editors.</p>
+<p class="calibre8">You are now in a position to design a world program that acts as a one-line editor for plain text. Editing here includes entering letters and somehow changing the already existing text, including the deletion and the insertion of letters. This implies some notion of position within the text. People call this position a <i class="calibre6">cursor</i>; most graphical editors display it in such a way that it can easily be spotted.</p>
+<p class="calibre8">Take a look at the following editor configuration:</p>
+<figure class="co"><img src="../images/00110.gif" alt="" class="calibre25"/></figure>
+<p class="calibre8">Someone might have entered the text “helloworld” and hit the left arrow key five times, causing the cursor to move from the end of the text to <span epub:type="pagebreak" id="pg_170" title="170"></span>the position between “o” and “w.” Pressing the space bar would now cause the editor to change its display as follows:</p>
+<figure class="co"><img src="../images/00111.gif" alt="" class="calibre25"/></figure>
+<p class="tni">In short, the action inserts “” and places the cursor between it and “w.”</p>
+<p class="calibre8">Given this much, an editor must track two pieces of information:</p>
+<p class="nlf">1. the text entered so far, and</p>
+<p class="nll">2. the current location of the cursor.</p>
+<p class="tni">And this suggests a structure type with two fields.</p>
+<p class="calibre8">We can imagine several different ways of going from the information to data and back. For example, one field in the structure may contain the entire text entered, and the other the number of characters between the first character (counting from the left) and the cursor. Another data representation is to use two strings in the two fields: the part of the text to the left of the cursor and the part of the text to its right. Here is our preferred approach to representing the state of an editor:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct editor</samp><samp class="mono"> [pre post])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span><i class="calibre6">Editor</i></span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-editor </samp><span>String String</span><samp class="mono">) <br class="calibre4"/>;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> (make-editor s</samp><samp class="mono"> t) describes</samp><samp class="mono"> an editor</samp> <br class="calibre4"/><samp class="mono">; whose</samp><samp class="mono"> visible text</samp><samp class="mono"> is (string-append</samp><samp class="mono"> s t)</samp><samp class="mono"> with</samp> <br class="calibre4"/><samp class="mono">; the</samp><samp class="mono"> cursor displayed</samp><samp class="mono"> between s</samp><samp class="mono"> and t</samp></samp></p>
+</div>
+<p class="tni">Solve the next few exercises based on this data representation.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 83. Design the function <samp class="mono">render</samp>, which consumes an Editor and produces an image.</p>
+<p class="calibre8">The purpose of the function is to render the text within an empty scene of 200 × 20 pixels. For the cursor, use a 1 × 20 red rectangle and for the strings, black text of size 16.</p>
+<p class="calibre8">Develop the image for a sample string in DrRacket’s interactions area. We started with this expression:</p>
+<figure class="co"><img src="../images/00112.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_171" title="171"></span>You may wish to read up on <samp class="mono">beside</samp>, <samp class="mono">above</samp>, and such functions. When you are happy with the looks of the image, use the expression as a test and as a guide to the design of <samp class="mono">render</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 84. Design <samp class="mono">edit</samp>. The function consumes two inputs, an editor <samp class="mono">ed</samp> and a KeyEvent <samp class="mono">ke</samp>, and it produces another editor. Its task is to add a single-character KeyEvent <samp class="mono">ke</samp> to the end of the <i class="calibre6">pre</i> field of <samp class="mono">ed</samp>, unless <samp class="mono">ke</samp> denotes the backspace (<samp class="mono">"\b"</samp>) key. In that case, it deletes the character immediately to the left of the cursor (if there are any). The function ignores the tab key (<samp class="mono">"\t"</samp>) and the return key (<samp class="mono">"\r"</samp>).</p>
+<p class="calibre8">The function pays attention to only two KeyEvents longer than one letter: <samp class="mono">"left"</samp> and <samp class="mono">"right"</samp>. The left arrow moves the cursor one character to the left (if any), and the right arrow moves it one character to the right (if any). All other such KeyEvents are ignored.</p>
+<p class="calibre8">Develop a goodly number of examples for <samp class="mono">edit</samp>, paying attention to special cases. When we solved this exercise, we created 20 examples and turned all of them into tests.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Think of this function as consuming KeyEvents, a collection that is specified as an enumeration. It uses auxiliary functions to deal with the Editor structure. Keep a wish list handy; you will need to design additional functions for most of these auxiliary functions, such as <samp class="mono">string-first</samp>, <samp class="mono">string-rest</samp>, <samp class="mono">string-last</samp>, and <samp class="mono">string-remove-last</samp>. If you haven’t done so, solve the exercises in chapter 2.1. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 85. Define the function <samp class="mono">run</samp>. Given the <samp class="mono">pre</samp> field of an editor, it launches an interactive editor, using <samp class="mono">render</samp> and <samp class="mono">edit</samp> from the preceding two exercises for the <samp class="mono">to-draw</samp> and <samp class="mono">on-key</samp> clauses, respectively. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 86. Notice that if you type a lot, your editor program does not display all of the text. Instead the text is cut off at the right margin. Modify your function <samp class="mono">edit</samp> from exercise 84 so that it ignores a keystroke if adding it to the end of the <samp class="mono">pre</samp> field would mean the rendered text is too wide for your canvas. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 87. Develop a data representation for an editor based on our first idea, using a string and an index. Then solve the preceding exercises again. <b class="calibre9">Retrace the design recipe. Hint</b> if you haven’t done so, solve the exercises in chapter 2.1.</p>
+<p class="calibre8"><b class="calibre9">Note on Design Choices</b> The exercise is a first study of making design choices. It shows that the very first design choice concerns the data representation. Making the right choice requires planning ahead and weighing the complexity of each. Of course, getting good at this is a question of gaining experience. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

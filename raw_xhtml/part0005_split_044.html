@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_45"><span epub:type="pagebreak" id="pg_174" title="174" class="calibre1"></span><a id="sec6" class="calibre16"></a>6 Itemizations and Structures</h1>
+<p class="tni">The preceding two chapters introduce two ways of formulating data definitions. Those that employ itemization (enumeration and intervals) are used to create small collections from large ones. Those that use structures combine multiple collections. Since the development of data representations is the starting point for proper program design, it cannot surprise you that programmers frequently want to itemize data definitions that involve structures or to use structures to combine itemized data.</p>
+<p class="calibre8">Recall the imaginary space invader game from chapter 5.9 in the preceding chapter. Thus far, it involves one UFO, descending from space, and one tank on the ground, moving horizontally. Our data representation uses a structure with two fields: one for the data representation of the UFO and another one for the data representation of the tank. Naturally, players will want a tank that can fire off a missile. All of a sudden, we can think of a second kind of state that contains three independently moving objects: the UFO, the tank, and the missile. Thus we have two distinct structures: one for representing two independently moving objects and another one for the third. Since a world state may now be one of these two structures, it is natural to use an itemization to describe all possible states:</p>
+<p class="nlf">1. the state of the world is a structure with <b class="calibre9">two</b> fields, or</p>
+<p class="nll">2. the state of the world is a structure with <b class="calibre9">three</b> fields.</p>
+<p class="tni">As far as our domain is concerned—the actual game—the first kind of state represents the time before the tank has launched its sole missile and the second one the time after the missile has been fired.</p>
+<p class="marginpar">No worries, the next part of the book is about firing as many missiles as you want, without reloading.</p>
+<p class="calibre8">This chapter introduces the basic idea of itemizing data definitions that involve structures. Because we have all the other ingredients we need, we start straight with itemizing structures. After that, we discuss some examples, including world programs that benefit from our new power. The last section is about errors in programming.</p>
+</section>
+</article>
+</div>
+</body></html>

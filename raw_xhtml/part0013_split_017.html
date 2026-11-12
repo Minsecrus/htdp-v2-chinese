@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_18"><span epub:type="pagebreak" id="pg_655" title="655" class="calibre1"></span><a id="sec28-3" class="calibre16"></a>28.3 Project: Gaussian Elimination</h2>
+<p class="tni">Mathematicians not only search for solutions of equations in one variable; they also study whole systems of linear equations:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> In a bartering world, the values of coal (<i class="calibre6">x</i>), oil (<i class="calibre6">y</i>), and gas (<i class="calibre6">z</i>) are determined by these exchange equations:</p>
+</div>
+<figure class="co"><img src="../images/00644.gif" alt="" class="calibre10"/></figure>
+<p class="tni">A solution to such a system of equations consists of a collection of numbers, one per variable, such that if we replace the variable with its corresponding number, the two sides of each equation evaluate to the same number. In our running example, the solution is</p>
+<figure class="co"><img src="../images/00645.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We can easily check this claim:</p>
+<figure class="co"><img src="../images/00646.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The three equations reduce to</p>
+<figure class="co"><img src="../images/00647.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><a id="rfig167" href="part0013_split_017.html#fig167" class="calibre5">Figure 167</a> introduces a data representation for our problem domain. It includes an example of a system of equations and its solution. This representation captures the essence of a system of equations, namely, the numeric coefficients of the variables on the left-hand side and the right-hand-side values. The names of the variables don’t play any role because they are like parameters of functions; meaning, as long as they are consistently renamed the equations have the same solutions.</p>
+<div class="figure">
+<figure class="img"><a id="fig167" class="calibre5"></a><img src="../images/00648.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_017.html#rfig167" class="calibre5">Figure 167</a>:</span> <span>A data representation for systems of equations</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">For the rest of this section, it is convenient to use these functions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Equation<samp class="mono"> -&gt; [</samp>List-of Number<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; extracts</samp><samp class="mono"> the left-hand</samp><samp class="mono"> side from</samp><samp class="mono"> a row</samp><samp class="mono"> in a</samp><samp class="mono"> matrix</samp> <br class="calibre4"/><samp class="mono">(check-expect (lhs</samp><samp class="mono"> (first M))</samp><samp class="mono"> '(2 2</samp><samp class="mono"> 3))</samp> <br class="calibre4"/><samp class="mono">(define (lhs</samp><samp class="mono"> e)</samp> <br class="calibre4"/><samp class="mono">  (reverse</samp><samp class="mono"> (rest (reverse</samp><samp class="mono"> e))))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Equation<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; extracts</samp><samp class="mono"> the right-hand</samp><samp class="mono"> side from</samp><samp class="mono"> a row</samp><samp class="mono"> in a</samp><samp class="mono"> matrix</samp> <br class="calibre4"/><samp class="mono">(check-expect (rhs</samp><samp class="mono"> (first M))</samp><samp class="mono"> 10)</samp> <br class="calibre4"/><samp class="mono">(define (rhs</samp><samp class="mono"> e)</samp> <br class="calibre4"/><samp class="mono">  (first</samp><samp class="mono"> (reverse e)))</samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_656" title="656"></span><b class="calibre9">Exercise</b> 462. Design the function <samp class="mono">check-solution</samp>. It consumes an SOE and a Solution. Its result is <samp class="mono">#true</samp> if plugging in the numbers from the Solution for the variables in the Equations of the SOE produces equal left-hand-side values and right-hand-side values; otherwise the function produces <samp class="mono">#false</samp>. Use <samp class="mono">check-solution</samp> to formulate tests with <samp class="mono">check-satisfied</samp>.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Design the function <samp class="mono">plug-in</samp> first. It consumes the left-hand side of an Equation and a Solution and calculates out the value of the left-hand side when the numbers from the solution are plugged in for the variables. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><i class="calibre6">Gaussian elimination</i> is a standard method for finding solutions to systems of linear equations. It consists of two steps. The first step is to transform <span epub:type="pagebreak" id="pg_657" title="657"></span>the system of equations into a system of different shape but with the same solution. The second step is to find solutions to one equation at a time. Here we focus on the first step because it is another interesting instance of generative recursion.</p>
+<p class="calibre8">The first step of the Gaussian elimination algorithm is called “triangulation” because the result is a system of equations in the shape of a triangle. In contrast, the original system is a rectangle. To understand this terminology, take a look at this list, which represents the original system:</p>
+<figure class="co"><img src="../images/00649.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Triangulation transforms this matrix into the following:</p>
+<figure class="co"><img src="../images/00650.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As promised, the shape of this system of equations is (roughly) a triangle.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 463. Check that the following system of equations</p>
+<figure class="co"><img src="../images/00651.gif" alt="" class="calibre10"/></figure>
+<p class="tni">has the same solution as the one labeled with (†). Do so by hand and with <samp class="mono">check-solution</samp> from exercise 462. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The key idea of triangulation is to subtract the first Equation from the remaining ones. To subtract one Equation from another means to subtract the corresponding coefficients in the two Equations. With our running example, subtracting the first equation from the second yields the following matrix:</p>
+<figure class="co"><img src="../images/00652.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The goal of these subtractions is to put a <samp class="mono">0</samp> into the first column of all but the first equation. For the third equation, getting a <samp class="mono">0</samp> into the first position means subtracting the first equation <b class="calibre9">twice</b> from the third one:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_658" title="658"></span><img src="../images/00653.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Following convention, we drop the leading <samp class="mono">0</samp>’s from the last two equations:</p>
+<figure class="co"><img src="../images/00654.gif" alt="" class="calibre10"/></figure>
+<p class="tni">That is, we first multiply each item in the first row with <samp class="mono">2</samp> and then subtract the result from the last row. As mentioned, these subtractions do not change the solution; that is, the solution of the original system is also the solution of the transformed one.</p>
+<p class="marginpar">Mathematics teaches how to prove such facts. We use them.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 464. Check that the following system of equations</p>
+<figure class="co"><img src="../images/00655.gif" alt="" class="calibre10"/></figure>
+<p class="tni">has the same solution as the one labeled with (†). Again do so by hand and with <samp class="mono">check-solution</samp> from exercise 462. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 465. Design <samp class="mono">subtract</samp>. The function consumes two Equations of equal length. It “subtracts” a multiple of the second equation from the first, item by item, so that the resulting Equation has a <samp class="mono">0</samp> in the first position. Since the leading coefficient is known to be <samp class="mono">0</samp>, <samp class="mono">subtract</samp> returns the rest of the list that results from the subtractions. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Now consider the rest of the SOE:</p>
+<figure class="co"><img src="../images/00656.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It is also an SOE, so we can apply the same algorithm again. For our running example, this next subtraction step calls for subtracting the first Equation -1 times from the second one. Doing so yields</p>
+<figure class="co"><img src="../images/00657.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The rest of this SOE is a single equation and cannot be simplified.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_659" title="659"></span><b class="calibre9">Exercise</b> 466. Here is a representation for triangular SOEs:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">TM</span><samp class="mono"> is an</samp><samp class="mono"> [</samp>NEList-of Equation<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; such</samp><samp class="mono"> that the</samp><samp class="mono"> </samp>Equations<samp class="mono"> are of</samp><samp class="mono"> decreasing length:</samp> <br class="calibre4"/><samp class="mono">;   </samp><span class="calibre6">n</span> + 1,  <span class="calibre6">n</span>,  <span class="calibre6">n</span> − 1,  <span>…</span>,  2<samp class="mono">. <br class="calibre4"/>;</samp><span class="calibre9"> interpretation</span><samp class="mono"> represents a</samp><samp class="mono"> triangular matrix</samp></p>
+</div>
+<p class="tni">Design the <samp class="mono">triangulate</samp> algorithm:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>SOE<samp class="mono"> -&gt; </samp>TM <br class="calibre4"/><samp class="mono">; triangulates</samp><samp class="mono"> the given</samp><samp class="mono"> system of</samp><samp class="mono"> equations</samp> <br class="calibre4"/><samp class="mono">(define (triangulate</samp><samp class="mono"> M)</samp> <br class="calibre4"/><samp class="mono">  '(1</samp><samp class="mono"> 2))</samp></p>
+</div>
+<p class="tni">Turn the above example into a test and spell out explicit answers for the four questions based on our loose description.</p>
+<p class="calibre8">Do not yet deal with the termination step of the design recipe. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Unfortunately, the solution to exercise 466 occasionally fails to produce the desired triangular system. Consider the following representation of a system of equations:</p>
+<figure class="co"><img src="../images/00658.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Its solution is <i class="calibre6">x</i> = 1, <i class="calibre6">y</i> = 1, and <i class="calibre6">z</i> = 1.</p>
+<p class="calibre8">The first step is to subtract the first row from the second and to subtract it twice from the last one, which yields the following matrix:</p>
+<figure class="co"><img src="../images/00659.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Next, triangulation would focus on the rest of the matrix:</p>
+<figure class="co"><img src="../images/00660.gif" alt="" class="calibre10"/></figure>
+<p class="tni">but the first item of this matrix is <samp class="mono">0</samp>. Since it is impossible to divide by <samp class="mono">0</samp>, the algorithm signals an error via <samp class="mono">subtract</samp>.</p>
+<p class="calibre8">To overcome this problem, we need to use another piece of knowledge from our problem domain. Mathematics tells us that switching equations in a system of equations does not affect the solution. Of course, as we switch equations, we must eventually find an equation whose leading coefficient is not <samp class="mono">0</samp>. Here we can simply swap the first two:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_660" title="660"></span><img src="../images/00661.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From here we may continue as before, subtracting the first equation from the remaining one <samp class="mono">0</samp> times. The final triangular matrix is:</p>
+<figure class="co"><img src="../images/00662.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Show that <i class="calibre6">x</i> = 1, <i class="calibre6">y</i> = 1, and <i class="calibre6">z</i> = 1 is still a solution for these equations.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 467. Revise the algorithm <samp class="mono">triangulate</samp> from exercise 466 so that it rotates the equations first to find one with a leading coefficient that is not <samp class="mono">0</samp> before it subtracts the first equation from the remaining ones.</p>
+<p class="calibre8">Does this algorithm terminate for all possible system of equations?</p>
+<p class="calibre8"><b class="calibre9">Hint</b> The following expression rotates a non-empty list <samp class="mono">L</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(append (rest</samp><samp class="mono"> L) (list</samp><samp class="mono"> (first L)))</samp></p>
+</div>
+<p class="tni">Explain why. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Some SOEs don’t have a solution. Consider this one:</p>
+<figure class="co"><img src="../images/00663.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If you try to triangulate this SOE—by hand or with your solution from exercise 467—you arrive at an intermediate matrix all of whose equations start with <samp class="mono">0</samp>:</p>
+<figure class="co"><img src="../images/00664.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 468. Modify <samp class="mono">triangulate</samp> from exercise 467 so that it signals an error if it encounters an SOE whose leading coefficients are all <samp class="mono">0</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">After we obtain a triangular system of equations such as (<i class="calibre6">*</i>) in exercise 463, we can solve the equations, one at a time. In our specific example, the last equation says that <i class="calibre6">z</i> is 2. Equipped with this knowledge, we can eliminate <i class="calibre6">z</i> from the second equation through a substitution:</p>
+<figure class="co"><img src="../images/00665.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Doing so, in turn, determines the value for <i class="calibre6">y</i>:</p>
+<figure class="co"><img src="../images/00666.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_661" title="661"></span>Now that we have <i class="calibre6">z</i> = 2 and <i class="calibre6">y</i> = 1, we can plug these values into the first equation:</p>
+<figure class="co"><img src="../images/00667.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This yields another equation in a single variable, which we solve like this:</p>
+<figure class="co"><img src="../images/00668.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This finally yields a value for <i class="calibre6">x</i> and thus the complete solution for the entire SOE.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 469. Design the <samp class="mono">solve</samp> function. It consumes triangular SOEs and produces a solution.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Use structural recursion for the design. Start with the design of a function that solves a single linear equation in <i class="calibre6">n+</i>1 variables, given a solution for the last <i class="calibre6">n</i> variables. In general, this function plugs in the values for the rest of the left-hand side, subtracts the result from the right-hand side, and divides by the first coefficient. Experiment with this suggestion and the above examples.</p>
+<p class="calibre8"><b class="calibre9">Challenge</b> Use an existing abstraction and <samp class="mono">lambda</samp> to design <samp class="mono">solve</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 470. Define <samp class="mono">gauss</samp>, which combines the <samp class="mono">triangulate</samp> function from exercise 468 and the <samp class="mono">solve</samp> function from exercise 469. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><a id="sec19-4" class="calibre16"></a>19.4 Designing with Intertwined Data</h2>
+<p class="tni">The jump from self-referential data definitions to collections of data definitions with mutual references is far smaller than the one from data definitions for finite data to self-referential data definitions. Indeed, the design recipe for self-referential data definitions—see chapter 9—needs only minor adjustments to apply to this seemingly complex situation:</p>
+<p class="nlf">1. The need for “nests” of mutually related data definitions is similar to the one for the need for self-referential data definitions. The problem statement deals with many distinct kinds of information, and one form of information refers to other kinds.</p>
+<p class="nltni">Before you proceed in such situations, draw arrows to connect references to definitions. Consider the left side of <a id="rfig118" href="part0011_split_006.html#fig118" class="calibre5">figure 118</a>. It displays the definition for S-expr, which contains references to SL and Atom that are connected to their respective definitions via arrows. Similarly, the definition of SL contains one self-reference and one reference back to SL; again, both are connected by appropriate arrows.</p>
+<div class="figure">
+<figure class="img"><a id="fig118" class="calibre5"></a><img src="../images/00472.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_006.html#rfig118" class="calibre5">Figure 118</a>:</span> <span>Arrows for nests of data definitions and templates</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni">Like self-referential data definitions, these nests of definitions also call for validation. At a minimum, you must be able to construct some examples for every individual definition. Start from clauses that do not refer to any of the other data definitions in the nest. Keep in mind that the definition may be invalid if it is impossible to generate examples from them.</p>
+<p class="nlf">2. The key change is that you must design as many functions in parallel as there are data definitions. Each function specializes for one of the data definitions; all remaining arguments remain the same. Based on <span epub:type="pagebreak" id="pg_507" title="507"></span>that, you start with a signature, a purpose statement, and a dummy definition <b class="calibre9">for each function</b>.</p>
+<p class="nlf">3. Be sure to work through functional examples that use all mutual references in the nest of data definitions.</p>
+<p class="nlf">4. For each function, design the template according to its primary data definition. Use <a href="part0007_split_007.html#fig51" class="calibre5">figure 51</a> to guide the template creation up to the last step. The revised last step calls for a check for all self-references and cross-references. Use the data definitions annotated with arrows to guide this step. For each arrow in the data definitions, include an arrow in the templates. See the right side of <a href="part0011_split_006.html#fig118" class="calibre5">figure 118</a> for the arrow-annotated version of the templates.</p>
+<p class="nltni">Now replace the arrows with actual function calls. As you gain experience, you will naturally skip the arrow-drawing step and use function calls directly.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_508" title="508"></span><b class="calibre9">Note</b> Observe how both nests—the one for data definitions and the one for function templates—contain four arrows, and note how pairs of arrows correspond to each other. Researchers call this correspondence a <i class="calibre6">symmetry</i>. It is evidence that the design recipe provides a natural way for going from problems to solutions.</p>
+<p class="nlf">5. For the design of the body, we start with those <samp class="mono">cond</samp> lines that do not contain natural recursions or calls to other functions. They are called <i class="calibre6">base cases</i>. The corresponding answers are typically easy to formulate or are already given by the examples. After that, you deal with the self-referential cases and the cases of cross-function calls. Let the questions and answers of <a href="part0007_split_007.html#fig53" class="calibre5">figure 53</a> guide you.</p>
+<p class="nll">6. Run the tests when all definitions are completed. If an auxiliary function is broken, you may get two error reports, one for the main function and another one for the flawed auxiliary definition. A <b class="calibre9">single</b> fix should eliminate both. Do make sure that running the tests covers all the pieces of the function.</p>
+<p class="tni">Finally, if you are stuck in step 5, remember the table-based approach to guessing the combination function. In the case of intertwined data, you may need not only a table per case but also a table per case and per function to work out the combination.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

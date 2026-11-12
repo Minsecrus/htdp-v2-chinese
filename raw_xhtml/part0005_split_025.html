@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_26"><span epub:type="pagebreak" id="pg_103" title="103" class="calibre1"></span><a id="sec4-1" class="calibre16"></a>4.1 Programming with Conditionals</h2>
+<p class="tni">Recall the brief introduction to conditional expressions in the Prologue. Since <samp class="mono">cond</samp> is the most complicated expression form in this book, let’s take a close look at its general shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [</samp><samp class="monospace-italic">ConditionExpression1</samp><samp class="mono"> </samp><samp class="monospace-italic">ResultExpression1</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  [</samp><samp class="monospace-italic">ConditionExpression2</samp><samp class="mono"> </samp><samp class="monospace-italic">ResultExpression2</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  <span>…</span></samp> <br class="calibre4"/><samp class="mono">  [</samp><samp class="monospace-italic">ConditionExpressionN</samp><samp class="mono"> </samp><samp class="monospace-italic">ResultExpressionN</samp><samp class="mono">])</samp></samp></p>
+</div>
+<p class="marginpar">Brackets make <samp class="monospace-margin">cond</samp> lines stand out. It is fine to use <samp class="monospace-italic">(<span>…</span>)</samp> in place of <samp class="monospace-italic">[<span>…</span>]</samp>.</p>
+<p class="tni">A <samp class="mono">cond</samp> expression starts with <samp class="mono">(cond</samp>, its <i class="calibre6">keyword</i>, and ends in <samp class="mono">)</samp>. Following the keyword, a programmer writes as many <samp class="monospace-italic">cond</samp> <i class="calibre6">lines</i> as needed; each <samp class="mono">cond</samp> line consists of <b class="calibre9">two</b> expressions, enclosed in opening and closing brackets: <samp class="mono">[</samp> and <samp class="mono">]</samp>.</p>
+<p class="calibre8">A <samp class="mono">cond</samp> line is also known as a <i class="calibre6">cond clause</i>.</p>
+<p class="calibre8">Here is a function definition that uses a conditional expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (next</samp><samp class="mono"> traffic-light-state)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> "red" traffic-light-state)</samp><samp class="mono"> "green"]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> "green" traffic-light-state)</samp><samp class="mono"> "yellow"]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> "yellow" traffic-light-state)</samp><samp class="mono"> "red"]))</samp></samp></p>
+</div>
+<p class="tni">Like the mathematical example in the Prologue, this example illustrates the convenience of using <samp class="mono">cond</samp> expressions. In many problem contexts, a function must distinguish several different situations. With a <samp class="mono">cond</samp> expression, you can use one line per possibility and thus remind the reader of the code for the different situations from the problem statement.</p>
+<p class="calibre8">A note on pragmatics: Contrast <samp class="mono">cond</samp> expressions with <samp class="mono">if</samp> expressions from chapter 1.6. The latter distinguish one situation from all others. As such, <samp class="mono">if</samp> expressions are much less suited for multi-situation contexts; they are best used when all we wish to say is “one or the other.” We therefore <b class="calibre9">always</b> use <samp class="mono">cond</samp> for situations when we wish to remind the reader of our code that some distinct situations come directly from data definitions. For other pieces of code, we use whatever construct is most convenient.</p>
+<p class="calibre8">When the conditions get too complex in a <samp class="mono">cond</samp> expression, you occasionally wish to say something like “in all other cases.” For these kinds of problems, <samp class="mono">cond</samp> expressions permit the use of the <samp class="mono">else</samp> keyword for the very last <samp class="mono">cond</samp> line:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_104" title="104"></span><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [</samp><samp class="monospace-italic">ConditionExpression1</samp><samp class="mono"> </samp><samp class="monospace-italic">ResultExpression1</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  [</samp><samp class="monospace-italic">ConditionExpression2</samp><samp class="mono"> </samp><samp class="monospace-italic">ResultExpression2</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  <span>…</span></samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> </samp><samp class="monospace-italic">DefaultResultExpression</samp><samp class="mono">])</samp></samp></p>
+</div>
+<p class="tni">If you make the mistake of using <samp class="mono">else</samp> in some other <samp class="mono">cond</samp> line, BSL in DrRacket signals an error:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&gt;</samp><samp class="mono"> x 0)</samp><samp class="mono"> 10]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> 20]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&lt;</samp><samp class="mono"> x 10)</samp><samp class="mono"> 30])</samp> <br class="calibre4"/><samp class="mono">cond:found an</samp><samp class="mono"> else clause</samp><samp class="mono"> that isn't</samp><samp class="mono"> the last</samp><samp class="mono"> clause in</samp><samp class="mono"> its cond</samp> <br class="calibre4"/><samp class="mono">expression</samp></samp></p>
+</div>
+<p class="tni">That is, BSL rejects grammatically incorrect phrases because it makes no sense to figure out what such a phrase might mean.</p>
+<p class="calibre8">Imagine designing a function that, as part of a game-playing program, computes some award at the end of the game. Here is its header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">PositiveNumber</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono"> greater than/equal</samp><samp class="mono"> to 0.</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>PositiveNumber<samp class="mono"> -&gt; </samp>String <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the reward</samp><samp class="mono"> level from</samp><samp class="mono"> the given</samp><samp class="mono"> score s</samp></p>
+</div>
+<p class="tni">And here are two variants for a side-by-side comparison:</p>
+<figure class="co"><img src="../images/00071.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The variant on the left uses a <samp class="mono">cond</samp> with three full-fledged conditions; on the right, the function comes with an <samp class="mono">else</samp> clause. To formulate the last condition for the function on the left, you must calculate that <samp class="mono">(&lt; 20 s)</samp> holds because</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_105" title="105"></span>•  <samp class="mono">s</samp> is in PositiveNumber</p>
+<p class="blf">•  <samp class="mono">(&lt;= 0 s 10)</samp> is <samp class="mono">#false</samp></p>
+<p class="bll">•  <samp class="mono">(and (&lt; 10 s) (&lt;= s 20))</samp> evaluates to <samp class="mono">#false</samp> as well.</p>
+<p class="tni">While the calculation looks simple in this case, it is easy to make small mistakes and to introduce bugs into your program. It is therefore better to formulate the function definition as shown on the right, <b class="calibre9">if</b> you know that you want the exact opposite—called the <i class="calibre6">complement</i>—of all previous conditions in a <samp class="mono">cond</samp>.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

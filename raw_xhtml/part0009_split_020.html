@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_21"><a id="sec16-7" class="calibre16"></a>16.7 Finger Exercises: Abstraction</h2>
+<p class="tni"><b class="calibre9">Exercise</b> 267. Use <samp class="mono">map</samp> to define the function <samp class="mono">convert-euro</samp>, which converts a list of US$ amounts into a list of € amounts based on an exchange rate of US$1<i class="calibre6">.</i>06 per € (on April 13, 2017).</p>
+<p class="calibre8">Also use <samp class="mono">map</samp> to define <samp class="mono">convertFC</samp>, which converts a list of Fahrenheit measurements to a list of Celsius measurements.</p>
+<p class="calibre8">Finally, try your hand at <samp class="mono">translate</samp>, a function that translates a list of Posns into a list of lists of pairs of numbers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 268. An inventory record specifies the name of an item, a description, the acquisition price, and the recommended sales price.</p>
+<p class="calibre8">Define a function that sorts a list of inventory records by the difference between the two prices. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 269. Define <samp class="mono">eliminate-expensive</samp>. The function consumes a number, <samp class="mono">ua</samp>, and a list of inventory records, and it produces a list of all those structures whose sales price is below <samp class="mono">ua</samp>.</p>
+<p class="calibre8">Then use <samp class="mono">filter</samp> to define <samp class="mono">recall</samp>, which consumes the name of an inventory item, called <samp class="mono">ty</samp>, and a list of inventory records and which produces a list of inventory records that do not use the name <samp class="mono">ty</samp>.</p>
+<p class="calibre8">In addition, define <samp class="mono">selection</samp>, which consumes two lists of names and selects all those from the second one that are also on the first. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 270. Use <samp class="mono">build-list</samp> to define a function that</p>
+<p class="nlf">1. creates the list <samp class="mono">(list 0 <span>…</span> (- n 1))</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">2. creates the list <samp class="mono">(list 1 <span>…</span> n)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">3. creates the list <samp class="mono">(list 1 1/2 <span>…</span></samp> 1<i class="calibre6">/n</i><samp class="mono">)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">4. creates the list of the first <samp class="mono">n</samp> even numbers; and</p>
+<p class="nll">5. creates a diagonal square of <samp class="mono">0</samp>s and <samp class="mono">1</samp>s; see exercise 262.</p>
+<p class="tni">Finally, define <samp class="mono">tabulate</samp> from exercise 250 using <samp class="mono">build-list</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 271. Use <samp class="mono">ormap</samp> to define <samp class="mono">find-name</samp>. The function consumes a name and a list of names. It determines whether any of the names on the latter are equal to or an extension of the former.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_437" title="437"></span>With <samp class="mono">andmap</samp> you can define a function that checks all names on a list of names that start with the letter <samp class="mono">"a"</samp>.</p>
+<p class="calibre8">Should you use <samp class="mono">ormap</samp> or <samp class="mono">andmap</samp> to define a function that ensures that no name on some list exceeds a given width? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 272. Recall that the <samp class="mono">append</samp> function in ISL concatenates the items of two lists or, equivalently, replaces <samp class="mono">'()</samp> at the end of the first list with the second list:</p>
+<figure class="co"><img src="../images/00386.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Use <samp class="mono">foldr</samp> to define <samp class="mono">append-from-fold</samp>. What happens if you replace <samp class="mono">foldr</samp> with <samp class="mono">foldl</samp>?</p>
+<p class="calibre8">Now use one of the fold functions to define functions that compute the sum and the product, respectively, of a list of numbers.</p>
+<p class="calibre8">With one of the fold functions, you can define a function that horizontally composes a list of Images. <b class="calibre9">Hints</b> (1) Look up <samp class="mono">beside</samp> and <samp class="mono">empty-image</samp>. Can you use the other fold function? Also define a function that stacks a list of images vertically. (2) Check for <samp class="mono">above</samp> in the libraries. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 273. The fold functions are so powerful that you can define almost any list processing functions with them. Use <samp class="mono">fold</samp> to define <samp class="mono">map</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 274. Use existing abstractions to define the <samp class="mono">prefixes</samp> and <samp class="mono">suffixes</samp> functions from exercise 190. Ensure that they pass the same tests as the original function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

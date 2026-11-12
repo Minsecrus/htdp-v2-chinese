@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_26"><a id="sec12-1" class="calibre16"></a>12.1 Real-World Data: Dictionaries</h2>
+<p class="tni">Information in the real world tends to come in large quantities, which is why it makes so much sense to use programs for processing it. For example, a dictionary does not just contain a dozen words, but hundreds of thousands. When you want to process such large pieces of information, you must carefully design the program using small examples. Once you have convinced yourself that the programs work properly, you run them on the real-world data to get real results. If the program is too slow to process this large quantity of data, reflect on each function and how it works. Question whether you can eliminate any redundant computations.</p>
+<p class="marginpar">For performance concerns, see part V. From here to there, the focus is on designing programs systematically so that you can then explore performance problems properly.</p>
+<p class="calibre8"><a id="rfig74" href="part0007_split_025.html#fig74" class="calibre5">Figure 74</a> displays the one line of code needed to read in an entire dictionary of the English language. To get an idea of how large such dictionaries are, adapt the code from the figure for your particular computer and use <samp class="mono">length</samp> to determine how many words are in your dictionary. There are 235,886 words in ours today, July 25, 2017.</p>
+<div class="figure">
+<figure class="img"><a id="fig74" class="calibre5"></a><img src="../images/00276.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_025.html#rfig74" class="calibre5">Figure 74</a>:</span> <span>Reading a dictionary</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_338" title="338"></span>In the following exercises, letters play an important role. You may wish to add the following to the top of your program in addition to your adaptation of <a href="part0007_split_025.html#fig74" class="calibre5">figure 74</a>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Letter</span><samp class="mono"> is one</samp><samp class="mono"> of the</samp><samp class="mono"> following </samp>1Strings<samp class="mono">:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> "a"</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> "z"</samp> <br class="calibre4"/><samp class="mono">; or,</samp><samp class="mono"> equivalently, a</samp><samp class="mono"> member? of</samp><samp class="mono"> this list:</samp> <br class="calibre4"/><samp class="mono">(define LETTERS</samp> <br class="calibre4"/><samp class="mono">  (explode</samp><samp class="mono"> "abcdefghijklmnopqrstuvwxyz"))</samp></p>
+</div>
+<p class="tni"><b class="calibre9">Hint</b> Use <samp class="mono">list</samp> to formulate examples and tests for the exercises.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 195. Design the function <samp class="mono">starts-with#</samp>, which consumes a Letter and Dictionary and then counts how many words in the given Dictionary start with the given Letter. Once you know that your function works, determine how many words start with <samp class="mono">"e"</samp> in your computer’s dictionary and how many with <samp class="mono">"z"</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 196. Design <samp class="mono">count-by-letter</samp>. The function consumes a Dictionary and counts how often each letter is used as the first one of a word in the given dictionary. Its result is a list of <i class="calibre6">Letter-Count</i>s, a piece of data that combines letters and counts.</p>
+<p class="calibre8">Once your function is designed, determine how many words appear for all letters in your computer’s dictionary.</p>
+<p class="calibre8"><b class="calibre9">Note on Design Choices</b> An alternative is to design an auxiliary function that consumes a list of letters and a dictionary and produces a list of Letter-Counts that report how often the given letters occur as first ones in the dictionary. You may of course reuse your solution of exercise 195. <b class="calibre9">Hint</b> If you design this variant, notice that the function consumes two lists, requiring a design problem that is covered in chapter 23 in detail. Think of Dictionary as an atomic piece of data that is along for the ride and is handed over to <samp class="mono">starts-with#</samp> as needed. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 197. Design <samp class="mono">most-frequent</samp>. The function consumes a Dictionary. It produces the Letter-Count for the letter that occurs most often as the first one in the given Dictionary.</p>
+<p class="calibre8">What is the most frequently used letter in your computer’s dictionary and how often is it used?</p>
+<p class="calibre8"><b class="calibre9">Note on Design Choices</b> This exercise calls for the composition of the solution to the preceding exercise with a function that picks the correct pairing from a list of Letter-Counts. There are two ways to design this latter function:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_339" title="339"></span>•  Design a function that picks the pair with the maximum count.</p>
+<p class="bll">•  Design a function that selects the first from a sorted list of pairs.</p>
+<p class="tni">Consider designing both. Which one do you prefer? Why? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 198. Design <samp class="mono">words-by-first-letter</samp>. The function consumes a Dictionary and produces a list of Dictionarys, one per Letter.</p>
+<p class="calibre8">Redesign <samp class="mono">most-frequent</samp> from exercise 197 using this new function. Call the new function <samp class="mono">most-frequent.v2</samp>. Once you have completed the design, ensure that the two functions compute the same result on your computer’s dictionary:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (most-frequent</samp><samp class="mono"> AS-LIST)</samp> <br class="calibre4"/><samp class="mono">  (most-frequent.v2</samp><samp class="mono"> AS-LIST))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Note on Design Choices</b> For <samp class="mono">words-by-first-letter</samp> you have a choice for dealing with the situation when the given dictionary does not contain any words for some letter:</p>
+<p class="blf">•  One alternative is to exclude the resulting empty dictionaries from the overall result. Doing so simplifies both the testing of the function and the design of <samp class="mono">most-frequent.v2</samp>, but it also requires the design of an auxiliary function.</p>
+<p class="bll">•  The other one is to include <samp class="mono">'()</samp> as the result of looking for words of a certain letter, even if there aren’t any. This alternative avoids the auxiliary function needed for the first alternative but adds complexity to the design of <samp class="mono">most-frequent.v2</samp>. <b class="calibre9">End</b></p>
+<p class="calibre8"><b class="calibre9">Note on Intermediate Data and Deforestation</b> This second version of the word-counting function computes the desired result via the creation of a large intermediate data structure that serves no real purpose other than that its parts are counted. On occasion, the programming language eliminates them automatically by <i class="calibre6">fusing</i> the two functions into one, a transformation on programs that is also called <i class="calibre6">deforestation</i>. When you know that the language does not deforest programs, consider eliminating such data structures if the program does not process data fast enough. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

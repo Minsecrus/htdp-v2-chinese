@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_29"><a id="sec4-4" class="calibre16"></a>4.4 Intervals</h2>
+<p class="tni">Imagine yourself responding to the following sample design task:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a program that simulates the descent of a UFO.</p>
+</div>
+<p class="tni">After a bit of thinking, you could come up with something like <a id="rfig22" href="part0005_split_028.html#fig22" class="calibre5">figure 22</a>. Stop! Study the definitions and replace the dots before you read on.</p>
+<div class="figure">
+<figure class="img"><a id="fig22" class="calibre5"></a><img src="../images/00074.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_028.html#rfig22" class="calibre5">Figure 22</a>:</span> <span>UFO, descending</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_113" title="113"></span>Before you release this “game” program, however, you may wish to add the display of the status line to the canvas:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Add a status line. It says “descending” when the UFO’s height is above one third of the height of the canvas. It switches to <samp class="mono">"closing in"</samp> below that. And finally, when the UFO has reached the bottom of the canvas, the status notifies the player that the UFO has “landed.”</p>
+</div>
+<p class="tni">You are free to use appropriate colors for the status line.</p>
+<p class="calibre8">In this case, we don’t have a finite enumeration of distinct elements or distinct sub-classes of data. After all, conceptually, the interval between <samp class="mono">0</samp> <span epub:type="pagebreak" id="pg_114" title="114"></span>and <samp class="mono">HEIGHT</samp> (for some number greater than <samp class="mono">0</samp>) contains an infinite number of numbers and a large number of integers. Therefore we use intervals to superimpose some organization on the generic data definition, which just uses “numbers” to describe the class of coordinates.</p>
+<p class="calibre8">An <i class="calibre6">interval</i> is a description of a class of numbers via boundaries. The simplest interval has two boundaries: left and right. If the left boundary is to be included in the interval, we say it is <i class="calibre6">closed</i> on the left. Similarly, a right-closed interval includes its right boundary. Finally, if an interval does not include a boundary, it is said to be <i class="calibre6">open</i> at that boundary.</p>
+<p class="calibre8">Pictures of, and notations for, intervals use brackets for closed boundaries and parentheses for open boundaries. Here are four such intervals:</p>
+<p class="blf">•  [3,5] is a closed interval:</p>
+<figure class="co"><img src="../images/00075.gif" alt="" class="calibre11"/></figure>
+<p class="blf">•  (3,5] is a left-open interval:</p>
+<figure class="co"><img src="../images/00076.gif" alt="" class="calibre11"/></figure>
+<p class="blf">•  [3,5) is a right-open interval:</p>
+<figure class="co"><img src="../images/00077.gif" alt="" class="calibre11"/></figure>
+<p class="blf">•  and (3,5) is an open interval:</p>
+<figure class="co"><img src="../images/00078.gif" alt="" class="calibre11"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 52. Which integers are contained in the four intervals above? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The interval concept helps us formulate a data definition that captures the revised problem statement better than the “numbers”-based definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; A</samp><samp class="mono"> WorldState falls</samp><samp class="mono"> into one</samp><samp class="mono"> of three</samp><samp class="mono"> intervals:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> between 0</samp><samp class="mono"> and CLOSE</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> between CLOSE</samp><samp class="mono"> and HEIGHT</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> below HEIGHT</samp></samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_115" title="115"></span>Specifically, there are three intervals, which we may picture as follows:</p>
+<figure class="co"><img src="../images/00079.gif" alt="" class="calibre18"/></figure>
+<p class="tni">What you see is the standard number line, turned vertical and broken into intervals. Each interval starts with an angular downward-pointing bracket (<img src="../images/00080.gif" alt="" class="calibre19"/>) and ends with an upward-pointing bracket (<img src="../images/00081.gif" alt="" class="calibre19"/>). The picture identifies three intervals in this manner:</p>
+<p class="blf">•  the upper interval goes from <samp class="mono">0</samp> to <samp class="mono">CLOSE</samp>;</p>
+<p class="blf">•  the middle one starts at <samp class="mono">CLOSE</samp> and reaches <samp class="mono">HEIGHT</samp>; and</p>
+<p class="bll">•  the lower, invisible interval is just a single line at <samp class="mono">HEIGHT</samp>.</p>
+<p class="marginpar">On a plain number line, the last interval starts at <samp class="monospace-margin">HEIGHT</samp> and goes on forever.</p>
+<p class="calibre8">Visualizing the data definition in this manner helps with the design of functions in two ways. First, it immediately suggests how to pick examples. Clearly we want the function to work inside of all the intervals, and we want the function to work properly at the ends of each interval. Second, the image tells us that we need to formulate a condition that determines whether or not some “point” is within one of the intervals.</p>
+<p class="calibre8">Putting the two together also raises a question, namely, how exactly the function deals with the end points. In the context of our example, two points on the number line belong to two intervals: <samp class="mono">CLOSE</samp> belongs to both the upper interval and the middle one, while <samp class="mono">HEIGHT</samp> seems to fall into both the middle one and the lowest one. Such overlaps usually cause problems for programs, and they ought to be avoided.</p>
+<p class="calibre8">BSL functions avoid them naturally due to the way <samp class="mono">cond</samp> expressions are evaluated. Consider this natural organization of a function that consumes elements of <samp class="mono">WorldState</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>WorldState<samp class="mono"> -&gt; </samp>WorldState <br class="calibre4"/><samp class="mono">(define (f</samp><samp class="mono"> y)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 y</samp><samp class="mono"> CLOSE) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&lt;=</samp><samp class="mono"> CLOSE y</samp><samp class="mono"> HEIGHT) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&gt;=</samp><samp class="mono"> y HEIGHT)</samp><samp class="mono"> <span>…</span>]))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_116" title="116"></span>The three <samp class="mono">cond</samp> lines correspond to the three intervals. Each condition identifies those values of <samp class="mono">y</samp> that are in between the limits of the intervals. Due to the way <samp class="mono">cond</samp> lines are checked one by one, however, a <samp class="mono">y</samp> value of <samp class="mono">CLOSE</samp> makes BSL pick the first <samp class="mono">cond</samp> line, and a <samp class="mono">y</samp> value of <samp class="mono">HEIGHT</samp> triggers the evaluation of the second <samp class="monospace-italic">ResultExpression</samp>.</p>
+<p class="calibre8">If we wanted to make this choice obvious and immediate for every reader of our code, we would use different conditions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>WorldState<samp class="mono"> -&gt; </samp>WorldState <br class="calibre4"/><samp class="mono">(define (g</samp><samp class="mono"> y)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 y</samp><samp class="mono"> CLOSE) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(and</samp><samp class="mono"> (&lt; CLOSE</samp><samp class="mono"> y) (&lt;=</samp><samp class="mono"> y HEIGHT))</samp><samp class="mono"> <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&gt;</samp><samp class="mono"> y HEIGHT)</samp><samp class="mono"> <span>…</span>]))</samp></p>
+</div>
+<p class="tni">Note how the second <samp class="mono">cond</samp> line uses <samp class="mono">and</samp> to combine a strictly-less check with a less-than-or-equal check instead of <samp class="mono">f</samp>’s <samp class="mono">&lt;=</samp> with three arguments.</p>
+<p class="calibre8">Given all that, we can complete the definition of the function that adds the requested status line to our UFO animation; see <a id="rfig23" href="part0005_split_028.html#fig23" class="calibre5">figure 23</a> for the complete definition. The function uses a <samp class="mono">cond</samp> expression to distinguish the three intervals. In each <samp class="mono">cond</samp> clause, the <samp class="monospace-italic">ResultExpression</samp> uses <samp class="mono">render</samp> (from <a href="part0005_split_028.html#fig22" class="calibre5">figure 22</a>) to create the image with the descending UFO and then places an appropriate text at position (10,10) with <samp class="mono">place-image</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig23" class="calibre5"></a><img src="../images/00082.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_028.html#rfig23" class="calibre5">Figure 23</a>:</span> <span>Rendering with a status line</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">To run this version, you need to change <samp class="mono">main</samp> from <a href="part0005_split_028.html#fig22" class="calibre5">figure 22</a> a bit:</p>
+<figure class="co"><img src="../images/00083.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">One aspect of this function definition might disturb you, and to clarify why, let’s refine the sample problem from above just a tiny bit:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Add a status line, <b class="calibre9">positioned at (20</b><b class="calibre9"><i class="calibre6">,</i></b><b class="calibre9">20)</b>, that says “descending” when the UFO’s height is above one third of the height of the canvas. <span>⋯</span></p>
+</div>
+<p class="tni">This could be the response of a client who has watched your animation for a first time.</p>
+<p class="calibre8">At this point, you have no choice but to change the function <samp class="mono">render/status</samp> at <b class="calibre9">six</b> distinct places because you have three copies of one <span epub:type="pagebreak" id="pg_117" title="117"></span>external piece of information: the location of the status line. To avoid multiple changes for a single element, programmers try to avoid copies. You have two choices to fix this problem. The first one is to use constant definitions, which you might recall from early chapters. The second one is to think of the <samp class="mono">cond</samp> expression as an expression that may appear anywhere in a function, including in the middle of some other expression; see <a id="rfig24" href="part0005_split_028.html#fig24" class="calibre5">figure 24</a> and compare with <a href="part0005_split_028.html#fig23" class="calibre5">figure 23</a>. In this revised definition of <samp class="mono">render/status</samp>, the <samp class="mono">cond</samp> expression is the first argument to <samp class="mono">place-image</samp>. As you can see, its result is always a <samp class="mono">text</samp> image that is placed at position (20<i class="calibre6">,</i>20) into the image created by <samp class="mono">(render y)</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig24" class="calibre5"></a><img src="../images/00084.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_028.html#rfig24" class="calibre5">Figure 24</a>:</span> <span>Rendering with a status line, revised</span></p></figcaption>
+</figure>
+</div>
+</section>
+</section>
+</article>
+</div>
+</body></html>

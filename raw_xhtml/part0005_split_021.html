@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_22"><a id="sec3-5" class="calibre16"></a>3.5 On Testing</h2>
+<p class="tni">Testing quickly becomes a labor-intensive chore. While it is easy to run small programs in the interactions area, doing so requires a lot of mechanical labor and intricate inspections. As programmers grow their systems, they wish to conduct many tests. Soon this labor becomes overwhelming, and programmers start to neglect it. At the same time, testing is the first tool for discovering and preventing basic flaws. Sloppy testing quickly leads to buggy functions—that is, functions with hidden problems—and buggy functions retard projects, often in multiple ways.</p>
+<p class="calibre8">Hence, it is critical to mechanize tests instead of performing them manually. Like many programming languages, BSL includes a testing facility, and DrRacket is aware of this facility. To introduce this testing facility, we take a second look at the function that converts temperatures in Fahrenheit to Celsius temperatures from chapter 2.5. Here is the definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><samp class="mono"> </samp>Number -&gt; Number <br class="calibre4"/><samp class="mono">; converts</samp><samp class="mono"> Fahrenheit temperatures</samp><samp class="mono"> to Celsius</samp> <br class="calibre4"/><samp class="mono">; given</samp><samp class="mono"> 32, expect</samp><samp class="mono"> 0</samp> <br class="calibre4"/><samp class="mono">; given</samp><samp class="mono"> 212, expect</samp><samp class="mono"> 100</samp> <br class="calibre4"/><samp class="mono">; given</samp><samp class="mono"> $-$40, expect</samp><samp class="mono"> $-$40</samp> <br class="calibre4"/><samp class="mono">define (f2c</samp><samp class="mono"> f)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> 5/9 ($-$</samp><samp class="mono"> f 32)))</samp></p>
+</div>
+<p class="tni">Testing the function’s examples calls for three computations and three comparisons between two numbers each. You can formulate these tests and add them to the definitions area in DrRacket:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_89" title="89"></span><samp class="mono">(check-expect (f2c</samp><samp class="mono"> $-$40) $-$40)</samp> <br class="calibre4"/><samp class="mono">(check-expect (f2c</samp><samp class="mono"> 32) 0)</samp> <br class="calibre4"/><samp class="mono">(check-expect (f2c</samp><samp class="mono"> 212) 100)</samp></samp></p>
+</div>
+<p class="tni">When you now click the <i class="calibre6">RUN</i> button, you see a report from BSL that the program passed all three tests—and you have nothing else to do.</p>
+<p class="calibre8">In addition to getting tests to run automatically, the <samp class="mono">check-expect</samp> forms show another advantage when tests fail. To see how this works, change one of the above tests so that the result is wrong, for example</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (f2c</samp><samp class="mono"> $-$40) 40)</samp></samp></p>
+</div>
+<p class="tni">When you now click the <i class="calibre6">RUN</i> button, an additional window pops up. The window’s text explains that one of three tests failed. For the failed test, the window displays three pieces: the computed value, the result of the function call (−<samp class="mono">40</samp>); the expected value (<samp class="mono">40</samp>); and a hyperlink to the text of the failed test case.</p>
+<p class="calibre8">You can place <samp class="mono">check-expect</samp> specifications above or below the function definitions that they test. When you click <i class="calibre6">RUN</i>, DrRacket collects all <samp class="mono">check-expect</samp> specifications and evaluates them <b class="calibre9">after</b> all function definitions have been added to the “vocabulary” of operations. <a id="rfig17" href="part0005_split_021.html#fig17" class="calibre5">Figure 17</a> shows how to exploit this freedom to combine the example and test step. Instead of writing down the examples as comments, you can translate them directly into tests. When you’re all done with the design of the function, clicking <i class="calibre6">RUN</i> performs the test. And if you ever change the function for some reason, the next click retests the function.</p>
+<div class="figure">
+<figure class="img"><a id="fig17" class="calibre5"></a><img src="../images/00059.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_021.html#rfig17" class="calibre5">Figure 17</a>:</span> <span>Testing in BSL</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Last but not least, <samp class="mono">check-expect</samp> also works for images. That is, you can test image-producing functions. Say you wish to design the function <samp class="mono">render</samp>, which places the image of a car, dubbed <samp class="mono">CAR</samp>, into a background scene, named <samp class="mono">BACKGROUND</samp>. For the design of this function, you may formulate the tests such as the following:</p>
+<figure class="co"><img src="../images/00060.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_90" title="90"></span>Alternatively, you could write them like this:</p>
+<figure class="co"><img src="../images/00061.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This alternative approach helps you figure out how to express the function body and is therefore preferable. One way to develop such expressions is to experiment in the interactions area.</p>
+<p class="marginpar">For additional ways of formulating tests, see intermezzo 1.</p>
+<p class="calibre8">Because it is so useful to have DrRacket conduct the tests and not to check everything yourself manually, we immediately switch to this style of testing for the rest of the book. This form of testing is dubbed <i class="calibre6">unit testing</i>, and BSL’s unit-testing framework is especially tuned for novice programmers. One day you will switch to some other programming language; one of your first tasks will be to figure out its unit-testing framework.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,1069 @@
+# Chapter 9: Designing with Lists / 第 9 章：基于列表的设计
+
+<h2>
+9.1 Finger Exercises: Lists
+</h2>
+
+<EXERCISE>
+Exercise 137. Compare the template for contains-flatt? with the one for how-many. Ignoring the function name, they are the same. Explain the similarity.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 138. Here is a data definition for representing sequences of amounts of money:
+</EXERCISE>
+
+<CODE>
+; A List-of-amounts is one of: ; -- '() ; -- (cons PositiveNumber List-of-amounts)
+</CODE>
+
+<P>
+Create some examples to make sure you understand the data definition. Also add an arrow for the self-reference.
+</P>
+
+<P>
+Design the sum function, which consumes a List-of-amounts and computes the sum of the amounts. Use DrRacket’s stepper to see how (sum l) works for a short list l in List-of-amounts.
+</P>
+
+<EXERCISE>
+Exercise 139. Now take a look at this data definition:
+</EXERCISE>
+
+<CODE>
+; A List-of-numbers is one of: ; -- '() ; -- (cons Number List-of-numbers)
+</CODE>
+
+<P>
+Some elements of this class of data are appropriate inputs for sum from exercise 138 and some aren’t.
+</P>
+
+<P>
+Design the function pos?, which consumes a List-of-numbers and determines whether all numbers are positive numbers. In other words, if (pos? l) yields #true, then l is an element of List-of-amounts. Use DrRacket’s stepper to understand how pos? works for (cons 5 '()) and (cons -1 '()).
+</P>
+
+<P>
+Also design checked-sum. The function consumes a List-of-numbers. It produces their sum if the input also belongs to List-of-amounts; otherwise it signals an error. Hint Recall to use check-error.
+</P>
+
+<P>
+What does sum compute for an element of List-of-numbers?
+</P>
+
+<EXERCISE>
+Exercise 140. Design the function all-true, which consumes a list of Boolean values and determines whether all of them are #true. In other words, if there is any #false on the list, the function produces #false.
+</EXERCISE>
+
+<P>
+Now design one-true, a function that consumes a list of Boolean values and determines whether at least one item on the list is #true.
+</P>
+
+<P>
+Employ the table-based approach to coding. It may help with the base case. Use DrRacket’s stepper to see how these functions process the lists (cons #true '()), (cons #false '()), and (cons #true (cons #false '())).
+</P>
+
+<EXERCISE>
+Exercise 141. If you are asked to design the function cat, which consumes a list of strings and appends them all into one long string, you are guaranteed to end up with this partial definition:
+</EXERCISE>
+
+<FIGURE src="images/00193.png">
+
+</FIGURE>
+
+<P>
+Fill in the table in figure 57. Guess a function that can create the desired result from the values computed by the sub-expressions.
+</P>
+
+<FIGURE src="images/00194.png">
+Figure 57: A table for cat
+</FIGURE>
+
+<P>
+Use DrRacket’s stepper to evaluate (cat (cons "a" '())).
+</P>
+
+<EXERCISE>
+Exercise 142. Design the ill-sized? function, which consumes a list of images loi and a positive number n. It produces the first image on loi that is not an n by n square; if it cannot find such an image, it produces #false.
+</EXERCISE>
+
+<P>
+Hint Use
+</P>
+
+<CODE>
+; ImageOrFalse is one of: ; -- Image ; -- #false
+</CODE>
+
+<P>
+for the result part of the signature.
+</P>
+
+<h2>
+9.2 Non-empty Lists
+</h2>
+
+<P>
+Now you know enough to use cons and to create data definitions for lists. If you solved (some of) the exercises at the end of the preceding section, you can deal with lists of various flavors of numbers, lists of Boolean values, lists of images, and so on. In this section we continue to explore what lists are and how to process them.
+</P>
+
+<P>
+Let’s start with the simple-looking problem of computing the average of a list of temperatures. To simplify, we provide the data definitions:
+</P>
+
+<CODE>
+; A List-of-temperatures is one of: ; -- '() ; -- (cons CTemperature List-of-temperatures) ; A CTemperature is a Number greater than -272.
+</CODE>
+
+<P>
+For our intentions, you should think of temperatures as plain numbers, but the second data definition reminds you that in reality not all numbers are temperatures and you should keep this in mind.
+</P>
+
+<P>
+The header material is straightforward:
+</P>
+
+<CODE>
+; List-of-temperatures -> Number ; computes the average temperature (define (average alot) 0)
+</CODE>
+
+<P>
+Making up examples for this problem is also easy, and so we just formulate one test:
+</P>
+
+<CODE>
+(check-expect   (average (cons 1 (cons 2 (cons 3 '())))) 2)
+</CODE>
+
+<P>
+The expected result is of course the sum of the temperatures divided by the number of temperatures.
+</P>
+
+<P>
+A moment’s thought tells you that the template for average should be similar to the ones we have seen so far:
+</P>
+
+<FIGURE src="images/00195.png">
+
+</FIGURE>
+
+<P>
+The two cond clauses mirror the two clauses of the data definition; the questions distinguish empty lists from non-empty lists; and the natural recursion is needed because of the self-reference in the data definition.
+</P>
+
+<P>
+It is way too difficult, however, to turn this template into a function definition. The first cond clause needs a number that represents the average of an empty collection of temperatures, but there is no such number. Similarly, the second clause demands a function that combines a temperature and an average for the remaining temperatures into a new average. Although possible, computing the average in this way is highly unnatural.
+</P>
+
+<P>
+When we compute the average of temperatures, we divide their sum by their number. We said so when we formulated our trivial little example. This sentence suggests that average is a function of three tasks: summing, counting, and dividing. Our guideline from Part I tells us to write one function per task, and if we do so the design of average is obvious:
+</P>
+
+<CODE>
+; List-of-temperatures -> Number ; computes the average temperature (define (averagealot)   (/ (sumalot) (how-manyalot))) ; List-of-temperatures -> Number ; adds up the temperatures on the given list (define (sumalot) 0) ; List-of-temperatures -> Number ; counts the temperatures on the given list (define (how-manyalot) 0)
+</CODE>
+
+<P>
+The last two function definitions are wishes, of course, for which we need to design complete definitions. Doing so is easy because how-many from above works for List-of-strings and List-of-temperatures (why?) and because the design of sum follows the same old routine:
+</P>
+
+<CODE>
+; List-of-temperatures -> Number ; adds up the temperatures on the given list (define (sum alot)   (cond     [(empty? alot) 0]     [else (+ (first alot) (sum (rest alot)))]))
+</CODE>
+
+<P>
+Stop! Use the example for average to create one for sum and ensure that the test runs properly. Then run the tests for average.
+</P>
+
+<P>
+When you read this definition of average now, it is obviously correct simply because it directly corresponds to what everyone learns about averaging in school. Still, programs run not just for us but for others. In particular, others should be able to read the signature and use the function and expect an informative answer. But, our definition of average does not work for empty lists of temperatures.
+</P>
+
+<EXERCISE>
+Exercise 143. Determine how average behaves in DrRacket when applied to the empty list. Then design checked-average, a function that produces an informative error message when it is applied to '().
+</EXERCISE>
+
+<MARGIN_NOTE>
+In mathematics, we would say exercise 143 shows that average is a partial function because it raises an error for '().
+</MARGIN_NOTE>
+
+<P>
+An alternative solution is to inform future readers through the signature that average doesn’t work for empty lists. For that, we need a data representation for lists that excludes '(), something like this:
+</P>
+
+<CODE>
+; An NEList-of-temperatures is one of: ; -- ??? ; -- (cons CTemperature NEList-of- temperatures)
+</CODE>
+
+<P>
+The question is with what we should replace “???” so that the '() list is excluded but all other lists of temperatures still constructable. One hint is that while the empty list is the shortest list, any list of one temperature is the next shortest list. In turn, this suggests that the first clause should describe all possible lists of one temperature:
+</P>
+
+<CODE>
+; An NEList-of-temperatures is one of: ; -- (cons CTemperature '()) ; -- (cons CTemperature NEList-of-temperatures) ; interpretation non-empty lists of Celsius temperatures
+</CODE>
+
+<P>
+While this definition differs from the preceding list definitions, it shares the critical elements: a self-reference and a clause that does not use a self-reference. Strict adherence to the design recipe demands that you make up some examples of NEList-of-temperatures to ensure that the definition makes sense. As always, you should start with the base clause, meaning the example must look like this:
+</P>
+
+<CODE>
+(cons c '())
+</CODE>
+
+<P>
+where c stands for a CTemperature, like thus: (cons -273 '()). Also, it is clear that all non-empty elements of List-of-temperatures are also elements of the new class of data: (cons 1 (cons 2 (cons 3 '()))) fits the bill if (cons 2 (cons 3 '())) does, and (cons 2 (cons 3 '())) belongs to NEList-of-temperatures because (cons 3 '()) is an element of NEList-of-temperatures, as confirmed before. Check for yourself that there is no limit on the size of NEList-of-temperatures.
+</P>
+
+<P>
+Let’s now return to the problem of designing average so that everyone knows it is for non-empty lists only. With the definition of NEList-of-temperatures, we now have the means to say what we want in the signature:
+</P>
+
+<FIGURE src="images/00196.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+This alternative development explains that, in this case, we can narrow down the domain of average and create a total function.
+</MARGIN_NOTE>
+
+<P>
+Naturally the rest remains the same: the purpose statement, the example-test, and the function definition. After all, the very idea of computing the average assumes a non-empty collection of numbers, and that was the entire point of our discussion.
+</P>
+
+<EXERCISE>
+Exercise 144. Will sum and how-many work for NEList-of-temperatures even though they are designed for inputs from List-of-temperatures? If you think they don’t work, provide counter-examples. If you think they would, explain why.
+</EXERCISE>
+
+<P>
+Nevertheless, the definition also raises the question how to design sum and how-many because they consume instances of NEList-of-temperatures now. Here is the obvious result of the first three steps of the design recipe:
+</P>
+
+<CODE>
+; NEList-of-temperatures -> Number ; computes the sum of the given temperatures (check-expect   (sum (cons 1 (cons 2 (cons 3 '())))) 6) (define (sum ne-l) 0)
+</CODE>
+
+<P>
+The example is adapted from the example for average; the dummy definition produces a number, but the wrong one for the given test.
+</P>
+
+<P>
+The fourth step is the most interesting part of the design of sum for NEList-of-temperatures. All preceding examples of design demand a template that distinguishes empty lists from non-empty, that is, consed, lists because the data definitions have an appropriate shape. This is not true for NEList-of-temperatures. Here both clauses add consed lists. The two clauses differ, however, in the rest field of these lists. In particular, the first clause always uses '() in the rest field and the second one uses cons instead. Hence the proper condition to distinguish the first kind of data from the second extracts the rest field and then uses empty?:
+</P>
+
+<CODE>
+; NEList-of-temperatures -> Number (define (sum ne-l)   (cond     [(empty? (rest ne-l)) …]     [else …]))
+</CODE>
+
+<P>
+Here else replaces (cons? (rest ne-l)).
+</P>
+
+<P>
+Next you should inspect both clauses and determine whether one or both of them deal with ne-l as if it were a structure. This is of course the case, which the unconditional use of rest on ne-l demonstrates. Put differently, add appropriate selector expressions to the two clauses:
+</P>
+
+<CODE>
+(define (sum ne-l)   (cond     [(empty? (rest ne-l)) (… (first ne-l) …)]     [else (… (first ne-l) … (rest ne-l) …)]))
+</CODE>
+
+<P>
+Before you read on, explain why the first clause does not contain the selector expression (rest ne-l).
+</P>
+
+<P>
+The final question of the template design concerns self-references in the data definition. As you know, NEList-of-temperatures contains one, and therefore the template for sum demands one recursive use:
+</P>
+
+<CODE>
+(define (sum ne-l)   (cond     [(empty? (rest ne-l)) (… (first ne-l) …)]     [else     (… (first ne-l) … (sum (rest ne-l)) …)]))
+</CODE>
+
+<P>
+Specifically, sum is called on (rest ne-l) in the second clause because the data definition is self-referential at the analogous point.
+</P>
+
+<P>
+For the fifth design step, let’s understand how much we already have. Since the first cond clause looks significantly simpler than the second one with its recursive function call, you should start with that one. In this particular case, the condition says that sum is applied to a list with exactly one temperature, (first ne-l). Clearly, this one temperature is the sum of all temperatures on the given list:
+</P>
+
+<CODE>
+(define (sum ne-l)   (cond     [(empty? (rest ne-l)) (first ne-l)]     [else      (… (first ne-l) … (sum (rest ne-l)) …)]))
+</CODE>
+
+<P>
+The second clause says that the list consists of a temperature and at least one more; (first ne-l) extracts the first position and (rest ne-l) the remaining ones. Furthermore, the template suggests to use the result of (sum (rest ne-l)). But sum is the function that you are defining, and you can’t possibly know how it uses (rest ne-l). All you do know is what the purpose statement says, namely, that sum adds all the temperatures on the given list, which is (rest ne-l). If this statement is true, then (sum (rest ne-l)) adds up all but one of the numbers of ne-l. To get the total, the function just has to add the first temperature:
+</P>
+
+<CODE>
+(define (sum ne-l)   (cond     [(empty? (rest ne-l)) (first ne-l)]     [else (+ (first ne-l) (sum (rest ne-l)))]))
+</CODE>
+
+<P>
+If you now run the test for this function, you will see that the leap of faith is justified. Indeed, for reasons beyond the scope of this book, this leap is always justified, which is why it is an inherent part of the design recipe.
+</P>
+
+<EXERCISE>
+Exercise 145. Design the sorted>? predicate, which consumes a NEList-of-temperatures and produces #true if the temperatures are sorted in descending order. That is, if the second is smaller than the first, the third smaller than the second, and so on. Otherwise it produces #false.
+</EXERCISE>
+
+<P>
+Hint This problem is another one where the table-based method for guessing the combinator works well. Here is a partial table for a number of examples in figure 58. Fill in the rest of the table. Then try to create an expression that computes the result from the pieces.
+</P>
+
+<FIGURE src="images/00197.png">
+Figure 58: A table for sorted>?
+</FIGURE>
+
+<EXERCISE>
+Exercise 146. Design how-many for NEList-of-temperatures. Doing so completes average, so ensure that average passes all of its tests, too.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 147. Develop a data definition for NEList-of-Booleans, a representation of non-empty lists of Boolean values. Then redesign the functions all-true and one-true from exercise 140.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 148. Compare the function definitions from this section (sum, how-many, all-true, one-true) with the corresponding function definitions from the preceding sections. Is it better to work with data definitions that accommodate empty lists as opposed to definitions for non-empty lists? Why? Why not?
+</EXERCISE>
+
+<h2>
+9.3 Natural Numbers
+</h2>
+
+<P>
+The BSL programming language supplies many functions that consume lists and a few that produce them, too. Among those is make-list, which consumes a number n together with some other value v and produces a list that contains v n times. Here are some examples:
+</P>
+
+<CODE>
+> (make-list 2 "hello") (cons "hello" (cons "hello" '())) > (make-list 3 #true) (cons #true (cons #true (cons #true '()))) > (make-list 0 17) '()
+</CODE>
+
+<P>
+In short, even though this function consumes atomic data, it produces arbitrarily large pieces of data. Your question should be how this is possible.
+</P>
+
+<P>
+Our answer is that make-list’s input isn’t just a number, it is a special kind of number. In kindergarten you called these numbers “counting numbers”, that is, these numbers are used to count objects. In computer science, these numbers are dubbed natural numbers. Unlike regular numbers, natural numbers come with a data definition:
+</P>
+
+<CODE>
+; An N is one of: ; -- 0 ; -- (add1 N) ; interpretation represents the counting numbers
+</CODE>
+
+<P>
+The first clause says that 0 is a natural number; it is used to say that there is no object to be counted. The second clause tells you that if n is a natural number, then n + 1 is one too, because add1 is a function that adds 1 to whatever number it is given. We could write this second clause as (+ n 1), but the use of add1 is supposed to signal that this addition is special.
+</P>
+
+<P>
+What is special about this use of add1 is that it acts more like a constructor from some structure-type definition than a regular function. For that reason, BSL also comes with the function sub1, which is the “selector” corresponding to add1. Given any natural number m not equal to 0, you can use sub1 to find out the number that went into the construction of m. Put differently, add1 is like cons and sub1 is like first and rest.
+</P>
+
+<P>
+At this point you may wonder what the predicates are that distinguish 0 from those natural numbers that are not 0. There are two, just as for lists: zero?, which determines whether some given number is 0, and positive?, which determines whether some number is larger than 0.
+</P>
+
+<P>
+Now you are in a position to design functions on natural numbers, such as make-list, yourself. The data definition is already available, so let’s add the header material:
+</P>
+
+<FIGURE src="images/00198.png">
+
+</FIGURE>
+
+<P>
+Developing the template is the next step. The questions for the template suggest that copier’s body is a cond expression with two clauses: one for 0 and one for positive numbers. Furthermore, 0 is considered atomic and positive numbers are considered structured values, meaning the template needs a selector expression in the second clause. Last but not least, the data definition for N is self-referential in the second clause. Hence the template needs a recursive application to the corresponding selector expression in the second clause:
+</P>
+
+<CODE>
+(define (copier n s)   (cond     [(zero? n) …]     [(positive? n) (… (copier (sub1 n) s) …)]))
+</CODE>
+
+<P>
+Figure 59 contains a complete definition of the copier function, as obtained from its template. Let’s reconstruct this step carefully. As always, we start with the cond clause that has no recursive calls. Here the condition tells us that the (important) input is 0, and that means the function must produce a list with 0 items, that is, none. Of course, working through the second example has already clarified this case. Next we turn to the other cond clause and remind ourselves what its expressions compute:
+</P>
+
+<P>
+1. (sub1 n) extracts the natural number that went into the construction of n, which we know is larger than 0;
+</P>
+
+<P>
+2. (copier (sub1 n) s) produces a list of (sub1 n) strings s according to the purpose statement of copier.
+</P>
+
+<FIGURE src="images/00199.png">
+Figure 59: Creating a list of copies
+</FIGURE>
+
+<P>
+But the function is given n and must therefore produce a list with n strings s. Given a list with one too few strings, it is easy to see that the function must simply cons one s onto the result of (copier (sub1 n) s). And that is precisely what the second clause specifies.
+</P>
+
+<P>
+At this point, you should run the tests to ensure that this function works at least for the two worked examples. In addition, you may wish to use the function on some additional inputs.
+</P>
+
+<EXERCISE>
+Exercise 149. Does copier function properly when you apply it to a natural number and a Boolean or an image? Or do you have to design another function? Read part III for an answer.
+</EXERCISE>
+
+<P>
+An alternative definition of copier might use else:
+</P>
+
+<CODE>
+(define (copier.v2 n s)    (cond       [(zero? n) '()]       [else (cons s (copier.v2 (sub1 n) s))]))
+</CODE>
+
+<P>
+How do copier and copier.v2 behave when you apply them to 0.1 and "x"? Explain. Use DrRacket’s stepper to confirm your explanation.
+</P>
+
+<EXERCISE>
+Exercise 150. Design the function add-to-pi. It consumes a natural number n and adds it to pi without using the primitive + operation. Here is a start:
+</EXERCISE>
+
+<CODE>
+; N -> Number ; computes (+ n pi) without using + (check-within (add-to-pi 3) (+ 3 pi) 0.001) (define (add-to-pi n)   pi)
+</CODE>
+
+<P>
+Once you have a complete definition, generalize the function to add, which adds a natural number n to some arbitrary number x without using +. Why does the skeleton use check-within?
+</P>
+
+<EXERCISE>
+Exercise 151. Design the function multiply. It consumes a natural number n and multiplies it with a number x without using *.
+</EXERCISE>
+
+<P>
+Use DrRacket’s stepper to evaluate (multiply 3 x) for any x you like. How does multiply relate to what you know from grade school?
+</P>
+
+<EXERCISE>
+Exercise 152. Design two functions: col and row.
+</EXERCISE>
+
+<P>
+The function col consumes a natural number n and an image img. It produces a column—a vertical arrangement—of n copies of img.
+</P>
+
+<P>
+The function row consumes a natural number n and an image img. It produces a row—a horizontal arrangement—of n copies of img.
+</P>
+
+<EXERCISE>
+Exercise 153. The goal of this exercise is to visualize the result of a 1968-style European student riot. Here is the rough idea. A small group of students meets to make paint-filled balloons, enters some lecture hall, and randomly throws the balloons at the attendees. Your program displays how the balloons color the seats in the lecture hall.
+</EXERCISE>
+
+<P>
+Use the two functions from exercise 152 to create a rectangle of 8 by 18 squares, each of which has size 10 by 10. Place it in an empty-scene of the same size. This image is your lecture hall.
+</P>
+
+<P>
+Design add-balloons. The function consumes a list of Posn whose coordinates fit into the dimensions of the lecture hall. It produces an image of the lecture hall with red dots added as specified by the Posns.
+</P>
+
+<P>
+Figure 60 shows the output of our solution when given some list of Posns. The left-most is the clean lecture hall, the second one is after two balloons have hit, and the last one is a highly unlikely distribution of 10 hits. Where is the 10th?
+</P>
+
+<FIGURE src="images/00200.png">
+Figure 60: Random attacks
+</FIGURE>
+
+<h2>
+9.4 Russian Dolls
+</h2>
+
+<P>
+Wikipedia defines a Russian doll as “a set of dolls of decreasing sizes placed one inside the other” and illustrates it with this picture:
+</P>
+
+<FIGURE src="images/00201.png">
+
+</FIGURE>
+
+<P>
+In this picture, the dolls are taken apart so that the viewer can see them all.
+</P>
+
+<MARGIN_NOTE>
+The problem may strike you as abstract or even absurd; it isn’t clear why you would want to represent Russian dolls or what you would do with such a representation. Just play along for now.
+</MARGIN_NOTE>
+
+<P>
+Now consider the problem of representing such Russian dolls with BSL data. With a little bit of imagination, it is easy to see that an artist can create a nest of Russian dolls that consists of an arbitrary number of dolls. After all, it is always possible to wrap another layer around some given Russian doll. Then again, you also know that deep inside there is a solid doll without anything inside.
+</P>
+
+<P>
+For each layer of a Russian doll, we could care about many different things: its size, though it is related to the nesting level; its color; the image that is painted on the surface; and so on. Here we just pick one, namely the color of the doll, which we represent with a string. Given that, we know that each layer of the Russian doll has two properties: its color and the doll that is inside. To represent pieces of information with two properties, we always define a structure type:
+</P>
+
+<CODE>
+(define-struct layer [color doll])
+</CODE>
+
+<P>
+And then we add a data definition:
+</P>
+
+<CODE>
+; An RD (short for Russian doll) is one of: ; -- String ; -- (make-layer String RD)
+</CODE>
+
+<P>
+Naturally, the first clause of this data definition represents the innermost doll, or, to be precise, its color. The second clause is for adding a layer around some given Russian doll. We represent this with an instance of layer, which obviously contains the color of the doll and one other field: the doll that is nested immediately inside of this doll.
+</P>
+
+<P>
+Take a look at this doll:
+</P>
+
+<FIGURE src="images/00202.png">
+
+</FIGURE>
+
+<P>
+It consists of three dolls. The red one is the innermost one, the green one sits in the middle, and the yellow is the current outermost wrapper. To represent this doll with an element of RD, you start on either end. We proceed from the inside out. The red doll is easy to represent as an RD. Since nothing is inside and since it is red, the string "red" will do fine. For the second layer, we use
+</P>
+
+<CODE>
+(make-layer "green" "red")
+</CODE>
+
+<P>
+which says that a green (hollow) doll contains a red doll. Finally, to get the outside we just wrap another layer around this last doll:
+</P>
+
+<CODE>
+(make-layer "yellow" (make-layer "green" "red"))
+</CODE>
+
+<P>
+This process should give you a good idea of how to go from any set of colored Russian dolls to a data representation. But keep in mind that a programmer must also be able to do the converse, that is, go from a piece of data to concrete information. In this spirit, draw a schematic Russian doll for the following element of RD:
+</P>
+
+<CODE>
+(make-layer "pink" (make-layer "black" "white"))
+</CODE>
+
+<P>
+You might even try this in BSL.
+</P>
+
+<P>
+Now that we have a data definition and understand how to represent actual dolls and how to interpret elements of RD as dolls, we are ready to design functions that consume RDs. Specifically, let’s design the function that counts how many dolls a Russian doll set contains. This sentence is a fine purpose statement and determines the signature, too:
+</P>
+
+<CODE>
+; RD -> Number ; how many dolls are part of an-rd
+</CODE>
+
+<P>
+As for data examples, let’s start with (make-layer "yellow" (make-layer "green" "red")). The image above tells us that 3 is the expected answer because there are three dolls: the red one, the green one, and the yellow one. Just working through this one example also tells us that when the input is a representation of this doll
+</P>
+
+<FIGURE src="images/00203.png">
+
+</FIGURE>
+
+<P>
+then the answer is 1.
+</P>
+
+<P>
+Step four demands the development of a template. Using the standard questions for this step produces this template:
+</P>
+
+<FIGURE src="images/00204.png">
+
+</FIGURE>
+
+<P>
+The number of cond clauses is determined by the number of clauses in the definition of RD. Each of the clauses specifically spells out what kind of data it is about, and that tells us to use the string? and layer? predicates. While strings aren’t compound data, instances of layer contain two values. If the function needs these values, it uses the selector expressions (layer-color an-rd) and (layer-doll an-rd). Finally, the second clause of the data definition contains a self-reference from the doll field of the layer structure to the definition itself. Hence we need a recursive function call for the second selector expression.
+</P>
+
+<P>
+The examples and the template almost dictate the function definition. For the non-recursive cond clause, the answer is obviously 1. For the recursive clause, the template expressions compute the following results:
+</P>
+
+<P>
+•  (layer-color an-rd) extracts the string that describes the color of the current layer;
+</P>
+
+<P>
+•  (layer-doll an-rd) extracts the doll contained within the current layer; and
+</P>
+
+<P>
+•  (depth (layer-doll an-rd)) determines how many dolls are part of (layer-doll an-rd), according to the purpose statement of depth.
+</P>
+
+<P>
+This last number is almost the desired answer but not quite because the difference between an-rd and (layer-doll an-rd) is one layer, meaning one extra doll. Put differently, the function must add 1 to the recursive result to obtain the actual answer:
+</P>
+
+<CODE>
+; RD -> Number ; how many dolls are a part of an-rd (define (depth an-rd)   (cond     [(string? an-rd) 1]     [else (+ (depth (layer-doll an-rd)) 1)]))
+</CODE>
+
+<P>
+Note how the function definition does not use (layer-color an-rd) in the second clause. Once again, we see that the template is an organization schema for everything we know about the data definition, but we may not need all of these pieces for the actual definition.
+</P>
+
+<P>
+Let’s finally translate the examples into tests:
+</P>
+
+<CODE>
+(check-expect (depth "red") 1) (check-expect   (depth    (make-layer "yellow" (make-layer "green" "red")))   3)
+</CODE>
+
+<P>
+If you run these in DrRacket, you will see that their evaluation touches all pieces of the definition of depth.
+</P>
+
+<EXERCISE>
+Exercise 154. Design the function colors. It consumes a Russian doll and produces a string of all colors, separated by a comma and a space. Thus our example should produce
+</EXERCISE>
+
+<CODE>
+"yellow, green, red"
+</CODE>
+
+<EXERCISE>
+Exercise 155. Design the function inner, which consumes an RD and produces the (color of the) innermost doll. Use DrRacket’s stepper to evaluate (inner rd) for your favorite rd.
+</EXERCISE>
+
+<h2>
+9.5 Lists and World
+</h2>
+
+<P>
+With lists and self-referential data definitions in general, you can design and run many more interesting world programs than with finite data. Just imagine you can now create a version of the space invader program from chapter 6 that allows the player to fire as many shots from the tank as desired. Let’s start with a simplistic version of this problem:
+</P>
+
+<P>
+Sample Problem Design a world program that simulates firing shots. Every time the “player” hits the space bar, the program adds a shot to the bottom of the canvas. These shots rise vertically at the rate of one pixel per tick.
+</P>
+
+<MARGIN_NOTE>
+If you haven’t designed a world program in a while, reread chapter 3.6.
+</MARGIN_NOTE>
+
+<P>
+Designing a world program starts with a separation of information into constants and elements of the ever-changing state of the world. For the former we introduce physical and graphical constants; for the latter we need to develop a data representation for world states. While the sample problem is relatively vague about the specifics, it clearly assumes a rectangular scenery with shots painted along a vertical line. Obviously the locations of the shots change with every clock tick, but the size of the scenery and x-coordinate of the line of shots remain the same:
+</P>
+
+<CODE>
+(define HEIGHT 80) ; distances in terms of pixels (define WIDTH 100) (define XSHOTS (/ WIDTH 2)) ; graphical constants (define BACKGROUND (empty-scene WIDTH HEIGHT)) (define SHOT (triangle 3 "solid" "red"))
+</CODE>
+
+<P>
+Nothing in the problem statement demands these particular choices, but as long as they are easy to change—meaning changing by editing a single definition—we have achieved our goal.
+</P>
+
+<P>
+As for those aspects of the “world” that change, the problem statement mentions two. First, hitting the space bar adds a shot. Second, all the shots move straight up by one pixel per clock tick. Given that we cannot predict how many shots the player will “fire,” we use a list to represent them:
+</P>
+
+<CODE>
+; A List-of-shots is one of: ; -- '() ; -- (cons Shot List-of-shots) ; interpretation the collection of shots fired
+</CODE>
+
+<P>
+The one remaining question is how to represent each individual shot. We already know that all of them have the same x-coordinate and that this coordinate stays the same throughout. Furthermore, all shots look alike. Hence, their y-coordinates are the only property in which they differ from each other. It therefore suffices to represent each shot as a number:
+</P>
+
+<CODE>
+; A Shot is a Number. ; interpretation represents the shot's y-coordinate
+</CODE>
+
+<P>
+We could restrict the representation of shots to the interval of numbers below HEIGHT because we know that all shots are launched from the bottom of the canvas and that they then move up, meaning their y-coordinate continuously decreases.
+</P>
+
+<P>
+You can also use a data definition like this to represent this world:
+</P>
+
+<CODE>
+; A ShotWorld is List-of-numbers. ; interpretation each number on such a list ;   represents the y-coordinate of a shot
+</CODE>
+
+<P>
+After all, the above two definitions describe all list of numbers; we already have a definition for lists of numbers, and the name ShotWorld tells everyone what this class of data is about.
+</P>
+
+<P>
+Once you have defined constants and developed a data representation for the states of the world, the key task is to pick which event handlers you wish to employ and to adapt their signatures to the given problem. The running example mentions clock ticks and the space bar, all of which translates into a wish list of three functions:
+</P>
+
+<P>
+•  the function that turns a world state into an image:
+</P>
+
+<CODE>
+; ShotWorld -> Image ; adds the image of a shot for each y on w ; at (MID,y} to the background image (define (to-image w) BACKGROUND)
+</CODE>
+
+<P>
+because the problem demands a visual rendering;
+</P>
+
+<P>
+•  one for dealing with tick events:
+</P>
+
+<CODE>
+; ShotWorld -> ShotWorld ; moves each shot on w up by one pixel (define (tock w) w)
+</CODE>
+
+<P>
+•  and one function for dealing with key events:
+</P>
+
+<CODE>
+; ShotWorld KeyEvent -> ShotWorld ; adds a shot to the world ; if the player presses the space bar (define (keyh w ke) w)
+</CODE>
+
+<P>
+Don’t forget that in addition to the initial wish list, you also need to define a main function that actually sets up the world and installs the handlers. Figure 61 includes this one function that is not designed but defined as a modification of standard schema.
+</P>
+
+<FIGURE src="images/00205.png">
+Figure 61: A list-based world program
+</FIGURE>
+
+<P>
+Let’s start with the design of to-image. We have its signature, purpose statement, and header, so we need examples next. Since the data definition has two clauses, there should be at least two examples: '() and a consed list, say, (cons 9 '()). The expected result for '() is obviously BACKGROUND; if there is a y-coordinate, though, the function must place the image of a shot at MID and the specified coordinate:
+</P>
+
+<FIGURE src="images/00206.png">
+
+</FIGURE>
+
+<P>
+Before you read on, work through an example that applies to-image to a list of two Shots. Doing so helps understand how the function works.
+</P>
+
+<P>
+The fourth step is about translating the data definition into a template:
+</P>
+
+<FIGURE src="images/00207.png">
+
+</FIGURE>
+
+<P>
+The template for data definitions for lists is so familiar now that it doesn’t need much explanation. If you have any doubts, read over the questions in figure 52 and design the template on your own.
+</P>
+
+<P>
+From here it is straightforward to define the function. The key is to combine the examples with the template and to answer the questions from figure 53. Following those, you start with the base case of an empty list of shots, and, from the examples, you know that the expected answer is BACKGROUND. Next you formulate what the template expressions in the second cond compute:
+</P>
+
+<P>
+•  (first w) extracts the first coordinate from the list;
+</P>
+
+<P>
+•  (rest w) is the rest of the coordinates; and
+</P>
+
+<P>
+•  (to-image (rest w)) adds each shot on (rest w) to the background image, according to the purpose statement of to-image.
+</P>
+
+<P>
+In other words, (to-image (rest w)) renders the rest of the list as an image and thus performs almost all the work. What is missing is the first shot, (first w). If you now apply the purpose statement to these two expressions, you get the desired expression for the second cond clause:
+</P>
+
+<FIGURE src="images/00208.png">
+
+</FIGURE>
+
+<P>
+The added icon is the standard image for a shot; the two coordinates are spelled out in the purpose statement; and the last argument to place-image is the image constructed from the rest of the list.
+</P>
+
+<P>
+Figure 61 displays the complete function definition for to-image and indeed the rest of the program, too. The design of tock is just like the design of to-image, and you should work through it for yourself. The signature of the keyh handler, though, poses one interesting question. It specifies that the handler consumes two inputs with nontrivial data definitions. On the one hand, the ShotWorld is a self-referential data definition. On the other hand, the definition for KeyEvents is a large enumeration. For now, we have you “guess” which of the two arguments should drive the development of the template; later we will study such cases in depth.
+</P>
+
+<P>
+As far as a world program is concerned, a key handler such as keyh is about the key event that it consumes. Hence, we consider it the main argument and use its data definition to derive the template. Specifically, following the data definition for KeyEvent from chapter 4.3, it dictates that the function needs a cond expression with numerous clauses like this:
+</P>
+
+<FIGURE src="images/00209.png">
+
+</FIGURE>
+
+<P>
+Of course, just like for functions that consume all possible BSL values, a key handler usually does not need to inspect all possible cases. For our running problem, you specifically know that the key handler reacts only to the space bar and all others are ignored. So it is natural to collapse all of the cond clauses into an else clause except for the clause for " ".
+</P>
+
+<EXERCISE>
+Exercise 156. Equip the program in figure 61 with tests and make sure it passes those. Explain what main does. Then run the program via main.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 157. Experiment to determine whether the arbitrary decisions concerning constants are easy to change. For example, determine whether changing a single constant definition achieves the desired outcome:
+</EXERCISE>
+
+<P>
+•  change the height of the canvas to 220 pixels;
+</P>
+
+<P>
+•  change the width of the canvas to 30 pixels;
+</P>
+
+<P>
+•  change the x location of the line of shots to “somewhere to the left of the middle”;
+</P>
+
+<P>
+•  change the background to a green rectangle; and
+</P>
+
+<P>
+•  change the rendering of shots to a red elongated rectangle.
+</P>
+
+<P>
+Also check whether it is possible to double the size of the shot without changing anything else or to change its color to black.
+</P>
+
+<EXERCISE>
+Exercise 158. If you run main, press the space bar (fire a shot), and wait for a goodly amount of time, the shot disappears from the canvas. When you shut down the world canvas, however, the result is a world that still contains this invisible shot.
+</EXERCISE>
+
+<P>
+Design an alternative tock function that doesn’t just move shots one pixel per clock tick but also eliminates those whose coordinates place them above the canvas. Hint You may wish to consider the design of an auxiliary function for the recursive cond clause.
+</P>
+
+<EXERCISE>
+Exercise 159. Turn the solution of exercise 153 into a world program. Its main function, dubbed riot, consumes how many balloons the students want to throw; its visualization shows one balloon dropping after another at a rate of one per second. The function produces the list of Posns where the balloons hit.
+</EXERCISE>
+
+<P>
+Hints (1) Here is one possible data representation:
+</P>
+
+<CODE>
+(define-struct pair [balloon# lob]) ; A Pair is a structure (make-pair N List-of-posns) ; A List-of-posns is one of: ; -- '() ; -- (cons Posn List-of-posns) ; interpretation (make-pair n lob) means n balloons ; must yet be thrown and added to lob
+</CODE>
+
+<P>
+(2) A big-bang expression is really just an expression. It is legitimate to nest it within another expression.
+</P>
+
+<P>
+(3) Recall that random creates random numbers.
+</P>
+
+<h2>
+9.6 A Note on Lists and Sets
+</h2>
+
+<P>
+This book relies on your intuitive understanding of sets as collections of BSL values. Chapter 5.7 specifically says that a data definition introduces a name for a set of BSL values. There is one question that this book consistently asks about sets, and it is whether some element is in some given set. For example, 4 is in Number, while "four" is not. The book also shows how to use a data definition to check whether some value is a member of some named set and how to use some of the data definitions to generate sample elements of sets, but these two procedures are about data definitions, not sets per se.
+</P>
+
+<P>
+At the same time, lists represent collections of values. Hence you might be wondering what the difference between a list and a set is or whether this is a needless distinction. If so, this section is for you.
+</P>
+
+<P>
+Right now the primary difference between sets and lists is that the former is a concept we use to discuss steps in the design of code and the latter is one of many forms of data in BSL, our chosen programming language. The two ideas live at rather different levels in our conversations. However, given that a data definition introduces a data representation of actual information inside of BSL and given that sets are collections of information, you may now ask yourself how sets are represented inside of BSL as data.
+</P>
+
+<MARGIN_NOTE>
+Most full-fledged languages directly support data representations of both lists and sets.
+</MARGIN_NOTE>
+
+<P>
+While lists have a special status in BSL, sets don’t, but at the same time sets somewhat resemble lists. The key difference is the kind of functions a program normally uses with either form of data. BSL provides several basic constants and functions for lists—say, empty, empty?, cons, cons?, first, rest—and some functions that you could define yourself—for example, member?, length, remove, reverse, and so on. Here is an example of a function you can define but does not come with BSL
+</P>
+
+<CODE>
+; List-of-string String -> N ; determines how often s occurs in los (define (count los s)   0)
+</CODE>
+
+<P>
+Stop! Finish the design of this function.
+</P>
+
+<P>
+Let’s proceed in a straightforward and possibly naive manner and say sets are basically lists. And, to simplify further, let’s focus on lists of numbers in this section. If we now accept that it merely matters whether a number is a part of a set or not, it is almost immediately clear that we can use lists in two different ways to represent sets.
+</P>
+
+<P>
+Figure 62 displays the two data definitions. Both basically say that a set is represented as a list of numbers. The difference is that the definition on the right comes with the constraint that no number may occur more than once on the list. After all, the key question we ask about a set is whether some number is in the set or not, and whether it is in a set once, twice, or three times makes no difference.
+</P>
+
+<FIGURE src="images/00210.png">
+Figure 62: Two data representations for sets
+</FIGURE>
+
+<P>
+Regardless of which definition you choose, you can already define two important notions:
+</P>
+
+<CODE>
+; Son (define es '()) ; Number Son -> Boolean ; is x in s (define (in? x s)   (member? x s))
+</CODE>
+
+<P>
+The first one is the empty set, which in both cases is represented by the empty list. The second one is a membership test.
+</P>
+
+<P>
+One way to build larger sets is to use cons and the above definitions. Say we wish to build a representation of the set that contains 1, 2, and 3. Here is one such representation:
+</P>
+
+<CODE>
+(cons 1 (cons 2 (cons 3 '())))
+</CODE>
+
+<P>
+And it works for both data representations. But, is
+</P>
+
+<CODE>
+(cons 2 (cons 1 (cons 3 '())))
+</CODE>
+
+<P>
+really not a representation of the same set? Or how about
+</P>
+
+<CODE>
+(cons 1 (cons 2 (cons 1 (cons 3 '()))))
+</CODE>
+
+<P>
+The answer has to be affirmative as long as the primary concern is whether a number is in a set or not. Still, while the order of cons cannot matter, the constraint in the right-hand data definition rules out the last list as a Son.R because it contains 1 twice.
+</P>
+
+<P>
+The difference between the two data definitions shows up when we design functions. Say we want a function that removes a number from a set. Here is a wish-list entry that applies to both representations:
+</P>
+
+<CODE>
+; Number Son -> Son ; subtracts x from s (define (set- x s)   s)
+</CODE>
+
+<P>
+The purpose statement uses the word “subtract” because this is what logicians and mathematicians use when they work with sets.
+</P>
+
+<P>
+Figure 63 shows the results. The two columns differ in two points:
+</P>
+
+<P>
+1. The test on the left uses a list that contains 1 twice, while the one on the right represents the same set with a single cons.
+</P>
+
+<P>
+2. Because of these differences, the set- on the left must use remove-all, while the one on the right gets away with remove.
+</P>
+
+<FIGURE src="images/00211.png">
+Figure 63: Functions for the two data representations of sets
+</FIGURE>
+
+<P>
+Stop! Copy the code into the DrRacket definitions area and make sure the tests pass. Then read on and experiment with the code as you do.
+</P>
+
+<P>
+An unappealing aspect of figure 63 is that the tests use es, a plain list, as the expected result. This problem may seem minor at first glance. Consider the following example, however:
+</P>
+
+<CODE>
+(set- 1 set123)
+</CODE>
+
+<P>
+where set123 represents the set containing 1, 2, and 3 in one of two ways:
+</P>
+
+<CODE>
+(define set123-version1   (cons 1 (cons 2 (cons 3 '())))) (define set123-version2   (cons 1 (cons 3 (cons 2 '()))))
+</CODE>
+
+<P>
+Regardless of which representation we choose, (set- 1 set123) evaluates to one of these two lists:
+</P>
+
+<CODE>
+(define set23-version1   (cons 2 (cons 3 '()))) (define set23-version2   (cons 3 (cons 2 '())))
+</CODE>
+
+<P>
+But we cannot predict which of those two set- produces.
+</P>
+
+<P>
+For the simple case of two alternatives, it is possible to use the check-member-of testing facility as follows:
+</P>
+
+<FIGURE src="images/00212.png">
+
+</FIGURE>
+
+<P>
+If the expected set contains three elements, there are six possible variations, not including representations with repetitions, which the left-hand data definition allows.
+</P>
+
+<P>
+Fixing this problem calls for the combination of two ideas. First, recall that set- is really about ensuring that the given element does not occur in the result. It is an idea that our way of turning the examples into tests does not bring across. Second, with BSL’s check-satisfied testing facility, it is possible to state precisely this idea.
+</P>
+
+<P>
+Intermezzo 1 briefly mentions check-satisfied, but, in a nutshell, the facility determines whether an expression satisfies a certain property. A property is a function from values to Boolean. In our specific case, we wish to state that 1 is not a member of some set:
+</P>
+
+<CODE>
+; Son -> Boolean ; #true if 1 a member of s; #false otherwise (define (not-member-1? s)   (not (in? 1 s)))
+</CODE>
+
+<P>
+Using not-member-1?, we can formulate the test case as follows:
+</P>
+
+<CODE>
+(check-satisfied (set- 1 set123) not-member-1?)
+</CODE>
+
+<P>
+and this variant clearly states what the function is supposed to accomplish. Better yet, this formulation simply does not depend on how the input or output set is represented.
+</P>
+
+<P>
+In sum, lists and sets are related in that both are about collections of values, but they also differ strongly:
+</P>
+
+<FIGURE src="images/">
+
+</FIGURE>
+
+<P>
+The last row in this table presents a new idea, though an obvious one, too. Many of the sets mentioned in this book are infinitely large, for example, Number, String, and also List-of-strings. In contrast, a list is always finite though it may contain an arbitrarily large number of items.
+</P>
+
+<P>
+In sum, this section explains the essential differences between sets and lists and how to represent finite sets with finite lists in two different ways. BSL is not expressive enough to represent infinite sets; exercise 299 introduces a completely different representation of sets, a representation that can cope with infinite sets, too. The question of how actual programming languages represent sets is beyond the scope of this book, however.
+</P>
+
+<EXERCISE>
+Exercise 160. Design the functions set+.L and set+.R, which create a set by adding a number x to some given set s for the left-hand and right-hand data definition, respectively.
+</EXERCISE>
+
+<h1>
+10 More on Lists
+</h1>
+
+<P>
+Lists are a versatile form of data that come with almost all languages now. Programmers have used them to build large applications, artificial intelligences, distributed systems, and more. This chapter illustrates some ideas from this world, including functions that create lists, data representations that call for structures inside of lists, and representing text files as lists.
+</P>

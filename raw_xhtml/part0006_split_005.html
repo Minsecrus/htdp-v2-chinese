@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_5"><b class="calibre9">BSL Errors</b></h1>
+<p class="tni">When DrRacket discovers that some parenthesized phrase does not belong to BSL, it signals a <i class="calibre6">syntax error</i>. To determine whether a fully parenthesized program is syntactically legal, DrRacket uses the grammar in <a href="part0006_split_002.html#fig40" class="calibre5">figure 40</a> and reasons along the lines explained above. Not all syntactically legal programs have meaning, however.</p>
+<p class="marginpar">For a nearly full list of error messages, see the last section of this intermezzo.</p>
+<p class="calibre8">When DrRacket evaluates a syntactically legal program and discovers that some operation is used on the wrong kind of value, it raises a <i class="calibre6">run-time error</i>. Consider the syntactically legal expression <samp class="mono">(/ 1 0)</samp>, which, as you know from mathematics, has no value. Since BSL’s calculations must be consistent with mathematics, DrRacket signals an error:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (/</samp><samp class="mono"> 1 0)</samp> <br class="calibre4"/><samp class="mono">/:division by</samp><samp class="mono"> zero</samp></p>
+</div>
+<p class="tni">Naturally it also signals an error when an expression such as <samp class="mono">(/ 1 0)</samp> is nested deeply inside of another expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+</samp><samp class="mono"> (* 20</samp><samp class="mono"> 2) (/</samp><samp class="mono"> 1 (-</samp><samp class="mono"> 10 10)))</samp> <br class="calibre4"/><samp class="mono">/:division by</samp><samp class="mono"> zero</samp></p>
+</div>
+<p class="calibre8">DrRacket’s behavior translates into our calculations as follows. When we find an expression that is not a value and when the evaluation rules allow no further simplification, we say the computation is <i class="calibre6">stuck</i>. This notion of stuck corresponds to a run-time error. For example, computing the value of the above expression leads to a stuck state:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_212" title="212"></span><samp class="mono">(+ (*</samp><samp class="mono"> 20 2)</samp><samp class="mono"> (/ 1</samp><samp class="mono"> (- 10</samp><samp class="mono"> 10)))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ (*</samp><samp class="mono"> 20 2)</samp><samp class="mono"> (/ 1</samp><samp class="mono"> 0))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ 40</samp><samp class="mono"> (/ 1</samp><samp class="mono"> 0))</samp></p>
+</div>
+<p class="tni">What this calculation also shows is that DrRacket eliminates the context of a stuck expression as it signals an error. In this concrete example, it eliminates the addition of <samp class="mono">40</samp> to the stuck expression <samp class="mono">(/ 1 0)</samp>.</p>
+<p class="calibre8">Not all nested stuck expressions end up signaling errors. Suppose a program contains this definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (my-divide</samp><samp class="mono"> n)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(=</samp><samp class="mono"> n 0)</samp><samp class="mono"> "inf"]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (/ 1</samp><samp class="mono"> n)]))</samp></p>
+</div>
+<p class="tni">If you now apply <samp class="mono">my-divide</samp> to <samp class="mono">0</samp>, DrRacket calculates as follows:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(my-divide 0)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 0 0)</samp><samp class="mono"> "inf"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> </samp><span class="colorbox"><samp class="mono">(/ 1</samp><samp class="mono"> 0)</samp></span><samp class="mono">])</samp></p>
+</div>
+<p class="tni">It would obviously be wrong to say that the function signals the division-by-zero error now, even though an evaluation of the shaded sub-expression may suggest it. The reason is that <samp class="mono">(= 0 0)</samp> evaluates to <samp class="mono">#true</samp> and therefore the second <samp class="mono">cond</samp> clause does not play any role:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(my-divide 0)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 0 0)</samp><samp class="mono"> "inf"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> <span class="colorbox">(/ 1 0)</span>])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#true</samp><samp class="mono"> "inf"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> <span class="colorbox">(/ 1 0)</span>])</samp> <br class="calibre4"/><samp class="mono">== "inf"</samp></p>
+</div>
+<p class="calibre8">Fortunately, our laws of evaluation take care of these situations automatically. We just need to remember when they apply. For example, in</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_213" title="213"></span><samp class="mono">(+ (*</samp><samp class="mono"> 20 2)</samp><samp class="mono"> (/ 20</samp><samp class="mono"> 2))</samp></p>
+</div>
+<p class="tni">the addition cannot take place before the multiplication or division. Similarly, the shaded division in</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 0 0)</samp><samp class="mono"> "inf"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> <span class="colorbox">(/ 1 0)</span>])</samp></p>
+</div>
+<p class="tni">cannot be substituted for the complete <samp class="mono">cond</samp> expression until the corresponding line is the first condition in the <samp class="mono">cond</samp>.</p>
+<p class="calibre8">As a rule of thumb, it is best to keep the following in mind:</p>
+<div class="ex">
+<p class="exf"><i class="calibre6">Always choose the outermost and left-most nested expression that is ready for evaluation.</i></p>
+</div>
+<p class="tni">While this guideline may look simplistic, it always explains BSL’s results.</p>
+<p class="calibre8">In some cases, programmers also want to define functions that raise errors. Recall the checked version of <samp class="mono">area-of-disk</samp> from chapter 6.3:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (checked-area-of-disk</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(number?</samp><samp class="mono"> v) (area-of-disk</samp><samp class="mono"> v)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (error "number</samp><samp class="mono"> expected")]))</samp></p>
+</div>
+<p class="tni">Now imagine applying <samp class="mono">checked-area-of-disk</samp> to a string:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(- (checked-area-of-disk</samp><samp class="mono"> "a")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (checked-area-of-disk 10))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(- (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [(number? "a")</samp><samp class="mono"> (area-of-disk "a")]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [else (error</samp><samp class="mono"> "number expected")])</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (checked-area-of-disk 10))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(- (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [#false (area-of-disk</samp><samp class="mono"> "a")]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [else (error</samp><samp class="mono"> "number expected")])</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (checked-area-of-disk 10))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(- (error</samp><samp class="mono"> "number expected")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (checked-area-of-disk 10))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_214" title="214"></span>At this point you might try to evaluate the second expression, but even if you do find out that its result is roughly <samp class="mono">314</samp>, your calculation must eventually deal with the <samp class="mono">error</samp> expression, which is just like a stuck expression. In short, the calculation ends in</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(error "number</samp><samp class="mono"> expected")</samp></p>
+</div>
+</section>
+</article>
+</div>
+</body></html>

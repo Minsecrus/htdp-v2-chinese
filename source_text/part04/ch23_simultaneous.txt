@@ -1,0 +1,1125 @@
+# Chapter 23: Simultaneous Processing / 第 23 章：多输入同步处理
+
+<h1>
+23 Simultaneous Processing
+</h1>
+
+<P>
+Some functions have to consume two arguments that belong to classes with nontrivial data definitions. How to design such functions depends on the relationship between the arguments. First, one of the arguments may have to be treated as if it were atomic. Second, it is possible that the function must process the two arguments in lockstep. Finally, the function may process the given data in accordance to all possible cases. This chapter illustrates the three cases with examples and provides an augmented design recipe. The last section discusses the equality of compound data.
+</P>
+
+<h2>
+23.1 Processing Two Lists Simultaneously: Case 1
+</h2>
+
+<P>
+Consider the following signature, purpose statement, and header:
+</P>
+
+<CODE>
+; [List-of Number] [List-of Number] -> [List-of Number] ; replaces the final '() in front with end (define (replace-eol-with front end)   front)
+</CODE>
+
+<P>
+The signature says that the function consumes two lists. Let’s see how the design recipe works in this case.
+</P>
+
+<P>
+We start by working through examples. If the first argument is '(), replace-eol-with must produce the second one, no matter what it is:
+</P>
+
+<CODE>
+(check-expect (replace-eol-with '() '(a b)) '(a b))
+</CODE>
+
+<P>
+In contrast, if the first argument is not '(), the purpose statement requires that we replace '() at the end of front with end:
+</P>
+
+<FIGURE src="images/00519.png">
+
+</FIGURE>
+
+<P>
+The purpose statement and the examples suggest that as long as the second argument is a list, the function does not need to know anything about it. By implication, its template should be that of a list-processing function with respect to the first argument:
+</P>
+
+<FIGURE src="images/00520.png">
+
+</FIGURE>
+
+<P>
+Let’s fill the gaps in the template following the fifth step of the design recipe. If front is '(), replace-eol-with produces end. If front is not '(), we must recall what the template expressions compute:
+</P>
+
+<P>
+•  (first front) evaluates to the first item on the list, and
+</P>
+
+<P>
+•  (replace-eol-with (rest front) end) replaces the final '() in (rest front) with end.
+</P>
+
+<P>
+Stop! Use the table method to understand what these bullets mean for the running example.
+</P>
+
+<P>
+From here it is a small step to the complete definition:
+</P>
+
+<FIGURE src="images/00521.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 387. Design cross. The function consumes a list of symbols and a list of numbers and produces all possible ordered pairs of symbols and numbers. That is, when given '(a b c) and '(1 2), the expected result is '((a 1) (a 2) (b 1) (b 2) (c 1) (c 2)).
+</EXERCISE>
+
+<h2>
+23.2 Processing Two Lists Simultaneously: Case 2
+</h2>
+
+<P>
+Chapter 10.1 presents the function wages*, which computes the weekly wages of some workers given their work hours. It consumes a list of numbers, which represents the hours worked per week, and produces a list of numbers, which are the corresponding weekly wages. While the problem assumes that all employees received the same pay rate, even a small company pays its workers differentiated wages.
+</P>
+
+<P>
+Here we look at a slightly more realistic version. The function now consumes two lists: the list of hours worked and the list of corresponding hourly wages. We translate this revised problem into a revised header:
+</P>
+
+<CODE>
+; [List-of Number] [List-of Number] -> [List-of Number] ; multiplies the corresponding items on ; hours and wages/h ;  assume the two lists are of equal length (define (wages*.v2 hours wages/h)   '())
+</CODE>
+
+<P>
+Making up examples is straightforward:
+</P>
+
+<FIGURE src="images/00522.png">
+
+</FIGURE>
+
+<P>
+As required, all three examples use lists of equal length.
+</P>
+
+<P>
+The assumption concerning the inputs can also be exploited for the development of the template. More concretely, the condition says that (empty? hours) is true when (empty? wages/h) is true, and furthermore, (cons? hours) is true when (cons? wages/h) is true. It is thus acceptable to use a template for one of the two lists:
+</P>
+
+<FIGURE src="images/00523.png">
+
+</FIGURE>
+
+<P>
+In the first cond clause, both hours and wages/h are '(). Hence no selector expressions are needed. In the second clause, both hours and wages/h are constructed lists, which means we need four selector expressions. Finally, because the last two are lists of equal length, they make up a natural candidate for the natural recursion of wages*.v2.
+</P>
+
+<P>
+The only unusual aspect of this template is that the recursive application consists of two expressions, both selector expressions for the two arguments. But, this idea directly follows from the assumption.
+</P>
+
+<P>
+From here, it is a short step to a complete function definition:
+</P>
+
+<FIGURE src="images/00524.png">
+
+</FIGURE>
+
+<P>
+The first example implies that the answer for the first cond clause is '(). In the second one, we have three values available:
+</P>
+
+<P>
+1. (first hours), which represents the first number of weekly hours;
+</P>
+
+<P>
+2. (first wages/h), which is the first pay rate; and
+</P>
+
+<P>
+3. (wages*.v2 (rest hours) (rest wages/h)), which, according to the purpose statement, computes the list of weekly wages for the remainders of the two lists.
+</P>
+
+<P>
+Now we just need to combine these values to get the final answer. As suggested by the examples, we must compute the weekly wage for the first employee and construct a list from that wage and the rest of the wages:
+</P>
+
+<CODE>
+(cons (weekly-wage (first hours) (first wages/h))       (wages*.v2 (rest hours) (rest wages/h)))
+</CODE>
+
+<P>
+The auxiliary function weekly-wage uses the number of hours worked and the pay rate to compute the weekly wage for one worker:
+</P>
+
+<CODE>
+; Number Number -> Number ; computes the weekly wage from pay-rate and hours (define (weekly-wage pay-rate hours)   (* pay-rate hours))
+</CODE>
+
+<P>
+Stop! Which function do you need to use if you wish to compute the wages for one worker? Which function do you need to change if you wish to deal with income taxes?
+</P>
+
+<EXERCISE>
+Exercise 388. In the real world, wages*.v2 consumes lists of employee structures and lists of work records. An employee structure contains an employee’s name, social security number, and pay rate. A work record also contains an employee’s name and the number of hours worked in a week. The result is a list of structures that contain the name of the employee and the weekly wage.
+</EXERCISE>
+
+<P>
+Modify the program in this section so that it works on these realistic versions of data. Provide the necessary structure type definitions and data definitions. Use the design recipe to guide the modification process.
+</P>
+
+<EXERCISE>
+Exercise 389. Design the zip function, which consumes a list of names, represented as strings, and a list of phone numbers, also strings. It combines those equally long lists into a list of phone records:
+</EXERCISE>
+
+<CODE>
+(define-struct phone-record [name number]) ; A PhoneRecord is a structure: ;   (make-phone-record String String)
+</CODE>
+
+<P>
+Assume that the corresponding list items belong to the same person.
+</P>
+
+<h2>
+23.3 Processing Two Lists Simultaneously: Case 3
+</h2>
+
+<P>
+Here is a third type of problem:
+</P>
+
+<P>
+Sample Problem Given a list of symbols los and a natural number n, the function list-pick extracts the nth symbol from los; if there is no such symbol, it signals an error.
+</P>
+
+<P>
+The question is how well the recipe works for the design of list-pick.
+</P>
+
+<P>
+While the data definition for a list of symbols is fairly familiar by now, recall the class of natural numbers from chapter 9.3:
+</P>
+
+<CODE>
+; N is one of: ; -- 0 ; -- (add1 N)
+</CODE>
+
+<P>
+Now we can proceed to the second step:
+</P>
+
+<CODE>
+; [List-of Symbol] N -> Symbol ; extracts the nth symbol from l; ; signals an error if there is no such symbol (define (list-pick l n)   'a)
+</CODE>
+
+<P>
+Both lists of symbols and natural numbers are classes with complex data definitions. This combination makes the problem nonstandard, meaning we must pay attention to every detail for every step of the design recipe.
+</P>
+
+<P>
+At this point, we usually pick some input examples and figure out what the desired output is. We start with inputs for which the function has to work flawlessly: '(a b c) and 2. For a list of three symbols and the index 2, list-pick must return a symbol. The question is whether it is 'b or 'c. In grade school, you would have counted 1, 2, and picked 'b without a first thought. But this is computer science, not grade school. Here people start counting from 0, meaning that 'c is an equally appropriate choice. And indeed, this is the choice we use:
+</P>
+
+<CODE>
+(check-expect (list-pick '(a b c) 2) 'c)
+</CODE>
+
+<P>
+Now that we have eliminated this fine point of list-pick, let’s look at the actual problem, the choice of inputs. The goal of the example step is to cover the input space as much as possible. We do so by picking one input per clause in the description of complex forms of data. Here this procedure suggests we pick at least two elements from each class because each data definition has two clauses. We choose '() and (cons 'a '()) for the first argument, and 0 and 3 for the latter. Two choices per argument means four examples total; after all, there is no immediately obvious connection between the two arguments and no restriction in the signature.
+</P>
+
+<P>
+As it turns out, only one of these pairings produces a proper result; the remaining ones choose a position that does not exist because the list doesn’t contain enough symbols:
+</P>
+
+<CODE>
+(check-error (list-pick '() 0) "list too short") (check-expect (list-pick (cons 'a '()) 0) 'a) (check-error (list-pick '() 3) "list too short")
+</CODE>
+
+<P>
+The function is expected to signal an error, and we pick our favorite message here.
+</P>
+
+<P>
+Stop! Put these fragments into DrRacket’s definitions area and run the partial program.
+</P>
+
+<P>
+The discussion on examples indicates that there are indeed four independent cases that we must inspect for the design of the function. One way to discover these cases is to arrange the conditions for each of the clauses into a two-dimensional table:
+</P>
+
+<FIGURE src="images/00525.png">
+
+</FIGURE>
+
+<P>
+The horizontal dimension of the table lists those questions that list-pick must ask about lists; the vertical dimension lists the questions about natural numbers. By this arrangement, we naturally get four squares, where each represents the case when both the conditions on the horizontal and the vertical axis are true.
+</P>
+
+<P>
+Our table suggests that the cond for the function template has four clauses. We can figure out the appropriate condition for each of these clauses by and-ing the horizontal and vertical condition for each box in the table:
+</P>
+
+<FIGURE src="images/00526.png">
+
+</FIGURE>
+
+<P>
+The cond outline of the template is merely a translation of this table into a conditional:
+</P>
+
+<FIGURE src="images/00527.png">
+
+</FIGURE>
+
+<P>
+As always, the cond expression allows us to distinguish the four possibilities and to focus on each individually as we add selector expressions to each cond clause:
+</P>
+
+<FIGURE src="images/00528.png">
+
+</FIGURE>
+
+<P>
+The first argument, l, is a list, and a template’s cond clause for non-empty lists contains two selector expressions. The second argument, n, belongs to N, and the template’s cond clause for non-0 numbers needs only one selector expression. In those cases where either (empty? l) or (= n 0) holds, the respective argument is atomic and there is no need for a corresponding selector expression.
+</P>
+
+<P>
+The final step of the template construction demands that we annotate the template with recursions where the results of selector expressions belong to the same class as the inputs. For this first example, we focus on the last cond clause, which contains selector expressions for both arguments. It is, however, unclear how to form the natural recursions. If we disregard the purpose of the function, there are three possible recursions:
+</P>
+
+<P>
+1. (list-pick (rest l) (sub1 n))
+</P>
+
+<P>
+2. (list-pick l (sub1 n))
+</P>
+
+<P>
+3. (list-pick (rest l) n)
+</P>
+
+<P>
+Each one represents a feasible combination of the available expressions. Since we cannot know which one matters or whether all three matter, we move on to the next development stage.
+</P>
+
+<P>
+Following the design recipe for the fifth step, let’s analyze each cond clause in the template and decide what a proper answer is:
+</P>
+
+<P>
+1. If (and (= n 0) (empty? l)) holds, list-pick must pick the first symbol from an empty list, which is impossible. The answer must be an error signal.
+</P>
+
+<P>
+2. If (and (> n 0) (empty? l)) holds, list-pick is again asked to pick a symbol from an empty list.
+</P>
+
+<P>
+3. If (and (= n 0) (cons? l)) holds, list-pick is supposed to produce the first symbol from l. The selector expression (first l) is the answer.
+</P>
+
+<P>
+4. If (and (> n 0) (cons? l)) holds, we must analyze what the available expressions compute. As we have seen, it is a good idea to work through an existing example for this step. We pick a shortened variant of the first example:
+</P>
+
+<P>
+(check-expect (list-pick '(a b) 1) 'b)
+</P>
+
+<P>
+Here is what the three natural recursions compute with these values:
+</P>
+
+<P>
+(a) (list-pick '(b) 0) produces 'b;
+</P>
+
+<P>
+(b) (list-pick '(a b) 0) evaluates to 'a, the wrong answer;
+</P>
+
+<P>
+(c) and (list-pick '(b) 1) signals an error.
+</P>
+
+<P>
+From this, we conclude that (list-pick (rest l) (sub1 n)) computes the desired answer in the last cond clause.
+</P>
+
+<EXERCISE>
+Exercise 390. Design the function tree-pick. The function consumes a tree of symbols and a list of directions:
+</EXERCISE>
+
+<CODE>
+(define-struct branch [left right]) ; A TOS is one of: ; -- Symbol ; -- (make-branch TOS TOS) ; A Direction is one of: ; -- 'left ; -- 'right ; A list of Directions is also called a path
+</CODE>
+
+<P>
+Clearly a Direction tells the function whether to choose the left or the right branch in a nonsymbolic tree. What is the result of the tree-pick function? Don’t forget to formulate a full signature. The function signals an error when given a symbol and a non-empty path.
+</P>
+
+<h2>
+23.4 Function Simplification
+</h2>
+
+<P>
+The list-pick function in figure 134 is far more complicated than necessary. The first two cond clauses signal an error. That is, if either
+</P>
+
+<FIGURE src="images/00529.png">
+Figure 134: Indexing into a list
+</FIGURE>
+
+<CODE>
+(and (= n 0) (empty? alos))
+</CODE>
+
+<P>
+or
+</P>
+
+<CODE>
+(and (> n 0) (empty? alos))
+</CODE>
+
+<P>
+holds, the answer is an error. We can translate this observation into code:
+</P>
+
+<FIGURE src="images/00530.png">
+
+</FIGURE>
+
+<P>
+To simplify this function even more, we need to get acquainted with algebraic laws concerning Booleans:
+</P>
+
+<FIGURE src="images/00531.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+These equations are known as de Morgan’s laws.
+</MARGIN_NOTE>
+
+<P>
+A similar law applies when the sub-expressions of the ands are swapped. Applying these laws to list-pick yields this:
+</P>
+
+<FIGURE src="images/00532.png">
+
+</FIGURE>
+
+<P>
+Now consider (or (= n 0) (> n 0)). It is always #true because n belongs to N. Since (and #true (empty? alos)) is equivalent to (empty? alos), we can rewrite the function again:
+</P>
+
+<FIGURE src="images/00533.png">
+
+</FIGURE>
+
+<P>
+This last definition is already significantly simpler than the definition in figure 134, but we can do even better than this. Compare the first condition in the latest version of list-pick with the second and third. Since the first cond clause filters out all those cases when alos is empty, (cons? alos) in the last two clauses is always going to evaluate to #true. If we replace the condition with #true and simplify the and expressions again, we get a three-line version of list-pick
+</P>
+
+<P>
+Figure 135 displays this simplified version of list-pick. While it is far simpler than the original, it is important to understand that we designed the original in a systematic manner and that we were able to transform the first into the second with well-established algebraic laws. We can therefore trust this simple version. If we try to find the simple versions of functions directly, we sooner or later fail to take care of a case in our analysis, and we are guaranteed to produce flawed programs.
+</P>
+
+<FIGURE src="images/00534.png">
+Figure 135: Indexing into a list, simplified
+</FIGURE>
+
+<EXERCISE>
+Exercise 391. Design replace-eol-with using the strategy of chapter 23.3. Start from the tests. Simplify the result systematically.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 392. Simplify the function tree-pick from exercise 390.
+</EXERCISE>
+
+<h2>
+23.5 Designing Functions that Consume Two Complex Inputs
+</h2>
+
+<P>
+The proper approach to designing functions of two (or more) complex arguments is to follow the general recipe. You must conduct a data analysis and define the relevant classes of data. If the use of parametric definitions such as List-of and short-hand examples such as '(1 b &) confuses you, expand them so that the constructors become explicit. Next you need a function signature and purpose. At this point, you can think ahead and decide which of the following three situations you are facing:
+</P>
+
+<P>
+1. If one of the parameters plays a dominant role, think of the other as an atomic piece of data as far as the function is concerned.
+</P>
+
+<P>
+2. In some cases the parameters range over the same class of values and must have the same size. For example, two lists must have the same length, or two web pages must have the same length and where one of them contains an embedded page, the other one does, too. If the two parameters have this equal status and the purpose suggests that they are processed in a synchronized manner, you choose one parameter, organize the function around it, and traverse the other in a parallel manner.
+</P>
+
+<P>
+3. If there is no obvious connection between the two parameters, you must analyze all possible cases with examples. Then use this analysis to develop the template, especially the recursive parts.
+</P>
+
+<P>
+Once you decide that a function falls into the third category, develop a two-dimensional table to make sure that no case falls through the cracks. Let’s use a nontrivial pair of data definitions to explain this idea again:
+</P>
+
+<FIGURE src="images/00535.png">
+
+</FIGURE>
+
+<P>
+The left data definition is the usual list definition; the right one is a three-clause variant of TOS. It uses two structure type definitions:
+</P>
+
+<CODE>
+(define-struct with [lft info rght]) (define-struct binary [lft rght])
+</CODE>
+
+<P>
+Assuming the function consumes an LOD and a TID, the table that you should come up with has this shape:
+</P>
+
+<FIGURE src="images/00536.png">
+
+</FIGURE>
+
+<P>
+Along the horizontal direction we enumerate the conditions that recognize the sub-classes for the first parameter, here LOD, and along the vertical direction we enumerate the conditions for the second parameter, TID.
+</P>
+
+<P>
+The table guides the development of both the function examples and the function template. As explained, the examples must cover all possible cases; that is, there must be at least one example for each cell in the table. Similarly, the template must have one cond clause per cell; its condition combines the horizontal and the vertical conditions in an and expression. Each cond clause, in turn, must contain all feasible selector expressions for both parameters. If one of the parameters is atomic, there is no need for a selector expression. Finally, you need to be aware of the feasible natural recursions. In general, all possible combinations of selector expressions (and optionally, atomic arguments) are candidates for a natural recursion. Because we can’t know which ones are necessary and which ones aren’t, we keep them in mind for the coding step.
+</P>
+
+<P>
+In summary, the design of multiparameter functions is just a variation on the old design-recipe theme. The key idea is to translate the data definitions into a table that shows all feasible and interesting combinations. The development of function examples and the template exploit the table as much as possible.
+</P>
+
+<h2>
+23.6 Finger Exercises: Two Inputs
+</h2>
+
+<EXERCISE>
+Exercise 393. Figure 62 presents two data definitions for finite sets. Design the union function for the representation of finite sets of your choice. It consumes two sets and produces one that contains the elements of both.
+</EXERCISE>
+
+<P>
+Design intersect for the same set representation. It consumes two sets and produces the set of exactly those elements that occur in both.
+</P>
+
+<EXERCISE>
+Exercise 394. Design merge. The function consumes two lists of numbers, sorted in ascending order. It produces a single sorted list of numbers that contains all the numbers on both inputs lists. A number occurs in the output as many times as it occurs on the two input lists together.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 395. Design take. It consumes a list l and a natural number n. It produces the first n items from l or all of l if it is too short.
+</EXERCISE>
+
+<P>
+Design drop. It consumes a list l and a natural number n. Its result is l with the first n items removed or just ’() if l is too short.
+</P>
+
+<EXERCISE>
+Exercise 396. Hangman is a well-known guessing game. One player picks a word, the other player gets told how many letters the word contains. The latter picks a letter and asks the first player whether and where this letter occurs in the chosen word. The game is over after an agreed-upon time or number of rounds.
+</EXERCISE>
+
+<P>
+Figure 136 presents the essence of a time-limited version of the game. See chapter 16.3 for why checked-compare is defined locally.
+</P>
+
+<FIGURE src="images/00537.png">
+Figure 136: A simple hangman game
+</FIGURE>
+
+<P>
+The goal of this exercise is to design compare-word, the central function. It consumes the word to be guessed, a word s that represents how much/little the guessing player has discovered, and the current guess. The function produces s with all "_" where the guess revealed a letter.
+</P>
+
+<P>
+Once you have designed the function, run the program like this:
+</P>
+
+<CODE>
+(define LOCATION "/usr/share/dict/words") ; on OS X (define AS-LIST (read-lines LOCATION)) (define SIZE (length AS-LIST)) (play (list-ref AS-LIST (random SIZE)) 10)
+</CODE>
+
+<P>
+See figure 74 for an explanation. Enjoy and refine as desired!
+</P>
+
+<EXERCISE>
+Exercise 397. In a factory, employees punch time cards as they arrive in the morning and leave in the evening. Electronic time cards contain an employee number and record the number of hours worked per week. Employee records always contain the name of the employee, an employee number, and a pay rate.
+</EXERCISE>
+
+<P>
+Design wages*.v3. The function consumes a list of employee records and a list of time-card records. It produces a list of wage records, which contain the name and weekly wage of an employee. The function signals an error if it cannot find an employee record for a time card or vice versa.
+</P>
+
+<P>
+Assumption There is at most one time card per employee number.
+</P>
+
+<EXERCISE>
+Exercise 398. A linear combination is the sum of many linear terms, that is, products of variables and numbers. The latter are called coefficients in this context. Here are some examples:
+</EXERCISE>
+
+<FIGURE src="images/00538.png">
+
+</FIGURE>
+
+<P>
+In all examples, the coefficient of x is 5, that of y is 17, and the one for z is 3.
+</P>
+
+<P>
+If we are given values for variables, we can determine the value of a polynomial. For example, if x = 10, the value of 5 · x is 50; if x = 10 and y = 1, the value of 5 · x + 17 · y is 67; and if x = 10, y = 1, and z = 2, the value of 5 · x + 17 · y + 3 · z is 73.
+</P>
+
+<P>
+There are many different representations of linear combinations. We could, for example, represent them with functions. An alternative representation is a list of its coefficients. The above combinations would be represented as:
+</P>
+
+<CODE>
+(list 5) (list 5 17) (list 5 17 3)
+</CODE>
+
+<P>
+This choice of representation assumes a fixed order of variables.
+</P>
+
+<P>
+Design value. The function consumes two equally long lists: a linear combination and a list of variable values. It produces the value of the combination for these values.
+</P>
+
+<EXERCISE>
+Exercise 399. Louise, Jane, Laura, Dana, and Mary decide to run a lottery that assigns one gift recipient to each of them. Since Jane is a developer, they ask her to write a program that performs this task in an impartial manner. Of course, the program must not assign any of the sisters to herself.
+</EXERCISE>
+
+<P>
+Here is the core of Jane’s program:
+</P>
+
+<CODE>
+; [List-of String] -> [List-of String] ; picks a random non-identity arrangement of names (define (gift-pick names)   (random-pick     (non-same names (arrangements names)))) ; [List-of String] -> [List-of [List-of String]] ; returns all possible permutations of names ; see exercise 213 (define (arrangements names)   …)
+</CODE>
+
+<P>
+It consumes a list of names and randomly picks one of those permutations that do not agree with the original list at any place.
+</P>
+
+<P>
+Your task is to design two auxiliary functions:
+</P>
+
+<CODE>
+; [NEList-of X] -> X ; returns a random item from the list (define (random-pick l)     (first l)) ; [List-of String] [List-of [List-of String]] ; -> ; [List-of [List-of String]] ; produces the list of those lists in ll that do ; not agree with names at any place (define (non-same names ll)   ll)
+</CODE>
+
+<P>
+Recall that random picks a random number; see exercise 99.
+</P>
+
+<EXERCISE>
+Exercise 400. Design the function DNAprefix. The function takes two arguments, both lists of 'a, 'c, 'g, and 't, symbols that occur in DNA descriptions. The first list is called a pattern, the second one a search string. The function returns #true if the pattern is identical to the initial part of the search string; otherwise it returns #false.
+</EXERCISE>
+
+<P>
+Also design DNAdelta. This function is like DNAprefix but returns the first item in the search string beyond the pattern. If the lists are identical and there is no DNA letter beyond the pattern, the function signals an error. If the pattern does not match the beginning of the search string, it returns #false. The function must not traverse either of the lists more than once.
+</P>
+
+<P>
+Can DNAprefix or DNAdelta be simplified?
+</P>
+
+<EXERCISE>
+Exercise 401. Design sexp=?, a function that determines whether two S-expressions are equal. For convenience, here is the data definition in condensed form:
+</EXERCISE>
+
+<CODE>
+; An S-expr (S-expression) is one of: ; -- Atom ; -- [List-of S-expr] ; ; An Atom is one of: ; -- Number ; -- String ; -- Symbol
+</CODE>
+
+<P>
+Whenever you use check-expect, it uses a function like sexp=? to check whether the two arbitrary values are equal. If not, the check fails and check-expect reports it as such.
+</P>
+
+<EXERCISE>
+Exercise 402. Reread exercise 354. Explain the reasoning behind our hint to think of the given expression as an atomic value at first.
+</EXERCISE>
+
+<h2>
+23.7 Project: Database
+</h2>
+
+<P>
+Many software applications use a database to keep track of data. Roughly speaking, a database is a table that comes with an explicitly stated organization rule. The former is the content; the latter is called a schema. Figure 137 shows two examples. Each table consists of two parts: the schema above the line and the content below.
+</P>
+
+<FIGURE src="images/00539.png">
+Figure 137: Databases as tables
+</FIGURE>
+
+<MARGIN_NOTE>
+This section pulls together knowledge from all four parts of the book.
+</MARGIN_NOTE>
+
+<P>
+Let’s focus on the table on the left. It has three columns and four rows. Each column comes with a two-part rule:
+</P>
+
+<P>
+1. the rule in the left-most column says that the label of the column is “Name” and that every piece of data in this column is a String;
+</P>
+
+<P>
+2. the middle column is labeled “Age” and contains Integers; and
+</P>
+
+<P>
+3. the label of the right-most one is “Present”; its values are Boolean.
+</P>
+
+<P>
+Stop! Explain the table on the right in the same way.
+</P>
+
+<P>
+Computer scientists think of these tables as relations. The schema introduces terminology to refer to columns of a relation and to individual cells in a row. Each row relates a fixed number of values; the collection of all rows makes up the entire relation. In this terminology, the first row of the left table in figure 137 relates "Alice" to 35 and #true. Furthermore, the first cell of a row is called the “Name” cell, the second the “Age” cell, and the third one the “Present” cell.
+</P>
+
+<P>
+In this section, we represent databases via structures and lists:
+</P>
+
+<CODE>
+(define-struct db [schema content]) ; A DB is a structure: (make-db Schema Content) ; A Schema is a [List-of Spec] ; A Spec is a [List Label Predicate] ; A Label is a String ; A Predicate is a [Any -> Boolean] ; A (piece of) Content is a [List-of Row] ; A Row is a [List-of Cell] ; A Cell is Any ; constraint cells do not contain functions ; integrity constraint In (make-db sch con), ; for every row in con, ; (I1) its length is the same as sch's, and ; (I2) its ith Cell satisfies the ith Predicate in sch
+</CODE>
+
+<P>
+Stop! Translate the databases from figure 137 into the chosen data representation. Note that the content of the tables already uses ISL+ data.
+</P>
+
+<P>
+Figure 138 shows how to represent the two tables in DBs. Its left-hand side represents the schema, the content, and the database from the left-hand side table in figure 137; its right part corresponds to the right-hand side table. For succinctness, the examples use the quasiquote and unquote notation. Recall that it allows the inclusion of a value such as boolean? in an otherwise quoted list. If you feel uncomfortable with this notation, reformulate these examples with list.
+</P>
+
+<FIGURE src="images/00540.png">
+Figure 138: Databases as ISL+ data
+</FIGURE>
+
+<EXERCISE>
+Exercise 403. A Spec combines a Label and a Predicate into a list. While acceptable, this choice violates our guideline of using a structure type for a fixed number of pieces of information.
+</EXERCISE>
+
+<P>
+Here is an alternative data representation:
+</P>
+
+<CODE>
+(define-struct spec [label predicate]) ; Spec is a structure: (make-spec Label Predicate)
+</CODE>
+
+<P>
+Use this alternative definition to represent the databases from figure 137.
+</P>
+
+<P>
+Integrity Checking The use of databases critically relies on their integrity. Here “integrity” refers to the constraints (I1) and (I2) from the data definition. Checking database integrity is clearly a task for a function:
+</P>
+
+<CODE>
+; DB -> Boolean ; do all rows in db satisfy (I1) and (I2) (check-expect (integrity-check school-db) #true) (check-expect (integrity-check presence-db) #true) (define (integrity-check db)   #false)
+</CODE>
+
+<P>
+The wording of the two constraints suggests that some function has to produce #true for every row in the content of the given database. Expressing this idea in code calls for a use of andmap on the content of db:
+</P>
+
+<FIGURE src="images/00541.png">
+
+</FIGURE>
+
+<P>
+Following the design recipe for the use of existing abstractions, the template introduces the auxiliary function via a local definition.
+</P>
+
+<P>
+The design of row-integrity-check starts from this:
+</P>
+
+<CODE>
+; Row -> Boolean ; does row satisfy (I1) and (I2) (define (row-integrity-check row)   #false)
+</CODE>
+
+<P>
+As always, the goal of formulating a purpose statement is to understand the problem. Here it says that the function checks two conditions. When two tasks are involved, our design guidelines call for functions and the combination of their results:
+</P>
+
+<FIGURE src="images/00542.png">
+
+</FIGURE>
+
+<P>
+Add these functions to your wish list; their names convey their purpose.
+</P>
+
+<P>
+Before we design these functions, we must contemplate whether we can compose existing primitive operations to compute the desired value. For example, we know that (length row) counts how many cells are in row. Pushing a bit more in this direction, we clearly want
+</P>
+
+<CODE>
+(= (length row) (length (db-schema db)))
+</CODE>
+
+<P>
+This condition checks that the length of row is equal to that of db’s schema.
+</P>
+
+<P>
+Similarly, check-every-cell calls for checking that some function produces #true for every cell in the row. Once again, it looks like andmap might be called for:
+</P>
+
+<CODE>
+(andmap cell-integrity-check row)
+</CODE>
+
+<P>
+The purpose of cell-integrity-check is obviously to check constraint (I2), that is,
+</P>
+
+<P>
+whether “the ith Cell satisfies the ith Predicate in db’s schema.”
+</P>
+
+<P>
+And now we are stuck because this purpose statement refers to the relative position of the given cell in row. The point of andmap is, however, to apply cell-integrity-check to every cell uniformly.
+</P>
+
+<P>
+When you are stuck, you must work through examples. For auxiliary or local functions, it’s best to derive these examples from the ones for the main function. The first example for integrity-check asserts that school-content satisfies the integrity constraints. Clearly all rows in school-content have the same length as school-schema. The question is why a row such as
+</P>
+
+<CODE>
+(list "Alice" 35 #true)
+</CODE>
+
+<P>
+satisfies the predicates in the corresponding schema:
+</P>
+
+<FIGURE src="images/00543.png">
+
+</FIGURE>
+
+<P>
+The answer is that all three applications of the three predicates to the respective cells yields true:
+</P>
+
+<CODE>
+> (string? "Alice") #true > (integer? 35) #true > (boolean? #true) #true
+</CODE>
+
+<P>
+From here, it is just a short step to see that the function must process these two lists—db’s schema and the given row—in parallel.
+</P>
+
+<EXERCISE>
+Exercise 404. Design the function andmap2. It consumes a function f from two values to Boolean and two equally long lists. Its result is also a Boolean. Specifically, it applies f to pairs of corresponding values from the two lists, and if f always produces #true, andmap2 produces #true, too. Otherwise, andmap2 produces #false. In short, andmap2 is like andmap but for two lists.
+</EXERCISE>
+
+<P>
+Stop! Solve exercise 404 before reading on.
+</P>
+
+<P>
+If we had andmap2 in ISL+, checking the second condition on row would be straightforward:
+</P>
+
+<FIGURE src="images/00544.png">
+
+</FIGURE>
+
+<P>
+The given function consumes a Spec s from db’s schema, extracts the predicate in the second position, and applies it to the given Cell c. Whatever the predicate returns is the result of the lambda function.
+</P>
+
+<P>
+Stop again! Explain [(second s) c].
+</P>
+
+<P>
+As it turns out, andmap in ISL+ is already like andmap2:
+</P>
+
+<FIGURE src="images/00545.png">
+
+</FIGURE>
+
+<P>
+Stop a last time! Develop a test for which integrity-check must fail.
+</P>
+
+<P>
+Note on Expression Hoisting Our definition of integrity-check suffers from several problems, some visible, some invisible. Clearly, the function extracts db’s schema twice. With the existing local definition it is possible to introduce a definition and avoid this duplication:
+</P>
+
+<FIGURE src="images/00546.png">
+
+</FIGURE>
+
+<P>
+We know from chapter 16.2 that lifting such an expression may shorten the time needed to run the integrity check. Like the definition of inf in figure 100, the original version of integrity-check extracts the schema from db for every single row, even though it obviously stays the same.
+</P>
+
+<P>
+Terminology Computer scientists speak of “hoisting an expression.” In a similar vein, the row-integrity-check function determines the length of db’s schema every single time it is called. The result is always the same. Hence, if we are interested in improving the performance of this function, we can use a local definition to name the width of the database content once and for all. Figure 139 displays the result of hoisting (length schema) out of the row-integrity-check. For readability, this final definition also names the content field of db. End
+</P>
+
+<FIGURE src="images/00547.png">
+Figure 139: The result of systematic expression hoisting
+</FIGURE>
+
+<P>
+Projections and Selections Programs need to extract data from databases. One kind of extraction is to select content, which is explained in chapter 12.2. The other kind of extraction produces a reduced database; it is dubbed projection. More specifically, a projection constructs a database by retaining only certain columns from a given database.
+</P>
+
+<P>
+The description of a projection suggests the following:
+</P>
+
+<CODE>
+; DB [List-of Label] -> DB ; retains a column from db if its label is in labels (define (project db labels) (make-db '() '()))
+</CODE>
+
+<P>
+Given the complexity of a projection, it is best to work through an example first. Say we wish to eliminate the age column from the database on the left in figure 137. Here is what this transformation looks like in terms of tables:
+</P>
+
+<FIGURE src="images/00548.png">
+
+</FIGURE>
+
+<P>
+A natural way to articulate the example as a test reuses figure 138:
+</P>
+
+<FIGURE src="images/00549.png">
+
+</FIGURE>
+
+<P>
+If you run the above code in DrRacket, you get the error message
+</P>
+
+<CODE>
+first argument of equality cannot be a function
+</CODE>
+
+<P>
+before DrRacket can even figure out whether the test succeeds. Recall from chapter 14.4 that functions are infinitely large objects and it is impossible to ensure that two functions always produce the same result when applied to the same arguments. We therefore weaken the test case:
+</P>
+
+<CODE>
+(check-expect   (db-content (project school-db '("Name" "Present")))   projected-content)
+</CODE>
+
+<P>
+For the template, we again reuse existing abstractions; see figure 140. The local expression defines two functions: one for use with filter for narrowing down the schema of the given database and the other for use with map for thinning out the content. In addition, the function again extracts and names the schema and the content from the given database.
+</P>
+
+<FIGURE src="images/00550.png">
+Figure 140: A template for project
+</FIGURE>
+
+<P>
+Before we turn to the wish list, let’s step back and study the decision to go with two reuses of existing abstraction. The signature tells us that the function consumes a structure and produces an element of DB, so
+</P>
+
+<FIGURE src="images/00551.png">
+
+</FIGURE>
+
+<P>
+is clearly called for. It is also straightforward to see that the new schema is created from the old schema and the new content from the old content. Furthermore, the purpose statement of project calls for the retention of only those labels that are mentioned in the second argument. Hence, the filter function correctly narrows down the given schema. In contrast, the rows per se stay except that each of them loses some cells. Thus, map is the proper way of processing content.
+</P>
+
+<P>
+Now we can turn to the design of the two auxiliary functions. The design of keep? is straightforward. Here is the complete definition:
+</P>
+
+<CODE>
+; Spec -> Boolean ; does this spec belong to the new schema (define (keep? c)   (member? (first c) labels))
+</CODE>
+
+<P>
+The function is applied to a Spec, which combines a Label and a Predicate in a list. If the former belongs to labels, the given Spec is kept.
+</P>
+
+<P>
+For the design of row-project, the goal is to keep those Cells in each Row of content whose name is a member of the given labels. Let’s work through the above example. The four rows are:
+</P>
+
+<CODE>
+(list "Alice" 35 #true) (list "Bob"   25 #false) (list "Carol" 30 #true) (list "Dave"  32 #false)
+</CODE>
+
+<P>
+Each of these rows is as long as school-schema:
+</P>
+
+<CODE>
+(list "Name" "Age" "Present")
+</CODE>
+
+<P>
+The names in the schema determine the names of the cells in the given rows. Hence, row-project must keep the first and third cell of each row because it is their names that are in the given labels.
+</P>
+
+<P>
+Since Row is defined recursively, this matching process between the content of the Cells and their names calls for a recursive helper function that row-project can apply to the content and the labels of the cells. Let’s specify it as a wish:
+</P>
+
+<CODE>
+; Row [List-of Label] -> Row ; retains those cells whose corresponding element ; in names is also in labels (define (row-filter row names) '())
+</CODE>
+
+<P>
+Using this wish, row-project is a one-liner:
+</P>
+
+<CODE>
+(define (row-project row)   (row-filter row (map first schema)))
+</CODE>
+
+<P>
+The map expression extracts the names of the cells, and those names are handed to row-filter to extract the matching cells.
+</P>
+
+<EXERCISE>
+Exercise 405. Design the function row-filter. Construct examples for row-filter from the examples for project.
+</EXERCISE>
+
+<P>
+Assumption The given database passes an integrity check, meaning each row is as long as the schema and thus its list of names.
+</P>
+
+<P>
+Figure 141 puts all the pieces together. The function project has the suffix .v1 because it calls for some improvement. The following exercises ask you to implement some of those.
+</P>
+
+<FIGURE src="images/00552.png">
+Figure 141: Database projection
+</FIGURE>
+
+<EXERCISE>
+Exercise 406. The row-project function recomputes the labels for every row of the database’s content. Does the result differ from function call to function call? If not, hoist the expression.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 407. Redesign row-filter using foldr. Once you have done so, you may merge row-project and row-filter into a single function. Hint The foldr function in ISL+ may consume two lists and process them in parallel.
+</EXERCISE>
+
+<P>
+The final observation is that row-project checks the membership of a label in labels for every single cell. For the cells of the same column in different rows, the result is going to be the same. Hence it also makes sense to hoist this computation out of the function.
+</P>
+
+<P>
+This form of hoisting is somewhat more difficult than plain expression hoisting. We basically wish to pre-compute the result of
+</P>
+
+<CODE>
+(member? label labels)
+</CODE>
+
+<P>
+for all rows and pass the results into the function instead of the list of labels. That is, we replace the list of labels with a list of Booleans that indicate whether the cell in the corresponding position is to be kept. Fortunately, computing those Booleans is just another application of keep? on the schema:
+</P>
+
+<CODE>
+(map keep? schema)
+</CODE>
+
+<P>
+Instead of keeping some Specs from the given schema and throwing away the others, this expression just collects the decisions.
+</P>
+
+<P>
+Figure 142 shows the final version of project and integrates the solutions for the preceding exercises. It also uses local to extract and name schema and content, plus keep? for checking whether the label in some Spec is worth keeping. The remaining two definitions introduce mask, which stands for the list of Booleans discussed above, and the revised version of row-project. The latter uses foldr to process the given row and mask in parallel.
+</P>
+
+<FIGURE src="images/00553.png">
+Figure 142: Database projection
+</FIGURE>
+
+<P>
+Compare this revised definition of project with project.v1 in figure 141. The final definition is both simpler and faster than the original version. Systematic design combined with careful revisions pays off; test suites ensure that revisions don’t mess up the functionality of the program.
+</P>
+
+<EXERCISE>
+Exercise 408. Design the function select. It consumes a database, a list of labels, and a predicate on rows. The result is a list of rows that satisfy the given predicate, projected down to the given set of labels.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 409. Design reorder. The function consumes a database db and list lol of Labels. It produces a database like db but with its columns reordered according to lol. Hint Read up on ist-ref.
+</EXERCISE>
+
+<P>
+At first assume that lol consists exactly of the labels of db’s columns. Once you have completed the design, study what has to be changed if lol contains fewer labels than there are columns and strings that are not labels of a column in db.
+</P>
+
+<EXERCISE>
+Exercise 410. Design the function db-union, which consumes two databases with the exact same schema and produces a new database with this schema and the joint content of both. The function must eliminate rows with the exact same content.
+</EXERCISE>
+
+<P>
+Assume that the schemas agree on the predicates for each column.
+</P>
+
+<EXERCISE>
+Exercise 411. Design join, a function that consumes two databases: db-1 and db-2. The schema of db-2 starts with the exact same Spec that the schema of db-1 ends in. The function creates a database from db-1 by replacing the last cell in each row with the translation of the cell in db-2.
+</EXERCISE>
+
+<P>
+Here is an example. Take the databases in figure 137. The two satisfy the assumption of these exercises, that is, the last Spec in the schema of the first is equal to the first Spec of the second. Hence it is possible to join them:
+</P>
+
+<FIGURE src="images/00554.png">
+
+</FIGURE>
+
+<P>
+Its translation maps #true to "presence" and #false to "absence".
+</P>
+
+<P>
+Hints (1) In general, the second database may “translate” a cell to a row of values, not just one value. Modify the example by adding additional terms to the row for "presence" and "absence".
+</P>
+
+<P>
+(2) It may also “translate” a cell to several rows, in which case the process adds several rows to the new database. Here is a second example, a slightly different pair of databases from those in figure 137:
+</P>
+
+<FIGURE src="images/00555.png">
+
+</FIGURE>
+
+<P>
+Joining the left database with the one on the right yields a database with eight rows:
+</P>
+
+<FIGURE src="images/00556.png">
+
+</FIGURE>
+
+<P>
+(3) Use iterative refinement to solve the problem. For the first iteration, assume that a “translation” finds only one row per cell. For the second one, drop the assumption.
+</P>
+
+<P>
+Note on Assumptions This exercise and the entire section mostly rely on informally stated assumptions about the given databases. Here, the design of join assumes that “the schema of db-2 starts with the exact same Spec that the schema of db-1 ends in.” In reality, database functions must be checked functions in the spirit of chapter 6.3. Designing checked-join would be impossible for you, however. A comparison of the last Spec in the schema of db-1 with the first one in db-2 calls for a comparison of functions. For practical solutions, see a text on databases.
+</P>

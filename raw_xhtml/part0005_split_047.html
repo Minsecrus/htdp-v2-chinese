@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_48"><a id="sec6-3" class="calibre16"></a>6.3 Input Errors</h2>
+<p class="tni">One central point of this chapter concerns the role of predicates. They are critical when you must design functions that process mixes of data. Such mixes come up naturally when your problem statement mentions many different kinds of information, but they also come up when you hand your functions and programs to others. After all, you know and respect your <span epub:type="pagebreak" id="pg_191" title="191"></span>data definitions and function signatures. You never know, however, what your friends and colleagues do, and you especially don’t know how someone without knowledge of BSL and programming uses your programs. This section therefore presents one way of protecting programs from inappropriate inputs.</p>
+<p class="marginpar">It is a form of self-delusion to expect that we always respect our own function signatures. Calling a function on the wrong kind of data happens to the best of us. While many languages are like BSL and expect programmers to check signatures on their own, others do so automatically at the cost of some additional complexity.</p>
+<p class="calibre8">Let’s demonstrate this point with a simple program, a function for computing the area of a disk:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the area</samp><samp class="mono"> of a</samp><samp class="mono"> disk with</samp><samp class="mono"> radius r</samp> <br class="calibre4"/><samp class="mono">(define (area-of-disk</samp><samp class="mono"> r)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> 3.14 (*</samp><samp class="mono"> r r)))</samp></p>
+</div>
+<p class="tni">Our friends may wish to use this function for their geometry homework. Unfortunately, when our friends use this function, they may accidentally apply it to a string rather than a number. When that happens, the function stops the program execution with a mysterious error message:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (area-of-disk</samp><samp class="mono"> "my-disk")</samp> <br class="calibre4"/><samp class="mono">*:expects a</samp><samp class="mono"> number as</samp><samp class="mono"> 1st argument,</samp><samp class="mono"> given "my-disk"</samp></samp></p>
+</div>
+<p class="tni">With predicates, you can prevent this kind of cryptic error message and signal an informative error of your own choice.</p>
+<p class="calibre8">Specifically, we can define checked versions of our functions, when we wish to hand them to our friends. Because our friends may not know much <span epub:type="pagebreak" id="pg_192" title="192"></span>BSL, we must expect that they apply this <i class="calibre6">checked function</i> to arbitrary BSL values: numbers, strings, images, Posns, and so on. Although we cannot anticipate which structure types will be defined in BSL, we know the rough shape of the data definition for the collection of all BSL values. <a id="rfig38" href="part0005_split_047.html#fig38" class="calibre5">Figure 38</a> displays this shape of this data definition. As discussed in chapter 5.7, the data definition for Any is open-ended because every structure type definition adds new instances. These instances may contain Any values again, which implies that the data definition of Any must refer to itself—a scary thought at first.</p>
+<div class="figure">
+<figure class="img"><a id="fig38" class="calibre5"></a><img src="../images/00131.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_047.html#rfig38" class="calibre5">Figure 38</a>:</span> <span>The universe of BSL data</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Based on this itemization, the template for a checked function has the following rough shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Any<samp class="mono"> -&gt; ???</samp> <br class="calibre4"/><samp class="mono">(define (checked-f</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(number?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(boolean?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(image?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn?</samp><samp class="mono"> v) (<span>…</span>(posn-x</samp><samp class="mono"> v) <span>…</span></samp><samp class="mono"> (posn-y v)</samp><samp class="mono"> <span>…</span>)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  ;</samp><samp class="mono"> which selectors</samp><samp class="mono"> are needed</samp><samp class="mono"> in the</samp><samp class="mono"> next clause?</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(tank?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  <span>…</span>))</samp></p>
+</div>
+<p class="tni">Of course, nobody can list all clauses of this definition; fortunately, that’s <span epub:type="pagebreak" id="pg_193" title="193"></span>not necessary. What we do know is that for all those values in the class of values for which the original function is defined, the checked version must produce the same results; for all others, it must signal an error.</p>
+<p class="calibre8">Concretely, our sample function <samp class="mono">checked-area-of-disk</samp> consumes an arbitrary BSL value and uses <samp class="mono">area-of-disk</samp> to compute the area of a disk if the input is a number. It must stop with an error message otherwise; in BSL we use the function <samp class="mono">error</samp> to accomplish this. The error function consumes a string and stops the program:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(error "area-of-disk:</samp><samp class="mono"> number expected")</samp></samp></p>
+</div>
+<p class="tni">Hence the rough definition of <samp class="mono">checked-area-of-disk</samp> looks like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define MESSAGE</samp><samp class="mono"> "area-of-disk: number</samp><samp class="mono"> expected")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (checked-area-of-disk</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(number?</samp><samp class="mono"> v) (area-of-disk</samp><samp class="mono"> v)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(boolean?</samp><samp class="mono"> v) (error</samp><samp class="mono"> MESSAGE)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string?</samp><samp class="mono"> v) (error</samp><samp class="mono"> MESSAGE)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(image?</samp><samp class="mono"> v) (error</samp><samp class="mono"> MESSAGE)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn?</samp><samp class="mono"> v) (error</samp><samp class="mono"> MESSAGE)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(tank?</samp><samp class="mono"> v) (error</samp><samp class="mono"> MESSAGE)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  <span>…</span>))</samp></samp></p>
+</div>
+<p class="tni">The use of <samp class="mono">else</samp> helps us finish this definition in the natural way:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Any<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the area</samp><samp class="mono"> of a</samp><samp class="mono"> disk with</samp><samp class="mono"> radius v,</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> v is</samp><samp class="mono"> a number</samp> <br class="calibre4"/><samp class="mono">(define (checked-area-of-disk</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(number?</samp><samp class="mono"> v) (area-of-disk</samp><samp class="mono"> v)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (error "area-of-disk:</samp><samp class="mono"> number expected")]))</samp></p>
+</div>
+<p class="tni">And just to make sure we get what we want, let’s experiment:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (checked-area-of-disk</samp><samp class="mono"> "my-disk")</samp> <br class="calibre4"/><samp class="mono">area-of-disk:number expected</samp></samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_194" title="194"></span>Writing checked functions is important if we distribute our programs for others to use. Designing programs that work properly, however, is far more important. This book focuses on the design process for proper program design, and, to do this without distraction, we agree that we always adhere to data definitions and signatures. At least, we almost always do so, and on rare occasions we may ask you to design checked versions of a function or a program.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 110. A checked version of <samp class="mono">area-of-disk</samp> can also enforce that the arguments to the function are positive numbers, not just arbitrary numbers. Modify <samp class="mono">checked-area-of-disk</samp> in this way. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 111. Take a look at these definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct vec</samp><samp class="mono"> [x y])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span><i class="calibre6">vec</i></span><samp class="mono"> is</samp> <br class="calibre4"/><samp class="mono">;   (make-vec</samp><samp class="mono"> PositiveNumber PositiveNumber)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> represents a</samp><samp class="mono"> velocity vector</samp></samp></p>
+</div>
+<p class="tni">Develop the function <samp class="mono">checked-make-vec</samp>, which is to be understood as a checked version of the primitive operation <samp class="mono">make-vec</samp>. It ensures that the arguments to <samp class="mono">make-vec</samp> are positive numbers. In other words, <samp class="mono">checked-make-vec</samp> enforces our informal data definition. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Predicates</b> You might wonder how you can design your own predicates. After all, checked functions really seem to have this general shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><span>Any</span><samp class="mono"> -&gt; <span>…</span></samp><br class="calibre4"/><samp class="mono">; </samp><samp class="mono">checks</samp><samp class="mono"> that a</samp><samp class="mono"> is a</samp><samp class="mono"> proper input</samp><samp class="mono"> for function</samp><samp class="mono"> g</samp> <br class="calibre4"/><samp class="mono">(define (checked-g</samp><samp class="mono"> a)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(XYZ?</samp><samp class="mono"> a) (g</samp><samp class="mono"> a)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (error "g:</samp><samp class="mono"> bad input")]))</samp></p>
+</div>
+<p class="tni">where <samp class="mono">g</samp> itself is defined like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>XYZ<samp class="mono"> -&gt; <span>…</span></samp> <br class="calibre4"/><samp class="mono">(define (g</samp><samp class="mono"> some-x) <span>…</span>)</samp></p>
+</div>
+<p class="tni">We assume that there is a data definition labeled <i class="calibre6">XYZ</i>, and that <samp class="mono">(XYZ? a)</samp> produces <samp class="mono">#true</samp> when <samp class="mono">a</samp> is an element of XYZ and <samp class="mono">#false</samp> otherwise.</p>
+<p class="calibre8">For <samp class="mono">area-of-disk</samp>, which consumes Numbers, <samp class="mono">number?</samp> is clearly the appropriate predicate. In contrast, for some functions like <samp class="mono">missile-render</samp> from above, we clearly need to define our own predicate because <span epub:type="pagebreak" id="pg_195" title="195"></span>MissileOrNot is a made-up, not a built-in, data collection. So let us design a predicate for MissileOrNot.</p>
+<p class="calibre8">We recall the signature for predicates:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Any<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> a an</samp><samp class="mono"> element of</samp><samp class="mono"> the </samp>MissileOrNot<samp class="mono"> collection</samp> <br class="calibre4"/><samp class="mono">(define (missile-or-not?</samp><samp class="mono"> a) #false)</samp></p>
+</div>
+<p class="tni">It is a good practice to use questions as purpose statements for predicates, because applying a predicate is like asking a question about a value. The question mark “?” at the end of the name also reinforces this idea; some people may tack on “huh” to pronounce the name of such functions.</p>
+<p class="calibre8">Making up examples is also straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> #false) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> (make-posn 9</samp><samp class="mono"> 2)) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> "yellow") #false)</samp></samp></p>
+</div>
+<p class="tni">The first two examples recall that every element of MissileOrNot is either <samp class="mono">#false</samp> or some Posn. The third test says that strings aren’t elements of the collection. Here are three more tests:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> #true) #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> 10) #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (missile-or-not?</samp><samp class="mono"> empty-image) #false)</samp></samp></p>
+</div>
+<p class="tni">Explain the expected answers!</p>
+<p class="calibre8">Since predicates consume all possible BSL values, their templates are just like the templates for <samp class="mono">checked-f</samp>. Stop! Find the template and take a second look before you read on.</p>
+<p class="calibre8">As with checked functions, a predicate doesn’t need all possible <samp class="mono">cond</samp> lines. Only those that might produce <samp class="mono">#true</samp> are required:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (missile-or-not?</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(boolean?</samp><samp class="mono"> v) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn?</samp><samp class="mono"> v) (<span>…</span></samp><samp class="mono"> (posn-x v)</samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> v) <span>…</span>)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> #false]))</samp></samp></p>
+</div>
+<p class="tni">All other cases are summarized via an <samp class="mono">else</samp> line that produces <samp class="mono">#false</samp>.</p>
+<p class="calibre8">Given the template, the definition of <samp class="mono">missile-or-not?</samp> is a simple matter of thinking through each case:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_196" title="196"></span><samp class="mono">(define (missile-or-not?</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(boolean?</samp><samp class="mono"> v) (boolean=?</samp><samp class="mono"> #false v)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn?</samp><samp class="mono"> v) #true]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> #false]))</samp></samp></p>
+</div>
+<p class="tni">Only <samp class="mono">#false</samp> is a legitimate MissileOrNot; <samp class="mono">#true</samp> isn’t. We express this idea with <samp class="mono">(boolean=? #false v)</samp>, but <samp class="mono">(false? v)</samp> would also do:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (missile-or-not?</samp><samp class="mono"> v)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(false?</samp><samp class="mono"> v) #true]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn?</samp><samp class="mono"> v) #true]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> #false]))</samp></samp></p>
+</div>
+<p class="tni">Naturally all elements of <samp class="mono">Posn</samp> are also members of MissileOrNot, which explains the <samp class="mono">#true</samp> in the second line.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 112. Reformulate the predicate now using an <samp class="mono">or</samp> expression. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 113. Design predicates for the following data definitions from the preceding section: SIGS, Coordinate (VAnimal. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">To wrap up, let us mention <samp class="mono">key-event?</samp> and <samp class="mono">mouse-event?</samp> as two important predicates that you may wish to use in your world programs. They check the expected property, but you should check out their documentation to make sure you understand what they compute.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

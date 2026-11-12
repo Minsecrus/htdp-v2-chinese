@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec19-2" class="calibre16"></a>19.2 Forests</h2>
+<p class="tni">It is a short step from a family tree to a family forest:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">FF</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">family forest</span><samp class="mono">) is</samp><samp class="mono"> one of:</samp><samp class="mono"> ;</samp> <br class="calibre4"/><samp class="mono">-- '()</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (cons </samp>FT FF<samp class="mono">) <br class="calibre4"/>;</samp><span class="calibre9"> interpretation a</span> <samp class="mono">family forest</samp><samp class="mono"> represents several</samp><samp class="mono"> <br class="calibre4"/>; families</samp><samp class="mono"> (say, a</samp><samp class="mono"> town) and</samp> <samp class="mono">their ancestor</samp><samp class="mono"> trees</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_498" title="498"></span>Here are some tree excerpts from <a href="part0011_split_003.html#fig111" class="calibre5">figure 111</a> arranged as forests:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define ff1</samp><samp class="mono"> (list Carl</samp><samp class="mono"> Bettina)) <br class="calibre4"/>(define</samp><samp class="mono"> ff2 (list</samp><samp class="mono"> Fred Eva))</samp> <br class="calibre4"/><samp class="mono">(define ff3</samp><samp class="mono"> (list Fred</samp><samp class="mono"> Eva Carl))</samp></p>
+</div>
+<p class="tni">The first two forests contain two unrelated families, and the third one illustrates that unlike in real forests, trees in family forests can overlap.</p>
+<p class="calibre8">Now consider this representative problem concerning family trees:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the function <samp class="mono">blue-eyed-child-in-forest?</samp>, which determines whether a family forest contains a <samp class="mono">child</samp> with <samp class="mono">"blue"</samp> in the <samp class="mono">eyes</samp> field.</p>
+</div>
+<p class="calibre8">The straightforward solution is displayed in <a id="rfig115" href="part0011_split_004.html#fig115" class="calibre5">figure 115</a>. Study the signature, the purpose statement, and the examples on your own. We focus on the program organization. Concerning the template, the design may employ the list template because the function consumes a list. If each item on the list were a structure with an <samp class="mono">eyes</samp> field and nothing else, the function would iterate over those structures using the selector function for the <samp class="mono">eyes</samp> field and a string comparison. In this case, each item is a family tree, but, luckily, we already know how to process family trees.</p>
+<div class="figure">
+<figure class="img"><a id="fig115" class="calibre5"></a><img src="../images/00463.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_004.html#rfig115" class="calibre5">Figure 115</a>:</span> <span>Finding a blue-eyed child in a family forest</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Let’s step back and inspect how we explained <a href="part0011_split_004.html#fig115" class="calibre5">figure 115</a>. The starting point is a <b class="calibre9">pair</b> of data definitions where the second refers to the first and <span epub:type="pagebreak" id="pg_499" title="499"></span>both refer to themselves. The result is a <b class="calibre9">pair</b> of functions where the second refers to the first and both refer to themselves. In other words, the function definitions refer to each other the same way the data definitions refer to each other. Early chapters gloss over this kind of relationship, but now the situation is sufficiently complicated and deserves attention.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 314. Reformulate the data definition for FF with the List-of abstraction. Now do the same for the <samp class="mono">blue-eyed-child-in-forest?</samp> function. Finally, define <samp class="mono">blue-eyed-child-in-forest?</samp> using one of the list abstractions from the preceding chapter. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 315. Design the function <samp class="mono">average-age</samp>. It consumes a family forest and a year (N). From this data, it produces the average age of all <samp class="mono">child</samp> instances in the forest. <b class="calibre9">Note</b> If the trees in this forest overlap, the result isn’t a true average because some people contribute more than others. For this exercise, act as if the trees don’t overlap. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

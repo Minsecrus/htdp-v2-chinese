@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_11"><a id="sec9-3" class="calibre16"></a>9.3 Natural Numbers</h2>
+<p class="tni">The BSL programming language supplies many functions that consume lists and a few that produce them, too. Among those is <samp class="mono">make-list</samp>, which consumes a number <samp class="mono">n</samp> together with some other value <samp class="mono">v</samp> and produces a list that contains <samp class="mono">v</samp> <i class="calibre6">n</i> times. Here are some examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (make-list</samp><samp class="mono"> 2 "hello")</samp> <br class="calibre4"/><samp class="mono">(cons "hello"</samp><samp class="mono"> (cons "hello"</samp><samp class="mono"> '()))</samp> <br class="calibre4"/><samp class="mono">&gt; (make-list</samp><samp class="mono"> 3 #true)</samp> <br class="calibre4"/><samp class="mono">(cons #true</samp><samp class="mono"> (cons #true</samp><samp class="mono"> (cons #true</samp><samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">&gt; (make-list</samp><samp class="mono"> 0 17)</samp> <br class="calibre4"/><samp class="mono">'()</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_264" title="264"></span>In short, even though this function consumes atomic data, it produces arbitrarily large pieces of data. Your question should be how this is possible.</p>
+<p class="calibre8">Our answer is that <samp class="mono">make-list</samp>’s input isn’t just a number, it is a special kind of number. In kindergarten you called these numbers “counting numbers”, that is, these numbers are used to count objects. In computer science, these numbers are dubbed <i class="calibre6">natural numbers</i>. Unlike regular numbers, natural numbers come with a data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">N</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 0</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (add1 </samp>N<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> represents the</samp><samp class="mono"> counting numbers</samp></p>
+</div>
+<p class="tni">The first clause says that <samp class="mono">0</samp> is a natural number; it is used to say that there is no object to be counted. The second clause tells you that if <i class="calibre6">n</i> is a natural number, then <i class="calibre6">n</i> + 1 is one too, because <samp class="mono">add1</samp> is a function that adds <samp class="mono">1</samp> to whatever number it is given. We could write this second clause as <samp class="mono">(+ n 1)</samp>, but the use of <samp class="mono">add1</samp> is supposed to signal that this addition is special.</p>
+<p class="calibre8">What is special about this use of <samp class="mono">add1</samp> is that it acts more like a constructor from some structure-type definition than a regular function. For that reason, BSL also comes with the function <samp class="mono">sub1</samp>, which is the “selector” corresponding to <samp class="mono">add1</samp>. Given any natural number <i class="calibre6">m</i> not equal to <samp class="mono">0</samp>, you can use <samp class="mono">sub1</samp> to find out the number that went into the construction of <i class="calibre6">m</i>. Put differently, <samp class="mono">add1</samp> is like <samp class="mono">cons</samp> and <samp class="mono">sub1</samp> is like <samp class="mono">first</samp> and <samp class="mono">rest</samp>.</p>
+<p class="calibre8">At this point you may wonder what the predicates are that distinguish <samp class="mono">0</samp> from those natural numbers that are not <samp class="mono">0</samp>. There are two, just as for lists: <samp class="mono">zero?</samp>, which determines whether some given number is <samp class="mono">0</samp>, and <samp class="mono">positive?</samp>, which determines whether some number is larger than <samp class="mono">0</samp>.</p>
+<p class="calibre8">Now you are in a position to design functions on natural numbers, such as <samp class="mono">make-list</samp>, yourself. The data definition is already available, so let’s add the header material:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_265" title="265"></span><img src="../images/00198.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Developing the template is the next step. The questions for the template suggest that <samp class="mono">copier</samp>’s body is a <samp class="mono">cond</samp> expression with two clauses: one for <samp class="mono">0</samp> and one for positive numbers. Furthermore, <samp class="mono">0</samp> is considered atomic and positive numbers are considered structured values, meaning the template needs a selector expression in the second clause. Last but not least, the data definition for N is self-referential in the second clause. Hence the template needs a recursive application to the corresponding selector expression in the second clause:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (copier</samp><samp class="mono"> n s)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(zero?</samp><samp class="mono"> n) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(positive?</samp><samp class="mono"> n) (<span>…</span></samp><samp class="mono"> (copier (sub1</samp><samp class="mono"> n) s)</samp><samp class="mono"> <span>…</span>)]))</samp></p>
+</div>
+<p class="calibre8"><a id="rfig59" href="part0007_split_010.html#fig59" class="calibre5">Figure 59</a> contains a complete definition of the <samp class="mono">copier</samp> function, as obtained from its template. Let’s reconstruct this step carefully. As always, we start with the <samp class="mono">cond</samp> clause that has no recursive calls. Here the condition tells us that the (important) input is <samp class="mono">0</samp>, and that means the function must <span epub:type="pagebreak" id="pg_266" title="266"></span>produce a list with <samp class="mono">0</samp> items, that is, <b class="calibre9">none</b>. Of course, working through the second example has already clarified this case. Next we turn to the other <samp class="mono">cond</samp> clause and remind ourselves what its expressions compute:</p>
+
+
+<p class="nlf">1. <samp class="mono">(sub1 n)</samp> extracts the natural number that went into the construction of <samp class="mono">n</samp>, which we know is larger than <samp class="mono">0</samp>;</p>
+<p class="nll">2. <samp class="mono">(copier (sub1 n) s)</samp> produces a list of <samp class="mono">(sub1 n)</samp> strings <samp class="mono">s</samp> according to the purpose statement of <samp class="mono">copier</samp>.</p>
+
+
+<div class="figure">
+<figure class="img"><a id="fig59" class="calibre5"></a><img src="../images/00199.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_010.html#rfig59" class="calibre5">Figure 59</a>:</span> <span>Creating a list of copies</span></p></figcaption>
+</figure>
+</div>
+
+
+<p class="tni">But the function is given <samp class="mono">n</samp> and must therefore produce a list with <samp class="mono">n</samp> strings <samp class="mono">s</samp>. Given a list with one too few strings, it is easy to see that the function must simply <samp class="mono">cons</samp> one <samp class="mono">s</samp> onto the result of <samp class="mono">(copier (sub1 n) s)</samp>. And that is precisely what the second clause specifies.</p>
+<p class="calibre8">At this point, you should run the tests to ensure that this function works at least for the two worked examples. In addition, you may wish to use the function on some additional inputs.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 149. Does <samp class="mono">copier</samp> function properly when you apply it to a natural number and a Boolean or an image? Or do you have to design another function? Read part III for an answer.</p>
+<p class="calibre8">An alternative definition of <samp class="mono">copier</samp> might use <samp class="mono">else</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (copier.v2</samp><samp class="mono"> n s)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  [(zero?</samp><samp class="mono"> n) '()]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (cons s</samp><samp class="mono"> (copier.v2 (sub1</samp><samp class="mono"> n) s))]))</samp></p>
+</div>
+<p class="tni">How do <samp class="mono">copier</samp> and <samp class="mono">copier.v2</samp> behave when you apply them to <samp class="mono">0.1</samp> and <samp class="mono">"x"</samp>? Explain. Use DrRacket’s stepper to confirm your explanation. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 150. Design the function <samp class="mono">add-to-pi</samp>. It consumes a natural number <samp class="mono">n</samp> and adds it to <samp class="mono">pi</samp> <b class="calibre9">without</b> using the primitive <samp class="mono">+</samp> operation. Here is a start:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> (+ n</samp><samp class="mono"> pi) without</samp><samp class="mono"> using +</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-within (add-to-pi</samp><samp class="mono"> 3) (+</samp><samp class="mono"> 3 pi)</samp><samp class="mono"> 0.001)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (add-to-pi</samp><samp class="mono"> n)</samp> <br class="calibre4"/><samp class="mono">  pi)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_267" title="267"></span>Once you have a complete definition, generalize the function to <samp class="mono">add</samp>, which adds a natural number <samp class="mono">n</samp> to some arbitrary number <samp class="mono">x</samp> without using <samp class="mono">+</samp>. Why does the skeleton use <samp class="mono">check-within</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 151. Design the function <samp class="mono">multiply</samp>. It consumes a natural number <samp class="mono">n</samp> and multiplies it with a number <samp class="mono">x</samp> without using <samp class="mono">*</samp>.</p>
+<p class="calibre8">Use DrRacket’s stepper to evaluate <samp class="mono">(multiply 3 x)</samp> for any <samp class="mono">x</samp> you like. How does <samp class="mono">multiply</samp> relate to what you know from grade school? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 152. Design two functions: <samp class="mono">col</samp> and <samp class="mono">row</samp>.</p>
+<p class="calibre8">The function <samp class="mono">col</samp> consumes a natural number <samp class="mono">n</samp> and an image <samp class="mono">img</samp>. It produces a column—a vertical arrangement—of <samp class="mono">n</samp> copies of <samp class="mono">img</samp>.</p>
+<p class="calibre8">The function <samp class="mono">row</samp> consumes a natural number <samp class="mono">n</samp> and an image <samp class="mono">img</samp>. It produces a row—a horizontal arrangement—of <samp class="mono">n</samp> copies of <samp class="mono">img</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 153. The goal of this exercise is to visualize the result of a 1968-style European student riot. Here is the rough idea. A small group of students meets to make paint-filled balloons, enters some lecture hall, and randomly throws the balloons at the attendees. Your program displays how the balloons color the seats in the lecture hall.</p>
+<p class="calibre8">Use the two functions from exercise 152 to create a rectangle of 8 by 18 squares, each of which has size 10 by 10. Place it in an <samp class="mono">empty-scene</samp> of the same size. This image is your lecture hall.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_268" title="268"></span>Design <samp class="mono">add-balloons</samp>. The function consumes a list of Posn whose coordinates fit into the dimensions of the lecture hall. It produces an image of the lecture hall with red dots added as specified by the Posns.</p>
+<p class="calibre8"><a id="rfig60" href="part0007_split_010.html#fig60" class="calibre5">Figure 60</a> shows the output of <b class="calibre9">our</b> solution when given some list of Posns. The left-most is the clean lecture hall, the second one is after two balloons have hit, and the last one is a highly unlikely distribution of 10 hits. Where is the 10th? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig60" class="calibre5"></a><img src="../images/00200.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_010.html#rfig60" class="calibre5">Figure 60</a>:</span> <span>Random attacks</span></p></figcaption>
+</figure>
+</div>
+</section>
+</section>
+</article>
+</div>
+</body></html>

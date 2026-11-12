@@ -1,0 +1,1173 @@
+# Chapter 2: Functions and Programs / 第 2 章：函数与程序
+
+<h1>
+2 Functions and Programs
+</h1>
+
+<P>
+As far as programming is concerned, “arithmetic” is half the game; the other half is “algebra.” Of course, “algebra” relates to the school notion of algebra as little/much as the notion of “arithmetic” from the preceding chapter relates to arithmetic taught in grade-school arithmetic. Specifically, the algebra notions needed are variable, function definition, function application, and function composition. This chapter reacquaints you with these notions in a fun and accessible manner.
+</P>
+
+<h2>
+2.1 Functions
+</h2>
+
+<P>
+Programs are functions. Like functions, programs consume inputs and produce outputs. Unlike the functions you may know, programs work with a variety of data: numbers, strings, images, mixtures of all these, and so on. Furthermore, programs are triggered by events in the real world, and the outputs of programs affect the real world. For example, a spreadsheet program may react to an accountant’s key presses by filling some cells with numbers, or the calendar program on a computer may launch a monthly payroll program on the last day of every month. Lastly, a program may not consume all of its input data at once, instead it may decide to process data in an incremental manner.
+</P>
+
+<P>
+Definitions While many programming languages obscure the relationship between programs and functions, BSL brings it to the fore. Every BSL program consists of several definitions, usually followed by an expression that involves those definitions. There are two kinds of definitions:
+</P>
+
+<P>
+•  constant definitions, of the shape (define Variable Expression), which we encountered in the preceding chapter; and
+</P>
+
+<P>
+•  function definitions, which come in many flavors, one of which we used in the Prologue.
+</P>
+
+<P>
+Like expressions, function definitions in BSL come in a uniform shape:
+</P>
+
+<CODE>
+(define (FunctionName Variable … Variable)    Expression)
+</CODE>
+
+<P>
+That is, to define a function, we write down
+</P>
+
+<P>
+•  “(define(”,
+</P>
+
+<P>
+•  the name of the function,
+</P>
+
+<P>
+•  followed by several variables, separated by space and ending in “)”,
+</P>
+
+<P>
+•  and an expression followed by “)”.
+</P>
+
+<P>
+And that is all there is to it. Here are some small examples:
+</P>
+
+<P>
+•  (define (f x) 1)
+</P>
+
+<P>
+•  (define (g x y) (+ 1 1))
+</P>
+
+<P>
+•  (define (h x y z) (+ (* 2 2) 3))
+</P>
+
+<P>
+Before we explain why these examples are silly, we need to explain what function definitions mean. Roughly speaking, a function definition introduces a new operation on data; put differently, it adds an operation to our vocabulary if we think of the primitive operations as the ones that are always available. Like a primitive function, a defined function consumes inputs. The number of variables determines how many inputs—also called arguments or parameters—a function consumes. Thus, f is a one-argument function, sometimes called a unary function. In contrast, g is a two-argument function, also dubbed binary, and h is a ternary or three-argument function. The expression—often referred to as the function body—determines the output.
+</P>
+
+<P>
+The examples are silly because the expressions inside the functions do not involve the variables. Since variables are about inputs, not mentioning them in the expressions means that the function’s output is independent of its input and therefore always the same. We don’t need to write functions or programs if the output is always the same.
+</P>
+
+<P>
+Variables aren’t data; they represent data. For example, a constant definition such as
+</P>
+
+<CODE>
+(define x 3)
+</CODE>
+
+<P>
+says that x always stands for 3. The variables in a function header, that is, the variables that follow the function name, are placeholders for unknown pieces of data, the inputs of the function. Mentioning a variable in the function body is the way to use these pieces of data when the function is applied and the values of the variables become known.
+</P>
+
+<P>
+Consider the following fragment of a definition:
+</P>
+
+<CODE>
+(define (ff a) …)
+</CODE>
+
+<P>
+Its function header is (ff a), meaning ff consumes one piece of input, and the variable a is a placeholder for this input. Of course, at the time we define a function, we don’t know what its input(s) will be. Indeed, the whole point of defining a function is that we can use the function many times on many different inputs.
+</P>
+
+<P>
+Useful function bodies refer to the function parameters. A reference to a function parameter is really a reference to the piece of data that is the input to the function. If we complete the definition of ff like this
+</P>
+
+<CODE>
+(define (ff a)   (* 10 a))
+</CODE>
+
+<P>
+we are saying that the output of a function is ten times its input. Presumably this function is going to be supplied with numbers as inputs because it makes no sense to multiply images or Boolean values or strings by 10.
+</P>
+
+<P>
+For now, the only remaining question is how a function obtains its inputs. And to this end, we turn to the notion of applying a function.
+</P>
+
+<P>
+Applications A function application puts defined functions to work, and it looks just like the applications of a pre-defined operation:
+</P>
+
+<P>
+•  write “(”,
+</P>
+
+<P>
+•  write down the name of a defined function f,
+</P>
+
+<P>
+•  write down as many arguments as f consumes, separated by space,
+</P>
+
+<P>
+•  and add “)” at the end.
+</P>
+
+<P>
+With this bit of explanation, you can now experiment with functions in the interactions area just as we suggested you experiment with primitives to find out what they compute. The following three experiments, for example, confirm that f from above produces the same value no matter what input it is applied to:
+</P>
+
+<CODE>
+> (f 1) 1 > (f "hello world") 1 > (f #true) 1
+</CODE>
+
+<P>
+What does (f (circle 3 "solid" "red")) yield?
+</P>
+
+<MARGIN_NOTE>
+Remember to add (require 2htdp/image) to the definitions area.
+</MARGIN_NOTE>
+
+<P>
+See, even images as inputs don’t change f’s behavior. But here is what happens when the function is applied to too few or too many arguments:
+</P>
+
+<CODE>
+> (f) f:expects 1 argument, found none > (f 1 2 3 4 5) f:expects only 1 argument, found 5
+</CODE>
+
+<P>
+DrRacket signals an error that is just like those you see when you apply a primitive to the wrong number of arguments:
+</P>
+
+<CODE>
+> (+) +:expects at least 2 arguments, found none
+</CODE>
+
+<P>
+Functions don’t have to be applied at the prompt in the interactions area. It is perfectly acceptable to use function applications nested within other function applications:
+</P>
+
+<CODE>
+> (+ (ff 3) 2) 32 > (* (ff 4) (+ (ff 3) 2)) 1280 > (ff (ff 1)) 100
+</CODE>
+
+<EXERCISE>
+Exercise 11. Define a function that consumes two numbers, x and y, and that computes the distance of point (x,y) to the origin.
+</EXERCISE>
+
+<P>
+In exercise 1 you developed the right-hand side of this function for concrete values of x and y. Now add a header.
+</P>
+
+<EXERCISE>
+Exercise 12. Define the function cvolume, which accepts the length of a side of an equilateral cube and computes its volume. If you have time, consider defining csurface, too.
+</EXERCISE>
+
+<P>
+Hint An equilateral cube is a three-dimensional container bounded by six squares. You can determine the surface of a cube if you know that the square’s area is its length multiplied by itself. Its volume is the length multiplied with the area of one of its squares. (Why?)
+</P>
+
+<EXERCISE>
+Exercise 13. Define the function string-first, which extracts the first 1String from a non-empty string.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 14. Define the function string-last, which extracts the last 1String from a non-empty string.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 15. Define ==>. The function consumes two Boolean values, call them sunny and friday. Its answer is #true if sunny is false or friday is true. Note Logicians call this Boolean operation implication, and they use the notation sunny = > friday for this purpose.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 16. Define the function image-area, which counts the number of pixels in a given image. See exercise 6 for ideas.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 17. Define the function image-classify, which consumes an image and conditionally produces "tall" if the image is taller than wide, "wide" if it is wider than tall, or "square" if its width and height are the same. See exercise 8 for ideas.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 18. Define the function string-join, which consumes two strings and appends them with "_" in between. See exercise 2 for ideas.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 19. Define the function string-insert, which consumes a string str plus a number i and inserts "_" at the ith position of str. Assume i is a number between 0 and the length of the given string (inclusive). See exercise 3 for ideas. Ponder how string-insert copes with "".
+</EXERCISE>
+
+<EXERCISE>
+Exercise 20. Define the function string-delete, which consumes a string plus a number i and deletes the ith position from str. Assume i is a number between 0 (inclusive) and the length of the given string (exclusive). See exercise 4 for ideas. Can string-delete deal with empty strings?
+</EXERCISE>
+
+<h2>
+2.2 Computing
+</h2>
+
+<P>
+Function definitions and applications work in tandem. If you want to design programs, you must understand this collaboration because you need to imagine how DrRacket runs your programs and because you need to figure out what goes wrong when things go wrong—and they will go wrong.
+</P>
+
+<P>
+While you may have seen this idea in an algebra course, we prefer to explain it our way. So here we go. Evaluating a function application proceeds in three steps: DrRacket determines the values of the argument expressions; it checks that the number of arguments and the number of function parameters are the same; if so, DrRacket computes the value of the body of the function, with all parameters replaced by the corresponding argument values. This last value is the value of the function application. This is a mouthful, so we need examples.
+</P>
+
+<P>
+Here is a sample calculation for f:
+</P>
+
+<CODE>
+(f (+ 1 1)) == ; DrRacket knows that (+ 1 1) == 2 (f 2) == ; DrRacket replaced all occurrences of x with 2 1
+</CODE>
+
+<P>
+That last equation is weird because x does not occur in the body of f. Therefore, replacing the occurrences of x with 2 in the function body produces 1, which is the function body itself.
+</P>
+
+<P>
+For ff, DrRacket performs a different kind of computation:
+</P>
+
+<CODE>
+(ff (+ 1 1)) == ; DrRacket again knows that (+ 1 1) == 2 (ff 2) == ; DrRacket replaces a with 2 in ff's body (* 10 2) == ; and from here, DrRacket uses plain arithmetic 20
+</CODE>
+
+<P>
+The best point is that when you combine these laws of computation with those of arithmetic, you can pretty much predict the outcome of any program in BSL:
+</P>
+
+<CODE>
+(+ (ff (+ 1 2)) 2) == ; DrRacket knows that (+ 1 2) == 3 (+ (ff 3) 2) == ; DrRacket replaces a with 3 in ff's body (+ (* 10 3) 2) == ; now DrRacket uses the laws of arithmetic (+ 30 2) == 32
+</CODE>
+
+<P>
+Naturally, we can reuse the result of this computation in others:
+</P>
+
+<CODE>
+(* (ff 4) (+ (ff 3) 2)) == ; DrRacket substitutes 4 for a in ff's body (* (* 10 4) (+ (ff 3) 2)) == ; DrRacket knows that (* 10 4) == 40 (* 40 (+ (ff 3) 2)) == ; now it uses the result of the above calculation (* 40 32) == 1280 ; because it is really just math
+</CODE>
+
+<P>
+In sum, DrRacket is an incredibly fast algebra student; it knows all the laws of arithmetic and it is great at substitution. Even better, DrRacket cannot only determine the value of an expression; it can also show you how it does it. That is, it can show you step-by-step how to solve these algebra problems that ask you to determine the value of an expression.
+</P>
+
+<P>
+Take a second look at the buttons that come with DrRacket. One of them looks like an “advance to next track” button on an audio player. If you click this button, the stepper window pops up and you can step through the evaluation of the program in the definitions area.
+</P>
+
+<P>
+Enter the definition of ff into the definitions area. Add (ff (+ 1 1)) at the bottom. Now click the STEP. The stepper window will show up; figure 11 shows what it looks like in version 6.2 of the software. At this point, you can use the forward and backward arrows to see all the computation steps that DrRacket uses to determine the value of an expression. Watch how the stepper performs the same calculations as we do.
+</P>
+
+<FIGURE src="images/00044.png">
+Figure 11: The DrRacket stepper
+</FIGURE>
+
+<P>
+Stop! Yes, you could have used DrRacket to solve some of your algebra homework. Experiment with the various options that the stepper offers.
+</P>
+
+<EXERCISE>
+Exercise 21. Use DrRacket’s stepper to evaluate (ff (ff 1)) step-by-step. Also try (+ (ff 1)(ff 1)). Does DrRacket’s stepper reuse the results of computations?
+</EXERCISE>
+
+<P>
+At this point, you might think that you are back in an algebra course with all these computations involving uninteresting functions and numbers. Fortunately, this approach generalizes to all programs, including the interesting ones, in this book.
+</P>
+
+<P>
+Let’s start by looking at functions that process strings. Recall some of the laws of string arithmetic:
+</P>
+
+<CODE>
+(string-append "hello" " " "world") == "hello world" (string-append "bye" ", " "world") == "bye, world" …
+</CODE>
+
+<P>
+Now suppose we define a function that creates the opening of a letter:
+</P>
+
+<CODE>
+(define (opening first-name last-name)   (string-append "Dear " first-name ","))
+</CODE>
+
+<P>
+When you apply this function to two strings, you get a letter opening:
+</P>
+
+<CODE>
+> (opening "Matthew" "Fisler") "Dear Matthew,"
+</CODE>
+
+<P>
+More importantly, though, the laws of computing explain how DrRacket determines this result and how you can anticipate what DrRacket does:
+</P>
+
+<CODE>
+(opening "Matthew" "Fisler") ==  ; DrRacket substitutes "Matthew" for first-name (string-append "Dear " "Matthew" ",") == "Dear Matthew,"
+</CODE>
+
+<P>
+Since last-name does not occur in the definition of opening, replacing it with "Fisler" has no effect.
+</P>
+
+<P>
+The rest of the book introduces more forms of data. To explain operations on data, we always use laws like those of arithmetic in this book.
+</P>
+
+<MARGIN_NOTE>
+Eventually you will encounter imperative operations, which do not combine or extract values but modify them. To calculate with such operations, you will need to add some laws to those of arithmetic and substitution.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 22. Use DrRacket’s stepper on this program fragment:
+</EXERCISE>
+
+<CODE>
+(define (distance-to-origin x y)   (sqrt (+ (sqr x) (sqr y)))) (distance-to-origin 3 4)
+</CODE>
+
+<P>
+Does the explanation match your intuition?
+</P>
+
+<EXERCISE>
+Exercise 23. The first 1String in "hello world" is "h". How does the following function compute this result?
+</EXERCISE>
+
+<CODE>
+(define (string-first s)   (substring s 0 1))
+</CODE>
+
+<P>
+Use the stepper to confirm your ideas.
+</P>
+
+<EXERCISE>
+Exercise 24. Here is the definition of ==>: y
+</EXERCISE>
+
+<CODE>
+(define (==> x y)   (or (not x) y))
+</CODE>
+
+<P>
+Use the stepper to determine the value of (==> #true #false).
+</P>
+
+<EXERCISE>
+Exercise 25. Take a look at this attempt to solve exercise 17:
+</EXERCISE>
+
+<FIGURE src="images/00045.png">
+
+</FIGURE>
+
+<P>
+Does stepping through an application suggest a fix?
+</P>
+
+<EXERCISE>
+Exercise 26. What do you expect as the value of this program:
+</EXERCISE>
+
+<FIGURE src="images/00046.png">
+
+</FIGURE>
+
+<P>
+Confirm your expectation with DrRacket and its stepper.
+</P>
+
+<h2>
+2.3 Composing Functions
+</h2>
+
+<P>
+A program rarely consists of a single function definition. Typically, programs consist of a main definition and several other functions and turns the result of one function application into the input for another. In analogy to algebra, we call this way of defining functions composition, and we call these additional functions auxiliary functions or helper functions.
+</P>
+
+<P>
+Consider the program of figure 12 for filling in letter templates. It consists of four functions. The first one is the main function, which produces a complete letter from the first and last name of the addressee plus a signature. The main function refers to three auxiliary functions to produce the three pieces of the letter—the opening, body, and signature—and composes the results in the correct order with string-append.
+</P>
+
+<FIGURE src="images/00047.png">
+Figure 12: A batch program
+</FIGURE>
+
+<P>
+Stop! Enter these definitions into DrRacket’s definitions area, click RUN, and evaluate these expressions in the interactions area:
+</P>
+
+<CODE>
+> (letter "Matthew" "Fisler" "Felleisen")"Dear Matthew,\n\n We have discovered that …\n"> (letter "Kathi" "Felleisen" "Findler")"Dear Kathi,\n\nWe have discovered that …\n"
+</CODE>
+
+<P>
+Aside The result is a long string that contains "\n", which represents a new line when the string is printed. Now Add (require 2htdp/batch-io) to your program, which adds the function write-file to its repertoire; it allows you to print this string to the console:
+</P>
+
+<CODE>
+> (write-file 'stdout (letter "Matt" "Fiss" "Fell")) Dear Matt, We have discovered that all people with the last name Fiss have won our lottery. So, Matt, hurry and pick up your prize. Sincerely, Fell 'stdout
+</CODE>
+
+<MARGIN_NOTE>
+Think of 'stdout as a String for now.
+</MARGIN_NOTE>
+
+<P>
+Chapter 2.5 explains such batch programs in some depth. End
+</P>
+
+<P>
+In general, when a problem refers to distinct tasks of computation, a program should consist of one function per task and a main function that puts it all together. We formulate this idea as a simple slogan:
+</P>
+
+<P>
+Define one function per task.
+</P>
+
+<P>
+The advantage of following this slogan is that you get reasonably small functions, each of which is easy to comprehend and whose composition is easy to understand. Once you learn to design functions, you will recognize that getting small functions to work correctly is much easier than doing so with large ones. Better yet, if you ever need to change a part of the program due to some change to the problem statement, it tends to be much easier to find the relevant parts when it is organized as a collection of small functions as opposed to a large, monolithic block.
+</P>
+
+<P>
+Here is a small illustration of this point with a sample problem:
+</P>
+
+<P>
+Sample Problem The owner of a monopolistic movie theater in a small town has complete freedom in setting ticket prices. The more he charges, the fewer people can afford tickets. The less he charges, the more it costs to run a show because attendance goes up. In a recent experiment the owner determined a relationship between the price of a ticket and average attendance.
+</P>
+
+<P>
+At a price of $5.00 per ticket, 120 people attend a performance. For each 10-cent change in the ticket price, the average attendance changes by 15 people. That is, if the owner charges $5.10, some 105 people attend on the average; if the price goes down to $4.90, average attendance increases to 135. Let’s translate this idea into a mathematical formula:
+</P>
+
+<FIGURE src="images/00048.png">
+
+</FIGURE>
+
+<P>
+Stop! Explain the minus sign before you proceed.
+</P>
+
+<P>
+Unfortunately, the increased attendance also comes at an increased cost. Every performance comes at a fixed cost of $180 to the owner plus a variable cost of $0.04 per attendee.
+</P>
+
+<P>
+The owner would like to know the exact relationship between profit and ticket price in order to maximize the profit.
+</P>
+
+<P>
+While the task is clear, how to go about it is not. All we can say at this point is that several quantities depend on each other.
+</P>
+
+<P>
+When we are confronted with such a situation, it is best to tease out the various dependencies, one by one:
+</P>
+
+<P>
+1. The problem statement specifies how the number of attendees depends on the ticket price. Computing this number is clearly a separate task and thus deserves its own function definition:
+</P>
+
+<P>
+(define (attendees ticket-price)   (- 120 (* (- ticket-price 5.0) (/ 15 0.1))))
+</P>
+
+<P>
+2. The revenue is exclusively generated by the sale of tickets, meaning it is exactly the product of ticket price and number of attendees:
+</P>
+
+<P>
+(define (revenue ticket-price)   (* ticket-price (attendees ticket-price)))
+</P>
+
+<P>
+3. The cost consists of two parts: a fixed part ($180) and a variable part that depends on the number of attendees. Given that the number of attendees is a function of the ticket price, a function for computing the cost of a show must also consume the ticket price so that it can reuse the attendees function:
+</P>
+
+<P>
+(define (cost ticket-price)   (+ 180 (* 0.04 (attendees ticket-price))))
+</P>
+
+<P>
+4. Finally, profit is the difference between revenue and costs for some given ticket price:
+</P>
+
+<P>
+(define (profit ticket-price)   (- (revenue ticket-price)      (cost ticket-price)))
+</P>
+
+<P>
+The BSL definition of profit directly follows the suggestion of the informal problem description.
+</P>
+
+<P>
+These four functions are all there is to the computation of the profit, and we can now use the profit function to determine a good ticket price.
+</P>
+
+<EXERCISE>
+Exercise 27. Our solution to the sample problem contains several constants in the middle of functions. As “One Program, Many Definitions” already points out, it is best to give names to such constants so that future readers understand where these numbers come from. Collect all definitions in DrRacket’s definitions area and change them so that all magic numbers are refactored into constant definitions.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 28. Determine the potential profit for these ticket prices: $1, $2, $3, $4, and $5. Which price maximizes the profit of the movie theater? Determine the best ticket price to a dime.
+</EXERCISE>
+
+<P>
+Here is an alternative version of the same program, given as a single function definition:
+</P>
+
+<FIGURE src="images/00049.png">
+
+</FIGURE>
+
+<P>
+Enter this definition into DrRacket and ensure that it produces the same results as the original version for $1, $2, $3, $4, and $5. A single look should suffice to show how much more difficult it is to comprehend this one function compared to the above four.
+</P>
+
+<EXERCISE>
+Exercise 29. After studying the costs of a show, the owner discovered several ways of lowering the cost. As a result of these improvements, there is no longer a fixed cost; a variable cost of $1.50 per attendee remains.
+</EXERCISE>
+
+<P>
+Modify both programs to reflect this change. When the programs are modified, test them again with ticket prices of $3, $4, and $5 and compare the results.
+</P>
+
+<h2>
+2.4 Global Constants
+</h2>
+
+<P>
+As the Prologue already says, functions such as profit benefit from the use of global constants. Every programming language allows programmers to define constants. In BSL, such a definition has the following shape:
+</P>
+
+<P>
+•  write “(define”,
+</P>
+
+<P>
+•  write down the name,
+</P>
+
+<P>
+•  followed by a space and an expression, and
+</P>
+
+<P>
+•  write down “)”.
+</P>
+
+<P>
+The name of a constant is a global variable while the definition is called a constant definition. We tend to call the expression in a constant definition the right-hand side of the definition.
+</P>
+
+<P>
+Constant definitions introduce names for all forms of data: numbers, images, strings, and so on. Here are some simple examples:
+</P>
+
+<CODE>
+; the current price of a movie ticket:(define CURRENT-PRICE 5); useful to compute the area of a disk:(define ALMOST-PI 3.14); a blank line:(define NL "\n"); an empty scene:(define MT (empty-scene 100 100))
+</CODE>
+
+<P>
+The first two are numeric constants, the last two are a string and an image. By convention, we use uppercase letters for global constants because it ensures that no matter how large the program is, the readers of our programs can easily distinguish such variables from others.
+</P>
+
+<P>
+All functions in a program may refer to these global variables. A reference to a variable is just like using the corresponding constants. The advantage of using variable names instead of constants is that a single edit of a constant definition affects all uses. For example, we may wish to add digits to ALMOST-PI or enlarge an empty scene:
+</P>
+
+<CODE>
+(define ALMOST-PI 3.14159); an empty scene:(define MT (empty-scene 200 800))
+</CODE>
+
+<P>
+Most of our sample definitions employ literal constants on the right-hand side, but the last one uses an expression. And indeed, a programmer can use arbitrary expressions to compute constants. Suppose a program needs to deal with an image of some size and its center:
+</P>
+
+<CODE>
+(define WIDTH 100)(define HEIGHT 200)(define MID-WIDTH (/ WIDTH 2))(define MID-HEIGHT (/ HEIGHT 2))
+</CODE>
+
+<P>
+It can use two definitions with literal constants on the right-hand side and two computed constants, that is, variables whose values are not just literal constants but the results of computing the value of an expression.
+</P>
+
+<P>
+Again, we state an imperative slogan:
+</P>
+
+<P>
+For every constant mentioned in a problem statement, introduce one constant definition.
+</P>
+
+<EXERCISE>
+Exercise 30. Define constants for the price optimization program at the movie theater so that the price sensitivity of attendance (15 people for every 10 cents) becomes a computed constant.
+</EXERCISE>
+
+<h2>
+2.5 Programs
+</h2>
+
+<P>
+You are ready to create simple programs. From a coding perspective, a program is just a bunch of function and constant definitions. Usually one function is singled out as the “main” function, and this main function tends to compose others. From the perspective of launching a program, however, there are two distinct kinds:
+</P>
+
+<P>
+•  a batch program consumes all of its inputs at once and computes its result. Its main function is the composition of auxiliary functions, which may refer to additional auxiliary functions, and so on. When we launch a batch program, the operating system calls the main function on its inputs and waits for the program’s output.
+</P>
+
+<P>
+•  an interactive program consumes some of its inputs, computes, produces some output, consumes more input, and so on. When an input shows up, we speak of an event, and we create interactive programs as event-driven programs. The main function of such an event-driven program uses an expression to describe which functions to call for which kinds of events. These functions are called event handlers.
+</P>
+
+<P>
+When we launch an interactive program, the main function informs the operating system of this description. As soon as input events happen, the operating system calls the matching event handler. Similarly, the operating system knows from the description when and how to present the results of these function calls as output.
+</P>
+
+<P>
+This book focuses mostly on programs that interact via graphical user interfaces (GUI); there are other kinds of interactive programs, and you will get to know those as you continue to study computer science.
+</P>
+
+<P>
+Batch Programs As mentioned, a batch program consumes all of its inputs at once and computes the result from these inputs. Its main function expects some arguments, hands them to auxiliary functions, receives results from those, and composes these results into its own final answer.
+</P>
+
+<P>
+Once programs are created, we want to use them. In DrRacket, we launch batch programs in the interactions area so that we can watch the program at work.
+</P>
+
+<P>
+Programs are even more useful if they can retrieve the input from some file and deliver the output to some other file. Indeed, the name “batch program” dates to the early days of computing when a program read a file (or several files) from a batch of punch cards and placed the result in some other file(s), also a batch of cards. Conceptually, a batch program reads the input file(s) at once and also produces the result file(s) all at once.
+</P>
+
+<P>
+We create such file-based batch programs with the 2htdp/batch-io library, which adds two functions to our vocabulary (among others):
+</P>
+
+<P>
+•  read-file, which reads the content of an entire file as a string, and
+</P>
+
+<P>
+•  write-file, which creates a file from a given string.
+</P>
+
+<P>
+These functions write strings to files and read strings from them:
+</P>
+
+<CODE>
+> (write-file "sample.dat" "212")"sample.dat"> (read-file "sample.dat")"212"
+</CODE>
+
+<MARGIN_NOTE>
+Before you evaluate these expressions, save the definitions area in a file.
+</MARGIN_NOTE>
+
+<P>
+After the first interaction the file named "sample.dat" contains
+</P>
+
+<CODE>
+212
+</CODE>
+
+<P>
+The result of write-file is an acknowledgment that it has placed the string in the file. If the file already exists, it replaces its content with the given string; otherwise, it creates a file and makes the given string its content. The second interaction, (read-file "sample.dat"), produces "212" because it turns the content of "sample.dat" into a String.
+</P>
+
+<P>
+For pragmatic reasons, write-file also accepts 'stdout, a special kind of token, as the first argument. It then displays the resulting file content in the current interactions area, for example:
+</P>
+
+<CODE>
+> (write-file 'stdout "212\n")212'stdout
+</CODE>
+
+<MARGIN_NOTE>
+The names 'stdout and 'stdin are short for standard output device and standard input device, respectively.
+</MARGIN_NOTE>
+
+<P>
+By analogy, read-file accepts 'stdin in lieu of a file name and then reads input from the current interactions area.
+</P>
+
+<P>
+Let’s illustrate the creation of a batch program with a simple example. Suppose we wish to create a program that converts a temperature measured on a Fahrenheit thermometer into a Celsius temperature. Don’t worry, this question isn’t a test about your physics knowledge; here is the conversion formula:
+</P>
+
+<FIGURE src="images/00050.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+This book is not about memorizing facts, but we do expect you to know where to find them. Do you know where to find out how temperatures are converted?
+</MARGIN_NOTE>
+
+<P>
+Naturally, in this formula f is the Fahrenheit temperature and C is the Celsius temperature. While this formula might be good enough for a pre-algebra textbook, a mathematician or a programmer would write C(f ) on the left side of the equation to remind readers that f is a given value and C is computed from f.
+</P>
+
+<P>
+Translating this formula into BSL is straightforward:
+</P>
+
+<CODE>
+(define (C f)   (* 5/9 (- f 32)))
+</CODE>
+
+<P>
+Recall that 5/9 is a number, a rational fraction to be precise, and that C depends on the given f, which is what the function notation expresses.
+</P>
+
+<P>
+Launching this batch program in the interactions area works as usual:
+</P>
+
+<CODE>
+> (C 32) 0 > (C 212) 100 > (C -40) -40
+</CODE>
+
+<P>
+But suppose we wish to use this function as part of a program that reads the Fahrenheit temperature from a file, converts this number into a Celsius temperature, and then creates another file that contains the result.
+</P>
+
+<P>
+Once we have the conversion formula in BSL, creating the main function means composing C with existing primitive functions:
+</P>
+
+<FIGURE src="images/00051.png">
+
+</FIGURE>
+
+<P>
+We call the main function convert. It consumes two file names: in for the file where the Fahrenheit temperature is found and out for where we want the Celsius result. A composition of five functions computes convert’s result. Let’s step through convert’s body carefully:
+</P>
+
+<P>
+1. (read-file in) retrieves the content of the named file as a string;
+</P>
+
+<P>
+2. string->number turns this string into a number;
+</P>
+
+<P>
+3. C interprets the number as a Fahrenheit temperature and converts it into a Celsius temperature;
+</P>
+
+<P>
+4. number->string consumes this Celsius temperature and turns it into a string; and
+</P>
+
+<P>
+5. (write-file out…) places this string into the file named out.
+</P>
+
+<P>
+This long list of steps might look overwhelming, and it doesn’t even include the string-append part. Stop! Explain
+</P>
+
+<CODE>
+(string-append … "\n")
+</CODE>
+
+<P>
+In contrast, the average function composition in a pre-algebra course involves two functions, possibly three. Keep in mind, though, that programs accomplish a real-world purpose while exercises in algebra merely illustrate the idea of function composition.
+</P>
+
+<P>
+At this point, we can experiment with convert. To start with, we use write-file to create an input file for convert:
+</P>
+
+<CODE>
+> (write-file "sample.dat" "212") "sample.dat" > (convert "sample.dat" 'stdout) 100 'stdout > (convert "sample.dat" "out.dat") "out.dat" > (read-file "out.dat") "100"
+</CODE>
+
+<MARGIN_NOTE>
+You can also create "sample.dat" with a file editor.
+</MARGIN_NOTE>
+
+<P>
+For the first interaction, we use 'stdout so that we can view what convert outputs in DrRacket’s interactions area. For the second one, convert is given the name "out.dat". As expected, the call to convert returns this string; from the description of write-file we also know that it deposited a Fahrenheit temperature in the file. Here we read the content of this file with read-file, but you could also view it with a text editor.
+</P>
+
+<P>
+In addition to running the batch program, it is also instructive to step through the computation. Make sure that the file "sample.dat" exists and contains just a number, then click the STEP button in DrRacket. Doing so opens another window in which you can peruse the computational process that the call to the main function of a batch program triggers. You will see that the process follows the above outline.
+</P>
+
+<EXERCISE>
+Exercise 31. Recall the letter program from chapter 2.3. Here is how to launch the program and have it write its output to the interactions area:
+</EXERCISE>
+
+<CODE>
+> (write-file   'stdout   (letter "Matthew" "Fisler" "Felleisen"))Dear Matthew,We have discovered that all people with thelast name Fisler have won our lottery. So,Matthew, hurry and pick up your prize.Sincerely,Felleisen'stdout
+</CODE>
+
+<P>
+Of course, programs are useful because you can launch them for many different inputs. Run letter on three inputs of your choice.
+</P>
+
+<P>
+Here is a letter-writing batch program that reads names from three files and writes a letter to one:
+</P>
+
+<FIGURE src="images/00052.png">
+
+</FIGURE>
+
+<P>
+The function consumes four strings: the first three are the names of input files and the last one serves as an output file. It uses the first three to read one string each from the three named files, hands these strings to letter, and eventually writes the result of this function call into the file named by out, the fourth argument to main.
+</P>
+
+<P>
+Create appropriate files, launch main, and check whether it delivers the expected letter in a given file.
+</P>
+
+<P>
+Interactive Programs Batch programs are a staple of business uses of computers, but the programs people encounter now are interactive. In this day and age, people mostly interact with desktop applications via a keyboard and a mouse. Furthermore, interactive programs can also react to computer-generated events, for example, clock ticks or the arrival of a message from some other computer.
+</P>
+
+<EXERCISE>
+Exercise 32. Most people no longer use desktop computers just to run applications but also employ cell phones, tablets, and their cars’ information control screen. Soon people will use wearable computers in the form of intelligent glasses, clothes, and sports gear. In the somewhat more distant future, people may come with built-in bio computers that directly interact with body functions. Think of ten different forms of events that software applications on such computers will have to deal with.
+</EXERCISE>
+
+<P>
+The purpose of this section is to introduce the mechanics of writing interactive BSL programs. Because many of the project-style examples in this book are interactive programs, we introduce the ideas slowly and carefully. You may wish to return to this section when you tackle some of the interactive programming projects; a second or third reading may clarify some of the advanced aspects of the mechanics.
+</P>
+
+<P>
+By itself, a raw computer is a useless piece of physical equipment. It is called hardware because you can touch it. This equipment becomes useful once you install software, that is, a suite of programs. Usually the first piece of software to be installed on a computer is an operating system. It has the task of managing the computer for you, including connected devices such as the monitor, the keyboard, the mouse, the speakers, and so on. The way it works is that when a user presses a key on the keyboard, the operating system runs a function that processes keystrokes. We say that the keystroke is a key event, and the function is an event handler. In the same vein, the operating system runs an event handler for clock ticks, for mouse actions, and so on. Conversely, after an event handler is done with its work, the operating system may have to change the image on the screen, ring a bell, print a document, or perform a similar action. To accomplish these tasks, it also runs functions that translate the operating system’s data into sounds, images, actions on the printer, and so on.
+</P>
+
+<P>
+Naturally, different programs have different needs. One program may interpret keystrokes as signals to control a nuclear reactor; another passes them to a word processor. To make a general-purpose computer work on these radically different tasks, different programs install different event handlers. That is, a rocket-launching program uses one kind of function to deal with clock ticks while an oven’s software uses a different kind.
+</P>
+
+<P>
+Designing an interactive program requires a way to designate some function as the one that takes care of keyboard events, another function for dealing with clock ticks, a third one for presenting some data as an image, and so forth. It is the task of an interactive program’s main function to communicate these designations to the operating system, that is, the software platform on which the program is launched.
+</P>
+
+<P>
+DrRacket is a small operating system, and BSL is one of its programming languages. The latter comes with the 2htdp/universe library, which provides big-bang, a mechanism for telling the operating system which function deals with which event. In addition, big-bang keeps track of the state of the program. To this end, it comes with one required sub-expression, whose value becomes the initial state of the program. Otherwise big-bang consists of one required clause and many optional clauses. The required to-draw clause tells DrRacket how to render the state of the program, including the initial one. Each of the other, optional clauses tells the operating system that a certain function takes care of a certain event. Taking care of an event in BSL means that the function consumes the state of the program and a description of the event, and that it produces the next state of the program. We therefore speak of the current state of the program.
+</P>
+
+<P>
+Terminology In a sense, a big-bang expression describes how a program connects with a small segment of the world. This world might be a game that the program’s users play, an animation that the user watches, or a text editor that the user employs to manipulate some notes. Programming language researchers therefore often say that big-bang is a description of a small world: its initial state, how states are transformed, how states are rendered, and how big-bang may determine other attributes of the current state. In this spirit, we also speak of the state of the world and even call big-bang programs world programs. End
+</P>
+
+<P>
+Let’s study this idea step-by-step, starting with this definition:
+</P>
+
+<CODE>
+(define (number->square s)  (square s "solid" "red"))
+</CODE>
+
+<P>
+The function consumes a positive number and produces a solid red square of that size. After clicking RUN, experiment with the function, like this:
+</P>
+
+<FIGURE src="images/00053.png">
+
+</FIGURE>
+
+<P>
+It behaves like a batch program, consuming a number and producing an image, which DrRacket renders for you.
+</P>
+
+<P>
+Now try the following big-bang expression in the interactions area:
+</P>
+
+<CODE>
+> (big-bang 100 [to-draw number->square])
+</CODE>
+
+<P>
+A separate window appears, and it displays a 100 × 100 red square. In addition, the DrRacket interactions area does not display another prompt; it is as if the program keeps running, and this is indeed the case. To stop the program, click on DrRacket’s STOP button or the window’s CLOSE button:
+</P>
+
+<CODE>
+> (big-bang 100 [to-draw number->square])100
+</CODE>
+
+<P>
+When DrRacket stops the evaluation of a big-bang expression, it returns the current state, which in this case is just the initial state: 100.
+</P>
+
+<P>
+Here is a more interesting big-bang expression:
+</P>
+
+<CODE>
+> (big-bang 100    [to-draw number->square]    [on-tick sub1]    [stop-when zero?])
+</CODE>
+
+<P>
+This big-bang expression adds two optional clauses to the previous one: the on-tick clause tells DrRacket how to deal with clock ticks and the stop-when clause says when to stop the program. We read it as follows, starting with 100 as the initial state:
+</P>
+
+<P>
+1. every time the clock ticks, subtract 1 from the current state;
+</P>
+
+<P>
+2. then check whether zero? is true of the new state and if so, stop; and
+</P>
+
+<P>
+3. every time an event handler returns a value, use number->square to render it as an image.
+</P>
+
+<P>
+Now hit the “return” key and observe what happens. Eventually the evaluation of the expressions terminates and DrRacket displays 0.
+</P>
+
+<P>
+The big-bang expression keeps track of the current state. Initially this state is 100. Every time the clock ticks, it calls the clock-tick handler and gets a new state. Hence, the state of big-bang changes as follows:
+</P>
+
+<P>
+100, 99, 98,…, 2, 1, 0
+</P>
+
+<P>
+When the state’s value becomes 0, the evaluation is done. For every other state—from 100 to 1—big-bang translates the state into an image, using number->square as the to-draw clause tells it to. Hence, the window displays a red square that shrinks from 100 × 100 pixels to 1 × 1 pixel over 100 clock ticks.
+</P>
+
+<P>
+Let’s add a clause for dealing with key events. First, we need a function that consumes the current state and a string that describes the key event and then returns a new state:
+</P>
+
+<CODE>
+(define (reset s ke)  100)
+</CODE>
+
+<P>
+This function throws away its arguments and returns 100, which is the initial state of the big-bang expression we wish to modify. Second, we add an on-key clause to the big-bang expression:
+</P>
+
+<CODE>
+> (big-bang 100    [to-draw number->square]    [on-tick sub1]    [stop-when zero?]    [on-key reset])
+</CODE>
+
+<P>
+Stop! Explain what happens when you hit “return”, count to 10, and finally press "a".
+</P>
+
+<P>
+What you will see is that the red square shrinks at the rate of one pixel per clock tick. As soon as you press the "a" key, though, the red square reinflates to full size because reset is called on the current length of the square and "a" and returns 100. This number becomes big-bang’s new state and number->square renders it as a full-sized red square.
+</P>
+
+<P>
+In order to understand the evaluation of big-bang expressions in general, let’s look at a schematic version:
+</P>
+
+<CODE>
+(big-bang cw0  [on-tick tock]  [on-key ke-h]  [on-mouse me-h]  [to-draw render]  [stop-when end?]  …)
+</CODE>
+
+<P>
+This big-bang expression specifies three event handlers—tock, ke-h, and me-h—and a stop-when clause.
+</P>
+
+<P>
+The evaluation of this big-bang expression starts with cw0, which is usually an expression. DrRacket, our operating system, installs the value of cw0 as the current state. It uses render to translate the current state into an image, which is then displayed in a separate window. Indeed, render is the only means for a big-bang expression to present data to the world.
+</P>
+
+<P>
+Here is how events are processed:
+</P>
+
+<P>
+•  Every time the clock ticks, DrRacket applies tock to big-bang’s current state and receives a value in response; big-bang treats this return value as the next current state.
+</P>
+
+<P>
+•  Every time a key is pressed, DrRacket applies ke-h to big-bang’s current state and a string that represents the key; for example, pressing the “a” key is represented with "a" and the left arrow key with "left". When ke-h returns a value, big-bang treats it as the next current state.
+</P>
+
+<P>
+•  Every time a mouse enters the window, leaves it, moves, or is clicked, DrRacket applies me-h to big-bang’s current state, the event’s x- and y-coordinates, and a string that represents the kind of mouse event that happened; for example, clicking a mouse’s button is represented with "button-down". When me-h returns a value, big-bang treats it as the next current state.
+</P>
+
+<P>
+All events are processed in order; if two events seem to happen at the same time, DrRacket acts as a tie-breaker and arranges them in some order.
+</P>
+
+<P>
+After an event is processed, big-bang uses both end? and render to check the current state:
+</P>
+
+<P>
+•  (end? cw) produces a Boolean value. If it is ##true, big-bang stops the computation immediately. Otherwise it proceeds.
+</P>
+
+<P>
+•  (render cw) is expected to produce an image and big-bang displays this image in a separate window.
+</P>
+
+<P>
+The table in figure 13 concisely summarizes this process. In the first row, it lists names for the current states. The second row enumerates names for the events that DrRacket encounters: e0, e1, and so on. Each ei might be a clock tick, a key press, or a mouse event. The next three rows specify the result of dealing with the event:
+</P>
+
+<P>
+•  If e0 is a clock tick, big-bang evaluates (tock cw0) to produce cw1.
+</P>
+
+<P>
+•  If e0 is a key event, (ke-h cw0 e0) is evaluated and yields cw1. The handler must be applied to the event itself because, in general, programs are going to react to each key differently.
+</P>
+
+<P>
+•  If e0 is a mouse event, big-bang runs (me-h cw0 e0 …) to get cw1. The call is a sketch because a mouse event e0 is really associated with several pieces of data—its nature and its coordinates—and we just wish to indicate that much.
+</P>
+
+<P>
+•  Finally, render turns the current state into an image, which is indicated by the last row. DrRacket displays these images in the separate window.
+</P>
+
+<FIGURE src="images/00054.png">
+Figure 13: How big-bang works
+</FIGURE>
+
+<P>
+The column below cw1 shows how cw2 is generated, depending on what kind of event e1 takes place.
+</P>
+
+<P>
+Let’s interpret this table with the specific sequence of events: the user presses the “a” key, then the clock ticks, and finally the user clicks the mouse to trigger a “button down” event at position (90,100). Then, in Racket notation,
+</P>
+
+<P>
+1. cw1 is the result of (ke-h cw0 "a");
+</P>
+
+<P>
+2. cw2 is the result of (tock cw1); and
+</P>
+
+<P>
+3. cw3 is the result of (me-h cw2 90 100 "button-down").
+</P>
+
+<P>
+We can actually express these three steps as a sequence of three definitions:
+</P>
+
+<CODE>
+(define cw1 (ke-h cw0 "a"))(define cw2 (tock cw1))(define cw3 (me-h cw2 "button-down" 90 100))
+</CODE>
+
+<P>
+Stop! How does big-bang display each of these three states?
+</P>
+
+<P>
+Now let’s consider a sequence of three clock ticks. In that case,
+</P>
+
+<P>
+1. cw1 is the result of (tock cw0);
+</P>
+
+<P>
+2. cw2 is the result of (tock cw1); and
+</P>
+
+<P>
+3. cw3 is the result of (tock cw2).
+</P>
+
+<P>
+Or, reformulated in BSL:
+</P>
+
+<CODE>
+(define cw1 (tock cw0))(define cw2 (tock cw1))(define cw3 (tock cw2))
+</CODE>
+
+<P>
+Indeed, we can also determine cw3 via a single expression:
+</P>
+
+<CODE>
+(tock (tock (tock cw0)))
+</CODE>
+
+<P>
+This determines the state that big-bang computes after three clock ticks. Stop! Reformulate the first sequence of events as an expression.
+</P>
+
+<P>
+In short, the sequence of events determines in which order big-bang conceptually traverses the above table of possible states to arrive at the current state for each time slot. Of course, big-bang does not touch the current state; it merely safeguards it and passes it to event handlers and other functions when needed.
+</P>
+
+<P>
+From here, it is straightforward to define a first interactive program. See figure 14. The program consists of two constant definitions followed by three function definitions: main, which launches a big-bang interactive program; place-dot-at, which translates the current state into an image; and stop, which throws away its inputs and produces 0.
+</P>
+
+<FIGURE src="images/00055.png">
+Figure 14: A first interactive program
+</FIGURE>
+
+<P>
+After clicking RUN, we can ask DrRacket to evaluate applications of these handler functions. This is one way to confirm their workings:
+</P>
+
+<FIGURE src="images/00056.png">
+
+</FIGURE>
+
+<P>
+Stop! Try now to understand how main reacts when you press a key.
+</P>
+
+<P>
+One way to find out whether your conjecture is correct is to launch the main function on some reasonable number:
+</P>
+
+<CODE>
+> (main 90)
+</CODE>
+
+<P>
+Relax.
+</P>
+
+<P>
+By now, you may feel that these first two chapters are overwhelming. They introduce many new concepts, including a new language, its vocabulary, its meaning, its idioms, a tool for writing down texts in this vocabulary, and a way of running these programs. Confronted with this plethora of ideas, you may wonder how one creates a program when presented with a problem statement. To answer this central question, the next chapter takes a step back and explicitly addresses the systematic design of programs. So take a breather and continue when ready.
+</P>

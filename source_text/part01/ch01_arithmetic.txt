@@ -1,0 +1,765 @@
+# Chapter 1: Arithmetic / 第 1 章：算术
+
+<h1>
+1 Arithmetic
+</h1>
+
+<P>
+From the Prologue, you know how to write down the kind of expression you know from first grade in BSL notation:
+</P>
+
+<P>
+•  write “(”,
+</P>
+
+<P>
+•  write down the name of a primitive operation op,
+</P>
+
+<P>
+•  write down the arguments, separated by some space, and
+</P>
+
+<P>
+•  write down “)”.
+</P>
+
+<P>
+Just as a reminder, here is a primitive expression:
+</P>
+
+<CODE>
+(+ 1 2)
+</CODE>
+
+<P>
+It uses +, the operation for adding two numbers, followed by two arguments, which are plain numbers. But here is another example:
+</P>
+
+<CODE>
+(+ 1 (+ 1 (+ 1 1) 2) 3 4 5)
+</CODE>
+
+<P>
+This second example exploits two points in the above description that are open to interpretation. First, primitive operations may consume more than two arguments. Second, the arguments don’t have to be numbers per se; they can be expressions, too.
+</P>
+
+<MARGIN_NOTE>
+Scan this first chapter quickly, skip ahead to the second one, and return here, when you encounter “arithmetic” that you don’t recognize.
+</MARGIN_NOTE>
+
+<P>
+Evaluating expressions is also straightforward. First, BSL evaluates all the arguments of a primitive operation. Second, it “feeds” the resulting pieces of data to the operation, which produces a result. Thus,
+</P>
+
+<CODE>
+(+ 1 2) == 3
+</CODE>
+
+<P>
+and
+</P>
+
+<CODE>
+(+ 1 (+ 1 (+ 1 1) 2) 3 (+ 2 2) 5) == (+ 1 (+ 1 2 2) 3 4 5) == (+ 1 5 3 4 5) == 18
+</CODE>
+
+<P>
+These calculations should look familiar because they are the same kind of calculations that you performed in mathematics classes. You may have written down the steps in a different way; you may have never been taught how to write down a sequence of calculation steps. Yet, BSL performs calculations just like you do, and this should be a relief. It guarantees that you understand what it does with primitive operations and primitive data, so there is some hope that you can predict what your programs will compute. Generally speaking, it is critical for a programmer to know how the chosen language calculates because otherwise a program’s computation may harm the people who use them or on whose behalf the programs calculate.
+</P>
+
+<MARGIN_NOTE>
+We use == to mean “is equal to according to the laws of computation.”
+</MARGIN_NOTE>
+
+<P>
+The rest of this chapter introduces four forms of atomic data of BSL: numbers, strings, images, and Boolean values. We use the word “atomic” here in analogy to physics. You cannot peek inside atomic pieces of data, but you do have functions that combine several pieces of atomic data into another one, retrieve “properties” of them, also in terms of atomic data, and so on. The sections of this chapter introduce some of these functions, also called primitive operations or pre-defined operations. You can find others in the documentation of BSL that comes with DrRacket.
+</P>
+
+<MARGIN_NOTE>
+The next volume, How to Design Components, will explain how to design atomic data.
+</MARGIN_NOTE>
+
+<h2>
+1.1 The Arithmetic of Numbers
+</h2>
+
+<P>
+Most people think “numbers” and “operations on numbers” when they hear “arithmetic.” “Operations on numbers” means adding two numbers to yield a third, subtracting one number from another, determining the greatest common divisor of two numbers, and many more such things. If we don’t take arithmetic too literally, we may even include the sine of an angle, rounding a real number to the closest integer, and so on.
+</P>
+
+<P>
+The BSL language supports Numbers and arithmetic on them. As discussed in the Prologue, an arithmetic operation such as + is used like this:
+</P>
+
+<CODE>
+(+ 3 4)
+</CODE>
+
+<P>
+that is, in prefix notation form. Here are some of the operations on numbers that our language provides: +, -, *, /, abs, add1, ceiling, denominator, exact->inexact, expt, floor, gcd, log, max, numerator, quotient, random, remainder, sqr, and tan. We picked our way through the alphabet just to show the variety of operations. Explore what they compute, and then find out how many more there are.
+</P>
+
+<P>
+If you need an operation on numbers that you know from your mathematics courses, chances are that BSL knows about it, too. Guess its name and experiment in the interactions area. Say you need to compute the sin of some angle; try
+</P>
+
+<CODE>
+> (sin 0) 0
+</CODE>
+
+<P>
+and use it happily ever after. Or look in the HelpDesk. You will find there that in addition to operations BSL also recognizes the names of some widely used numbers, for example, pi and e.
+</P>
+
+<MARGIN_NOTE>
+You might know e from calculus. It’s a real number, close to 2.718, called “Euler’s constant.”
+</MARGIN_NOTE>
+
+<P>
+When it comes to numbers, BSL programs may use natural numbers, integers, rational numbers, real numbers, and complex numbers. We assume that you have heard of all but the last one. The last one may have been mentioned in your high school class. If not, don’t worry; while complex numbers are useful for all kinds of calculations, a novice doesn’t have to know about them.
+</P>
+
+<P>
+A truly important distinction concerns the precision of numbers. For now, it is important to understand that BSL distinguishes exact numbers and inexact numbers. When it calculates with exact numbers, BSL preserves this precision whenever possible. For example, (/ 4 6) produces the precise fraction 2/3, which DrRacket can render as a proper fraction, an improper fraction, or a mixed decimal. Play with your computer’s mouse to find the menu that changes the fraction into decimal expansion.
+</P>
+
+<P>
+Some of BSL’s numeric operations cannot produce an exact result. For example, using the sqrt operation on 2 produces an irrational number that cannot be described with a finite number of digits. Because computers are of finite size and BSL must somehow fit such numbers into the computer, it chooses an approximation: 1.4142135623730951. As mentioned in the Prologue, the #i prefix warns novice programmers of this lack of precision. While most programming languages choose to reduce precision in this manner, few advertise it and even fewer warn programmers.
+</P>
+
+<P>
+Note on Numbers The word “Number” refers to a wide variety of numbers, including counting numbers, integers, rational numbers, real numbers, and even complex numbers. For most uses, you can safely equate Number with the number line from elementary school, though on occasion this translation is too imprecise. If we wish to be precise, we use appropriate words: Integer, Rational, and so on. We may even refine these notions using such standard terms as PositiveInteger, NonnegativeNumber, NegativeNumber, and so on. End
+</P>
+
+<EXERCISE>
+Exercise 1. Add the following definitions for x and y to DrRacket’s definitions area:
+</EXERCISE>
+
+<CODE>
+(define x 3) (define y 4)
+</CODE>
+
+<P>
+Now imagine that x and y are the coordinates of a Cartesian point. Write down an expression that computes the distance of this point to the origin, that is, a point with the coordinates (0,0).
+</P>
+
+<P>
+The expected result for these values is 5, but your expression should produce the correct result even after you change these definitions.
+</P>
+
+<P>
+Just in case you have not taken geometry courses or in case you forgot the formula that you encountered there, the point (x,y) has the distance
+</P>
+
+<FIGURE src="images/00037.png">
+
+</FIGURE>
+
+<P>
+from the origin. After all, we are teaching you how to design programs, not how to be a geometer.
+</P>
+
+<P>
+To develop the desired expression, it is best to click RUN and to experiment in the interactions area. The RUN action tells DrRacket what the current values of x and y are so that you can experiment with expressions that involve x and y:
+</P>
+
+<CODE>
+> x 3 > y 4 > (+ x 10) 13 > (* x y) 12
+</CODE>
+
+<P>
+Once you have the expression that produces the correct result, copy it from the interactions area to the definitions area.
+</P>
+
+<P>
+To confirm that the expression works properly, change x to 12 and y to 5, then click RUN. The result should be 13.
+</P>
+
+<P>
+Your mathematics teacher would say that you computed the distance formula. To use the formula on alternative inputs, you need to open DrRacket, edit the definitions of x and y so they represent the desired coordinates, and click RUN. But this way of reusing the distance formula is cumbersome and naive. We will soon show you a way to define functions, which makes reusing formulas straightforward. For now, we use this kind of exercise to call attention to the idea of functions and to prepare you for programming with them.
+</P>
+
+<h2>
+1.2 The Arithmetic of Strings
+</h2>
+
+<P>
+A widespread prejudice about computers concerns their innards. Many believe that it is all about bits and bytes—whatever those are—and possibly numbers because everyone knows that computers can calculate. While it is true that electrical engineers must understand and study the computer as just such an object, beginning programmers and everyone else need never (ever) succumb to this thinking.
+</P>
+
+<P>
+Programming languages are about computing with information, and information comes in all shapes and forms. For example, a program may deal with colors, names, business letters, or conversations between people. Even though we could encode this kind of information as numbers, it would be a horrible idea. Just imagine remembering large tables of codes, such as 0 means “red” and 1 means “hello,” and the like.
+</P>
+
+<P>
+Instead, most programming languages provide at least one kind of data that deals with such symbolic information. For now, we use BSL’s strings. Generally speaking, a String is a sequence of the characters that you can enter on the keyboard, plus a few others, about which we aren’t concerned just yet, enclosed in double quotes. In the Prologue, we have seen a number of BSL strings: "hello", "world", "blue", "red", and others. The first two are words that may show up in a conversation or in a letter; the others are names of colors that we may wish to use.
+</P>
+
+<P>
+Note We use 1String to refer to the keyboard characters that make up a String. For example, "red" consists of three such 1Strings: "r", "e", "d". As it turns out, there is a bit more to the definition of 1String, but for now thinking of them as Strings of length 1 is fine. End
+</P>
+
+<P>
+BSL includes only one operation that exclusively consumes and produces strings: string-append, which, as we have seen in the Prologue, concatenates two given strings into one. Think of string-append as an operation that is just like +. While the latter consumes two (or more) numbers and produces a new number, the former consumes two or more strings and produces a new string:
+</P>
+
+<CODE>
+> (string-append "what a " "lovely " "day" " 4 BSL") "what a lovely day 4 BSL"
+</CODE>
+
+<P>
+Nothing about the given numbers changes when + adds them up, and nothing about the given strings changes when string-append concatenates them into one big string. If you wish to evaluate such expressions, you just need to think that the obvious laws hold for string-append, similar to those for +:
+</P>
+
+<FIGURE src="images/00039.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 2. Add the following two lines to the definitions area:
+</EXERCISE>
+
+<CODE>
+(define prefix "hello") (define suffix "world")
+</CODE>
+
+<P>
+Then use string primitives to create an expression that concatenates prefix and suffix and adds "_" between them. When you run this program, you will see "hello_world" in the interactions area.
+</P>
+
+<P>
+See exercise 1 for how to create expressions using DrRacket.
+</P>
+
+<h2>
+1.3 Mixing It Up
+</h2>
+
+<P>
+All other operations (in BSL) concerning strings consume or produce data other than strings. Here are some examples:
+</P>
+
+<P>
+•  string-length consumes a string and produces a number;
+</P>
+
+<P>
+•  string-ith consumes a string s together with a number i and extracts the 1String located at the ith position (counting from 0); and
+</P>
+
+<P>
+•  number->string consumes a number and produces a string.
+</P>
+
+<P>
+Also look up substring and find out what it does.
+</P>
+
+<P>
+If the documentation in HelpDesk appears confusing, experiment with the functions in the interactions area. Give them appropriate arguments, and find out what they compute. Also use inappropriate arguments for some operations just to find out how BSL reacts:
+</P>
+
+<CODE>
+> (string-length 42) string-length:expects a string, given 42
+</CODE>
+
+<P>
+As you can see, BSL reports an error. The first part “string-length” informs you about the operation that is misapplied; the second half states what is wrong with the arguments. In this specific example, string-length is supposed to be applied to a string but is given a number, specifically 42.
+</P>
+
+<P>
+Naturally, it is possible to nest operations that consume and produce different kinds of data as long as you keep track of what is proper and what is not. Consider this expression from the the Prologue:
+</P>
+
+<CODE>
+(+ (string-length "hello world") 20)
+</CODE>
+
+<P>
+The inner expression applies string-length to "hello world", our favorite string. The outer expression has + consume the result of the inner expression and 20.
+</P>
+
+<P>
+Let’s determine the result of this expression in a step-by-step fashion:
+</P>
+
+<CODE>
+(+ (string-length "hello world") 20) == (+ 11 20) == 31
+</CODE>
+
+<P>
+Not surprisingly, computing with such nested expressions that deal with a mix of data is no different from computing with numeric expressions. Here is another example:
+</P>
+
+<CODE>
+(+ (string-length (number->string 42)) 2) == (+ (string-length "42") 2) == (+ 2 2) == 4
+</CODE>
+
+<P>
+Before you go on, construct some nested expressions that mix data in the wrong way, say,
+</P>
+
+<CODE>
+(+ (string-length 42) 1)
+</CODE>
+
+<P>
+Run them in DrRacket. Study the red error message but also watch what DrRacket highlights in the definitions area.
+</P>
+
+<EXERCISE>
+Exercise 3. Add the following two lines to the definitions area:
+</EXERCISE>
+
+<CODE>
+(define str "helloworld") (define i 5)
+</CODE>
+
+<P>
+Then create an expression using string primitives that adds "_" at position i. In general this means the resulting string is longer than the original one; here the expected result is "hello_world".
+</P>
+
+<P>
+Position means i characters from the left of the string, but programmers start counting at 0. Thus, the 5th letter in this example is "w", because the 0th letter is "h". Hint When you encounter such “counting problems” you may wish to add a string of digits below str to help with counting:
+</P>
+
+<CODE>
+(define str "helloworld") (define ind "0123456789") (define i 5)
+</CODE>
+
+<P>
+See exercise 1 for how to create expressions in DrRacket.
+</P>
+
+<EXERCISE>
+Exercise 4. Use the same setup as in exercise 3 to create an expression that deletes the ith position from str. Clearly this expression creates a shorter string than the given one. Which values for i are legitimate?
+</EXERCISE>
+
+<h2>
+1.4 The Arithmetic of Images
+</h2>
+
+<P>
+An Image is a visual, rectangular piece of data, for example, a photo or a geometric figure and its frame. You can insert images in DrRacket wherever you can write down an expression because images are values, just like numbers and strings.
+</P>
+
+<MARGIN_NOTE>
+Remember to require the 2htdp/image library in a new tab.
+</MARGIN_NOTE>
+
+<P>
+Your programs can also manipulate images with primitive operations. These primitive operations come in three flavors. The first kind concerns the creation of basic images:
+</P>
+
+<P>
+•  circle produces a circle image from a radius, a mode string, and a color string;
+</P>
+
+<P>
+•  ellipse produces an ellipse from two radii, a mode string, and a color string;
+</P>
+
+<P>
+•  line produces a line from two points and a color string;
+</P>
+
+<P>
+•  rectangle produces a rectangle from a width, a height, a mode string, and a color string;
+</P>
+
+<P>
+•  text produces a text image from a string, a font size, and a color string; and
+</P>
+
+<P>
+•  triangle produces an upward-pointing equilateral triangle from a size, a mode string, and a color string.
+</P>
+
+<P>
+The names of these operations mostly explain what kind of image they create. All you must know is that mode strings means "solid" or "outline", and color strings are strings such as "orange", "black", and so on.
+</P>
+
+<P>
+Play with these operations in the interactions window:
+</P>
+
+<FIGURE src="images/00040.png">
+
+</FIGURE>
+
+<P>
+Stop! The above uses a previously unmentioned operation. Look up its documentation and find out how many more such operations the 2htdp/image library comes with. Experiment with the operations you find.
+</P>
+
+<P>
+The second kind of functions on images concern image properties:
+</P>
+
+<P>
+•  image-width determines the width of an image in terms of pixels;
+</P>
+
+<P>
+•  image-height determines the height of an image;
+</P>
+
+<P>
+They extract the kind of values from images that you expect:
+</P>
+
+<CODE>
+> (image-width (circle 10 "solid" "red")) 20 > (image-height (rectangle 10 20 "solid" "blue")) 20
+</CODE>
+
+<P>
+Stop! Explain how DrRacket determines the value of this expression:
+</P>
+
+<CODE>
+(+ (image-width (circle 10 "solid" "red"))    (image-height (rectangle 10 20 "solid" "blue")))
+</CODE>
+
+<P>
+A proper understanding of the third kind of image-composing primitives requires the introduction of one new idea: the anchor point. An image isn’t just a single pixel, it consists of many pixels. Specifically, each image is like a photograph, that is, a rectangle of pixels. One of these pixels is an implicit anchor point. When you use an image primitive to compose two images, the composition happens with respect to the anchor points, unless you specify some other point explicitly:
+</P>
+
+<P>
+•  overlay places all the images to which it is applied on top of each other, using the center as anchor point;
+</P>
+
+<P>
+•  overlay/xy is like overlay but accepts two numbers—x and y—between two image arguments. It shifts the second image by x pixels to the right and y pixels down—all with respect to the first image’s top-left corner; unsurprisingly, a negative x shifts the image to the left and a negative y up; and
+</P>
+
+<P>
+•  overlay/align is like overlay but accepts two strings that shift the anchor point(s) to other parts of the rectangles. There are nine different positions overall; experiment with all possibilities!
+</P>
+
+<P>
+The 2htdp/image library comes with many other primitive functions for combining images. As you get familiar with image processing, you will want to read up on those. For now, we introduce three more because they are important for creating animated scenes and images for games:
+</P>
+
+<P>
+•  empty-scene creates a rectangle of some given width and height;
+</P>
+
+<P>
+•  place-image places an image into a scene at a specified position. If the image doesn’t fit into the given scene, it is appropriately cropped;
+</P>
+
+<P>
+•  scene+line consumes a scene, four numbers, and a color to draw a line into the given image. Experiment with it to see how it works.
+</P>
+
+<P>
+The laws of arithmetic for images are analogous to those for numbers; see figure 10 for some examples and a comparison with numeric arithmetic. Again, no image gets destroyed or changed. Like +, these primitives just make up new images that combine the given ones in some manner.
+</P>
+
+<FIGURE src="images/00041.png">
+Figure 10: Laws of image creation
+</FIGURE>
+
+<EXERCISE>
+Exercise 5. Use the 2htdp/image library to create the image of a simple boat or tree. Make sure you can easily change the scale of the entire image.
+</EXERCISE>
+
+<MARGIN_NOTE>
+Copy and paste the image into your DrRacket.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 6. Add the following line to the definitions area:
+</EXERCISE>
+
+<FIGURE src="images/00042.png">
+
+</FIGURE>
+
+<P>
+Create an expression that counts the number of pixels in the image.
+</P>
+
+<h2>
+1.5 The Arithmetic of Booleans
+</h2>
+
+<P>
+We need one last kind of primitive data before we can design programs: Boolean values. There are only two kinds of Boolean values: #true and #false. Programs use Boolean values for representing decisions or the status of switches.
+</P>
+
+<P>
+Computing with Boolean values is simple, too. In particular, BSL programs get away with three operations: or, and, and not. These operations are kind of like addition, multiplication, and negation for numbers. Of course, because there are only two Boolean values, it is actually possible to demonstrate how these functions work in all possible situations:
+</P>
+
+<P>
+•  or checks whether any of the given Boolean values is #true:
+</P>
+
+<P>
+> (or #true #true) #true > (or #true #false) #true > (or #false #true) #true > (or #false #false) #false
+</P>
+
+<P>
+•  and checks whether all of the given Boolean values are #true:
+</P>
+
+<P>
+> (and #true #true) #true > (and #true #false) #false > (and #false #true) #false > (and #false #false) #false
+</P>
+
+<P>
+•  and not always picks the Boolean that isn’t given:
+</P>
+
+<P>
+> (not #true) #false
+</P>
+
+<P>
+Unsurprisingly, or and and may be used with more than two expressions. Finally, there is more to or and and than these explanations suggest, but to explain the extra bit requires a second look at nested expressions.
+</P>
+
+<EXERCISE>
+Exercise 7. Boolean expressions can express some everyday problems. Suppose you want to decide whether today is an appropriate day to go to the mall. You go to the mall either if it is not sunny or if today is Friday (because that is when stores post new sales items).
+</EXERCISE>
+
+<MARGIN_NOTE>
+Nadeem Hamid suggested this formulation of the exercise.
+</MARGIN_NOTE>
+
+<P>
+Here is how you could go about it using your new knowledge about Booleans. First add these two lines to the definitions area of DrRacket:
+</P>
+
+<CODE>
+(define sunny #true) (define friday #false)
+</CODE>
+
+<P>
+Now create an expression that computes whether sunny is false or friday is true. So in this particular case, the answer is #false. (Why?)
+</P>
+
+<P>
+See exercise 1 for how to create expressions in DrRacket. How many combinations of Booleans can you associate with sunny and friday?
+</P>
+
+<h2>
+1.6 Mixing It Up with Booleans
+</h2>
+
+<P>
+One important use of Boolean values concerns calculations with different kinds of data. We know from the Prologue that BSL programs may name values via definitions. For example, we could start a program with
+</P>
+
+<CODE>
+(define x 2)
+</CODE>
+
+<P>
+and then compute its inverse:
+</P>
+
+<CODE>
+(define inverse-of-x (/ 1 x))
+</CODE>
+
+<P>
+This works fine, as long as we don’t edit the program and change x to 0.
+</P>
+
+<P>
+This is where Boolean values come in, in particular conditional calculations. First, the primitive function = determines whether two (or more) numbers are equal. If so, it produces #true, otherwise #false. Second, there is a kind of BSL expression that we haven’t mentioned so far: the if expression. It uses the word “if” as if it were a primitive function; it isn’t. The word “if” is followed by three expressions, separated by blank spaces (that includes tabs, line breaks, etc.). Naturally the entire expression is enclosed in parentheses. Here is an example:
+</P>
+
+<CODE>
+(if (= x 0) 0 (/ 1 x))
+</CODE>
+
+<P>
+This if expression contains (= x 0), 0, and (/ 1 x), three so-called sub-expressions. The evaluation of this expression proceeds in two steps:
+</P>
+
+<P>
+1. The first expression is always evaluated. Its result must be a Boolean.
+</P>
+
+<P>
+2. If the result of the first expression is #true, then the second expression is evaluated; otherwise the third one is. Whatever their results are, they are also the result of the entire if expression.
+</P>
+
+<MARGIN_NOTE>
+Right-click on the result and choose a different representation.
+</MARGIN_NOTE>
+
+<P>
+Given the definition of x above, you can experiment with if expressions in the interactions area:
+</P>
+
+<CODE>
+> (if (= x 0) 0 (/ 1 x)) 0.5
+</CODE>
+
+<P>
+Using the laws of arithmetic, you can figure out the result yourself:
+</P>
+
+<CODE>
+(if (= x 0) 0 (/ 1 x)) == ; because x stands for 2 (if (= 2 0) 0 (/ 1 2)) == ; 2 is not equal to 0, (= 2 0) is #false (if #false 0 (/ 1 x)) (/ 1 2) == ; normalize this to its decimal representation 0.5
+</CODE>
+
+<P>
+In other words, DrRacket knows that x stands for 2 and that the latter is not equal to 0. Hence, (= x 0) produces the result #false, meaning if picks its third sub-expression to be evaluated.
+</P>
+
+<P>
+Stop! Imagine you edit the definition so that it looks like this:
+</P>
+
+<CODE>
+(define x 0)
+</CODE>
+
+<P>
+What do you think
+</P>
+
+<CODE>
+(if (= x 0) 0 (/ 1 x))
+</CODE>
+
+<P>
+evaluates to in this context? Why? Show your calculation.
+</P>
+
+<P>
+In addition to =, BSL provides a host of other comparison primitives. Explain what the following four comparison primitives determine about numbers: <, <=, >, >=.
+</P>
+
+<P>
+Strings aren’t compared with = and its relatives. Instead, you must use string=? or string<=? or string>=? if you ever need to compare strings. While it is obvious that string=? checks whether the two given strings are equal, the other two primitives are open to interpretation. Look up their documentation. Or, experiment, guess a general law, and then check in the documentation whether you guessed right.
+</P>
+
+<P>
+You may wonder why it is ever necessary to compare strings with each other. So imagine a program that deals with traffic lights. It may use the strings "green", "yellow", and "red". This kind of program may contain a fragment such as this:
+</P>
+
+<CODE>
+(define current-color …)
+</CODE>
+
+<CODE>
+(define next-color   (if (string=? "green" current-color) "yellow" …))
+</CODE>
+
+<P>
+It should be easy to imagine that this fragment deals with the computation that determines which light bulb is to be turned on next and which one should be turned off.
+</P>
+
+<MARGIN_NOTE>
+The dots in the definition of current-color aren’t a part of the program, of course. Replace them with a string that refers to a color.
+</MARGIN_NOTE>
+
+<P>
+The next few chapters introduce better expressions than if to express conditional computations and, most importantly, systematic ways for designing them.
+</P>
+
+<EXERCISE>
+Exercise 8. Add the following line to the definitions area:
+</EXERCISE>
+
+<FIGURE src="images/00043.png">
+
+</FIGURE>
+
+<P>
+Create a conditional expression that computes whether the image is tall or wide. An image should be labeled "tall" if its height is larger than or equal to its width; otherwise it is "wide". See exercise 1 for how to create such expressions in DrRacket; as you experiment, replace the cat with a rectangle of your choice to ensure that you know the expected answer.
+</P>
+
+<P>
+Now try the following modification. Create an expression that computes whether a picture is "tall", "wide", or "square".
+</P>
+
+<h2>
+1.7 Predicates: Know Thy Data
+</h2>
+
+<P>
+Remember the expression (string-length 42) and its result. Actually, the expression doesn’t have a result, it signals an error. DrRacket lets you know about errors via red text in the interactions area and highlighting of the faulty expression (in the definitions area). This way of marking errors is particularly helpful when you use this expression (or its relatives) deeply nested within some other expression:
+</P>
+
+<CODE>
+(* (+ (string-length 42) 1) pi)
+</CODE>
+
+<P>
+Experiment with this expression by entering it both into DrRacket’s interactions area and in the definitions area (and then click on RUN).
+</P>
+
+<P>
+Of course, you really don’t want such error-signaling expressions in your program. And usually, you don’t make such obvious mistakes as using 42 as a string. It is quite common, however, that programs deal with variables that may stand for either a number or a string:
+</P>
+
+<CODE>
+(define in …) (string-length in)
+</CODE>
+
+<P>
+A variable such as in can be a placeholder for any value, including a number, and this value then shows up in the string-length expression.
+</P>
+
+<P>
+One way to prevent such accidents is to use a predicate, which is a function that consumes a value and determines whether or not it belongs to some class of data. For example, the predicate number? determines whether the given value is a number or not:
+</P>
+
+<CODE>
+> (number? 4) #true > (number? pi) #true > (number? #true) #false > (number? "fortytwo") #false
+</CODE>
+
+<P>
+As you see, the predicates produce Boolean values. Hence, when predicates are combined with conditional expressions, programs can protect expressions from misuse:
+</P>
+
+<CODE>
+(define in …)(if (string? in) (string-length in) …)
+</CODE>
+
+<P>
+Every class of data that we introduced in this chapter comes with a predicate. Experiment with number?, string?, image?, and boolean? to ensure that you understand how they work.
+</P>
+
+<MARGIN_NOTE>
+Put (sqrt -1) at the prompt in the interactions area and hit the “enter” key. Take a close look at the result. The result you see is the first so-called complex number anyone encounters. While your teacher may have told you that one doesn’t compute the square root of negative numbers, the truth is that mathematicians and some programmers find it acceptable and useful to do so anyway. But don’t worry: understanding complex numbers is not essential to being a program designer.
+</MARGIN_NOTE>
+
+<P>
+In addition to predicates that distinguish different forms of data, programming languages also come with predicates that distinguish different kinds of numbers. In BSL, numbers are classified in two ways: by construction and by their exactness. Construction refers to the familiar sets of numbers: integer?, rational?, real?, and complex?, but many programming languages, including BSL, also choose to use finite approximations to well-known constants, which leads to somewhat surprising results with the rational? predicate:
+</P>
+
+<CODE>
+> (rational? pi) #true
+</CODE>
+
+<P>
+As for exactness, we have mentioned the idea before. For now, experiment with exact? and inexact? to make sure they perform the checks that their names suggest. Later we are going to discuss the nature of numbers in some detail.
+</P>
+
+<EXERCISE>
+Exercise 9. Add the following line to the definitions area of DrRacket:
+</EXERCISE>
+
+<CODE>
+(define in …)
+</CODE>
+
+<P>
+Then create an expression that converts the value of in to a positive number. For a String, it determines how long the String is; for an Image, it uses the area; for a Number, it decrements the number by 1, unless it is already 0 or negative; for #true it uses 10 and for #false 20.
+</P>
+
+<P>
+See exercise 1 for how to create expressions in DrRacket.
+</P>
+
+<EXERCISE>
+Exercise 10. Now relax, eat, sleep, and then tackle the next chapter.
+</EXERCISE>

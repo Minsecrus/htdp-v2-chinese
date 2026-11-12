@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec25-1" class="calibre16"></a>25.1 Recursion without Structure</h2>
+<p class="tni">Imagine you have joined the DrRacket team. The team is working on a sharing service to support collaborations among programmers. Concretely, the next revision of DrRacket is going to enable ISL programmers to share the content of their DrRacket’s definitions area across several computers. Each time one programmer modifies the buffer, the revised DrRacket broadcasts the content of the definitions area to the instances of DrRacket that participate in the sharing session.</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Your task is to design the function <samp class="mono">bundle</samp>, which prepares the content of the definitions area for broadcasting. DrRacket hands over the content as a list of 1Strings. The function’s task is to bundle up chunks of individual “letters” into chunks and to thus produce a list of strings—called <b class="calibre9">chunks</b>—of a given length, called <b class="calibre9">chunk size</b>.</p>
+</div>
+<p class="calibre8">As you can see, the problem basically spells out the signature and there is no need for any problem-specific data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of 1String<samp class="mono">] </samp>N<samp class="mono"> -&gt; [</samp>List-of String<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; bundles</samp><samp class="mono"> chunks of</samp><samp class="mono"> s into</samp><samp class="mono"> strings of</samp><samp class="mono"> length n</samp> <br class="calibre4"/><samp class="mono">(define (bundle</samp><samp class="mono"> s n)</samp> <br class="calibre4"/><samp class="mono">  '())</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_605" title="605"></span>The purpose statement reformulates a sentence fragment from the problem statement and uses the parameters from the dummy function header.</p>
+<p class="calibre8">The third step calls for function examples. Here is a list of 1Strings:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "a"</samp><samp class="mono"> "b" "c"</samp><samp class="mono"> "d" "e"</samp><samp class="mono"> "f" "g"</samp><samp class="mono"> "h")</samp></p>
+</div>
+<p class="tni">If we tell <samp class="mono">bundle</samp> to bundle this list into pairs—that is, <samp class="mono">n</samp> is <samp class="mono">2</samp>—then the following list is the expected result:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "ab"</samp><samp class="mono"> "cd" "ef"</samp><samp class="mono"> "gh")</samp></p>
+</div>
+<p class="tni">Now if <samp class="mono">n</samp> is <samp class="mono">3</samp> instead, there is a left-over “letter.” Since the problem statement does not tell us which of the characters is left over, we can imagine at least two valid scenarios:</p>
+<p class="blf">•  The function produces <samp class="mono">(list "abc" "def" "g")</samp>; that is, it considers the last letter as the left-over one.</p>
+<p class="bll">•  Or, it produces <samp class="mono">(list "a" "bcd" "efg")</samp>, which packs the lead character into a string by itself.</p>
+<p class="tni">Stop! Come up with at least one other choice.</p>
+<p class="calibre8">To make things simple, we pick the first choice as the desired result and say so by writing down a corresponding test:</p>
+<figure class="co"><img src="../images/00582.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Note the use of <samp class="mono">explode</samp>; it makes the test readable.</p>
+<p class="calibre8">Examples and tests must also describe what happens at the boundary of data definitions. In this context, boundary clearly means <samp class="mono">bundle</samp> is given a list that is too short for the given chunk size:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (bundle</samp><samp class="mono"> '("a" "b")</samp><samp class="mono"> 3) (list</samp><samp class="mono"> "ab"))</samp></p>
+</div>
+<p class="tni">It also means we must consider what happens when <samp class="mono">bundle</samp> is given <samp class="mono">'()</samp>. For simplicity, we choose <samp class="mono">'()</samp> as the desired result:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (bundle</samp><samp class="mono"> '() 3)</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">One natural alternative is to ask for <samp class="mono">'("")</samp>. Can you see others?</p>
+<p class="calibre8">The template step reveals that a structural approach cannot work. <a id="rfig146" href="part0013_split_003.html#fig146" class="calibre5">Figure 146</a> shows <b class="calibre9">four</b> possible templates. Since both arguments to <samp class="mono">bundle</samp> <span epub:type="pagebreak" id="pg_606" title="606"></span>are complex, the first two consider one of the arguments atomic. That clearly cannot be the case because the function has to take apart each argument. The third template is based on the assumption that the two arguments are processed in lockstep, which is close—except that <samp class="mono">bundle</samp> clearly has to reset the chunk size to its original value at regular intervals. The final template says that the two arguments are processed independently, meaning there are four possibilities to proceed at each stage. This final design decouples the arguments too much because the list and the counting number must be processed together. In short, we must admit that the structural templates appear to be useless for this design problem.</p>
+<div class="figure">
+<figure class="img"><a id="fig146" class="calibre5"></a><img src="../images/00583.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_003.html#rfig146" class="calibre5">Figure 146</a>:</span> <span>Useless templates for breaking up strings into chunks</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_607" title="607"></span><a id="rfig147" href="part0013_split_003.html#fig147" class="calibre5">Figure 147</a> shows a complete definition for <samp class="mono">bundle</samp>. The definition uses the <samp class="mono">drop</samp> and <samp class="mono">take</samp> functions requested in exercise 395; these functions are also available in standard libraries. For completeness, the figure comes with their definitions: <samp class="mono">drop</samp> eliminates up to <samp class="mono">n</samp> items from the front of the list, <samp class="mono">take</samp> returns up to that many items. Using these functions, it is quite straightforward to define <samp class="mono">bundle</samp>:</p>
+<p class="nlf">1. if the given list is <samp class="mono">'()</samp>, the result is <samp class="mono">'()</samp> as decided upon;</p>
+<p class="nlf">2. otherwise <samp class="mono">bundle</samp> uses <samp class="mono">take</samp> to grab the first <samp class="mono">n</samp> 1Strings from <samp class="mono">s</samp> and <samp class="mono">implode</samp>s them into a plain String;</p>
+<p class="nlf">3. it then recurs with a list that is shortened by <samp class="mono">n</samp> items, which is accomplished with <samp class="mono">drop</samp>; and</p>
+<p class="nll"><span epub:type="pagebreak" id="pg_608" title="608"></span>4. finally, <samp class="mono">cons</samp> combines the string from 2 with the list of strings from 3 to create the result for the complete list.</p>
+<div class="figure">
+<figure class="img"><a id="fig147" class="calibre5"></a><img src="../images/00584.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_003.html#rfig147" class="calibre5">Figure 147</a>:</span> <span>Generative recursion</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">List item 3 highlights the key difference between <samp class="mono">bundle</samp> and any function in the first four parts of this book. Because the definition of List-of <samp class="mono">cons</samp>es an item onto a list to create another one, all functions in the first four parts use <samp class="mono">first</samp> and <samp class="mono">rest</samp> to deconstruct a non-empty list. In contrast, <samp class="mono">bundle</samp> uses <samp class="mono">drop</samp>, which removes not just one but <samp class="mono">n</samp> items at once.</p>
+<p class="calibre8">While the definition of <samp class="mono">bundle</samp> is unusual, the underlying ideas are intuitive and not too different from the functions seen so far. Indeed, if the chunk size <samp class="mono">n</samp> is <samp class="mono">1</samp>, <samp class="mono">bundle</samp> specializes to a structurally recursive definition. Also, <samp class="mono">drop</samp> is guaranteed to produce an integral part of the given list, not some arbitrarily rearranged version. And this idea is precisely what the next section presents.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 421. Is <samp class="mono">(bundle '("a" "b" "c") 0)</samp> a proper use of the <samp class="mono">bundle</samp> function? What does it produce? Why? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 422. Define the function <samp class="mono">list-&gt;chunks</samp>. It consumes a list <samp class="mono">l</samp> of arbitrary data and a natural number <samp class="mono">n</samp>. The function’s result is a list of list chunks of size <samp class="mono">n</samp>. Each chunk represents a sub-sequence of items in <samp class="mono">l</samp>.</p>
+<p class="calibre8">Use <samp class="mono">list-&gt;chunks</samp> to define <samp class="mono">bundle</samp> via function composition. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 423. Define <samp class="mono">partition</samp>. It consumes a <samp class="mono">String</samp> s and a natural number <samp class="mono">n</samp>. The function produces a list of string chunks of size <samp class="mono">n</samp>.</p>
+<p class="calibre8">For non-empty strings <samp class="mono">s</samp> and positive natural numbers <samp class="mono">n</samp>,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(equal? (partition</samp><samp class="mono"> s n)</samp><samp class="mono"> (bundle (explode</samp><samp class="mono"> s) n))</samp></p>
+</div>
+<p class="tni">is <samp class="mono">#true</samp>. But don’t use this equality as the definition for <samp class="mono">partition</samp>; use <samp class="mono">substring</samp> instead.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Have <samp class="mono">partition</samp> produce its natural result for the empty string. For the case where <samp class="mono">n</samp> is <samp class="mono">0</samp>, see exercise 421.</p>
+<p class="calibre8"><b class="calibre9">Note</b> The <samp class="mono">partition</samp> function is somewhat closer to what a cooperative DrRacket environment would need than <samp class="mono">bundle</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

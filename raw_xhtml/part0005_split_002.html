@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_3"><a id="sec1" class="calibre16"></a>1 Arithmetic</h1>
+<p class="tni">From the Prologue, you know how to write down the kind of <i class="calibre6">expression</i> you know from first grade in BSL notation:</p>
+<p class="blf">•  write “<span class="colorbox">(</span>”,</p>
+<p class="blf">•  write down the name of a primitive operation <samp class="mono">op</samp>,</p>
+<p class="blf">•  write down the arguments, separated by some space, and</p>
+<p class="bll">•  write down “<span class="colorbox">)</span>”.</p>
+<p class="tni">Just as a reminder, here is a primitive expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1</samp><samp class="mono"> 2)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_34" title="34"></span>It uses <samp class="mono">+</samp>, the operation for adding two numbers, followed by two arguments, which are plain numbers. But here is another example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1</samp><samp class="mono"> (+ 1</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1) 2)</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="tni">This second example exploits two points in the above description that are open to interpretation. First, primitive operations may consume more than two arguments. Second, the arguments don’t have to be numbers per se; they can be expressions, too.</p>
+<p class="marginpar">Scan this first chapter quickly, skip ahead to the second one, and return here, when you encounter “arithmetic” that you don’t recognize.</p>
+<p class="calibre8">Evaluating expressions is also straightforward. First, BSL evaluates all the arguments of a primitive operation. Second, it “feeds” the resulting pieces of data to the operation, which produces a result. Thus,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">3</samp></p>
+</div>
+<p class="tni">and</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1</samp><samp class="mono"> (+ 1</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1) 2)</samp><samp class="mono"> 3 (+</samp><samp class="mono"> 2 2)</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ 1</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 2 2)</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ 1</samp><samp class="mono"> 5 3</samp><samp class="mono"> 4 5)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">18</samp></p>
+</div>
+<p class="tni">These calculations should look familiar because they are the same kind of calculations that you performed in mathematics classes. You may have written down the steps in a different way; you may have never been taught how to write down a sequence of calculation steps. Yet, BSL performs calculations just like you do, and this should be a relief. It guarantees that you understand what it does with primitive operations and primitive data, so there is some hope that you can predict what your programs will compute. Generally speaking, it is critical for a programmer to know how the chosen language calculates because otherwise a program’s computation may harm the people who use them or on whose behalf the programs calculate.</p>
+<p class="marginpar">We use <samp class="monospace-margin">==</samp> to mean “is equal to according to the laws of computation.”</p>
+<p class="calibre8">The rest of this chapter introduces four forms of <i class="calibre6">atomic data</i> of BSL: numbers, strings, images, and Boolean values. We use the word “atomic” here in analogy to physics. You cannot peek inside atomic pieces of data, but you do have functions that combine several pieces of atomic data into another one, retrieve “properties” of them, also in terms of atomic data, and <span epub:type="pagebreak" id="pg_35" title="35"></span>so on. The sections of this chapter introduce some of these functions, also called <i class="calibre6">primitive operations</i> or <i class="calibre6">pre-defined operations</i>. You can find others in the documentation of BSL that comes with DrRacket.</p>
+<p class="marginpar__ita-norm"><i class="calibre6">The next volume,</i> How to Design Components, <i class="calibre6">will explain how to design atomic data.</i></p>
+</section>
+</article>
+</div>
+</body></html>

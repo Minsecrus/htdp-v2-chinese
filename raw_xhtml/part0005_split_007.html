@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_8"><span epub:type="pagebreak" id="pg_44" title="44" class="calibre1"></span><a id="sec1-5" class="calibre16"></a>1.5 The Arithmetic of Booleans</h2>
+<p class="tni">We need one last kind of primitive data before we can design programs: Boolean values. There are only two kinds of <i class="calibre6">Boolean</i> values: <samp class="mono">#true</samp> and <samp class="mono">#false</samp>. Programs use Boolean values for representing decisions or the status of switches.</p>
+<p class="calibre8">Computing with Boolean values is simple, too. In particular, BSL programs get away with three operations: <samp class="mono">or</samp>, <samp class="mono">and</samp>, and <samp class="mono">not</samp>. These operations are kind of like addition, multiplication, and negation for numbers. Of course, because there are only two Boolean values, it is actually possible to demonstrate how these functions work in <b class="calibre9">all</b> possible situations:</p>
+<p class="blf">•  <samp class="mono">or</samp> checks whether <b class="calibre9">any</b> of the given Boolean values is <samp class="mono">#true</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (or</samp><samp class="mono"> #true #true)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (or</samp><samp class="mono"> #true #false)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (or</samp><samp class="mono"> #false #true)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (or</samp><samp class="mono"> #false #false)</samp> <br class="calibre4"/><samp class="mono">#false</samp></samp></p>
+</div>
+<p class="blf">•  <samp class="mono">and</samp> checks whether <b class="calibre9">all</b> of the given Boolean values are <samp class="mono">#true</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (and</samp><samp class="mono"> #true #true)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (and</samp><samp class="mono"> #true #false)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (and</samp><samp class="mono"> #false #true)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (and</samp><samp class="mono"> #false #false)</samp> <br class="calibre4"/><samp class="mono">#false</samp></samp></p>
+</div>
+<p class="blf">•  and <samp class="mono">not</samp> always picks the Boolean that isn’t given:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (not</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">#false</samp></samp></p>
+</div>
+<p class="tni">Unsurprisingly, <samp class="mono">or</samp> and <samp class="mono">and</samp> may be used with more than two expressions. Finally, there is more to <samp class="mono">or</samp> and <samp class="mono">and</samp> than these explanations suggest, but to explain the extra bit requires a second look at nested expressions.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_45" title="45"></span><b class="calibre9">Exercise</b> 7. Boolean expressions can express some everyday problems. Suppose you want to decide whether today is an appropriate day to go to the mall. You go to the mall either if it is not sunny or if today is Friday (because that is when stores post new sales items).</p>
+<p class="marginpar">Nadeem Hamid suggested this formulation of the exercise.</p>
+<p class="calibre8">Here is how you could go about it using your new knowledge about Booleans. First add these two lines to the definitions area of DrRacket:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define sunny</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(define friday</samp><samp class="mono"> #false)</samp></p>
+</div>
+<p class="tni">Now create an expression that computes whether <samp class="mono">sunny</samp> is false or <samp class="mono">friday</samp> is true. So in this particular case, the answer is <samp class="mono">#false</samp>. (Why?)</p>
+<p class="calibre8">See exercise 1 for how to create expressions in DrRacket. How many combinations of Booleans can you associate with <samp class="mono">sunny</samp> and <samp class="mono">friday</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

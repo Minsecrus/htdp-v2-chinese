@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_15"><span epub:type="pagebreak" id="pg_413" title="413" class="calibre1"></span><a id="sec16-1" class="calibre16"></a>16.1 Existing Abstractions</h2>
+<p class="tni">ISL provides a number of abstract functions for processing natural numbers and lists. <a id="rfig95" href="part0009_split_014.html#fig95" class="calibre5">Figure 95</a> collects the header material for the most important ones. The first one processes natural numbers and builds lists:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (build-list</samp><samp class="mono"> 3 add1)</samp> <br class="calibre4"/><samp class="mono">(list 1</samp><samp class="mono"> 2 3)</samp></p>
+</div>
+<p class="tni">The next three process lists and produce lists:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (filter</samp><samp class="mono"> odd? (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5))</samp> <br class="calibre4"/><samp class="mono">(list 1</samp><samp class="mono"> 3 5)</samp> <br class="calibre4"/><samp class="mono">&gt; (sort</samp><samp class="mono"> (list 3</samp><samp class="mono"> 2 1</samp><samp class="mono"> 4 5)</samp><samp class="mono"> &gt;)</samp> <br class="calibre4"/><samp class="mono">(list 5</samp><samp class="mono"> 4 3</samp><samp class="mono"> 2 1)</samp> <br class="calibre4"/><samp class="mono">&gt; (map</samp><samp class="mono"> add1 (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 2 3</samp><samp class="mono"> 3 3))</samp> <br class="calibre4"/><samp class="mono">(list 2</samp><samp class="mono"> 3 3</samp><samp class="mono"> 4 4</samp><samp class="mono"> 4)</samp></p>
+</div>
+<p class="tni">In contrast, <samp class="mono">andmap</samp> and <samp class="mono">ormap</samp> reduce lists to a Boolean:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (andmap</samp><samp class="mono"> odd? (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5))</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (ormap</samp><samp class="mono"> odd? (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5))</samp> <br class="calibre4"/><samp class="mono">#true</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig95" class="calibre5"></a><img src="../images/00353.gif" alt="" class="calibre13"/>
+<figcaption><p class="cap"><span><a href="part0009_split_014.html#rfig95" class="calibre5">Figure 95</a>:</span> <span>ISL’s abstract functions for list processing (1)</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Hence, this kind of computation is called a <i class="calibre6">reduction</i>.</p>
+<p class="calibre8">The two functions in <a id="rfig96" href="part0009_split_014.html#fig96" class="calibre5">figure 96</a>, <samp class="mono">foldr</samp> and <samp class="mono">foldl</samp>, are extremely powerful. Both <b class="calibre9">reduce</b> lists to values. The sample computations explain the abstract examples in the headers of <samp class="mono">foldr</samp> and <samp class="mono">foldl</samp> via an application of the functions to <samp class="mono">+</samp>, <samp class="mono">0</samp>, and a short list. As you can see, <samp class="mono">foldr</samp> processes the list values from right to left and <samp class="mono">foldl</samp> from left to right. While for some functions the direction makes no difference, this isn’t true in general.</p>
+<div class="figure">
+<figure class="img"><a id="fig96" class="calibre5"></a><img src="../images/00354.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_014.html#rfig96" class="calibre5">Figure 96</a>:</span> <span>ISL’s abstract functions for list processing (2)</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">Mathematics calls functions <i class="calibre6">associative</i> if the order makes no difference. ISL’s <samp class="monospace-margin">=</samp> is associative on integers but not on inexacts. See below.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 256. Explain the following abstract function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X]</samp><samp class="mono"> [X -&gt;</samp><samp class="mono"> </samp>Number<samp class="mono">] [</samp>NEList-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> X</samp> <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the (first)</samp><samp class="mono"> item in</samp><samp class="mono"> lx that</samp><samp class="mono"> </samp><b class="calibre9">maximizes</b><samp class="mono"> f</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> (argmax f</samp><samp class="mono"> (list x-1</samp><samp class="mono"> <span>…</span> x-n))</samp><samp class="mono"> == x-i,</samp> <br class="calibre4"/><samp class="mono">; then</samp><samp class="mono"> (&gt;= (f</samp><samp class="mono"> x-i) (f</samp><samp class="mono"> x-1)), (&gt;=</samp><samp class="mono"> (f x-i)</samp><samp class="mono"> (f x-2)),</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">(define (argmax</samp><samp class="mono"> f lx)</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<p class="tni">Use it on concrete examples in ISL. Can you articulate an analogous purpose statement for <samp class="mono">argmin</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_414" title="414"></span><a id="rfig97" href="part0009_split_014.html#fig97" class="calibre5">Figure 97</a> illustrates the power of composing the functions from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>. Its main function is <samp class="mono">listing</samp>. The purpose is to create a string from a list of <samp class="mono">address</samp>es. Its purpose statement suggests three tasks and thus the design of three functions:</p>
+<p class="nlf">1. one that extracts the first names from the given list of <samp class="mono">Addr</samp>;</p>
+<p class="nlf">2. one that sorts these names in alphabetical order; and</p>
+<p class="nll">3. one that concatenates the strings from step 2.</p>
+<div class="figure">
+<figure class="img"><a id="fig97" class="calibre5"></a><img src="../images/00355.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_014.html#rfig97" class="calibre5">Figure 97</a>:</span> <span>Creating a program with abstractions</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Before you read on, you may wish to execute this plan. That is, design all three functions and then compose them in the sense of chapter 11.2 to obtain your own version of <samp class="mono">listing</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_415" title="415"></span>In the new world of abstractions, it is possible to design a single function that achieves the same goal. Take a close look at the innermost expression of <samp class="mono">listing</samp> in <a href="part0009_split_014.html#fig97" class="calibre5">figure 97</a>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(map address-first-name</samp><samp class="mono"> l)</samp></p>
+</div>
+<p class="tni">By the purpose statement of <samp class="mono">map</samp>, it applies <samp class="mono">address-first-name</samp> to every single instance of <samp class="mono">address</samp>, producing a list of first names as strings. Here is the immediately surrounding expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(sort <span>…</span></samp><samp class="mono"> string&lt;?)</samp></p>
+</div>
+<p class="tni">The dots represent the result of the <samp class="mono">map</samp> expression. Since the latter supplies <span epub:type="pagebreak" id="pg_416" title="416"></span>a list of strings, the <samp class="mono">sort</samp> expression produces a sorted list of first names. And that leaves us with the outermost expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(foldr string-append-with-space</samp><samp class="mono"> " "</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<p class="tni">This one reduces the sorted list of first names to a single string, using a function named <samp class="mono">string-append-with-space</samp>. With such a suggestive name, you can easily imagine now that this reduction concatenates all the strings in the desired way—even if you do not quite understand how the combination of <samp class="mono">foldr</samp> and <samp class="mono">string-append-with-space</samp> works.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 257. You can design <samp class="mono">build-list</samp> and <samp class="mono">foldl</samp> with the design recipes that you know, but they are not going to be like the ones that ISL provides. For example, the design of your own <samp class="mono">foldl</samp> function requires a use of the list <samp class="mono">reverse</samp> function:</p>
+<figure class="co"><img src="../images/00356.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Design <samp class="mono">build-l*st</samp>, which works just like <samp class="mono">build-list</samp>. <b class="calibre9">Hint</b> Recall the <samp class="mono">add-at-end</samp> function from exercise 193. <b class="calibre9">Note on Design</b> Part VI covers the concepts needed to design these functions from scratch. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

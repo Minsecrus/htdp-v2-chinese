@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec25-2" class="calibre16"></a>25.2 Recursion that Ignores Structure</h2>
+<p class="tni">Recall that the <samp class="mono">sort&gt;</samp> function from chapter 11 consumes a list of numbers and rearranges it in some order, typically ascending or descending. It proceeds by inserting the first number into the appropriate position of the sorted rest of the list. Put differently, it is a structurally recursive function that reprocesses the result of the natural recursions.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_609" title="609"></span>Hoare’s quick-sort algorithm goes about sorting lists in a radically different manner and has become the classic example of generative recursion. The underlying generative step uses the time-honored strategy of divide-and-conquer. That is, it divides the nontrivial instances of the problem into two smaller, related problems; solves those smaller problems; and combines their solutions into a solution for the original problem. In the case of the quick-sort algorithm, the intermediate goal is to divide the list of numbers into two lists:</p>
+<p class="blf">•  one that contains all the numbers that are strictly smaller than the first</p>
+<p class="bll">•  and another one with all those items that are strictly larger.</p>
+<p class="tni">Then the two smaller lists are sorted via the quick-sort algorithm. Once the two lists are sorted, the results are composed with the first item placed in the middle. Owing to its special role, the first item on the list is called the <i class="calibre6">pivot item</i>.</p>
+<p class="calibre8">To develop an understanding of how the quick-sort algorithm works, let’s walk through an example, quick-sorting <samp class="mono">(list 11 8 14 7)</samp>. <a id="rfig148" href="part0013_split_004.html#fig148" class="calibre5">Figure 148</a> illustrates the process in a graphical way. The figure consists of a top half, the divide phase, and the bottom half, the conquer phase.</p>
+<div class="figure">
+<figure class="img"><a id="fig148" class="calibre5"></a><img src="../images/00585.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_004.html#rfig148" class="calibre5">Figure 148</a>:</span> <span>A graphical illustration of the quick-sort algorithm</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The partition phase is represented with boxes and solid arrows. Three arrows emerge from each boxed list and go to a box with three pieces: the circled pivot element in the middle, to its left the boxed list of numbers smaller than the pivot, and to its right the boxed list of those numbers that are larger than the pivot. Each of these steps isolates at least one number as the pivot, meaning the two neighboring lists are shorter than the given list. Consequently, the overall process terminates too.</p>
+<p class="calibre8">Consider the first step where the input is <samp class="mono">(list 11 8 14 7)</samp>. The pivot item is <samp class="mono">11</samp>. Partitioning the list into items larger and smaller than <samp class="mono">11</samp> produces <samp class="mono">(list 8 7)</samp> and <samp class="mono">(list 14)</samp>. The remaining steps of the partitioning phase work in an analogous way. Partitioning ends when all numbers have been isolated as pivot elements. At this point, you can already read off the final result by reading the pivots from left to right.</p>
+<p class="calibre8">The conquering phase is represented with dashed arrows and boxed lists. Three arrows enter each result box: the middle one from a pivot, the left one from the boxed result of sorting the smaller numbers, and the right one from the boxed result of sorting the larger ones. Each step adds at least one number to the result list, the pivot, meaning the lists grow toward the bottom of the diagram. The box at the bottom is a sorted variant of the given list at the top.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_610" title="610"></span>Take a look at the left-most, upper-most conquer step. It combines the pivot <samp class="mono">7</samp> with two empty lists, resulting in <samp class="mono">'(7)</samp>. The next one down corresponds to the partitioning step that isolated <samp class="mono">8</samp> and thus yields <samp class="mono">'(7 8)</samp>. Each level in the conquering phase mirrors a corresponding level from the partitioning phase. After all, the overall process is recursive.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 424. Draw a quick-sort diagram like the one in <a href="part0013_split_004.html#fig148" class="calibre5">figure 148</a> for <samp class="mono">(list 11 9 2 18 12 14 4 1)</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Now that we have a good understanding of the quick-sort idea, we can translate it into ISL+. Clearly, <samp class="mono">quick-sort&lt;</samp> distinguishes two cases. If the input is <samp class="mono">'()</samp>, it produces <samp class="mono">'()</samp> because this list is sorted already; otherwise, it performs a generative recursion. This case split suggests the following <samp class="mono">cond</samp> expression:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_611" title="611"></span><img src="../images/00586.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The answer for the first case is given. For the second case, when <samp class="mono">quick-sort&lt;</samp>’s input is a non-empty list, the algorithm uses the first item to partition the rest of the list into two sublists: a list with all items smaller than the pivot item and another one with those larger than the pivot item.</p>
+<p class="calibre8">Since the rest of the list is of unknown size, we leave the task of partitioning the list to two auxiliary functions: <samp class="mono">smallers</samp> and <samp class="mono">largers</samp>. They process the list and filter out those items that are smaller and larger, respectively, than the pivot. Hence each auxiliary function accepts two arguments, namely, a list of numbers and a number. Designing these two functions is an exercise in structural recursion. Try on your own or read the definitions shown in <a id="rfig149" href="part0013_split_004.html#fig149" class="calibre5">figure 149</a>.</p>
+<div class="figure">
+<figure class="img"><a id="fig149" class="calibre5"></a><img src="../images/00587.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_004.html#rfig149" class="calibre5">Figure 149</a>:</span> <span>The quick-sort algorithm</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Each of these lists is sorted separately, using <samp class="mono">quick-sort&lt;</samp>, which implies the use of recursion, specifically the following two expressions:</p>
+<p class="nlf">1. <samp class="mono">(quick-sort&lt; (smallers alon pivot))</samp>, which sorts the list of items smaller than the pivot; and</p>
+<p class="nll">2. <samp class="mono">(quick-sort&lt; (largers alon pivot))</samp>, which sorts the list of items larger than the pivot.</p>
+<p class="tni">Once <samp class="mono">quick-sort&lt;</samp> has the sorted versions of the two lists, it must combine the two lists and the pivot in the proper order: first all those items smaller than <samp class="mono">pivot</samp>, then <samp class="mono">pivot</samp>, and finally all those that are larger. Since the first and last list are already sorted, <samp class="mono">quick-sort&lt;</samp> can simply use <samp class="mono">append</samp>:</p>
+<figure class="co"><img src="../images/00588.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><a href="part0013_split_004.html#fig149" class="calibre5">Figure 149</a> contains the full program; read it before proceeding.</p>
+<p class="calibre8">Now that we have an actual function definition, we can evaluate the example from above by hand:</p>
+
+<p class="stx"><samp class="mono">(quick-sort&lt; (list 11 8 14 7))</samp></p>
+
+<figure class="co"><span epub:type="pagebreak" id="pg_612" title="612"></span><img src="../images/00589.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_613" title="613"></span>The calculation shows the essential steps of the sorting process, that is, the partitioning steps, the recursive sorting steps, and the concatenation of the three parts. From this calculation, it is easy to see how <samp class="mono">quick-sort&lt;</samp> implements the process illustrated in <a href="part0013_split_004.html#fig148" class="calibre5">figure 148</a>.</p>
+<p class="calibre8">Both <a href="part0013_split_004.html#fig148" class="calibre5">figure 148</a> and the calculation also show how <samp class="mono">quick-sort&lt;</samp> completely ignores the structure of the given list. The first recursion works on two distant numbers from the originally given list and the second one on the list’s third item. These recursions aren’t random, but they are certainly not relying on the structure of the data definition.</p>
+<p class="calibre8">Contrast <samp class="mono">quick-sort&lt;</samp>’s organization with that of the <samp class="mono">sort&gt;</samp> function from chapter 11. The design of the latter follows the structural design recipe, yielding a program that processes a list item by item. By splitting the list, <samp class="mono">quick-sort&lt;</samp> can speed up the process of sorting the list, though at the cost of not using plain <samp class="mono">first</samp> and <samp class="mono">rest</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 425. Articulate purpose statements for <samp class="mono">smallers</samp> and <samp class="mono">largers</samp> in <a href="part0013_split_004.html#fig149" class="calibre5">figure 149</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_614" title="614"></span><b class="calibre9">Exercise</b> 426. Complete the hand-evaluation from above. A close inspection of the evaluation suggests an additional trivial case for <samp class="mono">quick-sort&lt;</samp>. Every time <samp class="mono">quick-sort&lt;</samp> consumes a list of one item, it returns it as is. After all, the sorted version of a list of one item is the list itself.</p>
+<p class="calibre8">Modify <samp class="mono">quick-sort&lt;</samp> to take advantage of this observation. Evaluate the example again. How many steps does the revised algorithm save? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 427. While <samp class="mono">quick-sort&lt;</samp> quickly reduces the size of the problem in many cases, it is inappropriately slow for small problems. Hence people use <samp class="mono">quick-sort&lt;</samp> to reduce the size of the problem and switch to a different sort function when the list is small enough.</p>
+<p class="calibre8">Develop a version of <samp class="mono">quick-sort&lt;</samp> that uses <samp class="mono">sort&lt;</samp> (an appropriately adapted variant of <samp class="mono">sort&gt;</samp> from chapter 11.3) if the length of the input is below some threshold. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 428. If the input to <samp class="mono">quick-sort&lt;</samp> contains the same number several times, the algorithm returns a list that is strictly shorter than the input. Why? Fix the problem so that the output is as long as the input. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 429. Use <samp class="mono">filter</samp> to define <samp class="mono">smallers</samp> and <samp class="mono">largers</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 430. Develop a variant of <samp class="mono">quick-sort&lt;</samp> that uses only one comparison function, say, <samp class="mono">&lt;</samp>. Its partitioning step divides the given list <samp class="mono">alon</samp> into a list that contains the items of <samp class="mono">alon</samp> smaller than the pivot and another one with those that are not smaller.</p>
+<p class="calibre8">Use <samp class="mono">local</samp> to package up the program as a single function. Abstract this function so that it consumes a list and a comparison function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

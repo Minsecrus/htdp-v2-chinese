@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_9"><a id="sec19-6" class="calibre16"></a>19.6 Simplifying Functions</h2>
+<p class="tni">Exercise 317 shows how to use <samp class="mono">local</samp> to organize a function that deals with an intertwined form of data. This organization also helps simplify functions once we know that the data definition is final. To demonstrate this point, we explain how to simplify the solution of exercise 319.</p>
+<p class="calibre8"><a id="rfig120" href="part0011_split_008.html#fig120" class="calibre5">Figure 120</a> displays a complete definition of the <samp class="mono">substitute</samp> function. The definition uses <samp class="mono">local</samp> and three auxiliary functions as suggested by the data definition. The figure includes a test case so that you can retest the function after each edit suggested below. Stop! Develop additional test cases; one is almost never enough.</p>
+<div class="figure">
+<figure class="img"><a id="fig120" class="calibre5"></a><img src="../images/00477.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_008.html#rfig120" class="calibre5">Figure 120</a>:</span> <span>A program to be simplified</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 328. Copy and paste <a href="part0011_split_008.html#fig120" class="calibre5">figure 120</a> into DrRacket; include your test suite. Validate the test suite. As you read along the remainder of this section, perform the edits and rerun the test suites to confirm the validity of our arguments. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Since we know that SL describes lists of S-expr, we can use <samp class="mono">map</samp> to simplify <samp class="mono">for-sl</samp>. See <a id="rfig121" href="part0011_split_008.html#fig121" class="calibre5">figure 121</a> for the result. While the original program says that <samp class="mono">for-sexp</samp> is applied to every item on <samp class="mono">sl</samp>, its revised definition expresses the same idea more succinctly with <samp class="mono">map</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig121" class="calibre5"></a><img src="../images/00478.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_008.html#rfig121" class="calibre5">Figure 121</a>:</span> <span>Program simplification, step 1</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_513" title="513"></span>For the second simplification step, we need to remind you that <samp class="mono">equal?</samp> compares two arbitrary values. With this in mind, the third <samp class="mono">local</samp> function becomes a one-liner. <a id="rfig122" href="part0011_split_008.html#fig122" class="calibre5">Figure 122</a> displays this second simplification.</p>
+<div class="figure">
+<figure class="img"><a id="fig122" class="calibre5"></a><img src="../images/00479.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_008.html#rfig122" class="calibre5">Figure 122</a>:</span> <span>Program simplification, steps 2 and 3</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">At this point the last two <samp class="mono">local</samp> definitions consist of a single line. Furthermore, neither definition is recursive. Hence we can <i class="calibre6">in-line</i> the functions in <samp class="mono">for-sexp</samp>. In-lining means replacing <samp class="mono">(for-atom sexp)</samp> with <samp class="mono">(if (equal? sexp old) new sexp)</samp>, that is, we replace the parameter <samp class="mono">at</samp> with the actual argument <samp class="mono">sexp</samp>. Similarly, for <samp class="mono">(for-sl sexp)</samp> we put in <samp class="mono">(map for-sexp sexp)</samp>; see the bottom half of <a href="part0011_split_008.html#fig121" class="calibre5">figure 121</a>. All we are left with now is a function whose definition introduces one <samp class="mono">local</samp> function, which is called on the same major argument. If we systematically <span epub:type="pagebreak" id="pg_514" title="514"></span>supplied the other two arguments, we would immediately see that the locally defined function can be used in lieu of the outer one.</p>
+<p class="marginpar">While <samp class="monospace-margin">sexp</samp> is also a parameter, this substitution is really acceptable because it, too, stands in for an actual value.</p>
+<p class="calibre8">Here is the result of translating this last thought into code:</p>
+<figure class="co"><img src="../images/00480.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Explain why we had to use <samp class="mono">lambda</samp> for this last simplification.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

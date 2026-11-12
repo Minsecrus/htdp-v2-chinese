@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_12"><a id="sec33-1" class="calibre16"></a>33.1 Accumulators and Trees</h2>
+<p class="tni">When you ask DrRacket to run an ISL+ program, it translates the program to commands for your specific computer. This process is called <i class="calibre6">compilation</i>, and the part of DrRacket that performs the task is called a <i class="calibre6">compiler</i>. Before the compiler translates the ISL+ program, it checks that every variable is declared via a <samp class="mono">define</samp>, a <samp class="mono">define-struct</samp>, or a <samp class="mono">lambda</samp>.</p>
+<p class="calibre8">Stop! Enter <samp class="mono">x</samp>, <samp class="mono">(lambda (y) x)</samp>, and <samp class="mono">(x 5)</samp> as complete ISL+ programs into DrRacket and ask it to run each. What do you expect to see?</p>
+<p class="calibre8">Let’s phrase this idea as a sample problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> You have been hired to re-create a part of the ISL+ compiler. Specifically, your task deals with the following language fragment, specified in the so-called grammar notation that many programming language manuals use:</p>
+<figure class="co"><img src="../images/00759.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">We use the Greek letter <samp class="mono"><i class="calibre6">λ</i></samp> instead of <samp class="monospace-margin">lambda</samp> to signal that this exercise deals with ISL+ as an object of study, not just a programming language.</p>
+<p class="ex1">Remember from intermezzo 1 that you can read the grammar aloud replacing <span class="colorbox">=</span> with “is one of” and <span class="colorbox">|</span> with “or.”</p>
+<p class="ex1">Recall that <samp class="mono"><i class="calibre6">λ</i></samp> expressions are functions without names. They bind their parameter in their body. Conversely, a variable occurrence is declared by a surrounding <samp class="mono"><i class="calibre6">λ</i></samp> that specifies the same name as a parameter. You may wish to revisit intermezzo 3 because it deals with the same issue from the perspective of a programmer. Look for the terms “binding occurrence,” “bound occurrence,” and “free.”</p>
+<p class="ex1">Develop a data representation for the above language fragment; use symbols to represent variables. Then design a function that replaces all undeclared variables with <samp class="mono">'*undeclared</samp>.</p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_728" title="728"></span>This problem is representative of many steps in the translation process and, at the same time, is a great case study for accumulator-style functions.</p>
+<p class="calibre8">Before we dive into the problem, let’s look at some examples in this mini-language, recalling what we know about <samp class="mono">lambda</samp>:</p>
+<p class="blf">•  <samp class="mono">(</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) x)</samp> is the function that returns whatever it is given, also known as the identity function;</p>
+<p class="blf">•  <samp class="mono">(</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) y)</samp> looks like a function that returns <samp class="mono">y</samp> whenever it is given an argument, except that <samp class="mono">y</samp> isn’t declared;</p>
+<p class="blf">•  <samp class="mono">(</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(y) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) y))</samp> is a function that, when given some value <samp class="mono">v</samp>, produces a function that always returns <samp class="mono">v</samp>;</p>
+<p class="blf">•  <samp class="mono">((</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) x) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) x))</samp> applies the identity function to itself;</p>
+<p class="blf">•  <samp class="mono">((</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) (x x)) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) (x x)))</samp> is a short infinite loop; and</p>
+<p class="bll">•  <samp class="mono">(((</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(y) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(x) y)) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(z) z)) (</samp><samp class="mono"><i class="calibre6">λ</i></samp> <samp class="mono">(w) w))</samp> is a complex expression that is best run in ISL+ to find out whether it terminates.</p>
+<p class="tni">Indeed, you can run all of the above ISL+ expressions in DrRacket to confirm what is written about them.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 511. Explain the scope of each binding occurrence in the above examples. Draw arrows from the bound to the binding occurrences. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Developing a data representation for the language is easy, especially because its description uses a grammar notation. Here is one possibility:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Lam</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> a </samp>Symbol <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (list 'λ</samp><samp class="mono"> (list </samp>Symbol<samp class="mono">) </samp>Lam<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (list </samp>Lam Lam<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Because of <samp class="mono">quote</samp>, this data representation makes it easy to create data representations for expressions in our subset of ISL+:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define ex1</samp><samp class="mono"> '(</samp><samp class="mono">λ</samp><samp class="mono"> (x) x))</samp> <br class="calibre4"/><samp class="mono">(define ex2</samp><samp class="mono"> '(</samp><samp class="mono">λ</samp><samp class="mono"> (x) y))</samp> <br class="calibre4"/><samp class="mono">(define ex3</samp><samp class="mono"> '(</samp><samp class="mono">λ</samp><samp class="mono"> (y) (</samp><samp class="mono">λ</samp><samp class="mono"> (x) y)))</samp> <br class="calibre4"/><samp class="mono">(define ex4</samp><samp class="mono"> '((</samp><samp class="mono">λ</samp><samp class="mono"> (x) (x</samp><samp class="mono"> x)) (</samp><samp class="mono">λ</samp><samp class="mono"> (x) (x</samp><samp class="mono"> x))))</samp></p>
+</div>
+<p class="tni">These four data examples are representations of some of the above expressions. Stop! Create data representations for the remaining examples.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_729" title="729"></span><b class="calibre9">Exercise</b> 512. Define <samp class="mono">is-var?</samp>, <samp class="mono">is-</samp><samp class="mono"><i class="calibre6">λ</i></samp><samp class="mono">?</samp>, and <samp class="mono">is-app?</samp>, that is, predicates that distinguish variables from <samp class="mono"><i class="calibre6">λ</i></samp> expressions and applications.</p>
+<p class="calibre8">Also define</p>
+<p class="blf">•  <samp class="mono"><i class="calibre6">λ</i>-para</samp>, which extracts the parameter from a <samp class="mono"><i class="calibre6">λ</i></samp> expression;</p>
+<p class="blf">•  <samp class="mono"><i class="calibre6">λ</i>-body</samp>, which extracts the body from a <samp class="mono"><i class="calibre6">λ</i></samp> expression;</p>
+<p class="blf">•  <samp class="mono">app-fun</samp>, which extracts the function from an application; and</p>
+<p class="bll">•  <samp class="mono">app-arg</samp>, which extracts the argument from an application.</p>
+<p class="tni">With these predicates and selectors, you basically can act as if you had defined a structure-oriented data representation.</p>
+<p class="calibre8">Design <samp class="mono">declareds</samp>, which produces the list of all symbols used as <samp class="mono"><i class="calibre6">λ</i></samp> parameters in a <samp class="mono"><i class="calibre6">λ</i></samp> term. Don’t worry about duplicate symbols. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 513. Develop a data representation for the same subset of ISL+ that uses structures instead of lists. Also provide data representations for <samp class="mono">ex1</samp>, <samp class="mono">ex2</samp>, and <samp class="mono">ex3</samp> following your data definition. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">We follow the structural design recipe, and here is the product of steps two and three:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Lam<samp class="mono"> -&gt; </samp>Lam <br class="calibre4"/><samp class="mono">; replaces</samp><samp class="mono"> all symbols</samp><samp class="mono"> s in</samp><samp class="mono"> le with</samp><samp class="mono"> '*undeclared</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> they do</samp><samp class="mono"> not occur</samp><samp class="mono"> within the</samp><samp class="mono"> body of</samp><samp class="mono"> a </samp><samp class="mono">λ</samp> <br class="calibre4"/><samp class="mono">; expression</samp><samp class="mono"> whose parameter</samp><samp class="mono"> is s</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (undeclareds</samp><samp class="mono"> ex1) ex1)</samp> <br class="calibre4"/><samp class="mono">(check-expect (undeclareds</samp><samp class="mono"> ex2) '(</samp><samp class="mono">λ</samp><samp class="mono"> (x) *undeclared))</samp> <br class="calibre4"/><samp class="mono">(check-expect (undeclareds</samp><samp class="mono"> ex3) ex3)</samp> <br class="calibre4"/><samp class="mono">(check-expect (undeclareds</samp><samp class="mono"> ex4) ex4)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (undeclareds</samp><samp class="mono"> le0)</samp> <br class="calibre4"/><samp class="mono">  le0)</samp></p>
+</div>
+<p class="tni">Note how we expect <samp class="mono">undeclareds</samp> to process <samp class="mono">ex4</samp> even though the expression loops forever when run; compilers don’t run programs, they read them and create others.</p>
+<p class="calibre8">A close look at the purpose statement directly suggests that the function needs an accumulator. This becomes even clearer when we inspect the template for <samp class="mono">undeclareds</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_730" title="730"></span><img src="../images/00760.gif" alt="" class="calibre10"/></figure>
+<p class="tni">When <samp class="mono">undeclareds</samp> recurs on the body of (the representation of) a <samp class="mono"><i class="calibre6">λ</i></samp> expression, it forgets <samp class="mono">(</samp><samp class="mono"><i class="calibre6">λ</i></samp><samp class="mono">-para le)</samp>, the declared variable.</p>
+<p class="calibre8">So, let’s start with an accumulator-style template:</p>
+<figure class="co"><img src="../images/00761.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In this context, we can now formulate an accumulator invariant:</p>
+<div class="ex">
+<p class="exf"><samp class="mono">a</samp> represents the list of <samp class="mono"><i class="calibre6">λ</i></samp> parameters encountered on the path from the top of <samp class="mono">le0</samp> to the top of <samp class="mono">le</samp>.</p>
+</div>
+<p class="tni">For example, if <samp class="mono">le0</samp> is</p>
+<figure class="co"><img src="../images/00762.gif" alt="" class="calibre10"/></figure>
+<p class="tni">and <samp class="mono">le</samp> is the highlighted subtree, then <samp class="mono">a</samp> contains <samp class="mono">y</samp>. The left side of <a id="rfig186" href="part0015_split_011.html#fig186" class="calibre5">figure 186</a> presents a graphical illustration of the same example. It shows a Lam expression as an upside-down tree; that is, the root is at the top. A <samp class="mono">@</samp> node represents an application with two descendants; the other nodes are <span epub:type="pagebreak" id="pg_731" title="731"></span>self-explanatory. In this tree diagram, the bold path leads from <samp class="mono">le0</samp> to <samp class="mono">le</samp> through a single variable declaration.</p>
+<div class="figure">
+<figure class="img"><a id="fig186" class="calibre5"></a><img src="../images/00763.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_011.html#rfig186" class="calibre5">Figure 186</a>:</span> <span>Lam terms as trees</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Similarly, if we pick a different subtree of the same piece of data,</p>
+<figure class="co"><img src="../images/00764.gif" alt="" class="calibre10"/></figure>
+<p class="tni">we get an accumulator that contains both <samp class="mono">'y</samp> and <samp class="mono">'x</samp>. The right side of <a href="part0015_split_011.html#fig186" class="calibre5">figure 186</a> makes this point again. Here the bold path leads through two <samp class="mono">'</samp><samp class="mono"><i class="calibre6">λ</i></samp> nodes to the boxed subtree, and the accumulator is the list of declared variables along the bold path.</p>
+<p class="calibre8">Now that we have settled on the data representation of the accumulator and its invariant, we can resolve the remaining design questions:</p>
+<p class="blf">•  We pick an initial accumulator value of <samp class="mono">'()</samp>.</p>
+<p class="blf">•  We use <samp class="mono">cons</samp> to add <samp class="mono">(</samp><samp class="mono"><i class="calibre6">λ</i></samp><samp class="mono">-para le)</samp> to <samp class="mono">a</samp>.</p>
+<p class="bll">•  We exploit the accumulator for the clause where <samp class="mono">undeclareds/a</samp> deals with a variable. Specifically, the function uses the accumulator to check whether the variable is in the scope of a declaration.</p>
+<p class="calibre8"><a id="rfig187" href="part0015_split_011.html#fig187" class="calibre5">Figure 187</a> shows how to translate these ideas into a complete function definition. Note the name <samp class="mono">declareds</samp> for the accumulator; it brings across <span epub:type="pagebreak" id="pg_732" title="732"></span>the key idea behind the accumulator invariant, helping the programmer understand the definition. The base case uses <samp class="mono">member?</samp> from ISL+ to determine whether the variable <samp class="mono">le</samp> is in <samp class="mono">declareds</samp> and, if not, replaces it with <samp class="mono">'*undeclared</samp>. The second <samp class="mono">cond</samp> clause uses a <samp class="mono">local</samp> to introduce the extended accumulator <samp class="mono">newd</samp>. Because <samp class="mono">para</samp> is also used to rebuild the expression, it has its own local definition. Finally, the last clause concerns function applications, which do not declare variables and do not use any directly. As a result, it is by far the simplest of the three clauses.</p>
+<div class="figure">
+<figure class="img"><a id="fig187" class="calibre5"></a><img src="../images/00765.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_011.html#rfig187" class="calibre5">Figure 187</a>:</span> <span>Finding undeclared variables</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 514. Make up an ISL+ expression in which <samp class="mono">x</samp> occurs both free and bound. Formulate it as an element of Lam. Does <samp class="mono">undeclareds</samp> work properly on your expression? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 515. Consider the following expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(</samp><samp class="mono">λ</samp><samp class="mono"> (*undeclared) ((</samp><samp class="mono">λ</samp><samp class="mono"> (x) (x</samp><samp class="mono"> *undeclared)) y))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_733" title="733"></span>Yes, it uses <samp class="mono">*undeclared</samp> as a variable. Represent it in Lam and check what <samp class="mono">undeclareds</samp> produces for this expression.</p>
+<p class="calibre8">Modify <samp class="mono">undeclareds</samp> so that it replaces a free occurrence of <samp class="mono">'x</samp> with</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list '*undeclared</samp><samp class="mono"> 'x)</samp></p>
+</div>
+<p class="tni">and a bound one <samp class="mono">'y</samp> with</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list '*declared</samp><samp class="mono"> 'y)</samp></p>
+</div>
+<p class="tni">Doing so unambiguously identifies problem spots, which a program development environment such as DrRacket can use to highlight errors.</p>
+<p class="calibre8"><b class="calibre9">Note</b> The trick of replacing a variable occurrence with the representation of an application feels awkward. If you dislike it, consider synthesizing the symbols <samp class="mono">'*undeclared:x</samp> and <samp class="mono">'declared:y</samp> instead. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 516. Redesign the <samp class="mono">undeclareds</samp> function for the structure-based data representation from exercise 513. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="tni"><b class="calibre9">Exercise</b> 517. Design <samp class="mono">static-distance</samp>. The function replaces all occurrences of variables with a natural number that represents how far away the declaring <samp class="mono"><i class="calibre6">λ</i></samp> is. <a id="rfig188" href="part0015_split_011.html#fig188" class="calibre5">Figure 188</a> illustrates the idea for the term</p>
+<div class="figure">
+<figure class="img"><a id="fig188" class="calibre5"></a><img src="../images/00766.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_011.html#rfig188" class="calibre5">Figure 188</a>:</span> <span>Static distances</span></p></figcaption>
+</figure>
+</div>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_734" title="734"></span><samp class="mono">'((</samp><samp class="mono">λ</samp><samp class="mono"> (x) ((</samp><samp class="mono">λ</samp><samp class="mono"> (y) (y</samp><samp class="mono"> x)) x))</samp><samp class="mono"> (</samp><samp class="mono">λ</samp><samp class="mono"> (z) z))</samp></p>
+</div>
+<p class="tni">in graphical form. It includes dotted arrows that point from variable occurrences to the corresponding variable declarations. On the right, the figure shows a tree of the same shape, though without the arrows. The <samp class="mono">'</samp><samp class="mono"><i class="calibre6">λ</i></samp> nodes come without names, and variable occurrences have been replaced by natural numbers that specify which <samp class="mono">'</samp><samp class="mono"><i class="calibre6">λ</i></samp> declares the variable. Each natural number <samp class="mono">n</samp> says that the binding occurrence is <samp class="mono">n</samp> steps upward—toward the root of the Lam tree. A value of <samp class="mono">0</samp> denotes the first <samp class="mono">'</samp><samp class="mono"><i class="calibre6">λ</i></samp> on the path to the root, <samp class="mono">1</samp> the second one, and so on.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> The <samp class="mono">undeclareds</samp> accumulator of <samp class="mono">undeclareds/a</samp> is a list of all parameters on path from <samp class="mono">le</samp> to <samp class="mono">le0</samp> <b class="calibre9">in reverse order</b>—the last one seen is first on the list. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

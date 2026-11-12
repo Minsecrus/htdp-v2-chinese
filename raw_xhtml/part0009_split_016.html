@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_17"><a id="sec16-3" class="calibre16"></a>16.3 Local Definitions Add Expressive Power</h2>
+<p class="tni">The third and last example illustrates how <samp class="mono">local</samp> adds expressive power to BSL and BSL+. Chapter 12.8 presents the design of a world program that simulates how a finite state machine recognizes sequences of keystrokes. While the data analysis leads in a natural manner to the data definitions in <a href="part0007_split_032.html#fig82" class="calibre5">figure 82</a>, an attempt to design the main function of the world program fails. Specifically, even though the given finite state machine remains the same over the course of the simulation, the state of the world must include it so that the program can transition from one state to the next when the player presses a key.</p>
+<p class="calibre8"><a id="rfig102" href="part0009_split_016.html#fig102" class="calibre5">Figure 102</a> shows an ISL solution to the problem. It uses <samp class="mono">local</samp> function definitions and can thus equate the state of the world with the current state of the finite state machine. Specifically, <samp class="mono">simulate</samp> locally defines the key-event handler, which consumes only the current state of the world and the KeyEvent that represents the player’s keystroke. Because this locally defined function can refer to the given finite state machine <samp class="mono">fsm</samp>, it is possible to find the next state in the transition table—even though the transition table is <b class="calibre9">not</b> an argument to this function.</p>
+<div class="figure">
+<figure class="img"><a id="fig102" class="calibre5"></a><img src="../images/00362.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_016.html#rfig102" class="calibre5">Figure 102</a>:</span> <span>Power from local function definitions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_422" title="422"></span>As the figure also shows, all other functions are defined in parallel to the main function. This includes the function <samp class="mono">find</samp>, which performs the actual search in the transition table. The key improvement over BSL is that a locally defined function can reference <b class="calibre9">both</b> parameters to the function <b class="calibre9">and</b> globally defined auxiliary functions.</p>
+<p class="calibre8">In short, this program organization signals to a future reader exactly the insights that the data analysis stage of the design recipe for world programs finds. First, the given representation of the finite state machine remains unchanged. Second, what changes over the course of the simulation is the current state of the finite machine.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_423" title="423"></span>The lesson is that the chosen programming language affects a programmer’s ability to express solutions, as well as a future reader’s ability to recognize the design insight of the original creator.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 262. Design the function <samp class="mono">identityM</samp>, which creates diagonal squares of <samp class="mono">0</samp>s and <samp class="mono">1</samp>s:</p>
+<p class="marginpar">Linear algebra calls these squares <i class="calibre6">identity</i> matrices.</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (identityM</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">(list (list</samp><samp class="mono"> 1))</samp> <br class="calibre4"/><samp class="mono">&gt; (identityM</samp><samp class="mono"> 3)</samp> <br class="calibre4"/><samp class="mono">(list (list</samp><samp class="mono"> 1 0</samp><samp class="mono"> 0) (list</samp><samp class="mono"> 0 1</samp><samp class="mono"> 0) (list</samp><samp class="mono"> 0 0</samp><samp class="mono"> 1))</samp></p>
+</div>
+<p class="tni">Use the structural design recipe and exploit the power of <samp class="mono">local</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

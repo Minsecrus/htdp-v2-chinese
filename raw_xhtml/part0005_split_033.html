@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head2" id="calibre_pb_34"><span epub:type="pagebreak" id="pg_139" title="139" class="calibre1"></span><a id="sec5-1" class="calibre16"></a><b class="calibre21">5.1 From Positions to</b> <samp class="monospace-margin1">posn</samp> <b class="calibre21">Structures</b></h2>
+<p class="tni">A position on a world canvas is uniquely identified by two pieces of data: the distance from the left margin and the distance from the top margin. The first is called an <i class="calibre6">x-coordinate</i> and the second one is the <i class="calibre6">y-coordinate</i>.</p>
+<p class="calibre8">DrRacket, which is basically a BSL program, represents such positions with <samp class="mono">posn</samp> structures. A <samp class="mono">posn</samp> structure combines two numbers into a single value. We can create a <samp class="mono">posn</samp> structure with the operation <samp class="mono">make-posn</samp>, which consumes two numbers and makes a <samp class="mono">posn</samp>. For example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(make-posn 3</samp><samp class="mono"> 4)</samp></samp></p>
+</div>
+<p class="tni">is an expression that creates a <samp class="mono">posn</samp> structure whose x-coordinate is <samp class="mono">3</samp> and whose y-coordinate is <samp class="mono">4</samp>.</p>
+<p class="calibre8">A <samp class="mono">posn</samp> structure has the same status as a number or a Boolean or a string. In particular, both primitive operations and functions may consume and produce structures. Also, a program can name a <samp class="mono">posn</samp> structure:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define one-posn</samp><samp class="mono"> (make-posn 8</samp><samp class="mono"> 6))</samp></samp></p>
+</div>
+<p class="tni">Stop! Describe <samp class="mono">one-posn</samp> in terms of coordinates.</p>
+<p class="calibre8">Before doing anything else, let’s take a look at the laws of computation for <samp class="mono">posn</samp> structures. That way, we can both create functions that process <samp class="mono">posn</samp> structures and predict what they compute.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

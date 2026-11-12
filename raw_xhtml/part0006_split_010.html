@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_10"><span epub:type="pagebreak" id="pg_221" title="221"></span><b class="calibre9">BSL Error Messages</b></h1>
+<p class="tni">A BSL program may signal many kinds of syntax errors. While we have developed BSL and its error reporting system specifically for novices who, by definition, make mistakes, error messages need some getting used to.</p>
+<p class="calibre8">Below we sample the kinds of error messages that you may encounter. Each entry in one of the listings consists of three parts:</p>
+<p class="blf">•  the code fragments that signal the error message;</p>
+<p class="blf">•  the error message; and</p>
+<p class="bll">•  an explanation with a suggestion on how to fix the mistake.</p>
+<p class="tni"><span epub:type="pagebreak" id="pg_222" title="222"></span>Consider the following example, which is <b class="calibre9">the worst possible error message</b> you may ever see:</p>
+<figure class="co"><img src="../images/00143.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A <samp class="mono">cond</samp> expression consists of the keyword followed by an arbitrarily long sequence of <samp class="mono">cond</samp> clauses. In turn, every clause consists of two parts: a condition and an answer, both of which are expressions. In this definition of <samp class="mono">absolute</samp>, the first clause starts with <samp class="mono">&lt;</samp>, which is supposed to be a condition but isn’t even an expression according to our definition. This confuses BSL so much that it does not “see” the open parenthesis to the left of <samp class="mono">&lt;</samp>. The fix is to use <samp class="mono">(&lt; n 0)</samp> as the condition.</p>
+</div>
+<p class="tni">The highlighting of <samp class="mono">&lt;</samp> in the function definition points to the error. Below the definition, you can see the error message that DrRacket presents in the interactions window if you click <i class="calibre6">RUN</i>. Study the explanation of the error on the right to understand how to address this somewhat self-contradictory message. And now rest assured that no other error message is even remotely as opaque as this one.</p>
+<p class="calibre8">So, when an error shows up and you need help, find the appropriate figure, search the entries for a match, and then study the complete entry.</p>
+<p class="tni"><i class="calibre6">Error Messages about Function Applications in BSL</i></p>
+<p class="calibre8">Assume that the definitions area contains the following and nothing else:</p>
+<figure class="co"><img src="../images/00144.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Hit the <i class="calibre6">RUN</i> button. Now you may encounter the error messages below.</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_223" title="223"></span><img src="../images/00145.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">The application names <samp class="mono">f</samp> as the function, and <samp class="mono">f</samp> is not defined in the definitions area. Define the function, or make sure that the variable name is spelled correctly.</p>
+</div>
+<figure class="co"><img src="../images/00146.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">An open parenthesis must always be followed by a keyword or the name of a function, and <samp class="mono">1</samp> is neither. A function name is either defined by BSL, say <samp class="mono">+</samp>, or in the definitions area, say <samp class="mono">average</samp>.</p>
+</div>
+<figure class="co"><img src="../images/00147.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">This function call applies <samp class="mono">average</samp> to one argument, <samp class="mono">7</samp>, even though its definition calls for two numbers.</p>
+</div>
+<figure class="co"><span epub:type="pagebreak" id="pg_224" title="224"></span><img src="../images/00148.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">Here <samp class="mono">average</samp> is applied to <b class="calibre9">three</b> numbers instead of two.</p>
+</div>
+<figure class="co"><img src="../images/00149.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">Functions defined by BSL must also be applied to the correct number of arguments. For example, <samp class="mono">make-posn</samp> must be applied to two arguments.</p>
+</div>
+<p class="tni"><i class="calibre6">Error Messages about Wrong Data in BSL</i></p>
+<p class="tni">The error scenarios below again assume that the definitions area contains the following:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; find</samp><samp class="mono"> the average</samp><samp class="mono"> of x</samp><samp class="mono"> and y </samp><br class="calibre4"/><samp class="mono">(define</samp> <samp class="mono">(average x</samp><samp class="mono"> y) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Remember that <samp class="mono">posn</samp> is a pre-defined structure type.</p>
+<figure class="co"><img src="../images/00150.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A function must be applied to the arguments it expects. For example, <samp class="mono">posn-x</samp> expects an instance of <samp class="mono">posn</samp>.</p>
+</div>
+<figure class="co"><span epub:type="pagebreak" id="pg_225" title="225"></span><img src="../images/00151.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A function defined to consume two Numbers must be applied to two Numbers; here <samp class="mono">average</samp> is applied to Strings. The error message is triggered only when <samp class="mono">average</samp> applies <samp class="mono">+</samp> to these Strings. Like all primitive operations, <samp class="mono">+</samp> is a checked function.</p>
+</div>
+<p class="tni"><i class="calibre6">Error Messages about Conditionals in BSL</i></p>
+<p class="tni">This time we expect a constant definition in the definitions area:</p>
+<figure class="co"><img src="../images/00152.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">Every <samp class="mono">cond</samp> clause must consist of exactly two parts: a condition and an answer. Here <samp class="mono">(&gt;= 0-to-9 5)</samp> is apparently intended as the condition; the answer is missing.</p>
+</div>
+<figure class="co"><span epub:type="pagebreak" id="pg_226" title="226"></span><img src="../images/00153.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">In this case, the <samp class="mono">cond</samp> clause consists of three parts, which also violates the grammar. While <samp class="mono">(&gt;= 0-to-9 5)</samp> is clearly intended to be the condition, the clause comes with two answers: <samp class="mono">"head"</samp> and <samp class="mono">"tail"</samp>. Pick one or create a single value from the two strings.</p>
+</div>
+<figure class="co"><img src="../images/00154.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A conditional must come with at least one <samp class="mono">cond</samp> clause and usually it comes with at least two.</p>
+</div>
+<p class="tni"><i class="calibre6">Error Messages about Function Definitions in BSL</i></p>
+<p class="tni">All of the following error scenarios assume that you have placed the code snippet into the definitions area and hit <i class="calibre6">RUN</i>.</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_227" title="227"></span><img src="../images/00155.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A definition consist of three parts: the <samp class="mono">define</samp> keyword, a sequence of variable names enclosed in parentheses, and an expression. This definition consists of four parts; this definition is an attempt to use the standard notation from algebra courses for the header <samp class="mono">f (x)</samp> instead of <samp class="mono">(f x)</samp>.</p>
+</div>
+<figure class="co"><img src="../images/00156.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">The sequence of parameters in a function definition must not contain duplicate variables.</p>
+</div>
+<figure class="co"><img src="../images/00157.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">In BSL a function header must contain at least two names. The first one is the name of the function; the remaining variable names are the parameters, and they are missing here.</p>
+</div>
+<figure class="co"><span epub:type="pagebreak" id="pg_228" title="228"></span><img src="../images/00158.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">The function header contains <samp class="mono">(x)</samp>, which is <b class="calibre9">not</b> a variable name.</p>
+</div>
+<figure class="co"><img src="../images/00159.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">This function definition comes with two expressions following the header: <samp class="mono">x</samp> and <samp class="mono">y</samp>.</p>
+</div>
+<p class="tni"><i class="calibre6">Error Messages about Structure Type Definitions in BSL</i></p>
+<p class="tni">Now you need to place the structure type definitions into the definitions area and hit <i class="calibre6">RUN</i> to experiment with the following errors.</p>
+<figure class="co"><img src="../images/00160.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">A structure type definition consists of three parts: the <samp class="mono">define-struct</samp> keyword, the structure’s name, and a sequence of names in parentheses. Here the structure’s name is missing.</p>
+</div>
+<figure class="co"><span epub:type="pagebreak" id="pg_229" title="229"></span><img src="../images/00161.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">The sequence of field names in a structure type definition must not contain duplicate names.</p>
+</div>
+<figure class="co"><img src="../images/00162.gif" alt="" class="calibre10"/></figure>
+<div class="ex">
+<p class="exf">These structure type definitions lack the sequence of field names, enclosed in parentheses.</p>
+</div>
+</section>
+</article>
+</div>
+</body></html>

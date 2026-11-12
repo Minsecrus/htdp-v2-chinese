@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec1-2" class="calibre16"></a>1.2 The Arithmetic of Strings</h2>
+<p class="tni">A widespread prejudice about computers concerns their innards. Many believe that it is all about bits and bytes—whatever those are—and possibly numbers because everyone knows that computers can calculate. While it is true that electrical engineers must understand and study the computer as just such an object, beginning programmers and everyone else need never (ever) succumb to this thinking.</p>
+<p class="calibre8">Programming languages are about computing with information, and information comes in all shapes and forms. For example, a program may deal with colors, names, business letters, or conversations between people. Even though we could encode this kind of information as numbers, it would be a horrible idea. Just imagine remembering large tables of codes, such as <samp class="mono">0</samp> means “red” and <samp class="mono">1</samp> means “hello,” and the like.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_38" title="38"></span>Instead, most programming languages provide at least one kind of data that deals with such symbolic information. For now, we use BSL’s strings. Generally speaking, a <i class="calibre6">String</i> is a sequence of the characters that you can enter on the keyboard, plus a few others, about which we aren’t concerned just yet, enclosed in double quotes. In the Prologue, we have seen a number of BSL strings: <samp class="mono">"hello"</samp>, <samp class="mono">"world"</samp>, <samp class="mono">"blue"</samp>, <samp class="mono">"red"</samp>, and others. The first two are words that may show up in a conversation or in a letter; the others are names of colors that we may wish to use.</p>
+<p class="calibre8"><b class="calibre9">Note</b> We use <i class="calibre6">1String</i> to refer to the keyboard characters that make up a String. For example, <samp class="mono">"red"</samp> consists of three such 1Strings: <samp class="mono">"r"</samp>, <samp class="mono">"e"</samp>, <samp class="mono">"d"</samp>. As it turns out, there is a bit more to the definition of 1String, but for now thinking of them as Strings of length 1 is fine. <b class="calibre9">End</b></p>
+<p class="calibre8">BSL includes only one operation that exclusively consumes and produces strings: <samp class="mono">string-append</samp>, which, as we have seen in the Prologue, concatenates two given strings into one. Think of <samp class="mono">string-append</samp> as an operation that is just like <samp class="mono">+</samp>. While the latter consumes two (or more) numbers and produces a new number, the former consumes two or more strings and produces a new string:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string-append</samp><samp class="mono"> "what a</samp><samp class="mono"> " "lovely</samp><samp class="mono"> " "day"</samp><samp class="mono"> " 4</samp><samp class="mono"> BSL")</samp> <br class="calibre4"/><samp class="mono">"what a</samp><samp class="mono"> lovely day</samp><samp class="mono"> 4 BSL"</samp></p>
+</div>
+<p class="tni">Nothing about the given numbers changes when <samp class="mono">+</samp> adds them up, and nothing about the given strings changes when <samp class="mono">string-append</samp> concatenates them into one big string. If you wish to evaluate such expressions, you just need to think that the obvious laws hold for <samp class="mono">string-append</samp>, similar to those for <samp class="mono">+</samp>:</p>
+<figure class="co"><img src="../images/00039.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 2. Add the following two lines to the definitions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define prefix</samp><samp class="mono"> "hello")</samp> <br class="calibre4"/><samp class="mono">(define suffix</samp><samp class="mono"> "world")</samp></p>
+</div>
+<p class="tni">Then use string primitives to create an expression that concatenates <samp class="mono">prefix</samp> and <samp class="mono">suffix</samp> and adds <samp class="mono">"_"</samp> between them. When you run this program, you will see <samp class="mono">"hello_world"</samp> in the interactions area.</p>
+<p class="calibre8">See exercise 1 for how to create expressions using DrRacket. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

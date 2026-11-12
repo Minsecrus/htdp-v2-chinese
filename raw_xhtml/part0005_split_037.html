@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_38"><span epub:type="pagebreak" id="pg_148" title="148" class="calibre1"></span><a id="sec5-5" class="calibre16"></a>5.5 Computing with Structures</h2>
+<p class="tni">Structure types generalize Cartesian points in two ways. First, a structure type may specify an arbitrary number of fields: zero, one, two, three, and so forth. Second, structure types name fields, they don’t number them. This helps programmers read code because it is much easier to remember that a family name is available in a field called <samp class="mono">last-name</samp> than in the 7th field.</p>
+<p class="marginpar">Most programming languages also support structure-like data that use numeric field names.</p>
+<p class="calibre8">In the same spirit, computing with structure instances generalizes the manipulation of Cartesian points. To appreciate this idea, let us first look at a diagrammatic way to think about structure instances as lockboxes with as many compartments as there are fields. Here is a representation of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(definepl(make-entry"Al Abe""666-7771""lee@x.me"))</samp></samp></p>
+</div>
+<p class="tni">as such a diagram:</p>
+<figure class="co"><img src="../images/00100.gif" alt="" class="calibre22"/></figure>
+<p class="tni">The box’s italicized label identifies it as an instance of a specific structure type; each compartment is labeled, too. Here is another instance:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(make-entry "Tara</samp><samp class="mono"> Harp" "666-7770"</samp><samp class="mono"> "th@smlu.edu")</samp></samp></p>
+</div>
+<p class="tni">corresponds to a similar box diagram, though the content differs:</p>
+<figure class="co"><img src="../images/00101.gif" alt="" class="calibre23"/></figure>
+<p class="calibre8">Not surprisingly, nested structure instances have a diagram of boxes nested in boxes. Thus, <samp class="mono">ball1</samp> from above is equivalent to this diagram:</p>
+<figure class="co"><img src="../images/00102.gif" alt="" class="calibre24"/></figure>
+<p class="tni">In this case, the outer box contains two boxes, one per field.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 69. Draw box representations for the solution of exercise 65. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">In the context of this imagery, a selector is like a key. It opens a specific compartment for a certain kind of box and thus enables the holder to extract its content. Hence, applying <samp class="mono">entry-name</samp> to <samp class="mono">pl</samp> from above yields a string:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_149" title="149"></span><samp class="mono">&gt; (entry-name</samp><samp class="mono"> pl)</samp> <br class="calibre4"/><samp class="mono">"Al Abe"</samp></samp></p>
+</div>
+<p class="tni">But <samp class="mono">entry-name</samp> applied to a <samp class="mono">posn</samp> structure signals an error:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (entry-name</samp><samp class="mono"> (make-posn 42</samp><samp class="mono"> 5))</samp> <br class="calibre4"/><samp class="mono">entry-name:expects an</samp><samp class="mono"> entry, given</samp><samp class="mono"> (posn 42</samp><samp class="mono"> 5)</samp></samp></p>
+</div>
+<p class="tni">If a compartment contains a box, it might be necessary to use two selectors in a row to get to the desired number:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (ball-velocity</samp><samp class="mono"> ball1)</samp> <br class="calibre4"/><samp class="mono">(make-vel -10</samp><samp class="mono"> 5)</samp></samp></p>
+</div>
+<p class="tni">Applying <samp class="mono">ball-velocity</samp> to <samp class="mono">ball1</samp> extracts the value of the velocity field, which is an instance of <samp class="mono">vel</samp>. To get to the velocity along the x axis, we apply a selector to the result of the first selection:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (vel-deltax</samp><samp class="mono"> (ball-velocity ball1))</samp> <br class="calibre4"/><samp class="mono">-10</samp></samp></p>
+</div>
+<p class="tni">Since the inner expression extracts the velocity from <samp class="mono">ball1</samp>, the outer expression extracts the value of the <samp class="mono">deltax</samp> field, which in this case is <samp class="mono">-10</samp>.</p>
+<p class="calibre8">The interactions also show that structure instances are values. DrRacket prints them exactly as entered, just like for plain values such as numbers:</p>
+<figure class="co"><img src="../images/00103.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Try this last interaction at home, so you see the proper result.</p>
+<p class="calibre8">Generally speaking, a structure type definition not only creates new functions and new ways to create values, but it also adds new laws of computation to DrRacket’s knowledge. These laws generalize those for <samp class="mono">posn</samp> structures in chapter 5.2, and they are best understood by example.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_150" title="150"></span>When DrRacket encounters a structure type definition with two fields,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct ball</samp><samp class="mono"> [location velocity])</samp></samp></p>
+</div>
+<p class="tni">it introduces two laws, one per selector:</p>
+<div class="ind">
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(ball-location (make-ball</samp><samp class="mono"> l0 v0))</samp><samp class="mono"> == l0</samp> <br class="calibre4"/><samp class="mono">(ball-velocity (make-ball</samp><samp class="mono"> l0 v0))</samp><samp class="mono"> == v0</samp></samp></p>
+</div>
+</div>
+<p class="tni">For different structure type definitions, it introduces analogous laws. Thus,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct vel</samp><samp class="mono"> [deltax deltay])</samp></samp></p>
+</div>
+<p class="tni">DrRacket adds these two laws to its knowledge:</p>
+<div class="ind">
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(vel-deltax (make-vel</samp><samp class="mono"> dx0 dy0))</samp><samp class="mono"> == dx0</samp> <br class="calibre4"/><samp class="mono">(vel-deltay (make-vel</samp><samp class="mono"> dx0 dy0))</samp><samp class="mono"> == dy0</samp></samp></p>
+</div>
+</div>
+<p class="calibre8">Using these laws, we can now explain the interaction from above:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(vel-deltax (ball-velocity</samp><samp class="mono"> ball1))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket replaces</samp><samp class="mono"> ball1 with</samp><samp class="mono"> its value</samp> <br class="calibre4"/><samp class="mono">(vel-deltax</samp> <br class="calibre4"/><samp class="mono">  (ball-velocity</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (make-ball</samp><samp class="mono"> (make-posn 30</samp><samp class="mono"> 40) (make-vel</samp><samp class="mono"> -10 5))))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket uses</samp><samp class="mono"> the law</samp><samp class="mono"> for ball-velocity</samp> <br class="calibre4"/><samp class="mono">(vel-deltax (make-vel</samp><samp class="mono"> -10 5))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> DrRacket uses</samp><samp class="mono"> the law</samp><samp class="mono"> for vel-deltax</samp> <br class="calibre4"/><samp class="mono">-10</samp></samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 70. Spell out the laws for these structure type definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct centry</samp><samp class="mono"> [name home</samp><samp class="mono"> office cell])</samp> <br class="calibre4"/><samp class="mono">(define-struct phone</samp><samp class="mono"> [area number])</samp></samp></p>
+</div>
+<p class="tni">Use DrRacket’s stepper to confirm <samp class="mono">101</samp> as the value of this expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(phone-area</samp> <br class="calibre4"/><samp class="mono"> (centry-office</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (make-centry "Shriram</samp><samp class="mono"> Fisler"</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 207</samp><samp class="mono"> "363-2421")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 101</samp><samp class="mono"> "776-1099")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 208</samp><samp class="mono"> "112-9981"))))</samp></samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_151" title="151"></span>Predicates are the last idea that we must discuss to understand structure type definitions. As mentioned, every structure type definition introduces one new predicate. DrRacket uses these predicates to discover whether a selector is applied to the proper kind of value; the next chapter explains this idea in detail. Here we just want to convey that these predicates are just like the predicates from “arithmetic.” While <samp class="mono">number?</samp> recognizes numbers and <samp class="mono">string?</samp> recognizes strings, predicates such as <samp class="mono">posn?</samp> and <samp class="mono">entry?</samp> recognize <samp class="mono">posn</samp> structures and <samp class="mono">entry</samp> structures. We can confirm our ideas of how they work with experiments in the interactions area. Assume that the definitions area contains these definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define ap</samp><samp class="mono"> (make-posn 7</samp><samp class="mono"> 0))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define pl</samp><samp class="mono"> (make-entry "Al</samp><samp class="mono"> Abe" "666-7771"</samp><samp class="mono"> "lee@x.me"))</samp></samp></p>
+</div>
+<p class="tni">If <samp class="mono">posn?</samp> is a predicate that distinguishes <samp class="mono">posn</samp>s from all other values, we should expect that it yields <samp class="mono">#false</samp> for numbers and <samp class="mono">#true</samp> for <samp class="mono">ap</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (posn?</samp><samp class="mono"> ap)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (posn?</samp><samp class="mono"> 42)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (posn?</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (posn?</samp><samp class="mono"> (make-posn 3</samp><samp class="mono"> 4))</samp> <br class="calibre4"/><samp class="mono">#true</samp></samp></p>
+</div>
+<p class="tni">Similarly, <samp class="mono">entry?</samp> distinguishes <samp class="mono">entry</samp> structures from all other values:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (entry?</samp><samp class="mono"> pl)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (entry?</samp><samp class="mono"> 42)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (entry?</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">#false</samp></samp></p>
+</div>
+<p class="tni">In general, a predicate recognizes exactly those values constructed with a constructor of the same name. Intermezzo 1 explains this law in detail, and it also collects the laws of computing for BSL in one place.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_152" title="152"></span><b class="calibre9">Exercise</b> 71. Place the following into DrRacket’s definitions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; distances</samp><samp class="mono"> in terms</samp><samp class="mono"> of pixels:</samp> <br class="calibre4"/><samp class="mono">(define HEIGHT</samp><samp class="mono"> 200)</samp> <br class="calibre4"/><samp class="mono">(define MIDDLE</samp><samp class="mono"> (quotient HEIGHT</samp><samp class="mono"> 2))</samp> <br class="calibre4"/><samp class="mono">(define WIDTH</samp><samp class="mono"> 400)</samp> <br class="calibre4"/><samp class="mono">(define CENTER</samp><samp class="mono"> (quotient WIDTH</samp><samp class="mono"> 2))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define-struct game</samp><samp class="mono"> [left-player right-player</samp><samp class="mono"> ball])</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define game0</samp> <br class="calibre4"/><samp class="mono">  (make-game</samp><samp class="mono"> MIDDLE MIDDLE</samp><samp class="mono"> (make-posn CENTER</samp><samp class="mono"> CENTER)))</samp></samp></p>
+</div>
+<p class="tni">Click <i class="calibre6">RUN</i> and evaluate the following expressions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(game-ball game0)</samp> <br class="calibre4"/><samp class="mono">(posn? (game-ball</samp><samp class="mono"> game0))</samp> <br class="calibre4"/><samp class="mono">(game-left-player game0)</samp></samp></p>
+</div>
+<p class="tni">Explain the results with step-by-step computations. Double-check your computations with DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

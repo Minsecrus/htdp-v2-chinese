@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_2"><b class="calibre9">BSL Grammar</b></h1>
+<p class="tni"><a id="rfig40" href="part0006_split_002.html#fig40" class="calibre5">Figure 40</a> shows a large part of the BSL grammar, which—in comparison to other languages—is extremely simple. As to BSL’s expressive power, don’t let the looks deceive you. The first action item, though, is to discuss how to read such grammars. Each line with a <span class="colorbox"><samp class="mono">=</samp></span> introduces a <i class="calibre6">syntactic category</i>; the best way to pronounce = is as “is one of” and | as “or.” Wherever you see three dots, imagine as many repetitions of what precedes the dots as you wish. This means, for example, that a <samp class="monospace-italic">program</samp> is either nothing or a single occurrence of <samp class="monospace-italic">def-expr</samp> or a sequence of two of them, or three, four, five, or however many. Since this example is not particularly illuminating, let’s look at the second syntactic category. It says that <samp class="monospace-italic">def</samp> is either</p>
+
+<p class="marginpar">Reading a grammar aloud makes it sound like a data definition. One could indeed use grammars to write down many of our data definitions.</p>
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define </samp><samp class="monospace-italic">(variable variable) expr</samp>)</p>
+</div>
+<p class="tni">because “as many as you wish” includes zero, or</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define </samp><samp class="monospace-italic">(variable variable variable)</samp><samp class="monospace-italic"> expr</samp>)</p>
+</div>
+<p class="tni">which is one repetition, or</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define </samp><samp class="monospace-italic">(variable variable variable</samp><samp class="monospace-italic"> variable) expr</samp>)</p>
+</div>
+<p class="tni">which uses two.</p>
+<div class="figure">
+<figure class="img"><a id="fig40" class="calibre5"></a><img src="../images/00135.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0006_split_002.html#rfig40" class="calibre5">Figure 40</a>:</span> <span>BSL core grammar</span></p></figcaption>
+</figure>
+</div>
+
+<p class="calibre8"><span epub:type="pagebreak" id="pg_204" title="204"></span>The final point about grammars concerns the three “words” that come in a distinct font: <samp class="mono">define</samp>, <samp class="mono">cond</samp>, and <samp class="mono">else</samp>. According to the definition of BSL vocabulary, these three words are names. What the vocabulary definition does not tell us is that these names have a pre-defined meaning. In BSL, these words serve as markers that differentiate some compound sentences from others, and in acknowledgment of their role, such words are called <i class="calibre6">keywords</i>.</p>
+<p class="calibre8">Now we are ready to state the purpose of a grammar. The grammar of a programming language dictates how to form sentences from the vocabulary of the grammar. Some sentences are just elements of vocabulary. For example, according to <a href="part0006_split_002.html#fig40" class="calibre5">figure 40</a> <samp class="mono">42</samp> is a sentence of BSL:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_205" title="205"></span>•  The first syntactic category says that a program is a <samp class="monospace-italic">def-expr</samp>. Expressions may refer to the definitions.</p>
+<p class="blf">•  The second one tells us that a <samp class="monospace-italic">def-expr</samp> is either a <samp class="monospace-italic">def</samp> or an <samp class="monospace-italic">expr</samp>.</p>
+<p class="bll">•  The last definition lists all ways of forming an <samp class="monospace-italic">expr</samp>, and the second one is <samp class="monospace-italic">value</samp>.</p>
+<p class="tni">Since we know from <a href="part0006_split_001.html#fig39" class="calibre5">figure 39</a> that <samp class="mono">42</samp> is a value, we have confirmation.</p>
+<p class="marginpar">In DrRacket, a program really consists of two distinct parts: the definitions area and the expressions in the interactions area.</p>
+<p class="calibre8">The interesting parts of the grammar show how to form compound sentences, those built from other sentences. For example, the <samp class="monospace-italic">def</samp> part tells us that a function definition is formed by using “(”, followed by the keyword <samp class="mono">define</samp>, followed by another “(”, followed by a sequence of at least two variables, followed by “)”, followed by an <samp class="monospace-italic">expr</samp>, and closed by a right parenthesis “)” that matches the very first one. Note how the leading keyword <samp class="mono">define</samp> distinguishes definitions from expressions.</p>
+<p class="calibre8">Expressions (<samp class="monospace-italic">expr</samp> ) come in six flavors: variables, constants, primitive applications, (function) applications, and two varieties of <samp class="mono">cond</samp>itionals. While the first two are atomic sentences, the last four are compound sentences. Like <samp class="mono">define</samp>, the keyword <samp class="mono">cond</samp> distinguishes conditional expressions from applications.</p>
+<p class="calibre8">Here are three examples of expressions: <samp class="mono">"all"</samp>, <samp class="mono">x</samp>, and <samp class="mono">(f x)</samp>. The first one belongs to the class of strings and is therefore an expression. The second is a variable, and every variable is an expression. The third is a function application, because <samp class="mono">f</samp> and <samp class="mono">x</samp> are variables.</p>
+<p class="calibre8">In contrast, these parenthesized sentences are not legal expressions: <samp class="mono">(f define)</samp>, <samp class="mono">(cond x)</samp>, and <samp class="mono">((f 2) 10)</samp>. The first one partially matches the shape of a function application but it uses <samp class="mono">define</samp> as if it were a variable. The second one fails to be a correct <samp class="mono">cond</samp> expression because it contains a variable as the second item and not a pair of expressions surrounded by parentheses. The last one is neither a conditional nor an application because the first part is an expression.</p>
+<p class="calibre8">Finally, you may notice that the grammar does not mention white space: blank spaces, tabs, and newlines. BSL is a permissive language. As long as there is some white space between the elements of any sequence in a program, DrRacket can understand your BSL programs. Good programmers, however, may not like what you write. These programmers use white space to make their programs easily readable. Most importantly, they adopt a style that favors human readers over the software applications that process programs (such as DrRacket). They pick up this style from carefully reading code examples in books, paying attention to how they are formatted.</p>
+<p class="marginpar">Keep in mind that two kinds of readers study your BSL programs: people and DrRacket.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_206" title="206"></span><b class="calibre9">Exercise</b> 116. Take a look at the following sentences:</p>
+<p class="nlf">1. <samp class="mono">x</samp></p>
+<p class="nlf">2. <samp class="mono">(= y z)</samp></p>
+<p class="nll">3. <samp class="mono">(= (= y z) 0)</samp></p>
+<p class="tni">Explain why they are syntactically legal expressions <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 117. Consider the following sentences:</p>
+<p class="nlf">1. <samp class="mono">(3 + 4)</samp></p>
+<p class="nlf">2. <samp class="mono">number?</samp></p>
+<p class="nll">3. <samp class="mono">(x)</samp></p>
+<p class="tni">Explain why they are syntactically illegal. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 118. Take a look at the following sentences:</p>
+<p class="nlf">1. <samp class="mono">(define (f x)x)</samp></p>
+<p class="nlf">2. <samp class="mono">(define (f x)y)</samp></p>
+<p class="nll">3. <samp class="mono">(define (f x y) 3)</samp></p>
+<p class="tni">Explain why they are syntactically legal definitions <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 119. Consider the following sentences:</p>
+<p class="nlf">1. <samp class="mono">(define (f "x") x)</samp></p>
+<p class="nll">2. <samp class="mono">(define (f x y z) (x))</samp></p>
+<p class="tni">Explain why they are syntactically illegal. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 120. Discriminate the legal from the illegal sentences:</p>
+<p class="nlf">1. <samp class="mono">(x)</samp></p>
+<p class="nlf">2. <samp class="mono">(+ 1 (not x))</samp></p>
+<p class="nll">3. <samp class="mono">(+ 1 2 3)</samp></p>
+<p class="tni">Explain why the sentences are legal or illegal. Determine whether the legal ones belong to the category <samp class="monospace-italic">expr</samp> or <samp class="monospace-italic">def</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Note on Grammatical Terminology</b> The components of compound sentences have names. We have introduced some of these names on an informal basis. <a id="rfig41" href="part0006_split_002.html#fig41" class="calibre5">Figure 41</a> provides a summary of the conventions.</p>
+<div class="figure">
+<figure class="img"><a id="fig41" class="calibre5"></a><img src="../images/00136.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0006_split_002.html#rfig41" class="calibre5">Figure 41</a>:</span> <span>Syntactic naming conventions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_207" title="207"></span>In addition to the terminology of <a href="part0006_split_002.html#fig41" class="calibre5">figure 41</a>, we say <i class="calibre6">function header</i> for the second component of a definition. Accordingly, the expression component is called a <i class="calibre6">function body</i>. People who consider programming languages as a form of mathematics use <i class="calibre6">left-hand side</i> for a header and <i class="calibre6">right-hand side</i> for the body. On occasion, you also hear or read the term <i class="calibre6">actual arguments</i> for the arguments in a function application. <b class="calibre9">End</b></p>
+</section>
+</article>
+</div>
+</body></html>

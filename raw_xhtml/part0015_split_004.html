@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec31-2" class="calibre16"></a>31.2 A Problem with Generative Recursion</h2>
+<p class="tni">Let’s revisit the problem of “traveling” along a path in a graph:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design an algorithm that checks whether two nodes are connected in a <i class="calibre6">simple graph</i>. In such a graph, each node has exactly one, directional connection to another, and possibly itself.</p>
+</div>
+<p class="tni">Chapter 29 covers the variant where the algorithm has to discover the path. This sample problem is simpler than that because this section focuses on the design of an accumulator version of the algorithm.</p>
+<p class="calibre8">Consider the sample graph in <a id="rfig179" href="part0015_split_004.html#fig179" class="calibre5">figure 179</a>. There are six nodes, <i class="calibre6">A</i> through <i class="calibre6">F</i>, and six connections. A path from <i class="calibre6">A</i> to <i class="calibre6">E</i> must contain <i class="calibre6">B</i> and <i class="calibre6">C</i>. There is no path, though, from <i class="calibre6">A</i> to <i class="calibre6">F</i> or from any other node besides itself.</p>
+<div class="figure">
+<figure class="img"><a id="fig179" class="calibre5"></a><img src="../images/00723.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_004.html#rfig179" class="calibre5">Figure 179</a>:</span> <span>A simple graph</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The right part of <a href="part0015_split_004.html#fig179" class="calibre5">figure 179</a> shows how to represent this graph with nested lists. Each node is represented by a list of two symbols. The first <span epub:type="pagebreak" id="pg_702" title="702"></span>symbol is the label of the node; the second one is the single node that is reachable from the first one. Here are the relevant data definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">SimpleGraph</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of Connection<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Connection</span><samp class="mono"> is a</samp><samp class="mono"> list of</samp><samp class="mono"> two items:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (list</samp><samp class="mono"> </samp>Node Node<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Node</span><samp class="mono"> is a</samp><samp class="mono"> </samp>Symbol<samp class="mono">.</samp></p>
+</div>
+<p class="tni">They are straightforward translations of our informal descriptions.</p>
+<p class="calibre8">We already know that the problem calls for generative recursion, and it is easy to create the header material:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Node Node SimpleGraph<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> there a</samp><samp class="mono"> path from</samp><samp class="mono"> origin to</samp><samp class="mono"> destination</samp> <br class="calibre4"/><samp class="mono">; in</samp><samp class="mono"> the simple</samp><samp class="mono"> graph sg</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (path-exists?</samp><samp class="mono"> 'A 'E</samp><samp class="mono"> a-sg) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (path-exists?</samp><samp class="mono"> 'A 'F</samp><samp class="mono"> a-sg) #false)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (path-exists?</samp><samp class="mono"> origin destination</samp><samp class="mono"> sg)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="tni">What we need are answers to the four basic questions of the recipe for generative recursion:</p>
+<p class="blf">•  The problem is trivial if <samp class="mono">origin</samp> is the same as <samp class="mono">destination</samp>.</p>
+<p class="blf">•  The trivial solution is <samp class="mono">#true</samp>.</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_703" title="703"></span>•  If <samp class="mono">origin</samp> is not the same as <samp class="mono">destination</samp>, there is only one thing we can do: step to the immediate neighbor and search for <samp class="mono">destination</samp> from there.</p>
+<p class="bll">•  There is no need to do anything if we find the solution to the new problem. If <samp class="mono">origin</samp>’s neighbor is connected to <samp class="mono">destination</samp>, then so is <samp class="mono">origin</samp>. Otherwise there is no connection.</p>
+<p class="tni">From here we just need to express these answers in ISL+ to obtain a full-fledged program.</p>
+<p class="calibre8"><a id="rfig180" href="part0015_split_004.html#fig180" class="calibre5">Figure 180</a> contains the complete program, including the function for finding the neighbor of a node in a simple graph—a straightforward exercise in structural recursion—and test cases for both possible outcomes. Don’t run the program, however. If you do, be ready with your mouse <span epub:type="pagebreak" id="pg_704" title="704"></span>to stop the run-away program. Indeed, even a casual look at the function suggests that we have a problem. Although the function is supposed to produce <samp class="mono">#false</samp> if there is no path from <samp class="mono">origin</samp> to <samp class="mono">destination</samp>, the program doesn’t contain <samp class="mono">#false</samp> anywhere. Conversely, we need to ask what the function actually does when there is no path between two nodes.</p>
+<div class="figure">
+<figure class="img"><a id="fig180" class="calibre5"></a><img src="../images/00724.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_004.html#rfig180" class="calibre5">Figure 180</a>:</span> <span>Finding a path in a simple graph</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Take another look at <a href="part0015_split_004.html#fig179" class="calibre5">figure 179</a>. In this simple graph there is no path from <i class="calibre6">C</i> to <i class="calibre6">D</i>. The connection that leaves <i class="calibre6">C</i> passes right by <i class="calibre6">D</i> and instead goes to <i class="calibre6">E</i>. So let’s look at a hand-evaluation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(path-exists? 'C</samp><samp class="mono"> 'D '((A</samp><samp class="mono"> B) <span>…</span></samp><samp class="mono"> (F F)))</samp> <br class="calibre4"/><samp class="mono">== (path-exists?</samp><samp class="mono"> 'E 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)))</samp> <br class="calibre4"/><samp class="mono">== (path-exists?</samp><samp class="mono"> 'B 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)))</samp> <br class="calibre4"/><samp class="mono">== (path-exists?</samp><samp class="mono"> 'C 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)))</samp></p>
+</div>
+<p class="tni">It confirms that as the function recurs, it calls itself with the exact same arguments again and again. In other words, the evaluation never stops.</p>
+<p class="calibre8">Our problem with <samp class="mono">path-exists?</samp> is again a loss of “knowledge,” similar to that of <samp class="mono">relative-&gt;absolute</samp> above. Like <samp class="mono">relative-&gt;absolute</samp>, the design of <samp class="mono">path-exists?</samp> uses a recipe and assumes that recursive calls are independent of their context. In the case of <samp class="mono">path-exists?</samp> this means, in particular, that the function doesn’t “know” whether a previous application in the current chain of recursions received the exact same arguments.</p>
+<p class="calibre8">The solution to this design problem follows the pattern of the preceding section. We add a parameter, which we call <samp class="mono">seen</samp> and which represents the accumulated list of starter nodes that the function has encountered, starting with the original application. Its initial value must be <samp class="mono">'()</samp>. As the function checks on a specific <samp class="mono">origin</samp> and moves to its neighbors, <samp class="mono">origin</samp> is added to <samp class="mono">seen</samp>.</p>
+<p class="calibre8">Here is a first revision of <samp class="mono">path-exists?</samp>, dubbed <samp class="mono">path-exists?/a</samp>:</p>
+<figure class="co"><img src="../images/00725.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_705" title="705"></span>The addition of the new parameter alone does not solve our problem, but, as the hand-evaluation of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(path-exists?/a 'C</samp><samp class="mono"> 'D '((A</samp><samp class="mono"> B) <span>…</span></samp><samp class="mono"> (F F))</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">shows, it provides the foundation for one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">== (path-exists?/a</samp><samp class="mono"> 'E 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)) '(C))</samp> <br class="calibre4"/><samp class="mono">== (path-exists?/a</samp><samp class="mono"> 'B 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)) '(E</samp><samp class="mono"> C))</samp> <br class="calibre4"/><samp class="mono">== (path-exists?/a</samp><samp class="mono"> 'C 'D</samp><samp class="mono"> '((A B)</samp><samp class="mono"> <span>…</span> (F</samp><samp class="mono"> F)) '(B</samp><samp class="mono"> E C))</samp></p>
+</div>
+<p class="tni">In contrast to the original function, the revised function no longer calls itself with the exact same arguments. While the three arguments proper are again the same for the third recursive application, the accumulator argument is different from that of the first application. Instead of <samp class="mono">'()</samp>, it is now <samp class="mono">'(B E C)</samp>. The new value tells us that during the search of a path from <samp class="mono">'C</samp> to <samp class="mono">'D</samp>, the function has inspected <samp class="mono">'B</samp>, <samp class="mono">'E</samp>, and <samp class="mono">'C</samp> as starting points.</p>
+<p class="calibre8">All we need to do now is to make the algorithm exploit the accumulated knowledge. Specifically, the algorithm can determine whether the given <samp class="mono">origin</samp> is already an item in <samp class="mono">seen</samp>. If so, the problem is also trivially solvable, yielding <samp class="mono">#false</samp> as the solution. <a id="rfig181" href="part0015_split_004.html#fig181" class="calibre5">Figure 181</a> contains the definition of <samp class="mono">path-exists.v2?</samp>, which is the revision of <samp class="mono">path-exists?</samp>. The definition refers to <samp class="mono">member?</samp>, an ISL+ function.</p>
+<div class="figure">
+<figure class="img"><a id="fig181" class="calibre5"></a><img src="../images/00726.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_004.html#rfig181" class="calibre5">Figure 181</a>:</span> <span>Finding a path in a simple graph with an accumulator</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The definition of <samp class="mono">path-exists.v2?</samp> also eliminates the two minor problems with the first revision. By localizing the definition of the accumulating function, we can ensure that the first call always uses <samp class="mono">'()</samp> as the initial value for <samp class="mono">seen</samp>. And, <samp class="mono">path-exists.v2?</samp> satisfies the exact same signature and purpose statement as the <samp class="mono">path-exists?</samp> function.</p>
+<p class="calibre8">Still, there is a significant difference between <samp class="mono">path-exists.v2?</samp> and <samp class="mono">relative-to-absolute2</samp>. Whereas the latter was equivalent to the original function, <samp class="mono">path-exists.v2?</samp> improves on <samp class="mono">path-exists?</samp>. While the latter fails to find an answer for some inputs, <samp class="mono">path-exists.v2?</samp> finds a solution for any simple graph.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 492. Modify the definitions in <a href="part0013_split_019.html#fig169" class="calibre5">figure 169</a> so that the program produces <samp class="mono">#false</samp>, even if it encounters the same origin twice. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

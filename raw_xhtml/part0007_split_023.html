@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_24"><a id="sec11-4" class="calibre16"></a>11.4 Auxiliary Functions that Generalize</h2>
+<p class="tni">On occasion an auxiliary function is not just a small helper function but a solution to a more general problem. Such auxiliaries are needed when a problem statement is too narrow. As programmers work through the steps of the design recipe, they may discover that the “natural” solution is wrong. An analysis of this broken solution may suggest a slightly different, but more general, problem statement, as well as a simple way of using the solution to the general problem for the original one.</p>
+<p class="marginpar">Paul C. Fisher suggested this problem.</p>
+<p class="calibre8">We illustrate this idea with a solution to the following problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that adds a polygon to a given scene.</p>
+</div>
+<p class="tni">Just in case you don’t recall your basic geometry (domain) knowledge, we add a (simplistic) definition of polygon:</p>
+<div class="ex">
+<p class="exf">A <i class="calibre6">polygon</i> is a planar figure with at least three points (not on a straight line) connected by three straight sides.</p>
+</div>
+<p class="calibre8">One natural data representation for a polygon is thus a list of Posns. For example, the following two definitions</p>
+<figure class="co"><img src="../images/00260.gif" alt="" class="calibre10"/></figure>
+<p class="tni">introduce a triangle and a square, just as the names say. Now you may wonder how to interpret <samp class="mono">'()</samp> or <samp class="mono">(list (make-posn 30 40))</samp> as polygons, and the answer is that they do <b class="calibre9">not</b> describe polygons. Because a polygon <span epub:type="pagebreak" id="pg_327" title="327"></span>consists of at least three points, a good data representation of polygons is the collection of lists with at least three Posns.</p>
+<p class="calibre8">Following the development of the data definition for non-empty lists of temperatures (NEList-of-temperatures, in chapter 9.2), formulating a data representation for polygons is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Polygon</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (list </samp>Posn Posn Posn<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn Polygon<samp class="mono">)</samp></p>
+</div>
+<p class="tni">The first clause says that a list of three Posns is a Polygon, and the second clause says that <samp class="mono">cons</samp>ing a Posn onto some existing Polygon creates another one. Since this data definition is the very first to use <samp class="mono">list</samp> in one of its clauses, we spell it out with <samp class="mono">cons</samp> just to make sure you see this conversion from an abbreviation to long-hand in this context:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; a</samp><samp class="mono"> </samp><i class="calibre6">Polygon</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn<samp class="mono"> (cons </samp>Posn<samp class="mono"> (cons </samp>Posn<samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn Polygon<samp class="mono">)</samp></p>
+</div>
+<p class="calibre8">The point is that a naively chosen data representation—plain lists of Posns—may not properly represent the intended information. Revising the data definition during an initial exploration is normal; indeed, on occasion such revisions become necessary during the rest of the design process. As long as you stick to a systematic approach, though, changes to the data definition can naturally be propagated through the rest of the design.</p>
+<p class="calibre8">The second step calls for the signature, purpose statement, and header of the function. Since the problem statement mentions just one task and no other task is implied, we start with one function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; a</samp><samp class="mono"> plain background</samp><samp class="mono"> image</samp> <br class="calibre4"/><samp class="mono">(define MT</samp><samp class="mono"> (empty-scene 50</samp><samp class="mono"> 50))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Image Polygon<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> the given</samp><samp class="mono"> polygon p</samp><samp class="mono"> into img</samp> <br class="calibre4"/><samp class="mono">(define (render-poly</samp><samp class="mono"> img p)</samp> <br class="calibre4"/><samp class="mono">  img)</samp></p>
+</div>
+<p class="tni">The additional definition of <samp class="mono">MT</samp> is called for because it simplifies the formulation of examples.</p>
+<p class="calibre8">For the first example, we use the above-mentioned triangle. A quick look in the <i class="calibre6">2htdp/image</i> library suggests <samp class="mono">scene+line</samp> is the function needed to render the three lines for a triangle:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_328" title="328"></span><img src="../images/00261.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The innermost <samp class="mono">scene+line</samp> renders the line from the first to the second Posn; the middle one uses the second and third Posn; and the outermost <samp class="mono">scene+line</samp> connects the third and the first Posn.</p>
+<p class="marginpar">Of course, we experimented in DrRacket’s interactions area to get this expression right.</p>
+<p class="calibre8">Given that the first and smallest polygon is a triangle, then a rectangle or a square suggests itself as the second example. We use <samp class="mono">square-p</samp>:</p>
+<figure class="co"><img src="../images/00262.gif" alt="" class="calibre10"/></figure>
+<p class="tni">A square is just one more point than a triangle, and it is easy to render. You may also wish to draw these shapes on a piece of graph paper.</p>
+<p class="calibre8">The construction of the template poses a challenge. Specifically, the first and the second questions of <a href="part0007_split_007.html#fig52" class="calibre5">figure 52</a> ask whether the data definition differentiates distinct subsets and how to distinguish among them. While the data definition clearly sets apart triangles from all other polygons in the first clause, it is not immediately clear how to differentiate the two. Both clauses describe lists of Posns. The first describes lists of three Posns, while the second one describes lists of Posns that have at least four items. Thus one alternative is to ask whether the given polygon is three items long:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(= (length</samp><samp class="mono"> p) 3)</samp></p>
+</div>
+<p class="tni">Using the long-hand version of the first clause, that is,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons </samp>Posn<samp class="mono"> (cons </samp>Posn<samp class="mono"> (cons </samp>Posn<samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">suggests a second way to formulate the first condition, namely, checking whether the given Polygon is empty after using three <samp class="mono">rest</samp> functions:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_329" title="329"></span><samp class="mono">(empty? (rest</samp><samp class="mono"> (rest (rest</samp><samp class="mono"> p))))</samp></p>
+</div>
+<p class="tni">Since all Polygons consist of at least three Posns, using <samp class="mono">rest</samp> three times is legal. Unlike <samp class="mono">length</samp>, <samp class="mono">rest</samp> is a primitive, easy-to-understand operation with a clear operational meaning. It selects the second field in a <samp class="mono">cons</samp> structure and that is all it does.</p>
+<div class="calibre4">
+<p class="marginpar">It is truly better to formulate conditions in terms of built-in predicates and selectors than your own (recursive) functions. See intermezzo 5 for an explanation.</p>
+</div>
+<p class="calibre8">The rest of the questions in <a href="part0007_split_007.html#fig52" class="calibre5">figure 52</a> have direct answers, and thus we get this template:</p>
+<figure class="co"><img src="../images/00263.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Because <samp class="mono">p</samp> describes a triangle in the first clause, it must consist of exactly three Posns, which are extracted via <samp class="mono">first</samp>, <samp class="mono">second</samp>, and <samp class="mono">third</samp>. In the second clause, <samp class="mono">p</samp> consists of a Posn and a <samp class="mono">Polygon</samp>, justifying <samp class="mono">(first p)</samp> and <samp class="mono">(rest p)</samp>. The former extracts a Posn from <samp class="mono">p</samp>, the latter a <samp class="mono">Polygon</samp>. We therefore add a self-referential function call around it; we must also keep in mind that dealing with <samp class="mono">(first p)</samp> in this clause and the three Posns in the first clause may demand the design of an auxiliary function.</p>
+<p class="calibre8">Now we are ready to focus on the function definition, dealing with one clause at a time. The first clause concerns triangles, which suggests a straightforward answer. Specifically, there are three Posns and <samp class="mono">render-poly</samp> should connect the three in an empty scene of 50 by 50 pixels. Given that Posn is a separate data definition, we get an obvious wish-list entry:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Image Posn Posn<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; draws</samp><samp class="mono"> a red</samp><samp class="mono"> line from</samp><samp class="mono"> </samp>Posn<samp class="mono"> p to</samp><samp class="mono"> </samp>Posn<samp class="mono"> q into</samp><samp class="mono"> im</samp> <br class="calibre4"/><samp class="mono">(define (render-line</samp><samp class="mono"> im p</samp><samp class="mono"> q)</samp> <br class="calibre4"/><samp class="mono">  im)</samp></p>
+</div>
+<p class="tni">Using this function, the first <samp class="mono">cond</samp> clause in <samp class="mono">render-poly</samp> is this:</p>
+<figure class="co"><img src="../images/00264.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_330" title="330"></span>This expression obviously renders the given Polygon <samp class="mono">p</samp> as a triangle by drawing a line from the first to the second, the second to the third, and the third to the first Posn.</p>
+<p class="calibre8">The second <samp class="mono">cond</samp> clause is about Polygons that have been extended with one Posn. In the template, we find two expressions, and, following <a href="part0007_split_007.html#fig53" class="calibre5">figure 53</a>, we remind ourselves of what these expressions compute:</p>
+<p class="nlf">1. <samp class="mono">(first p)</samp> extracts the first Posn;</p>
+<p class="nlf">2. <samp class="mono">(rest p)</samp> extracts the Polygon from <samp class="mono">p</samp>; and</p>
+<p class="nll">3. <samp class="mono">(render-polygon img (rest p))</samp> renders <samp class="mono">(rest p)</samp>, which is what the purpose statement of the function says.</p>
+<p class="tni">The question is how to use these pieces to render the given Polygon <samp class="mono">p</samp>.</p>
+<p class="calibre8">One idea that may come to mind is that <samp class="mono">(rest p)</samp> consists of at least three Posns. It is therefore possible to extract at least one Posn from this embedded <samp class="mono">Polygon</samp> and to connect <samp class="mono">(first p)</samp> with this additional point. Here is what this idea looks like with BSL+ code:</p>
+<figure class="co"><img src="../images/00265.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As mentioned, the highlighted sub-expression renders the embedded Polygon in an empty 50 by 50 scene. The use of <samp class="mono">render-line</samp> adds one line to this scene, from the first to the second Posn of <samp class="mono">p</samp>.</p>
+<p class="calibre8">Our analysis suggests a rather natural, complete function definition:</p>
+<figure class="co"><img src="../images/00266.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Designing <samp class="mono">render-line</samp> is the kind of problem that you solved in the first part of the book. Hence we just provide the final definition so that you can test the above function:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_331" title="331"></span><img src="../images/00267.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Develop a test for <samp class="mono">render-line</samp>.</p>
+<p class="calibre8">Lastly, we must test the functions. The tests for <samp class="mono">render-poly</samp> fail. On the one hand, the test failure is fortunate because it is the purpose of tests to find problems before they affect regular consumers. On the other hand, the flaw is unfortunate because we followed the design recipe, we made fairly natural choices, and yet the function doesn’t work.</p>
+<p class="calibre8">Stop! Why do you think the tests fail? Draw an image of the pieces in the template of <samp class="mono">render-poly</samp>. Then draw the line that combines them. Alternatively, experiment in DrRacket’s interactions area:</p>
+<figure class="co"><img src="../images/00268.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The image shows that <samp class="mono">render-polygon</samp> connects the three dots of <samp class="mono">(rest p)</samp> and then connects <samp class="mono">(first p)</samp> to the first point of <samp class="mono">(rest p)</samp>, that is, <samp class="mono">(second p)</samp>. You can easily validate this claim with an interaction that uses <samp class="mono">(rest square-p)</samp> directly as input for <samp class="mono">render-poly</samp>:</p>
+<figure class="co"><img src="../images/00269.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">In addition, you may wonder what <samp class="mono">render-poly</samp> would draw if we added another point, say, <samp class="mono">(make-posn 40 30)</samp>, to the original square:</p>
+<figure class="co"><img src="../images/00270.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_332" title="332"></span>Instead of the desired pentagon, <samp class="mono">render-polygon</samp> always draws the triangle at the end of the given Polygon and otherwise connects the Posns that precede the triangle.</p>
+<p class="calibre8">While the experiments confirm the problems of our design, they also suggest that the function is “almost correct.” It connects the successive dots specified by a list of Posns, and then it draws a line from the first to the last Posn of the trailing triangle. If it skipped this last step, the function would just “connect the dots” and thus draw an “open” polygon. By connecting the first and the last point, it could then complete its task.</p>
+<p class="calibre8">Put differently, the analysis of our failure suggests a two-step solution:</p>
+<p class="nlf">1. Solve a <b class="calibre9">more general</b> problem.</p>
+<p class="nll">2. Use the solution to this general problem to solve the original one.</p>
+<p class="tni">We start with the statement for the general problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that draws connections between a given bunch of dots and into a given scene.</p>
+</div>
+<p class="calibre8">Although the design of <samp class="mono">render-poly</samp> almost solves this problem, we design this function mostly from scratch. First, we need a data definition. Connecting the dots makes no sense unless we have at least a couple of dots. To keep things simple, we go with at least one dot:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">NELoP</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn<samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn NELoP<samp class="mono">)</samp></p>
+</div>
+<p class="calibre8">Second, we formulate a signature, a purpose statement, and a header for a “connect the dots” function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Image NELoP<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; connects</samp><samp class="mono"> the dots</samp><samp class="mono"> in p</samp><samp class="mono"> by rendering</samp><samp class="mono"> lines in</samp><samp class="mono"> img</samp> <br class="calibre4"/><samp class="mono">(define (connect-dots</samp><samp class="mono"> img p)</samp> <br class="calibre4"/><samp class="mono">  MT)</samp></p>
+</div>
+<p class="tni">Third, we adapt the examples for <samp class="mono">render-poly</samp> for this new function. As our failure analysis says, the function connects the first Posn on <samp class="mono">p</samp> to the second one, the second one to the third, the third to the fourth, and so on, all the way to the last one, which isn’t connected to anything. Here is the adaptation of the first example, a list of three Posns:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_333" title="333"></span><img src="../images/00271.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The expected value is an image with two lines: one from the first Posn to the second one, and another one from the second to the third Posn.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 191. Adapt the second example for the <samp class="mono">render-poly</samp> function to <samp class="mono">connect-dots</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Fourth, we use the template for functions that process non-empty lists:</p>
+<figure class="co"><img src="../images/00272.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The template has two clauses: one for lists of one Posn and the second one for lists with more than one. Since there is at least one Posn in both cases, the template contains <samp class="mono">(first p)</samp> in both clauses; the second one also contains <samp class="mono">(connects-dots (rest p))</samp> to remind us of the self-reference in the second clause of the data definition.</p>
+<p class="calibre8">The fifth and central step is to turn the template into a function definition. Since the first clause is the simplest one, we start with it. As we have already said, it is impossible to connect anything when the given list contains only one Posn. Hence, the function just returns <samp class="mono">MT</samp> from the first <samp class="mono">cond</samp> clause. For the second <samp class="mono">cond</samp> clause, let us remind ourselves of what the template expressions compute:</p>
+<p class="nlf">1. <samp class="mono">(first p)</samp> extracts the first Posn;</p>
+<p class="nlf">2. <samp class="mono">(rest p)</samp> extracts the NELoP from <samp class="mono">p</samp>; and</p>
+<p class="nll">3. <samp class="mono">(connect-dots img (rest p))</samp> connects the dots in <samp class="mono">(rest p)</samp> by rendering lines in <samp class="mono">img</samp>.</p>
+<p class="tni">From our first attempt to design <samp class="mono">render-poly</samp>, we know <samp class="mono">connect-dots</samp> needs to add one line to the result of <samp class="mono">(connect-dots img (rest p))</samp>, namely, from <samp class="mono">(first p)</samp> to <samp class="mono">(second p)</samp>. We know that <samp class="mono">p</samp> contains a second Posn because otherwise the evaluation of <samp class="mono">cond</samp> would have picked the first clause.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_334" title="334"></span>Putting everything together, we get the following definition:</p>
+<figure class="co"><img src="../images/00273.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This definition looks simpler than the faulty version of <samp class="mono">render-poly</samp>, even though it copes with two more lists of Posns than <samp class="mono">render-poly</samp>.</p>
+<p class="calibre8">Conversely, we say that <samp class="mono">connect-dots</samp> generalizes <samp class="mono">render-poly</samp>. Every input for the latter is also an input for the former. Or in terms of data definitions, every Polygon is also an NELoP. But, there are many NELoPs that are <b class="calibre9">not</b> Polygons. To be precise, all lists of Posns that contain two items or one belong to NELoP but not to Polygon. The key insight for you is, however, that just because a function has to deal with more inputs than another function does <b class="calibre9">not</b> mean that the former is more complex than the latter; generalizations often simplify function definitions.</p>
+<p class="marginpar">This argument is <b class="calibre9">informal</b>. If you ever need a <b class="calibre9">formal</b> argument for such claims about the relationship between sets or functions, you will need to study <i class="calibre6">logic</i>. Indeed, this book’s design process is deeply informed by logic, and a course on logic in computation is a natural complement. In general, logic is to computing what analysis is to engineering.</p>
+<p class="calibre8">As spelled out above, <samp class="mono">render-polygon</samp> can use <samp class="mono">connect-dots</samp> to connect all successive Posns of the given Polygon; to complete its task, it must then add a line from the first to the last Posn of the given Polygon. In terms of code, this just means composing two functions: <samp class="mono">connect-dots</samp> and <samp class="mono">render-line</samp>, but we also need a function to extract the last Posn from the Polygon. Once we are granted this wish, the definition of <samp class="mono">render-poly</samp> is a one-liner:</p>
+<figure class="co"><img src="../images/00274.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Formulating the wish-list entry for <samp class="mono">last</samp> is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Polygon<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; extracts</samp><samp class="mono"> the last</samp><samp class="mono"> item from</samp><samp class="mono"> p</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_335" title="335"></span>Then again, it is clear that <samp class="mono">last</samp> could be a generally useful function and we might be better off designing it for inputs from NELoP:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>NELoP<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; extracts</samp><samp class="mono"> the last</samp><samp class="mono"> item from</samp><samp class="mono"> p</samp> <br class="calibre4"/><samp class="mono">(define (last</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (first</samp><samp class="mono"> p))</samp></p>
+</div>
+<p class="tni">Stop! Why is it acceptable to use <samp class="mono">first</samp> for the stub definition of <samp class="mono">last</samp>?</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 192. Argue why it is acceptable to use <samp class="mono">last</samp> on Polygons. Also argue why you may adapt the template for <samp class="mono">connect-dots</samp> to <samp class="mono">last</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (last</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(empty?</samp><samp class="mono"> (rest p))</samp><samp class="mono"> (<span>…</span> (first</samp><samp class="mono"> p) <span>…</span>)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (<span>…</span> (first</samp><samp class="mono"> p) <span>…</span></samp><samp class="mono"> (last (rest</samp><samp class="mono"> p)) <span>…</span>)]))</samp></p>
+</div>
+<p class="tni">Finally, develop examples for <samp class="mono">last</samp>, turn them into tests, and ensure that the definition of <samp class="mono">last</samp> in <a id="rfig73" href="part0007_split_023.html#fig73" class="calibre5">figure 73</a> works on your examples. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig73" class="calibre5"></a><img src="../images/00275.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_023.html#rfig73" class="calibre5">Figure 73</a>:</span> <span>Drawing a polygon</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">In summary, the development of <samp class="mono">render-poly</samp> naturally points us to consider the general problem of connecting a list of successive dots. We can then solve the original problem by defining a function that composes the general function with other auxiliary functions. The program therefore consists of a relatively straightforward main function—<samp class="mono">render-poly</samp>—and complex auxiliary functions that perform most of the work. You will see time and again that this kind of design approach is common and a good method for designing and organizing programs.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 193. Here are two more ideas for defining <samp class="mono">render-poly</samp>:</p>
+<p class="blf">•  <samp class="mono">render-poly</samp> could <samp class="mono">cons</samp> the last item of <samp class="mono">p</samp> onto <samp class="mono">p</samp> and then call <samp class="mono">connect-dots</samp>.</p>
+<p class="bll">•  <samp class="mono">render-poly</samp> could add the first item of <samp class="mono">p</samp> to the end of <samp class="mono">p</samp> via a version of <samp class="mono">add-at-end</samp> that works on Polygons.</p>
+<p class="tni">Use both ideas to define <samp class="mono">render-poly</samp>; make sure both definitions pass the test cases. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 194. Modify <samp class="mono">connect-dots</samp> so that it consumes an additional Posn to which the last Posn is connected. Then modify <samp class="mono">render-poly</samp> to use this new version of <samp class="mono">connect-dots</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Naturally, functions such as <samp class="mono">last</samp> are available in a full-fledged programming language, and something like <samp class="mono">render-poly</samp> is available in the <span epub:type="pagebreak" id="pg_336" title="336"></span><i class="calibre6">2htdp/image</i> library. If you are wondering why we just designed these functions, consider the titles of both the book and this section. The goal is <b class="calibre9">not</b> (just) to design useful functions but to study how code is designed systematically. Specifically, this section is about the idea of generalization in the design process; for more on this idea see part III and part VI.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

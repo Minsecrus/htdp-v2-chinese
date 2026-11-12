@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_7"><b class="calibre9">Constant Definitions</b></h1>
+<p class="tni">Programs consist not only of function definitions but also of constant definitions, but these weren’t included in our first grammar. So here is an extended grammar that includes constant definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="monospace-italic">definition</samp><samp class="mono"> =</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> | (define</samp><samp class="monospace-italic"> name expr</samp><samp class="mono">)</samp></p>
+</div>
+<p class="tni">The shape of a constant definition is similar to that of a function definition. While the keyword <samp class="mono">define</samp> distinguishes constant definitions from expressions, it does not differentiate from function definitions. For that, a human reader must look at the second component of the definition.</p>
+<p class="marginpar">As it turns out, DrRacket has another way of dealing with function definitions; see Chapter 17.</p>
+<p class="calibre8">Next we must understand what a constant definition means. For a constant definition with a literal constant on the right-hand side, such as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define RADIUS</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="tni">the variable is just a short-hand for the value. Wherever DrRacket encounters <samp class="mono">RADIUS</samp> during an evaluation, it replaces it with <samp class="mono">5</samp>.</p>
+<p class="calibre8">For a definition with a proper expression on the right-hand side, say,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define DIAMETER</samp><samp class="mono"> (* 2</samp><samp class="mono"> RADIUS))</samp></p>
+</div>
+<p class="tni">we must immediately determine the value of the expression. This process makes use of whatever definitions precede this constant definition. Hence,</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_216" title="216"></span><samp class="mono">(define RADIUS</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">(define DIAMETER</samp><samp class="mono"> (* 2</samp><samp class="mono"> RADIUS))</samp></p>
+</div>
+<p class="tni">is equivalent to</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define RADIUS</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">(define DIAMETER</samp><samp class="mono"> 10)</samp></p>
+</div>
+<p class="calibre8">This process even works when function definitions are involved:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define RADIUS</samp><samp class="mono"> 10)</samp> <br class="calibre4"/><samp class="mono">(define DIAMETER</samp><samp class="mono"> (* 2</samp><samp class="mono"> RADIUS))</samp> <br class="calibre4"/><samp class="mono">(define (area</samp><samp class="mono"> r) (*</samp><samp class="mono"> 3.14 (*</samp><samp class="mono"> r r)))</samp> <br class="calibre4"/><samp class="mono">(define AREA-OF-RADIUS</samp><samp class="mono"> (area RADIUS))</samp></p>
+</div>
+<p class="tni">As DrRacket steps through this sequence of definitions, it first determines that <samp class="mono">RADIUS</samp> stands for <samp class="mono">10</samp>, <samp class="mono">DIAMETER</samp> for <samp class="mono">20</samp>, and <samp class="mono">area</samp> is the name of a function. Finally, it evaluates <samp class="mono">(area RADIUS)</samp> to <samp class="mono">314</samp> and associates <samp class="mono">AREA-OF-RADIUS</samp> with that value.</p>
+<p class="calibre8">Mixing constant and function definitions gives rise to a new kind of run-time error, too. Take a look at this program:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define RADIUS</samp><samp class="mono"> 10)</samp> <br class="calibre4"/><samp class="mono">(define DIAMETER</samp><samp class="mono"> (* 2</samp><samp class="mono"> RADIUS))</samp> <br class="calibre4"/><samp class="mono">(define AREA-OF-RADIUS</samp><samp class="mono"> (<span class="colorbox">area</span> RADIUS))</samp> <br class="calibre4"/><samp class="mono">(define (area</samp><samp class="mono"> r) (*</samp><samp class="mono"> 3.14 (*</samp><samp class="mono"> r r)))</samp></p>
+</div>
+<p class="tni">It is like the one above with the last two definitions swapped. For the first two definitions, evaluation proceeds as before. For the third one, however, evaluation goes wrong. The process calls for the evaluation of <samp class="mono">(area RADIUS)</samp>. While the definition of <samp class="mono">RADIUS</samp> precedes this expression, the definition of <samp class="mono">area</samp> has not yet been encountered. If you were to evaluate the program with DrRacket, you would therefore get an error, explaining that “this function is not defined.” So be careful to use functions in constant definitions only when you know they are defined.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 124. Evaluate the following program, step-by-step:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define PRICE</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">(define SALES-TAX</samp><samp class="mono"> (* 0.08</samp><samp class="mono"> PRICE))</samp> <br class="calibre4"/><samp class="mono">(define TOTAL</samp><samp class="mono"> (+ PRICE</samp><samp class="mono"> SALES-TAX))</samp></p>
+</div>
+<p class="tni">Does the evaluation of the following program signal an error?</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_217" title="217"></span><samp class="mono">(define COLD-F</samp><samp class="mono"> 32)</samp> <br class="calibre4"/><samp class="mono">(define COLD-C</samp><samp class="mono"> (fahrenheit-&gt;celsius COLD-F))</samp> <br class="calibre4"/><samp class="mono">(define (fahrenheit-&gt;celsius</samp><samp class="mono"> f)</samp> <br class="calibre4"/><samp class="mono"> (* 5/9</samp><samp class="mono"> (- f</samp><samp class="mono"> 32)))</samp></p>
+</div>
+<p class="tni">How about the next one?</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define LEFT</samp><samp class="mono"> -100)</samp> <br class="calibre4"/><samp class="mono">(define RIGHT</samp><samp class="mono"> 100)</samp> <br class="calibre4"/><samp class="mono">(define (f</samp><samp class="mono"> x) (+</samp><samp class="mono"> (* 5</samp><samp class="mono"> (expt x</samp><samp class="mono"> 2)) 10))</samp> <br class="calibre4"/><samp class="mono">(define f@LEFT</samp><samp class="mono"> (f LEFT))</samp> <br class="calibre4"/><samp class="mono">(define f@RIGHT</samp><samp class="mono"> (f RIGHT))</samp></p>
+</div>
+<p class="tni">Check your computations with DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</article>
+</div>
+</body></html>

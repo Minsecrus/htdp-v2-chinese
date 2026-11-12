@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_13"><span epub:type="pagebreak" id="pg_272" title="272" class="calibre1"></span><a id="sec9-5" class="calibre16"></a>9.5 Lists and World</h2>
+<p class="tni">With lists and self-referential data definitions in general, you can design and run many more interesting world programs than with finite data. Just imagine you can now create a version of the space invader program from chapter 6 that allows the player to fire as many shots from the tank as desired. Let’s start with a simplistic version of this problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a world program that simulates firing shots. Every time the “player” hits the space bar, the program adds a shot to the bottom of the canvas. These shots rise vertically at the rate of one pixel per tick.</p>
+</div>
+<p class="marginpar">If you haven’t designed a world program in a while, reread chapter 3.6.</p>
+<p class="calibre8">Designing a world program starts with a separation of information into constants and elements of the ever-changing state of the world. For the former we introduce physical and graphical constants; for the latter we need to develop a data representation for world states. While the sample problem is relatively vague about the specifics, it clearly assumes a rectangular scenery with shots painted along a vertical line. Obviously the locations of the shots change with every clock tick, but the size of the scenery and x-coordinate of the line of shots remain the same:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define HEIGHT</samp><samp class="mono"> 80) ;</samp><samp class="mono"> distances in</samp><samp class="mono"> terms of</samp><samp class="mono"> pixels</samp> <br class="calibre4"/><samp class="mono">(define WIDTH</samp><samp class="mono"> 100)</samp> <br class="calibre4"/><samp class="mono">(define XSHOTS</samp><samp class="mono"> (/ WIDTH</samp><samp class="mono"> 2))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; graphical</samp><samp class="mono"> constants</samp> <br class="calibre4"/><samp class="mono">(define BACKGROUND</samp><samp class="mono"> (empty-scene WIDTH</samp><samp class="mono"> HEIGHT))</samp> <br class="calibre4"/><samp class="mono">(define SHOT</samp><samp class="mono"> (triangle 3</samp><samp class="mono"> "solid" "red"))</samp></p>
+</div>
+<p class="tni">Nothing in the problem statement demands these particular choices, but as long as they are easy to change—meaning changing by editing a single definition—we have achieved our goal.</p>
+<p class="calibre8">As for those aspects of the “world” that change, the problem statement mentions two. First, hitting the space bar adds a shot. Second, all the shots move straight up by one pixel per clock tick. Given that we cannot predict how many shots the player will “fire,” we use a list to represent them:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">List-of-shots</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Shot List-of-shots<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> the collection</samp><samp class="mono"> of shots</samp><samp class="mono"> fired</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_273" title="273"></span>The one remaining question is how to represent each individual shot. We already know that all of them have the same x-coordinate and that this coordinate stays the same throughout. Furthermore, all shots look alike. Hence, their y-coordinates are the only property in which they differ from each other. It therefore suffices to represent each shot as a number:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Shot</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono">.</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> represents the</samp><samp class="mono"> shot's y-coordinate</samp></p>
+</div>
+<p class="tni">We could restrict the representation of shots to the interval of numbers below <samp class="mono">HEIGHT</samp> because we know that all shots are launched from the bottom of the canvas and that they then move up, meaning their y-coordinate continuously decreases.</p>
+<p class="calibre8">You can also use a data definition like this to represent this world:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">ShotWorld</i><samp class="mono"> is </samp>List-of-numbers<samp class="mono">.</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> each number</samp><samp class="mono"> on such</samp><samp class="mono"> a list</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono"> </samp><samp class="mono"> represents the</samp><samp class="mono"> y-coordinate of</samp><samp class="mono"> a shot</samp></p>
+</div>
+<p class="tni">After all, the above two definitions describe all list of numbers; we already have a definition for lists of numbers, and the name ShotWorld tells everyone what this class of data is about.</p>
+<p class="calibre8">Once you have defined constants and developed a data representation for the states of the world, the key task is to pick which event handlers you wish to employ and to adapt their signatures to the given problem. The running example mentions clock ticks and the space bar, all of which translates into a wish list of three functions:</p>
+<p class="blf">•  the function that turns a world state into an image:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">; </samp>ShotWorld<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> the image</samp><samp class="mono"> of a</samp><samp class="mono"> shot for</samp><samp class="mono"> each y</samp><samp class="mono"> on w</samp> <br class="calibre4"/><samp class="mono">; at</samp><samp class="mono"> (MID,y} to</samp><samp class="mono"> the background</samp><samp class="mono"> image</samp> <br class="calibre4"/><samp class="mono">(define (to-image</samp><samp class="mono"> w) BACKGROUND)</samp></p>
+</div>
+<p class="bl-tni">because the problem demands a visual rendering;</p>
+<p class="blf">•  one for dealing with tick events:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">; </samp>ShotWorld<samp class="mono"> -&gt; </samp>ShotWorld <br class="calibre4"/><samp class="mono">; moves</samp><samp class="mono"> each shot</samp><samp class="mono"> on w</samp><samp class="mono"> up by</samp><samp class="mono"> one pixel</samp> <br class="calibre4"/><samp class="mono">(define (tock</samp><samp class="mono"> w) w)</samp></p>
+</div>
+<p class="blf"><span epub:type="pagebreak" id="pg_274" title="274"></span>•  and one function for dealing with key events:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">; </samp>ShotWorld KeyEvent<samp class="mono"> -&gt; </samp>ShotWorld <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> a shot</samp><samp class="mono"> to the</samp><samp class="mono"> world</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> the player</samp><samp class="mono"> presses the</samp><samp class="mono"> space bar</samp> <br class="calibre4"/><samp class="mono">(define (keyh</samp><samp class="mono"> w ke)</samp><samp class="mono"> w)</samp></p>
+</div>
+<p class="tni">Don’t forget that in addition to the initial wish list, you also need to define a <samp class="mono">main</samp> function that actually sets up the world and installs the handlers. <a id="rfig61" href="part0007_split_012.html#fig61" class="calibre5">Figure 61</a> includes this one function that is not designed but defined as a modification of standard schema.</p>
+<div class="figure">
+<figure class="img"><a id="fig61" class="calibre5"></a><img src="../images/00205.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_012.html#rfig61" class="calibre5">Figure 61</a>:</span> <span>A list-based world program</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Let’s start with the design of <samp class="mono">to-image</samp>. We have its signature, purpose statement, and header, so we need examples next. Since the data definition has two clauses, there should be at least two examples: <samp class="mono">'()</samp> and a <samp class="mono">cons</samp>ed list, say, <samp class="mono">(cons 9 '())</samp>. The expected result for <samp class="mono">'()</samp> is obviously <samp class="mono">BACKGROUND</samp>; if there is a y-coordinate, though, the function must place the image of a shot at <samp class="mono">MID</samp> and the specified coordinate:</p>
+<figure class="co"><img src="../images/00206.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Before you read on, work through an example that applies <samp class="mono">to-image</samp> to a list of two Shots. Doing so helps understand <b class="calibre9">how</b> the function works.</p>
+<p class="calibre8">The fourth step is about translating the data definition into a template:</p>
+<figure class="co"><img src="../images/00207.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The template for data definitions for lists is so familiar now that it doesn’t need much explanation. If you have any doubts, read over the questions in <a href="part0007_split_007.html#fig52" class="calibre5">figure 52</a> and design the template on your own.</p>
+<p class="calibre8">From here it is straightforward to define the function. The key is to combine the examples with the template and to answer the questions from <a href="part0007_split_007.html#fig53" class="calibre5">figure 53</a>. Following those, you start with the base case of an empty list of shots, and, from the examples, you know that the expected answer is <samp class="mono">BACKGROUND</samp>. Next you formulate what the template expressions in the second <samp class="mono">cond</samp> compute:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_275" title="275"></span>•  <samp class="mono">(first w)</samp> extracts the first coordinate from the list;</p>
+<p class="blf">•  <samp class="mono">(rest w)</samp> is the rest of the coordinates; and</p>
+<p class="bll">•  <samp class="mono">(to-image (rest w))</samp> adds each shot on <samp class="mono">(rest w)</samp> to the background image, according to the purpose statement of <samp class="mono">to-image</samp>.</p>
+<p class="tni">In other words, <samp class="mono">(to-image (rest w))</samp> renders the rest of the list as an image and thus performs almost all the work. What is missing is the first shot, <samp class="mono">(first w)</samp>. If you now apply the purpose statement to these two expressions, you get the desired expression for the second <samp class="mono">cond</samp> clause:</p>
+<figure class="co"><img src="../images/00208.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The added icon is the standard image for a shot; the two coordinates are spelled out in the purpose statement; and the last argument to <samp class="mono">place-image</samp> is the image constructed from the rest of the list.</p>
+<p class="calibre8"><a href="part0007_split_012.html#fig61" class="calibre5">Figure 61</a> displays the complete function definition for <samp class="mono">to-image</samp> and indeed the rest of the program, too. The design of <samp class="mono">tock</samp> is just like the design of <samp class="mono">to-image</samp>, and you should work through it for yourself. The signature of the <samp class="mono">keyh</samp> handler, though, poses one interesting question. It specifies that the handler consumes two inputs with nontrivial data definitions. On the one hand, the ShotWorld is a self-referential data definition. On the other hand, the definition for KeyEvents is a large enumeration. For now, we have you “guess” which of the two arguments should drive the development of the template; later we will study such cases in depth.</p>
+<p class="calibre8">As far as a world program is concerned, a key handler such as <samp class="mono">keyh</samp> is about the key event that it consumes. Hence, we consider it the main argument and use its data definition to derive the template. Specifically, following the data definition for KeyEvent from chapter 4.3, it dictates that the function needs a <samp class="mono">cond</samp> expression with numerous clauses like this:</p>
+<figure class="co"><img src="../images/00209.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_276" title="276"></span>Of course, just like for functions that consume all possible BSL values, a key handler usually does not need to inspect all possible cases. For our running problem, you specifically know that the key handler reacts only to the space bar and all others are ignored. So it is natural to collapse all of the <samp class="mono">cond</samp> clauses into an <samp class="mono">else</samp> clause except for the clause for <samp class="mono">" "</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 156. Equip the program in <a href="part0007_split_012.html#fig61" class="calibre5">figure 61</a> with tests and make sure it passes those. Explain what <samp class="mono">main</samp> does. Then run the program via <samp class="mono">main</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 157. Experiment to determine whether the arbitrary decisions concerning constants are easy to change. For example, determine whether changing a single constant definition achieves the desired outcome:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_277" title="277"></span>•  change the height of the canvas to 220 pixels;</p>
+<p class="blf">•  change the width of the canvas to 30 pixels;</p>
+<p class="blf">•  change the <i class="calibre6">x</i> location of the line of shots to “somewhere to the left of the middle”;</p>
+<p class="blf">•  change the background to a green rectangle; and</p>
+<p class="bll">•  change the rendering of shots to a red elongated rectangle.</p>
+<p class="tni">Also check whether it is possible to double the size of the shot without changing anything else or to change its color to black. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 158. If you run <samp class="mono">main</samp>, press the space bar (fire a shot), and wait for a goodly amount of time, the shot disappears from the canvas. When you shut down the world canvas, however, the result is a world that still contains this invisible shot.</p>
+<p class="calibre8">Design an alternative <samp class="mono">tock</samp> function that doesn’t just move shots one pixel per clock tick but also eliminates those whose coordinates place them above the canvas. <b class="calibre9">Hint</b> You may wish to consider the design of an auxiliary function for the recursive <samp class="mono">cond</samp> clause. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 159. Turn the solution of exercise 153 into a world program. Its main function, dubbed <samp class="mono">riot</samp>, consumes how many balloons the students want to throw; its visualization shows one balloon dropping after another at a rate of one per second. The function produces the list of Posns where the balloons hit.</p>
+<p class="calibre8"><b class="calibre9">Hints</b> (1) Here is one possible data representation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct pair</samp><samp class="mono"> [balloon# lob])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Pair</i><samp class="mono"> is a</samp><samp class="mono"> structure (make-pair</samp><samp class="mono"> </samp>N List-of-posns<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">List-of-posns</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Posn List-of-posns<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> (make-pair n</samp><samp class="mono"> lob) means</samp><samp class="mono"> n balloons</samp> <br class="calibre4"/><samp class="mono">; must</samp><samp class="mono"> yet be</samp><samp class="mono"> thrown and</samp><samp class="mono"> added to</samp><samp class="mono"> lob</samp></p>
+</div>
+<p class="calibre8">(2) A <samp class="mono">big-bang</samp> expression is really just an expression. It is legitimate to nest it within another expression.</p>
+<p class="calibre8">(3) Recall that <samp class="mono">random</samp> creates random numbers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

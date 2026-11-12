@@ -1,0 +1,569 @@
+# Chapter 29: Algorithms that Backtrack / 第 29 章：回溯算法
+
+<h1>
+29 Algorithms that Backtrack
+</h1>
+
+<P>
+Problem solving doesn’t always progress along some straight line. Sometimes we may follow one approach and discover that we are stuck because we took a wrong turn. One obvious option is to backtrack to the place where we made the fateful decision and to take a different turn. Some algorithms work just like that. This chapter presents two instances. The first section deals with an algorithm for traversing graphs. The second one is an extended exercise that uses backtracking in the context of a chess puzzle.
+</P>
+
+<h2>
+29.1 Traversing Graphs
+</h2>
+
+<P>
+Graphs are ubiquitous in our world and the world of computing. Imagine a group of people, say, the students in your school. Write down all the names, and connect the names of those people who know each other. You have just created your first undirected graph.
+</P>
+
+<MARGIN_NOTE>
+Social scientists use such algorithms to figure out the power structure in a company. Similarly they use such graphs to predict the probable activities of people, even without knowledge of the content of their emails.
+</MARGIN_NOTE>
+
+<P>
+Now take a look at figure 168, which displays a small directed graph. It consists of seven nodes—the circled letters—and nine edges—the arrows. The graph may represent a small version of an email network. Imagine a company and all the emails that go back and forth. Write down the email addresses of all employees. Then, address by address, draw an arrow from the address to all those addresses to whom the owner sends emails during a week. This is how you would create the directed graph in figure 168, though it might end up looking much more complex, almost impenetrable.
+</P>
+
+<FIGURE src="images/00669.png">
+Figure 168: A directed graph
+</FIGURE>
+
+<P>
+In general, a graph consists of a collection of nodes and a collection of edges, which connect nodes. In a directed graph, the edges represent one-way connections between the nodes; in an undirected graph, the edges represent two-way connections between the nodes. In this context, the following is a common type of problem:
+</P>
+
+<P>
+Sample Problem Design an algorithm that proposes a way to introduce one person to another in a directed email graph for a large company. The program consumes a directed graph representing established email connections and two email addresses. It returns a sequence of email addresses that connect the first email with the second.
+</P>
+
+<P>
+Mathematical scientists call the desired sequence a path.
+</P>
+
+<P>
+Figure 168 makes the sample problem concrete. For example, you may wish to test whether the program can find a path from C to D. This particular path consists of the origination node C and the destination node D. In contrast, if you wish to connect E with D, there are two paths:
+</P>
+
+<P>
+•  send email from E to F and then to D.
+</P>
+
+<P>
+•  send it from E to C and then to D.
+</P>
+
+<P>
+Sometimes it is impossible to connect two nodes with a path. In the graph of figure 168, you cannot move from C to G by following the arrows.
+</P>
+
+<P>
+Looking at figure 168 you can easily figure out how to get from one node to another without thinking much about how you did it. So imagine for a moment that the graph in figure 168 is a large park. Also imagine someone says you are located at E and you need to get to G. You can clearly see two paths, one leading to C and another one leading to F. Follow the first one and make sure to remember that it is also possible to get from E to F. Now you have a new problem, namely, how to get from C to G. The key insight is that this new problem is just like the original problem; it asks you to find a path from one node to another. Furthermore, if you can solve the problem, you know how to get from E to G—just add the step from E to C. But there is no path from C to G. Fortunately, you remember that it is also possible to go from E to F, meaning you can backtrack to some point where you have a choice to make and restart the search from there.
+</P>
+
+<P>
+Now let’s design this algorithm in a systematic manner. Following the general design recipe, we start with a data analysis. Here are two compact list-based representations of the graph in figure 168:
+</P>
+
+<FIGURE src="images/00670.png">
+
+</FIGURE>
+
+<P>
+Both contain one list per node. Each of these lists starts with the name of a node followed by its (immediate) neighbors, that is, nodes reachable by following a single arrow. The two differ in how they connect the (name of the) node and its neighbors: the left one uses list while the right one uses cons. For example, the second list represents node B with its two outgoing edges to E and F in figure 168. On the left 'B is the first name on a two-element list; on the right it is the first name on a three-element list.
+</P>
+
+<EXERCISE>
+Exercise 471. Translate one of the above definitions into proper list form using list and proper symbols.
+</EXERCISE>
+
+<P>
+The data representation for nodes is straightforward:
+</P>
+
+<CODE>
+; A Node is a Symbol.
+</CODE>
+
+<P>
+Formulate a data definition to describe the class of all Graph representations, allowing an arbitrary number of nodes and edges. Only one of the above representations has to belong to Graph.
+</P>
+
+<P>
+Design the function neighbors. It consumes a Node n and a Graph g and produces the list of immediate neighbors of n in g.
+</P>
+
+<P>
+Using your data definitions for Node and Graph—regardless of which one you chose, as long as you also designed neighbors—we can now formulate a signature and a purpose statement for find-path, the function that searches a path in a graph:
+</P>
+
+<CODE>
+; Node Node Graph -> [List-of Node] ; finds a path from origination to destination in G (define (find-path origination destination G)   '())
+</CODE>
+
+<P>
+What this header leaves open is the exact shape of the result. It implies that the result is a list of nodes, but it does not say which nodes it contains.
+</P>
+
+<P>
+To appreciate this ambiguity and why it matters, let’s study the examples from above. In ISL+, we can now formulate them like this:
+</P>
+
+<CODE>
+(find-path 'C 'D sample-graph) (find-path 'E 'D sample-graph) (find-path 'C 'G sample-graph)
+</CODE>
+
+<P>
+The first call to find-path must return a unique path, the second one must choose one from two, and the third one must signal that there is no path from 'C to 'G in sample-graph. Here are two possibilities, then, on how to construct the return value:
+</P>
+
+<P>
+•  The result of the function consists of all nodes leading from the origination node to the destination node, including those two. In this case, an empty path could be used to express the lack of a path between two nodes.
+</P>
+
+<P>
+•  Alternatively, since the call itself already lists two of the nodes, the output could mention only the “interior” nodes of the path. Then the answer for the first call would be '() because 'D is an immediate neighbor of 'C. Of course, '() could then no longer signal failure.
+</P>
+
+<MARGIN_NOTE>
+It is easy to imagine others, such as skipping either of the two given nodes.
+</MARGIN_NOTE>
+
+<P>
+Concerning the lack-of-a-path issue, we must choose a distinct value for signaling this notion. Because #false is distinct, is meaningful, and works in either case, we opt for it. As for the multiple-paths issue, we postpone making a choice for now and list both possibilities in the example section:
+</P>
+
+<FIGURE src="images/00671.png">
+
+</FIGURE>
+
+<P>
+Our next design step is to understand the four essential pieces of the function: the “trivial problem” condition, a matching solution, the generation of a new problem, and the combination step. The above discussion of the search process and the analysis of the three examples suggest answers:
+</P>
+
+<P>
+1. If the two given nodes are directly connected with an arrow in the given graph, the path consists of just these two nodes. But there is an even simpler case, namely, when the origination argument of find-path is equal to its destination.
+</P>
+
+<P>
+2. In that second case, the problem is truly trivial and the matching answer is (list destination).
+</P>
+
+<P>
+3. If the arguments are different, the algorithm must inspect all immediate neighbors of origination and determine whether there is a path from any one of those to destination. In other words, picking one of those neighbors generates a new instance of the “find a path” problem.
+</P>
+
+<P>
+4. Finally, once the algorithm has a path from a neighbor of origination to destination, it is easy to construct a complete path from the former to the latter—just add the origination node to the list.
+</P>
+
+<P>
+From a programming perspective, the third point is critical. Since a node can have an arbitrary number of neighbors, the “inspect all neighbors” task is too complex for a single primitive. We need an auxiliary function that consumes a list of nodes and generates a new path problem for each of them. Put differently, the function is a list-oriented version of find-path.
+</P>
+
+<P>
+Let’s call this auxiliary function find-path/list and let’s formulate a wish for it:
+</P>
+
+<CODE>
+; [List-of Node] Node Graph -> [Maybe Path] ; finds a path from some node on lo-originations to ; destination; otherwise, it produces #false (define (find-path/list lo-originations destination G)   #false)
+</CODE>
+
+<P>
+Using this wish, we can fill in the generic template for generative-recursive functions to get a first draft of find-path:
+</P>
+
+<FIGURE src="images/00672.png">
+
+</FIGURE>
+
+<P>
+It uses the neighbors from exercise 471 and the wish-list function find-path/list and otherwise uses the answers to the four questions about generative recursive functions.
+</P>
+
+<P>
+The rest of the design process is about details of composing these functions properly. Consider the signature of find-path/list. Like find-path, it produces [Maybe Path]. That is, if it finds a path from any of the neighbors, it produces this path; otherwise, if none of the neighbors is connected to destination, the function produces #false. Hence the answer of find-path depends on the kind of result that find-path/list produces, meaning the code must distinguish the two possible answers with a cond expression:
+</P>
+
+<FIGURE src="images/00673.png">
+
+</FIGURE>
+
+<P>
+The two cases reflect the two kinds of answers we might receive: a Boolean or a list. In the first case, find-path/list cannot find a path from any neighbor to destination, meaning find-path itself cannot construct such a path either. In the second case, the auxiliary function found a path, but find-path must still add origination to the front of this path because candidate starts with one of origination’s neighbors, not origination itself as agreed upon above.
+</P>
+
+<P>
+Figure 169 contains the complete definition of find-path. It also contains a definition of find-path/list, which processes its first argument via structural recursion. For each node in the list, find-path/list uses find-path to check for a path. If find-path indeed produces a path, that path is its answer. Otherwise, find-path/list backtracks.
+</P>
+
+<FIGURE src="images/00674.png">
+Figure 169: Finding a path in a graph
+</FIGURE>
+
+<P>
+Note Chapter 19.1 discusses backtracking in the structural world. A particularly good example is the function that searches blue-eyed ancestors in a family tree. When the function encounters a node, it first searches one branch of the family tree, say the father’s, and if this search produces #false, it searches the other half. Since graphs generalize trees, comparing this function with find-path is an instructive exercise. End
+</P>
+
+<P>
+Lastly, we need to check whether find-path produces an answer for all possible inputs. It is relatively easy to check that, when given the graph in figure 168 and any two nodes in this graph, find-path always produces some answer. Stop! Solve the next exercise before you read on.
+</P>
+
+<EXERCISE>
+Exercise 472. Test find-path. Use the function to find a path from 'A to 'G in sample-graph. Which one does it find? Why?
+</EXERCISE>
+
+<P>
+Design test-on-all-nodes, a function that consumes a graph g and determines whether there is a path between any pair of nodes.
+</P>
+
+<P>
+For other graphs, however, find-path may not terminate for certain pairs of nodes. Consider the graph in figure 170.
+</P>
+
+<FIGURE src="images/00675.png">
+Figure 170: A directed graph with cycle
+</FIGURE>
+
+<P>
+Stop! Define cyclic-graph to represent the graph in this figure.
+</P>
+
+<P>
+Compared to figure 168, this new graph contains only one extra edge, from C to B. This seemingly small addition, though, allows us to start a search in a node and to return to the same node. Specifically, it is possible to move from B to E to C and back to B. Indeed, when find-path is applied to 'B, 'D, and this graph, it fails to stop, as a hand-evaluation confirms:
+</P>
+
+<CODE>
+(find-path 'B 'D cyclic-graph) == .. (find-path 'B 'D cyclic-graph) .. == .. (find-path/list (list 'E 'F) 'D cyclic-graph) .. == .. (find-path 'E 'D cyclic-graph) .. == .. (find-path/list (list 'C 'F) 'D cyclic-graph) .. == .. (find-path 'C 'D cyclic-graph) .. == .. (find-path/list (list 'B 'D) 'D cyclic-graph) .. == .. (find-path 'B 'D cyclic-graph) ..
+</CODE>
+
+<P>
+The hand-evaluation shows that after seven applications of find-path and find-path/list, ISL+ must evaluate the exact same expression that it started with. Since the same input triggers the same evaluation for any function, find-path does not terminate for these inputs.
+</P>
+
+<P>
+In summary, the termination argument goes like this. If some given graph is free of cycles, find-path produces some output for any given inputs. After all, every path can only contain a finite number of nodes, and the number of paths is finite, too. The function therefore either exhaustively inspects all solutions starting from some given node or finds a path from the origination to the destination node. If, however, a graph contains a cycle, that is, a path from some node back to itself, find-path may not produce a result for some inputs.
+</P>
+
+<MARGIN_NOTE>
+You know only one exception to this rule: random.
+</MARGIN_NOTE>
+
+<P>
+The next part presents a program design technique that addresses just this kind of problem. In particular, it presents a variant of find-path that can deal with cycles in a graph.
+</P>
+
+<EXERCISE>
+Exercise 473. Test find-path on 'B, 'C, and the graph in figure 170. Also use test-on-all-nodes from exercise 472 on this graph.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 474. Redesign the find-path program as a single function.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 475. Redesign find-path/list so that it uses an existing list abstraction from figures 95 and 96 instead of explicit structural recursion. Hint Read the documentation for Racket’s ormap. How does it differ from ISL+'s ormap function? Would the former be helpful here?
+</EXERCISE>
+
+<P>
+Note on Data Abstraction You may have noticed that the find-path function does not need to know how Graph is defined. As long as you provide a correct neighbors function for Graph, find-path works perfectly fine. In short, the find-path program uses data abstraction.
+</P>
+
+<P>
+As part III says, data abstraction works just like function abstraction. Here you could create a function abstract-find-path, which would consume one more parameter than find-path: neighbors. As long as you always handed abstract-find-path a graph G from Graph and the matching neighbors function, it would process the graph properly. While the extra parameter suggests abstraction in the conventional sense, the required relationship between two of the parameters—G and neighbors—really means that abstract-find-path is also abstracted over the definition of Graph. Since the latter is a data definition, the idea is dubbed data abstraction.
+</P>
+
+<P>
+When programs grow large, data abstraction becomes a critical tool for the construction of a program’s components. The next volume in the How to Design series addresses this idea in depth; the next section illustrates the idea with another example. End
+</P>
+
+<EXERCISE>
+Exercise 476. Chapter 12.8 poses a problem concerning finite state machines and strings but immediately defers to this chapter because the solution calls for generative recursion. You have now acquired the design knowledge needed to tackle the problem.
+</EXERCISE>
+
+<P>
+Design the function fsm-match. It consumes the data representation of a finite state machine and a string. It produces #true if the sequence of characters in the string causes the finite state machine to transition from an initial state to a final state.
+</P>
+
+<P>
+Since this problem is about the design of generative recursive functions, we provide the essential data definition and a data example:
+</P>
+
+<FIGURE src="images/00676.png">
+
+</FIGURE>
+
+<P>
+The data example corresponds to the regular expression a (b|c)* d. As mentioned in exercise 109, "acbd", "ad", and "abcd" are examples of acceptable strings; "da", "aa", or "d" do not match.
+</P>
+
+<P>
+In this context, you are designing the following function:
+</P>
+
+<CODE>
+; FSM String -> Boolean ; does an-fsm recognize the given string (define (fsm-match? an-fsm a-string)   #false)
+</CODE>
+
+<P>
+Hint Design the necessary auxiliary function locally to the fsm-match? function. In this context, represent the problem as a pair of parameters: the current state of the finite state machine and the remaining list of 1Strings.
+</P>
+
+<MARGIN_NOTE>
+We thank Mark Engelberg for suggesting this exercise.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 477. Inspect the function definition of arrangements in figure 171. The figure displays a generative-recursive solution of the extended design problem covered by chapter 12.4, namely
+</EXERCISE>
+
+<P>
+given a word, create all possible rearrangements of the letters.
+</P>
+
+<FIGURE src="images/00677.png">
+Figure 171: A definition of arrangements using generative recursion
+</FIGURE>
+
+<P>
+The extended exercise is a direct guide to the structurally recursive design of the main function and two auxiliaries, where the design of the latter requires the creation of two more helper functions. In contrast, figure 171 uses the power of generative recursion—plus foldr and map—to define the same program as a single function definition.
+</P>
+
+<P>
+Explain the design of the generative-recursive version of arrangements. Answer all questions that the design recipe for generative recursion poses, including the question of termination.
+</P>
+
+<P>
+Does arrangements in figure 171 create the same lists as the solution of chapter 12.4?
+</P>
+
+<h2>
+29.2 Project: Backtracking
+</h2>
+
+<P>
+The n queens puzzle is a famous problem from the world of chess that also illustrates the applicability of backtracking in a natural way. For our purposes, a chess board is a grid of n by n squares. The queen is a game piece that can move in a horizontal, vertical, or diagonal direction arbitrarily far without “jumping” over another piece. We say that a queen threatens a square if it is on the square or can move to it. Figure 172 illustrates the notion in a graphical manner. The queen is in the second column and sixth row. The solid lines radiating out from the queen go through all those squares that are threatened by the queen.
+</P>
+
+<FIGURE src="images/00678.jpeg">
+Figure 172: A chess board with a single queen and the positions it threatens
+</FIGURE>
+
+<MARGIN_NOTE>
+We thank Mark Engelberg for his reformulation of this section.
+</MARGIN_NOTE>
+
+<P>
+The classical queens problem is to place 8 queens on an 8 by 8 chess board such that the queens on the board don’t threaten each other. Computer scientists generalize the problem and ask whether it is possible to place n queens on a n by n, chess board such that the queens don’t pose a threat to each other.
+</P>
+
+<P>
+For n = 2, the complete puzzle obviously has no solution. A queen placed on any of the four squares threatens all remaining squares.
+</P>
+
+<P>
+There is also no solution for n = 3. Figure 173 presents all different placements of two queens, that is, solutions for k = 3 and n = 2. In each case, the left queen occupies a square in the left column while a second queen is placed in one of two squares that the first one does not threaten. The placement of a second queen threatens all remaining, unoccupied squares, meaning it is impossible to place a third queen.
+</P>
+
+<FIGURE src="images/00679.jpeg">
+Figure 173: Three queen configurations for a 3 by 3 chess board
+</FIGURE>
+
+<EXERCISE>
+Exercise 478. You can also place the first queen in all squares of the top-most row, the right-most column, and the bottom-most row. Explain why all of these solutions are just like the three scenarios depicted in figure 173.
+</EXERCISE>
+
+<P>
+This leaves the central square. Is it possible to place even a second queen after you place one on the central square of a 3 by 3 board?
+</P>
+
+<P>
+Figure 174 displays two solutions for the n queens puzzle: the left one is for n = 4, the right one for n = 5. The figure shows how in each case a solution has one queen in each row and column, which makes sense because a queen threatens the entire row and column that radiate out from its square.
+</P>
+
+<FIGURE src="images/00680.jpeg">
+Figure 174: Solutions for the n queens puzzle for 4 by 4 and 5 by 5 boards
+</FIGURE>
+
+<P>
+Now that we have conducted a sufficiently detailed analysis, we can proceed to the solution phase. The analysis suggests several ideas:
+</P>
+
+<P>
+1. The problem is about placing one queen at a time. When we place a queen on a board, we can mark the corresponding rows, columns, and diagonals as unusable for other queens.
+</P>
+
+<P>
+2. For another queen, we consider only nonthreatened spots.
+</P>
+
+<P>
+3. Just in case this first choice of a spot leads to problems later, we remember what other squares are feasible for placing this queen.
+</P>
+
+<P>
+4. If we are supposed to place a queen on a board but no safe squares are left, we backtrack to a previous point in the process where we chose one square over another and try one of the remaining squares.
+</P>
+
+<P>
+In short, this solution process is like the “find a path” algorithm.
+</P>
+
+<P>
+Moving from the process description to a designed algorithm clearly calls for two data representations: one for the chess boards and one for positions on the board. Let’s start with the latter:
+</P>
+
+<CODE>
+(define QUEENS 8) ; A QP is a structure: ;   (make-posn CI CI) ; A CI is an N in [0,QUEENS). ; interpretation (make-posn r c) denotes the square at ; the r-th row and c-th column
+</CODE>
+
+<P>
+After all, the chess board basically dictates the choice.
+</P>
+
+<P>
+The definition for CI could use [1,QUEENS] instead of [0, QUEENS), but the two definitions are basically equivalent and counting up from 0 is what programmers do. Similarly, the so-called algebraic notation for chess positions uses the letters 'a through 'h for one of the board’s dimensions, meaning QP could have used CIs and such letters. Again, the two are roughly equivalent and with natural numbers it is easier in ISL+ to create many positions than with letters.
+</P>
+
+<EXERCISE>
+Exercise 479. Design the threatening? function. It consumes two QPs and determines whether queens placed on the two respective squares would threaten each other.
+</EXERCISE>
+
+<P>
+Domain Knowledge (1) Study figure 172. The queen in this figure threatens all squares on the horizontal, the vertical, and the diagonal lines. Conversely, a queen on any square on these lines threatens the queen.
+</P>
+
+<P>
+(2) Translate your insights into mathematical conditions that relate the squares’ coordinates to each other. For example, all squares on a horizontal have the same y-coordinate. Similarly, all squares on one diagonal have coordinates whose sums are the same. Which diagonal is that? For the other diagonal, the differences between the two coordinates remain the same. Which diagonal does this idea describe?
+</P>
+
+<P>
+Hint Once you have figured out the domain knowledge, formulate a test suite that covers horizontals, verticals, and diagonals. Don’t forget to include arguments for which threatening? must produce #false.
+</P>
+
+<EXERCISE>
+Exercise 480. Design render-queens. The function consumes a natural number n, a list of QPs, and an Image. It produces an image of an n by n chess board with the given image placed according to the given QPs.
+</EXERCISE>
+
+<P>
+You may wish to look for an image for a chess queen on-line or create a simplistic one with the available image functions.
+</P>
+
+<P>
+As for a data representation for Boards, we postpone this step until we know how the algorithm implements the process. Doing so is another exercise in data abstraction. Indeed, a data definition for Board isn’t even necessary to state the signature for the algorithm proper:
+</P>
+
+<FIGURE src="images/00681.png">
+
+</FIGURE>
+
+<P>
+The complete puzzle is about finding a placement for n queens on an n by n chess board. So clearly, the algorithm consumes nothing else but a natural number, and it produces a representation for the n queen placements—if a solution exists. The latter can be represented with a list of QPs, which is why we choose
+</P>
+
+<CODE>
+; [List-of QP] or #false
+</CODE>
+
+<P>
+as the result. Naturally, #false represents the failure to find a solution.
+</P>
+
+<P>
+The next step is to develop examples and to formulate them as tests. We know that n-queens must fail when given 2 or 3. For 4, there are two solutions with real boards and four identical queens. Figure 174 shows one of them, on the left, and the other one is this:
+</P>
+
+<FIGURE src="images/00682.jpeg">
+
+</FIGURE>
+
+<P>
+In terms of data representations, however, there are many different ways to represent these two images. Figure 175 sketches some. Fill in the rest.
+</P>
+
+<FIGURE src="images/00683.png">
+Figure 175: Solutions for the 4 queens puzzle
+</FIGURE>
+
+<EXERCISE>
+Exercise 481. The tests in figure 175 are awful. No real-world programmer ever spells out all these possible outcomes.
+</EXERCISE>
+
+<P>
+One solution is to use property testing again. Design the n-queens-solution? function, which consumes a natural number n and produces a predicate on queen placements that determines whether a given placement is a solution to an n queens puzzle:
+</P>
+
+<P>
+•  A solution for an n queens puzzle must have length n.
+</P>
+
+<P>
+•  A QP on such a list may not threaten any other, distinct QP.
+</P>
+
+<P>
+Once you have tested this predicate, use it and check-satisfied to formulate the tests for n-queens.
+</P>
+
+<P>
+An alternative solution is to understand the lists of QPs as sets. If two lists contain the same QPs in different order, they are equivalent as the figure suggests. Hence you could formulate the test for n-queens as
+</P>
+
+<FIGURE src="images/00684.png">
+
+</FIGURE>
+
+<P>
+Design the function set=?. It consumes two lists and determines whether they contain the same items—regardless of order.
+</P>
+
+<EXERCISE>
+Exercise 482. The key idea to is to design a function that places n queens on a chess board that may already contain some queens:
+</EXERCISE>
+
+<CODE>
+; Board N -> [Maybe [List-of QP]] ; places n queens on board; otherwise, returns #false (define (place-queens a-board n)   #false)
+</CODE>
+
+<P>
+Figure 175 already refers to this function in the definition of n-queens.
+</P>
+
+<P>
+Design the place-queens algorithm. Assume you have the following functions to deal with Boards:
+</P>
+
+<CODE>
+; N -> Board ; creates the initial n by n board (define (board0 n) …) ; Board QP -> Board ; places a queen at qp on a-board (define (add-queen a-board qp)   a-board) ; Board -> [List-of QP] ; finds spots where it is still safe to place a queen (define (find-open-spots a-board)   '())
+</CODE>
+
+<P>
+The first function is used in figure 175 to create the initial board representation for place-queens. You will need the other two to describe the generative steps for the algorithm.
+</P>
+
+<P>
+You cannot confirm yet that your solution to the preceding exercise works because it relies on an extensive wish list. It calls for a data representation of Boards that supports the three functions on the wish list. This, then, is your remaining problem.
+</P>
+
+<EXERCISE>
+Exercise 483. Develop a data definition for Board and design the three functions specified in exercise 482. Consider the following ideas:
+</EXERCISE>
+
+<P>
+•  a Board collects those positions where a queen can still be placed;
+</P>
+
+<P>
+•  a Board contains the list of positions where a queen has been placed;
+</P>
+
+<P>
+•  a Board is a grid of n by n squares, each possibly occupied by a queen. Use a structure with three fields to represent a square: one for x, one for y, and a third one saying whether the square is threatened.
+</P>
+
+<P>
+Use one of the above ideas to solve this exercise.
+</P>
+
+<P>
+Challenge Use all three ideas to come up with three different data representations of Board. Abstract your solution to exercise 482 and confirm that it works with any of your data representations of Board.
+</P>

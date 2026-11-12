@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec14-1" class="calibre16"></a>14.1 Similarities in Functions</h2>
+<p class="tni">The design recipe determines a function’s basic organization because the template is created from the data definition without regard to the purpose of the function. Not surprisingly, then, functions that consume the same kind of data look alike.</p>
+<p class="calibre8">Consider the two functions in <a id="rfig86" href="part0009_split_003.html#fig86" class="calibre5">figure 86</a>, which consume lists of strings and look for specific strings. The function on the left looks for <samp class="mono">"dog"</samp>, the one on the right for <samp class="mono">"cat"</samp>. The two functions are nearly indistinguishable. Each consumes lists of strings; each function body consists of a <samp class="mono">cond</samp> expression <span epub:type="pagebreak" id="pg_383" title="383"></span>with two clauses. Each produces <samp class="mono">#false</samp> if the input is <samp class="mono">'()</samp>; each uses an <samp class="mono">or</samp> expression to determine whether the first item is the desired item and, if not, uses recursion to look in the rest of the list. The only difference is the string that is used in the comparison of the nested <samp class="mono">cond</samp> expressions: <samp class="mono">contains-dog?</samp> uses <samp class="mono">"dog"</samp> and <samp class="mono">contains-cat?</samp> uses <samp class="mono">"cat"</samp>. To highlight the differences, the two strings are shaded.</p>
+<div class="figure">
+<figure class="img"><a id="fig86" class="calibre5"></a><img src="../images/00315.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_003.html#rfig86" class="calibre5">Figure 86</a>:</span> <span>Two similar functions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Good programmers are too lazy to define several closely related functions. Instead they define a single function that can look for both a <samp class="mono">"dog"</samp> and a <samp class="mono">"cat"</samp> in a list of strings. This general function consumes an additional piece of data—the string to look for—and is otherwise just like the two original functions:</p>
+<figure class="co"><img src="../images/00316.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If you really needed a function such as <samp class="mono">contains-dog?</samp> now, you could define it as a one-line function, and the same is true for the <samp class="mono">contains-cat?</samp> function. <a id="rfig87" href="part0009_split_003.html#fig87" class="calibre5">Figure 87</a> does just that, and you should briefly compare it with <a href="part0009_split_003.html#fig86" class="calibre5">figure 86</a> to make sure you understand how we get from there to here. Best of all, though, with <samp class="mono">contains?</samp> it is now trivial to look for <i class="calibre6">any</i> string in a list of strings and there is no need to ever define a specialized function such as <samp class="mono">contains-dog?</samp> again.</p>
+<div class="figure">
+<figure class="img"><a id="fig87" class="calibre5"></a><img src="../images/00317.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_003.html#rfig87" class="calibre5">Figure 87</a>:</span> <span>Two similar functions, revisited</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">What you have just witnessed is called <i class="calibre6">abstraction</i> or, more precisely, <i class="calibre6">functional abstraction</i>. Abstracting different versions of functions is one way to eliminate similarities from programs, and as you will see, removing similarities simplifies keeping a program intact over a long period.</p>
+<p class="marginpar">Computer scientists borrow the term “abstract” from mathematics. There, “6” is an abstract concept because it represents <b class="calibre9">all</b> ways of enumerating six things. In contrast, “6 inches” or “6 eggs” are concrete uses.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_384" title="384"></span><b class="calibre9">Exercise</b> 235. Use the <samp class="mono">contains?</samp> function to define functions that search for <samp class="mono">"atom"</samp>, <samp class="mono">"basic"</samp>, and <samp class="mono">"zoo"</samp>, respectively. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 236. Create test suites for the following two functions:</p>
+<figure class="co"><img src="../images/00318.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Then abstract over them. Define the above two functions in terms of the abstraction as one-liners and use the existing test suites to confirm that the revised definitions work properly. Finally, design a function that subtracts 2 from each number on a given list. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

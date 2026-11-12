@@ -1,0 +1,260 @@
+% ==============================================================================
+% How to Design Programs (Second Edition) - 紧凑双栏中文排版宏包与样式配置
+% ==============================================================================
+
+% 字号配置：全局 9pt 紧凑版面
+\usepackage[fontsize=9pt]{scrextend}
+
+% 页面几何与边距（左右边距减半至 0.8cm，可用版心大幅扩展）
+\usepackage[a4paper, top=1.8cm, bottom=1.8cm, left=0.8cm, right=0.8cm, headheight=13pt, footskip=18pt, columnsep=6.5mm]{geometry}
+\setlength{\columnseprule}{0pt} % 去除双栏中线
+
+% 数学与符号
+\usepackage{amsmath, amssymb}
+\usepackage{newunicodechar}
+\newunicodechar{λ}{\ensuremath{\lambda}}
+\newunicodechar{ε}{\ensuremath{\varepsilon}}
+
+% 颜色定义
+\usepackage[x11names, svgnames, dvipsnames]{xcolor}
+\definecolor{NavyTheme}{RGB}{24, 43, 73}        % 主题深蓝
+\definecolor{AccentGreen}{RGB}{26, 127, 86}     % 配方绿
+\definecolor{AccentPurple}{RGB}{103, 58, 183}   % 练习紫
+\definecolor{AccentAmber}{RGB}{217, 119, 6}     % 注意橙
+\definecolor{CodeBg}{RGB}{247, 248, 250}        % 代码背景浅灰
+\definecolor{CodeFrame}{RGB}{220, 224, 230}     % 代码边框
+\definecolor{ReplBg}{RGB}{243, 244, 246}        % REPL背景
+\definecolor{TextDark}{RGB}{30, 41, 59}         % 正文字体深色
+
+% 图形与自适应双栏限宽
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\graphicspath{{images/}}
+
+% 拦截所有图片，保证在单栏内绝对不超出栏宽，保持纵横比
+\let\oldincludegraphics\includegraphics
+\RenewDocumentCommand{\includegraphics}{O{} m}{%
+  \oldincludegraphics[#1, max width=\linewidth, keepaspectratio]{#2}%
+}
+
+\usepackage{caption}
+\captionsetup{font=footnotesize, labelfont={bf, color=NavyTheme}, labelsep=quad, skip=3pt}
+
+% 段落与列表紧凑化
+\linespread{1.12}
+\setlength{\parskip}{1.5pt plus 1pt minus 0.5pt}
+\setlength{\parindent}{2\ccwd}
+\usepackage{enumitem}
+\setlist{itemsep=1.5pt, parsep=0.5pt, topsep=2.5pt, partopsep=0pt, leftmargin=1.5em}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\color{gray}\nouppercase{\leftmark}}
+\fancyhead[RO]{\small\color{gray}\nouppercase{\rightmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\small\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% 紧凑标题定制
+\usepackage{titlesec}
+\titleformat{\chapter}[block]
+  {\normalfont\LARGE\bfseries\color{NavyTheme}}
+  {\color{NavyTheme!70}\thechapter\quad}
+  {0pt}
+  {\LARGE}
+\titlespacing*{\chapter}{0pt}{-10pt}{10pt}
+
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{NavyTheme}}
+  {\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{9pt}{3pt}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{NavyTheme!85}}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+\titleformat{\subsubsection}
+  {\normalfont\small\bfseries\color{NavyTheme!80}}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\subsubsection}{0pt}{4pt}{2pt}
+
+% 代码高亮配置 (Listings)
+\usepackage{listings}
+\lstdefinelanguage{BSL}{
+  keywords={define, define-struct, check-expect, check-within, check-error, 
+            cond, else, if, and, or, not, require, local, let, lambda, empty},
+  keywordstyle=\bfseries\color{NavyTheme},
+  basicstyle=\footnotesize\ttfamily,
+  stringstyle=\color{AccentGreen},
+  commentstyle=\color{gray}\itshape,
+  showstringspaces=false,
+  breaklines=true,
+  tabsize=2,
+  columns=fullflexible,
+  numbers=none,
+  morecomment=[l]{;},
+  morestring=[b]",
+  literate={{\#true}}{{\textcolor{AccentAmber}{\#true}}}5
+           {{\#false}}{{\textcolor{AccentAmber}{\#false}}}6
+           {'()}{{\textcolor{NavyTheme}{\textquotesingle()}}}3
+           {λ}{{$\lambda$}}1
+           {ε}{{$\varepsilon$}}1
+}
+
+\lstset{
+  language=BSL,
+  basicstyle=\footnotesize\ttfamily,
+  backgroundcolor=\color{CodeBg},
+  frame=single,
+  rulecolor=\color{CodeFrame},
+  frameround=tttt,
+  framesep=3pt,
+  xleftmargin=3pt,
+  xrightmargin=3pt,
+  keepspaces=true,
+  breaklines=true,
+  literate={{\#true}}{{\textcolor{AccentAmber}{\#true}}}5
+           {{\#false}}{{\textcolor{AccentAmber}{\#false}}}6
+           {'()}{{\textcolor{NavyTheme}{\textquotesingle()}}}3
+           {λ}{{$\lambda$}}1
+           {ε}{{$\varepsilon$}}1
+}
+
+% 行内代码样式
+\newcommand{\code}[1]{\colorbox{CodeBg}{\footnotesize\ttfamily\textcolor{NavyTheme}{#1}}}
+
+% 彩色方框定义 (tcolorbox) - 紧凑双栏优化
+\usepackage[most]{tcolorbox}
+
+% 1. 设计配方环境 (Design Recipe)
+\newtcolorbox{recipebox}[1][]{
+  enhanced,
+  breakable,
+  colback=AccentGreen!4!white,
+  colframe=AccentGreen!85!black,
+  fonttitle=\small\bfseries\sffamily,
+  title={【设计配方】 #1},
+  arc=1.5mm,
+  boxrule=0.7pt,
+  boxsep=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  before skip=5pt, after skip=5pt
+}
+
+% 2. 练习环境 (Exercise)
+\newtcbtheorem{exercise}{练习}{
+  enhanced,
+  breakable,
+  colback=AccentPurple!3!white,
+  colframe=AccentPurple!80!black,
+  fonttitle=\small\bfseries\sffamily,
+  arc=1.5mm,
+  boxrule=0.7pt,
+  boxsep=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  before skip=5pt, after skip=5pt
+}{ex}
+
+% 3. 提示与核心要点环境 (Note / Takeaway)
+\newtcolorbox{notebox}[1][核心要点]{
+  enhanced,
+  breakable,
+  colback=AccentAmber!6!white,
+  colframe=AccentAmber!90!black,
+  fonttitle=\small\bfseries\sffamily,
+  title={【要点】 #1},
+  arc=1.5mm,
+  boxrule=0.7pt,
+  boxsep=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  before skip=5pt, after skip=5pt
+}
+
+% 4. 交互式 REPL 会话环境 (DrRacket Interactions)
+\newtcblisting{replbox}{
+  enhanced,
+  breakable,
+  listing only,
+  listing options={
+    language=BSL,
+    basicstyle=\footnotesize\ttfamily,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true
+  },
+  colback=ReplBg,
+  colframe=gray!40,
+  fonttitle=\footnotesize\ttfamily\bfseries,
+  title={DrRacket 交互窗口},
+  arc=1.2mm,
+  boxrule=0.5pt,
+  boxsep=2pt,
+  left=6pt, right=6pt, top=3pt, bottom=3pt,
+  before skip=5pt, after skip=5pt
+}
+
+% 5. 术语与旁注标注
+\newcommand{\term}[1]{\textbf{\textcolor{NavyTheme}{#1}}}
+\newcommand{\enquote}[1]{“#1”}
+
+% 超链接配置
+\usepackage{hyperref}
+\usepackage{bookmark}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=NavyTheme,
+  citecolor=AccentGreen,
+  urlcolor=NavyTheme!80!blue,
+  pdfborder={0 0 0},
+  bookmarksnumbered=true,
+  pdftitle={程序设计方法 (How to Design Programs, Second Edition)},
+  pdfauthor={Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, Shriram Krishnamurthi / Minsecrus 译}
+}
+
+
+% 章节与插曲图表计数器与编号自动规范化 (图 <章号>.<图号>)
+\let\origchapter\chapter
+\RenewDocumentCommand{\chapter}{s o m}{%
+  \IfBooleanTF{#1}{%
+    \origchapter*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \origchapter{#3}%
+    }{%
+      \origchapter[#2]{#3}%
+    }%
+    \ifnum\value{chapter}>0
+      \renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}%
+      \setcounter{figure}{0}%
+      \renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}%
+      \setcounter{table}{0}%
+    \fi
+  }%
+}
+
+% 插曲独立单元定义（不占用正文章节序号，全书 34 章与原书严格 1:1 对齐）
+\newcounter{intermezzocnt}
+\newcommand{\intermezzo}[1]{%
+  \stepcounter{intermezzocnt}%
+  \clearpage
+  \origchapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}%
+  \markboth{#1}{#1}%
+  \renewcommand{\thefigure}{插曲\arabic{intermezzocnt}.\arabic{figure}}%
+  \setcounter{figure}{0}%
+  \renewcommand{\thetable}{插曲\arabic{intermezzocnt}.\arabic{table}}%
+  \setcounter{table}{0}%
+}
+\newcommand{\intermezzosection}[1]{%
+  \section*{#1}%
+  \addcontentsline{toc}{section}{#1}%
+}

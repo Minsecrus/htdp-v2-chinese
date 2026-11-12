@@ -1,0 +1,833 @@
+# Chapter 28: Mathematical Examples / 第 28 章：数学案例
+
+<h1>
+28 Mathematical Examples
+</h1>
+
+<P>
+Many solutions to mathematical problems employ generative recursion. A future programmer must get to know such solutions for two reasons. On the one hand, a fair number of programming tasks are essentially about turning these kinds of mathematical ideas into programs. On the other hand, practicing with such mathematical problems often proves inspirational for the design of algorithms. This chapter deals with three such problems.
+</P>
+
+<h2>
+28.1 Newton’s Method
+</h2>
+
+<P>
+Chapter 27.2 introduces one method for finding the root of a mathematical function. As the exercises in the same section sketch, the method naturally generalizes to computational problems, such as finding certain values in tables, vectors, and arrays. In mathematical applications, programmers tend to employ methods that originate from analytical mathematics. A prominent one is due to Newton. Like binary search, the so-called Newton method repeatedly improves an approximation to the root until it is “close enough.” Starting from a guess, say, r1, the essence of the process is to construct the tangent of f at r1 and to determine its root. While the tangent approximates the function, it is also straightforward to determine its root. By repeating this process sufficiently often, an algorithm can find a root r for which (f r) is close enough to 0.
+</P>
+
+<MARGIN_NOTE>
+Newton proved this fact.
+</MARGIN_NOTE>
+
+<P>
+Clearly, this process relies on two pieces of domain knowledge about tangents: their slopes and roots. Informally, a tangent of f at some point r1 is the line that goes through the point (r1, f (r1)) and has the same slope as f. One mathematical way to obtain the tangent’s slope is to pick two close points on the x-axis that are equidistant from r1 and to use the slope of the line determined by f at those two points. The convention is to choose a small number ε and to work with r1 + ε and r1 − ε. That is, the points are (r1 − ε, f(r1 − ε)) and (r1 + ε, f(r1 + ε)), which determine a line and a slope:
+</P>
+
+<FIGURE src="images/00618.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 455. Translate this mathematical formula into the ISL+ function slope, which maps function f and a number r1 to the slope of f at r1. Assume that ε is a global constant. For your examples, use functions whose exact slope you can figure out, say, horizontal lines, linear functions, and perhaps polynomials if you know some calculus.
+</EXERCISE>
+
+<P>
+The second piece of domain knowledge concerns the root of a tangent, which is just a line or a linear function. The tangent goes through (r1, f (r1)) and has the above slope. Mathematically, it is defined as
+</P>
+
+<FIGURE src="images/00619.png">
+
+</FIGURE>
+
+<P>
+Finding the root of tangent means finding a value root-of-tangent so that tangent(root-of-tangent) equals 0:
+</P>
+
+<FIGURE src="images/00620.png">
+
+</FIGURE>
+
+<P>
+We can solve this equation in a straightforward manner:
+</P>
+
+<FIGURE src="images/00621.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 456. Design root-of-tangent, a function that maps f and r1 to the root of the tangent through (r1,(f r1)).
+</EXERCISE>
+
+<P>
+Now we can use the design recipe to translate the description of Newton’s process into an ISL+ program. The function—let’s call it newton in honor of its inventor—consumes a function f and a number r1:
+</P>
+
+<CODE>
+; [Number -> Number] Number -> Number ; finds a number r such that (f r) is small ; generative repeatedly generates improved guesses (define (newton f r1) 1.0)
+</CODE>
+
+<P>
+For the template of newton, we turn to the central four questions of the design recipe for generative recursion:
+</P>
+
+<P>
+1. If (f r1) is close enough to 0, the problem is solved. Close to 0 could mean (f r1) is a small positive number or a small negative number. Hence we check its absolute value:
+</P>
+
+<P>
+(<= (abs (f r1)) 𝜀)
+</P>
+
+<P>
+2. The solution is r1.
+</P>
+
+<P>
+3. The generative step of the algorithm consists of finding the root of the tangent of f at r1, which generates the next guess. By applying newton to f and this new guess, we resume the process.
+</P>
+
+<P>
+4. The answer of the recursion is also the answer of the original problem.
+</P>
+
+<P>
+Figure 161 displays newton. It includes two tests that are derived from the tests in chapter 27.2 for find-root. After all, both functions search for the root of a function, and poly has two known roots.
+</P>
+
+<FIGURE src="images/00622.png">
+Figure 161: The Newton process
+</FIGURE>
+
+<P>
+We are not finished with the design of newton. The new, seventh step of the design recipe calls for an investigation into the termination behavior of the function. For newton, the problem shows up with poly:
+</P>
+
+<CODE>
+; Number -> Number (define (poly x) (* (- x 2) (- x 4)))
+</CODE>
+
+<P>
+As mentioned, its roots are 2 and 4. The graph of poly in figure 162 confirms these roots and also shows that between the two roots the function flattens out. For a mathematically inclined person, this shape raises the question of what newton computes for an initial guess of 3:
+</P>
+
+<CODE>
+> (poly 3) -1 > (newton poly 3) /:division by zero
+</CODE>
+
+<FIGURE src="images/00623.png">
+Figure 162: The graph of poly on the interval [-1,5]
+</FIGURE>
+
+<P>
+The explanation is that slope produces a “bad” value and the root-of-tangent function turns it into an error:
+</P>
+
+<CODE>
+> (slope poly 3) 0 > (root-of-tangent poly 3) /:division by zero
+</CODE>
+
+<P>
+In addition to this run-time error, newton exhibits two other problems with respect to termination. Fortunately, we can demonstrate both with poly. The first one concerns the nature of numbers, which we briefly touched on in chapter 1.1. It is safe to ignore the distinction between exact and inexact numbers for many beginner exercises in programming, but when it comes to translating mathematics into programs, you need to proceed with extreme caution. Consider the following:
+</P>
+
+<CODE>
+> (newton poly 2.9999)
+</CODE>
+
+<P>
+An ISL+ program treats 2.9999 as an exact number, and the computations in newton process it as such, though because the numbers aren’t integers, the computation uses exact rational fractions. Since the arithmetic for fractions can get much slower than the arithmetic for inexact numbers, the above function call takes a significant amount of time in DrRacket. Depending on your computer, it may take between a few seconds and a minute or more. If you happen to choose other numbers that trigger this form of computation, it may seem as if the call to newton does not terminate at all.
+</P>
+
+<P>
+The second problem concerns non-termination. Here is the example:
+</P>
+
+<CODE>
+> (newton poly #i3.0)
+</CODE>
+
+<P>
+It uses the inexact number #i3.0 as the initial guess, which unlike 3 causes a different kind of problem. Specifically, the slope function now produces an inexact 0 for poly while root-of-tangent jumps to infinity:
+</P>
+
+<CODE>
+> (slope poly #i3.0) #i0.0 > (root-of-tangent poly #i3.0) #i+inf.0
+</CODE>
+
+<P>
+As a result, the evaluation immediately falls into an infinite loop.
+</P>
+
+<P>
+In short, newton exhibits the full range of problems when it comes to complex termination behavior. For some inputs, the function produces a correct result. For some others, it signals errors. And for yet others, it goes into infinite loop or appears to go into one. The header for newton—or some other piece of writing—must warn others who wish to use the function and future readers of these complexities, and good math libraries in common programming languages do so.
+</P>
+
+<MARGIN_NOTE>
+The calculation in newton turns #i+inf.0 into +nan.0, a piece of data that says “not a number.” Most arithmetic operations propagate this value, which explains the behavior of newton.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 457. Design the function double-amount, which computes how many months it takes to double a given amount of money when a savings account pays interest at a fixed rate on a monthly basis.
+</EXERCISE>
+
+<MARGIN_NOTE>
+This exercise was suggested by Adrian German.
+</MARGIN_NOTE>
+
+<P>
+Domain Knowledge With a minor algebraic manipulation, you can show that the given amount is irrelevant. Only the interest rate matters. Also domain experts know that doubling occurs after roughly 72/r month as long as the interest rate r is “small.”
+</P>
+
+<h2>
+28.2 Numeric Integration
+</h2>
+
+<P>
+Many physics problems boil down to determining the area under a curve:
+</P>
+
+<P>
+Sample Problem A car drives at a constant speed of v meters per second. How far does it travel in 5, 10, 15 seconds?
+</P>
+
+<P>
+A rocket lifts off at the constant rate of acceleration of 12 m/s2. What height does it reach after 5, 10, 15 seconds?
+</P>
+
+<P>
+Physics tells us that a vehicle travels dcon(t) = v ·t meters if it moves at a constant speed v for t seconds. For vehicles that accelerate, the distance traveled depends on the square of the time t passed:
+</P>
+
+<FIGURE src="images/00624.png">
+
+</FIGURE>
+
+<P>
+In general, the law tells us that the distance corresponds to the area under the graph of speed v(t) over time t.
+</P>
+
+<P>
+Figure 163 illustrates the idea in a graphical manner. On the left, we see an overlay of two graphs: the solid flat line is the speed of the vehicle and the rising dashed line is the distance traveled. A quick check shows that the latter is indeed the area determined by the former and the x-axis at every point in time. Similarly, the graphs on the right show the relationship between a rocket moving at constantly increasing speed and the height it reaches. Determining this area under the graph of a function for some specific interval is called (function) integration.
+</P>
+
+<FIGURE src="images/00625.jpeg">
+Figure 163: Distance traveled with constant vs accelerating speed
+</FIGURE>
+
+<P>
+While mathematicians know formulas for the two sample problems that give precise answers, the general problem calls for computational solutions. The problem is that curves often come with complex shapes, more like those in figure 164, which suggests that someone needs to know the area between the x-axis, the vertical lines labeled a and b, and the graph of f. Applied mathematicians determine such areas in an approximate manner, summing the areas of many small geometric shapes. It is therefore natural to develop algorithms that deal with these calculations.
+</P>
+
+<FIGURE src="images/00626.png">
+Figure 164: Integrating a function f between a and b
+</FIGURE>
+
+<P>
+An integration algorithm consumes three inputs: the function f and two borders, a and b. The fourth part, the x-axis, is implied. This suggests the following signature:
+</P>
+
+<CODE>
+; [Number -> Number] Number Number -> Number
+</CODE>
+
+<P>
+In order to understand the idea behind integration, it is best to study simple examples such as a constant function or a linear one. Thus, consider
+</P>
+
+<CODE>
+(define (constant x) 20)
+</CODE>
+
+<P>
+Passing constant to integrate, together with 12 and 22, describes a rectangle of width 10 and height 20. The area of this rectangle is 200, meaning we get this test:
+</P>
+
+<CODE>
+(check-expect (integrate constant 12 22) 200)
+</CODE>
+
+<P>
+Similarly, let’s use linear to create a second test:
+</P>
+
+<CODE>
+(define (linear x) (* 2 x))
+</CODE>
+
+<P>
+If we use linear, 0, and 10 with integrate, the area is a triangle with a base width of 10 and a height of 20. Here is the example as a test:
+</P>
+
+<CODE>
+(check-expect (integrate linear 0 10) 100)
+</CODE>
+
+<P>
+After all, a triangle’s area is half of the product of its base width and height.
+</P>
+
+<P>
+For a third example, we exploit some domain-specific knowledge. As mentioned, mathematicians know how to determine the area under some functions in a precise manner. For example, the area under the function
+</P>
+
+<FIGURE src="images/00627.png">
+
+</FIGURE>
+
+<P>
+on the interval [a,b] can be calculated with the following formula
+</P>
+
+<FIGURE src="images/00628.png">
+
+</FIGURE>
+
+<P>
+Here is how to turn this idea into a concrete test:
+</P>
+
+<FIGURE src="images/00629.png">
+
+</FIGURE>
+
+<P>
+Figure 165 collects the result of the first three steps of the design recipe. The figure adds a purpose statement and an obvious assumption concerning the two interval boundaries. Instead of check-expect it uses check-within, which anticipates the numerical inaccuracies that come with computational approximations in such calculations. Analogously, the header of integrate specifies #i0.0 as the return result, signaling that the function is expected to return an inexact number.
+</P>
+
+<FIGURE src="images/00630.png">
+Figure 165: A generic integration function
+</FIGURE>
+
+<P>
+The following two exercises show how to turn domain knowledge into integration functions. Both functions compute rather crude approximations. While the design of the first uses only mathematical formulas, the second also exploits a bit of structural design ideas. Solving these exercises creates the necessary appreciation for the core of this section, which presents a generative-recursive integration algorithm.
+</P>
+
+<MARGIN_NOTE>
+The method is known as Kepler’s rule.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 458. Kepler suggested a simple integration method. To compute an estimate of the area under f between a and b, proceed as follows:
+</EXERCISE>
+
+<P>
+1. divide the interval into half at mid = (a + b)/2;
+</P>
+
+<P>
+2. compute the areas of these two trapezoids:
+</P>
+
+<P>
+•  (a,0),(a,f (a)),(mid,0),(mid,f (mid))
+</P>
+
+<P>
+•  (mid,0),(mid,f (mid)),(b,0),(b,f (b));
+</P>
+
+<P>
+3. then add the two areas.
+</P>
+
+<P>
+Domain Knowledge Let’s take a look at these trapezoids. Here are the two possible shapes, with minimal annotations to reduce clutter:
+</P>
+
+<FIGURE src="images/00631.png">
+
+</FIGURE>
+
+<P>
+The left shape assumes f (L) > f (R) while the right one shows the case where f (L) < f (R). Despite the asymmetry, it is still possible to calculate the area of these trapezoids with a single formula:
+</P>
+
+<FIGURE src="images/00632.png">
+
+</FIGURE>
+
+<P>
+Stop! Convince yourself that this formula adds the area of the triangle to the area of the lower rectangle for the left trapezoid, while it subtracts the triangle from the area of the large rectangle for the right one.
+</P>
+
+<P>
+Also show that the above formula is equal to
+</P>
+
+<FIGURE src="images/00633.png">
+
+</FIGURE>
+
+<P>
+This is a mathematical validation of the asymmetry of the formula.
+</P>
+
+<P>
+Design the function integrate-kepler. That is, turn the mathematical knowledge into an ISL+ function. Adapt the test cases from figure 165 to this use. Which of the three tests fails and by how much?
+</P>
+
+<EXERCISE>
+Exercise 459. Another simple integration method divides the area into many small rectangles. Each rectangle has a fixed width and is as tall as the function graph in the middle of the rectangle. Adding up the areas of the rectangles produces an estimate of the area under the function’s graph.
+</EXERCISE>
+
+<P>
+Let’s use
+</P>
+
+<FIGURE src="images/00634.png">
+
+</FIGURE>
+
+<P>
+to stand for the number of rectangles to be considered. Hence the width of each rectangle is
+</P>
+
+<FIGURE src="images/00635.png">
+
+</FIGURE>
+
+<P>
+The height of one of these rectangles is the value of f at its midpoint. The first midpoint is clearly at a plus half of the width of the rectangle,
+</P>
+
+<FIGURE src="images/00636.png">
+
+</FIGURE>
+
+<P>
+which means its area is
+</P>
+
+<FIGURE src="images/00637.png">
+
+</FIGURE>
+
+<P>
+To compute the area of the second rectangle, we must add the width of one rectangle to the first midpoint:
+</P>
+
+<FIGURE src="images/00638.png">
+
+</FIGURE>
+
+<P>
+For the third one, we get
+</P>
+
+<FIGURE src="images/00639.png">
+
+</FIGURE>
+
+<P>
+In general, we can use the following formula for the ith rectangle:
+</P>
+
+<FIGURE src="images/00640.png">
+
+</FIGURE>
+
+<P>
+The first rectangle has index 0, the last one R - 1.
+</P>
+
+<P>
+Using these rectangles, we can now determine the area under the graph:
+</P>
+
+<FIGURE src="images/00641.png">
+
+</FIGURE>
+
+<P>
+Turn the description of the process into an ISL+ function. Adapt the test cases from figure 165 to this case.
+</P>
+
+<P>
+The more rectangles the algorithm uses, the closer its estimate is to the actual area. Make R a top-level constant and increase it by factors of 10 until the algorithm’s accuracy eliminates problems with an ε value of 0.1.
+</P>
+
+<P>
+Decrease ε to 0.01 and increase R enough to eliminate any failing test cases again. Compare the result to exercise 458.
+</P>
+
+<P>
+The Kepler method of exercise 458 immediately suggests a divide-and-conquer strategy like binary search introduced in chapter 27.2. Roughly speaking, the algorithm would split the interval into two pieces, recursively compute the area of each piece, and add the two results.
+</P>
+
+<EXERCISE>
+Exercise 460. Develop the algorithm integrate-dc, which integrates a function f between the boundaries a and b using a divide-and-conquer strategy. Use Kepler’s method when the interval is sufficiently small.
+</EXERCISE>
+
+<P>
+The divide-and-conquer approach of exercise 460 is wasteful. Consider a function whose graph is level in one part and rapidly changes in another; see figure 166 for a concrete example. For the level part on the graph, it is pointless to keep splitting the interval. It is just as easy to compute the trapezoid for the complete interval as for the two halves. For the “wavy” part, however, the algorithm must continue dividing the interval until the irregularities of the graph are reasonably small.
+</P>
+
+<FIGURE src="images/00642.png">
+Figure 166: A candidate for adaptive integration
+</FIGURE>
+
+<P>
+To discover when f is level, we can change the algorithm as follows. Instead of just testing how large the interval is, the new algorithm computes the area of three trapezoids: the given one and the two halves. If the difference between the two is less than the area of a small rectangle of height ε and width b − a,
+</P>
+
+<FIGURE src="images/00643.png">
+
+</FIGURE>
+
+<P>
+it is safe to assume that the overall area is a good approximation. In other words, the algorithm determines whether f changes so much that it affects the error margin. If so, it continues with the divide-and-conquer approach; otherwise it stops and uses the Kepler approximation.
+</P>
+
+<EXERCISE>
+Exercise 461. Design integrate-adaptive. That is, turn the recursive process description into an ISL+ algorithm. Make sure to adapt the test cases from figure 165 to this use.
+</EXERCISE>
+
+<P>
+Do not discuss the termination of integrate-adaptive.
+</P>
+
+<P>
+Does integrate-adaptive always compute a better answer than either integrate-kepler or integrate-rectangles? Which aspect is integrate-adaptive guaranteed to improve?
+</P>
+
+<P>
+Terminology The algorithm is called adaptive integration because it automatically allocates time to those parts of the graph that need it and spends little time on the others. Specifically, for those parts of f that are level, it performs just a few calculations; for the other parts, it inspects small intervals to decrease the error margin. Computer science knows many adaptive algorithms, and integrate-adaptive is just one of them.
+</P>
+
+<h2>
+28.3 Project: Gaussian Elimination
+</h2>
+
+<P>
+Mathematicians not only search for solutions of equations in one variable; they also study whole systems of linear equations:
+</P>
+
+<P>
+Sample Problem In a bartering world, the values of coal (x), oil (y), and gas (z) are determined by these exchange equations:
+</P>
+
+<FIGURE src="images/00644.png">
+
+</FIGURE>
+
+<P>
+A solution to such a system of equations consists of a collection of numbers, one per variable, such that if we replace the variable with its corresponding number, the two sides of each equation evaluate to the same number. In our running example, the solution is
+</P>
+
+<FIGURE src="images/00645.png">
+
+</FIGURE>
+
+<P>
+We can easily check this claim:
+</P>
+
+<FIGURE src="images/00646.png">
+
+</FIGURE>
+
+<P>
+The three equations reduce to
+</P>
+
+<FIGURE src="images/00647.png">
+
+</FIGURE>
+
+<P>
+Figure 167 introduces a data representation for our problem domain. It includes an example of a system of equations and its solution. This representation captures the essence of a system of equations, namely, the numeric coefficients of the variables on the left-hand side and the right-hand-side values. The names of the variables don’t play any role because they are like parameters of functions; meaning, as long as they are consistently renamed the equations have the same solutions.
+</P>
+
+<FIGURE src="images/00648.png">
+Figure 167: A data representation for systems of equations
+</FIGURE>
+
+<P>
+For the rest of this section, it is convenient to use these functions:
+</P>
+
+<CODE>
+; Equation -> [List-of Number] ; extracts the left-hand side from a row in a matrix (check-expect (lhs (first M)) '(2 2 3)) (define (lhs e)   (reverse (rest (reverse e)))) ; Equation -> Number ; extracts the right-hand side from a row in a matrix (check-expect (rhs (first M)) 10) (define (rhs e)   (first (reverse e)))
+</CODE>
+
+<EXERCISE>
+Exercise 462. Design the function check-solution. It consumes an SOE and a Solution. Its result is #true if plugging in the numbers from the Solution for the variables in the Equations of the SOE produces equal left-hand-side values and right-hand-side values; otherwise the function produces #false. Use check-solution to formulate tests with check-satisfied.
+</EXERCISE>
+
+<P>
+Hint Design the function plug-in first. It consumes the left-hand side of an Equation and a Solution and calculates out the value of the left-hand side when the numbers from the solution are plugged in for the variables.
+</P>
+
+<P>
+Gaussian elimination is a standard method for finding solutions to systems of linear equations. It consists of two steps. The first step is to transform the system of equations into a system of different shape but with the same solution. The second step is to find solutions to one equation at a time. Here we focus on the first step because it is another interesting instance of generative recursion.
+</P>
+
+<P>
+The first step of the Gaussian elimination algorithm is called “triangulation” because the result is a system of equations in the shape of a triangle. In contrast, the original system is a rectangle. To understand this terminology, take a look at this list, which represents the original system:
+</P>
+
+<FIGURE src="images/00649.png">
+
+</FIGURE>
+
+<P>
+Triangulation transforms this matrix into the following:
+</P>
+
+<FIGURE src="images/00650.png">
+
+</FIGURE>
+
+<P>
+As promised, the shape of this system of equations is (roughly) a triangle.
+</P>
+
+<EXERCISE>
+Exercise 463. Check that the following system of equations
+</EXERCISE>
+
+<FIGURE src="images/00651.png">
+
+</FIGURE>
+
+<P>
+has the same solution as the one labeled with (†). Do so by hand and with check-solution from exercise 462.
+</P>
+
+<P>
+The key idea of triangulation is to subtract the first Equation from the remaining ones. To subtract one Equation from another means to subtract the corresponding coefficients in the two Equations. With our running example, subtracting the first equation from the second yields the following matrix:
+</P>
+
+<FIGURE src="images/00652.png">
+
+</FIGURE>
+
+<P>
+The goal of these subtractions is to put a 0 into the first column of all but the first equation. For the third equation, getting a 0 into the first position means subtracting the first equation twice from the third one:
+</P>
+
+<FIGURE src="images/00653.png">
+
+</FIGURE>
+
+<P>
+Following convention, we drop the leading 0’s from the last two equations:
+</P>
+
+<FIGURE src="images/00654.png">
+
+</FIGURE>
+
+<P>
+That is, we first multiply each item in the first row with 2 and then subtract the result from the last row. As mentioned, these subtractions do not change the solution; that is, the solution of the original system is also the solution of the transformed one.
+</P>
+
+<MARGIN_NOTE>
+Mathematics teaches how to prove such facts. We use them.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 464. Check that the following system of equations
+</EXERCISE>
+
+<FIGURE src="images/00655.png">
+
+</FIGURE>
+
+<P>
+has the same solution as the one labeled with (†). Again do so by hand and with check-solution from exercise 462.
+</P>
+
+<EXERCISE>
+Exercise 465. Design subtract. The function consumes two Equations of equal length. It “subtracts” a multiple of the second equation from the first, item by item, so that the resulting Equation has a 0 in the first position. Since the leading coefficient is known to be 0, subtract returns the rest of the list that results from the subtractions.
+</EXERCISE>
+
+<P>
+Now consider the rest of the SOE:
+</P>
+
+<FIGURE src="images/00656.png">
+
+</FIGURE>
+
+<P>
+It is also an SOE, so we can apply the same algorithm again. For our running example, this next subtraction step calls for subtracting the first Equation -1 times from the second one. Doing so yields
+</P>
+
+<FIGURE src="images/00657.png">
+
+</FIGURE>
+
+<P>
+The rest of this SOE is a single equation and cannot be simplified.
+</P>
+
+<EXERCISE>
+Exercise 466. Here is a representation for triangular SOEs:
+</EXERCISE>
+
+<CODE>
+; A TM is an [NEList-of Equation] ; such that the Equations are of decreasing length: ;   n + 1,  n,  n − 1,  …,  2. ; interpretation represents a triangular matrix
+</CODE>
+
+<P>
+Design the triangulate algorithm:
+</P>
+
+<CODE>
+; SOE -> TM ; triangulates the given system of equations (define (triangulate M)   '(1 2))
+</CODE>
+
+<P>
+Turn the above example into a test and spell out explicit answers for the four questions based on our loose description.
+</P>
+
+<P>
+Do not yet deal with the termination step of the design recipe.
+</P>
+
+<P>
+Unfortunately, the solution to exercise 466 occasionally fails to produce the desired triangular system. Consider the following representation of a system of equations:
+</P>
+
+<FIGURE src="images/00658.png">
+
+</FIGURE>
+
+<P>
+Its solution is x = 1, y = 1, and z = 1.
+</P>
+
+<P>
+The first step is to subtract the first row from the second and to subtract it twice from the last one, which yields the following matrix:
+</P>
+
+<FIGURE src="images/00659.png">
+
+</FIGURE>
+
+<P>
+Next, triangulation would focus on the rest of the matrix:
+</P>
+
+<FIGURE src="images/00660.png">
+
+</FIGURE>
+
+<P>
+but the first item of this matrix is 0. Since it is impossible to divide by 0, the algorithm signals an error via subtract.
+</P>
+
+<P>
+To overcome this problem, we need to use another piece of knowledge from our problem domain. Mathematics tells us that switching equations in a system of equations does not affect the solution. Of course, as we switch equations, we must eventually find an equation whose leading coefficient is not 0. Here we can simply swap the first two:
+</P>
+
+<FIGURE src="images/00661.png">
+
+</FIGURE>
+
+<P>
+From here we may continue as before, subtracting the first equation from the remaining one 0 times. The final triangular matrix is:
+</P>
+
+<FIGURE src="images/00662.png">
+
+</FIGURE>
+
+<P>
+Stop! Show that x = 1, y = 1, and z = 1 is still a solution for these equations.
+</P>
+
+<EXERCISE>
+Exercise 467. Revise the algorithm triangulate from exercise 466 so that it rotates the equations first to find one with a leading coefficient that is not 0 before it subtracts the first equation from the remaining ones.
+</EXERCISE>
+
+<P>
+Does this algorithm terminate for all possible system of equations?
+</P>
+
+<P>
+Hint The following expression rotates a non-empty list L:
+</P>
+
+<CODE>
+(append (rest L) (list (first L)))
+</CODE>
+
+<P>
+Explain why.
+</P>
+
+<P>
+Some SOEs don’t have a solution. Consider this one:
+</P>
+
+<FIGURE src="images/00663.png">
+
+</FIGURE>
+
+<P>
+If you try to triangulate this SOE—by hand or with your solution from exercise 467—you arrive at an intermediate matrix all of whose equations start with 0:
+</P>
+
+<FIGURE src="images/00664.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 468. Modify triangulate from exercise 467 so that it signals an error if it encounters an SOE whose leading coefficients are all 0.
+</EXERCISE>
+
+<P>
+After we obtain a triangular system of equations such as (*) in exercise 463, we can solve the equations, one at a time. In our specific example, the last equation says that z is 2. Equipped with this knowledge, we can eliminate z from the second equation through a substitution:
+</P>
+
+<FIGURE src="images/00665.png">
+
+</FIGURE>
+
+<P>
+Doing so, in turn, determines the value for y:
+</P>
+
+<FIGURE src="images/00666.png">
+
+</FIGURE>
+
+<P>
+Now that we have z = 2 and y = 1, we can plug these values into the first equation:
+</P>
+
+<FIGURE src="images/00667.png">
+
+</FIGURE>
+
+<P>
+This yields another equation in a single variable, which we solve like this:
+</P>
+
+<FIGURE src="images/00668.png">
+
+</FIGURE>
+
+<P>
+This finally yields a value for x and thus the complete solution for the entire SOE.
+</P>
+
+<EXERCISE>
+Exercise 469. Design the solve function. It consumes triangular SOEs and produces a solution.
+</EXERCISE>
+
+<P>
+Hint Use structural recursion for the design. Start with the design of a function that solves a single linear equation in n+1 variables, given a solution for the last n variables. In general, this function plugs in the values for the rest of the left-hand side, subtracts the result from the right-hand side, and divides by the first coefficient. Experiment with this suggestion and the above examples.
+</P>
+
+<P>
+Challenge Use an existing abstraction and lambda to design solve.
+</P>
+
+<EXERCISE>
+Exercise 470. Define gauss, which combines the triangulate function from exercise 468 and the solve function from exercise 469.
+</EXERCISE>

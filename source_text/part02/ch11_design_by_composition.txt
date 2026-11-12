@@ -1,0 +1,945 @@
+# Chapter 11: Design by Composition / 第 11 章：组合式设计
+
+<h2>
+11.2 Composing Functions
+</h2>
+
+<P>
+Chapter 3 explains that programs are collections of definitions: structure type definitions, data definitions, constant definitions, and function definitions. To guide the division of labor among functions, the section also suggests a rough guideline:
+</P>
+
+<P>
+Design one function per task. Formulate auxiliary function definitions for every dependency between quantities in the problem.
+</P>
+
+<MARGIN_NOTE>
+And don’t forget tests.
+</MARGIN_NOTE>
+
+<P>
+This part of the book introduces another guideline on auxiliary functions:
+</P>
+
+<P>
+Design one template per data definition. Formulate auxiliary function definitions when one data definition points to a second data definition.
+</P>
+
+<P>
+In this section, we take a look at one specific place in the design process that may call for additional auxiliary functions: the definition step, which creates a full-fledged definition from a template. Turning a template into a complete function definition means combining the values of the template’s sub-expressions into the final answer. As you do so, you might encounter several situations that suggest the need for auxiliary functions:
+</P>
+
+<P>
+1. If the composition of values requires knowledge of a particular domain of application—for example, composing two (computer) images, accounting, music, or science—design an auxiliary function.
+</P>
+
+<P>
+2. If the composition of values requires a case analysis of the available values—for example, depends on a number being positive, zero, or negative— use a cond expression. If the cond looks complex, design an auxiliary function whose arguments are the template’s expressions and whose body is the cond expression.
+</P>
+
+<P>
+3. If the composition of values must process an element from a self-referential data definition—a list, a natural number, or something like those—design an auxiliary function.
+</P>
+
+<P>
+4. If everything fails, you may need to design a more general function and define the main function as a specific use of the general function. This suggestion sounds counterintuitive, but it is called for in a remarkably large number of cases.
+</P>
+
+<P>
+The last two criteria are situations that we haven’t discussed in any detail, though examples have come up before. The next two sections illustrate these principles with additional examples.
+</P>
+
+<P>
+Before we continue, though, remember that the key to managing the design of programs is to maintain the often-mentioned
+</P>
+
+<h3>
+Wish List
+</h3>
+
+<P>
+Maintain a list of function headers that must be designed to complete a program. Writing down complete function headers ensures that you can test those portions of the programs that you have finished, which is useful even though many tests will fail. Of course, when the wish list is empty, all tests should pass and all functions should be covered by tests.
+</P>
+
+<P>
+Before you put a function on the wish list, you should check whether something like the function already exists in your language’s library or whether something similar is already on the wish list. BSL, BSL+, and indeed all programming languages provide many built-in operations and many library functions. You should explore your chosen language when you have time and when you have a need, so that you know what it provides.
+</P>
+
+<h2>
+11.3 Auxiliary Functions that Recur
+</h2>
+
+<P>
+People need to sort things all the time, and so do programs. Investment advisors sort portfolios by the profit each holding generates. Game programs sort lists of players according to scores. And mail programs sort messages according to date or sender or some other criterion.
+</P>
+
+<P>
+In general, you can sort a bunch of items if you can compare and order each pair of data items. Although not every kind of data comes with a comparison primitive, we all know one that does: numbers. Hence, we use a simplistic but highly representative sample problem in this section:
+</P>
+
+<P>
+Sample Problem Design a function that sorts a list of reals.
+</P>
+
+<P>
+The exercises below clarify how to adapt this function to other data.
+</P>
+
+<P>
+Since the problem statement does not mention any other task and since sorting does not seem to suggest other tasks, we just follow the design recipe. Sorting means rearranging a bunch of numbers. This restatement implies a natural data definition for the inputs and outputs of the function and thus its signature. Given that we have a definition for List-of-numbers, the first step is easy:
+</P>
+
+<CODE>
+; List-of-numbers -> List-of-numbers ; produces a sorted version of alon (define (sort> alon)   alon)
+</CODE>
+
+<P>
+Returning alon ensures that the result is appropriate as far as the function signature is concerned, but in general, the given list isn’t sorted and this result is wrong.
+</P>
+
+<P>
+When it comes to making up examples, it quickly becomes clear that the problem statement is quite imprecise. As before, we use the data definition of List-of-numbers to organize the development of examples. Since the data definition consists of two clauses, we need two examples. Clearly, when sort> is applied to '(), the result must be '(). The question is what the result for
+</P>
+
+<CODE>
+(cons 12 (cons 20 (cons -5 '())))
+</CODE>
+
+<P>
+should be. The list isn’t sorted, but there are two ways to sort it:
+</P>
+
+<P>
+•  (cons 20 (cons 12 (cons -5 '()))), that is, a list with the numbers arranged in descending order; and
+</P>
+
+<P>
+•  (cons -5 (cons 12 (cons 20 '()))), that is, a list with the numbers arranged in ascending order.
+</P>
+
+<P>
+In a real-world situation, you would now have to ask the person who posed the problem for clarification. Here we go for the descending alternative; designing the ascending alternative doesn’t pose any different obstacles.
+</P>
+
+<P>
+The decision calls for a revision of the header material:
+</P>
+
+<FIGURE src="images/00255.png">
+
+</FIGURE>
+
+<P>
+The header material now includes the examples reformulated as unit tests and using list. If the latter makes you uncomfortable, reformulate the test with cons to exercise translating back and forth. As for the additional two examples, they demand that sort> works on lists already sorted in ascending and descending order.
+</P>
+
+<P>
+Next we must translate the data definition into a function template. We have dealt with lists of numbers before, so this step is easy:
+</P>
+
+<FIGURE src="images/00256.png">
+
+</FIGURE>
+
+<P>
+Using this template, we can finally turn to the interesting part of the program development. We consider each case of the cond expression separately, starting with the simple case. If sort>’s input is '(), the answer is '(), as specified by the example. If sort>’s input is a consed list, the template suggests two expressions that might help:
+</P>
+
+<P>
+•  (first alon) extracts the first number from the input; and
+</P>
+
+<P>
+•  (sort> (rest alon)) rearranges (rest alon) in descending order, according to the purpose statement of the function.
+</P>
+
+<P>
+To clarify these abstract answers, let’s use the second example to explain these pieces in detail. When sort> consumes (list 12 20 -5),
+</P>
+
+<P>
+1. (first alon) is 12,
+</P>
+
+<P>
+2. (rest alon) is (list 20 -5), and
+</P>
+
+<P>
+3. (sort> (rest alon)) produces (list 20 -5) because this list is already sorted.
+</P>
+
+<P>
+To produce the desired answer, sort> must insert 12 between the two numbers of the last list. More generally, we must find an expression that inserts (first alon) in its proper place into the result of (sort> (rest alon)). If we can do so, sorting is an easily solved problem.
+</P>
+
+<P>
+Inserting a number into a sorted list clearly isn’t a simple task. It demands searching through the sorted list to find the proper place of the item. Searching through any list demands an auxiliary function because lists are of arbitrary size and, by item 3 of the preceding section, processing values of arbitrary size calls for the design of an auxiliary function.
+</P>
+
+<P>
+So here is the new wish-list entry:
+</P>
+
+<CODE>
+; Number List-of-numbers -> List-of-numbers ; inserts n into the sorted list of numbers alon (define (insert n alon) alon)
+</CODE>
+
+<P>
+That is, insert consumes a number and a list sorted in descending order and produces a sorted list by inserting the former into the latter.
+</P>
+
+<P>
+With insert, it is easy to complete the definition of sort>:
+</P>
+
+<CODE>
+(define (sort> alon)   (cond    [(empty? alon) '()]    [else     (insert (first alon) (sort> (rest alon)))]))
+</CODE>
+
+<P>
+In order to produce the final result, sort> extracts the first item of a non-empty list, computes the sorted version of the rest, and uses insert to produce the completely sorted list from the two pieces.
+</P>
+
+<P>
+Stop! Test the program as is. Some test cases pass, and some fail. That’s progress. The next step in its design is the creation of functional examples. Since the first input of insert is any number, we use 5 and use the data definition for List-of-numbers to make up examples for the second input.
+</P>
+
+<P>
+First we consider what insert should produce when given a number and '(). According to insert’s purpose statement, the output must be a list, it must contain all numbers from the second input, and it must contain the first argument. This suggests the following:
+</P>
+
+<CODE>
+(check-expect (insert 5 '()) (list 5))
+</CODE>
+
+<P>
+Second, we use a non-empty list of just one item:
+</P>
+
+<CODE>
+(check-expect (insert 5 (list 6)) (list 6 5)) (check-expect (insert 5 (list 4)) (list 5 4))
+</CODE>
+
+<P>
+The reasoning of why these are the expected results is just like before. For one, the result must contain all numbers from the second list and the extra number. For two, the result must be sorted.
+</P>
+
+<P>
+Finally, let’s create an example with a list that contains more than one item. Indeed, we can derive such an example from the examples for sort> and especially from our analysis of the second cond clause. From there, we know that sort> works only if 12 is inserted into (list 20 -5) at its proper place:
+</P>
+
+<FIGURE src="images/00257.png">
+
+</FIGURE>
+
+<P>
+That is, insert is given a second list and it is sorted in descending order.
+</P>
+
+<P>
+Note what the development of examples teaches us. The insert function has to find the first number that is smaller than the given n. When there is no such number, the function eventually reaches the end of the list and it must add n to the end. Now, before we move on to the template, you should work out some additional examples. To do so, you may wish to use the supplementary examples for sort>.
+</P>
+
+<P>
+In contrast to sort>, the function insert consumes two inputs. Since we know that the first one is a number and atomic, we can focus on the second argument—the list of numbers—for the template development:
+</P>
+
+<FIGURE src="images/00258.png">
+
+</FIGURE>
+
+<P>
+The only difference between this template and the one for sort> is that this one needs to take into account the additional argument n.
+</P>
+
+<P>
+To fill the gaps in the template of insert, we again proceed on a case-by-case basis. The first case concerns the empty list. According to the first example, (list n) is the expression needed in the first cond clause because it constructs a sorted list from n and alon.
+</P>
+
+<P>
+The second case is more complicated than the first, and so we follow the questions from figure 53:
+</P>
+
+<P>
+1. (first alon) is the first number on alon;
+</P>
+
+<P>
+2. (rest alon) is the rest of alon and, like alon, it is sorted in descending order; and
+</P>
+
+<P>
+3. (insert n (rest alon)) produces a sorted list from n and the numbers on (rest alon).
+</P>
+
+<P>
+The problem is how to combine these pieces of data to get the final answer.
+</P>
+
+<P>
+Let’s work through some examples to make all this concrete:
+</P>
+
+<CODE>
+(insert 7 (list 6 5 4))
+</CODE>
+
+<P>
+Here n is 7 and larger than any of the numbers in the second input. We know so by just looking at the first item of the list. It is 6, but because the list is sorted all other numbers on the list are even smaller than 6. Hence it suffices if we just cons 7 onto (list 6 5 4).
+</P>
+
+<P>
+In contrast, when the application is something like
+</P>
+
+<CODE>
+(insert 0 (list 6 2 1 -1))
+</CODE>
+
+<P>
+n must indeed be inserted into the rest of the list. More concretely, (first alon) is 6; (rest alon) is (list 2 1 -1); and (insert n (rest alon)) produces (list 2 1 0 -1) according to the purpose statement. By adding 6 back onto that last list, we get the desired answer for (insert 0 (list 6 2 1 -1)).
+</P>
+
+<P>
+To get a complete function definition, we must generalize these examples. The case analysis suggests a nested conditional that determines whether n is larger than (or equal to) (first alon):
+</P>
+
+<P>
+•  If so, all the items in alon are smaller than n because alon is already sorted. The answer in that case is (cons n alon).
+</P>
+
+<P>
+•  If, however, n is smaller than (first alon), then the function has not yet found the proper place to insert n into alon. The first item of the result must be (first alon) and that n must be inserted into (rest alon). The final result in this case is
+</P>
+
+<CODE>
+(cons (first alon) (insert n (rest alon)))
+</CODE>
+
+<P>
+because this list contains n and all items of alon in sorted order—which is what we need.
+</P>
+
+<P>
+The translation of this discussion into BSL+ calls for an if expression for such cases. The condition is (>= n (first alon)), and the expressions for the two branches have been formulated.
+</P>
+
+<P>
+Figure 72 contains the complete sort program. Copy it into the definitions area of DrRacket, add the test cases back in, and test the program. All tests should pass now, and they should cover all expressions.
+</P>
+
+<FIGURE src="images/00259.png">
+Figure 72: Sorting lists of numbers
+</FIGURE>
+
+<P>
+Terminology This particular program for sorting is known as insertion sort in the programming literature. Later we will study alternative ways to sort lists, using an entirely different design strategy.
+</P>
+
+<EXERCISE>
+Exercise 186. Take a second look at intermezzo 1, the intermezzo that presents BSL and its ways of formulating tests. One of the latter is check-satisfied, which determines whether an expression satisfies a certain property. Use sorted>? from exercise 145 to reformulate the tests for sort> with check-satisfied.
+</EXERCISE>
+
+<P>
+Now consider this function definition:
+</P>
+
+<CODE>
+; List-of-numbers -> List-of-numbers ; produces a sorted version of l (define (sort>/bad l)   (list 9 8 7 6 5 4 3 2 1 0))
+</CODE>
+
+<P>
+Can you formulate a test case that shows that sort>/bad is not a sorting function? Can you use check-satisfied to formulate this test case?
+</P>
+
+<P>
+Notes (1) What may surprise you here is that we define a function to create a test. In the real world, this step is common, and, on occasion, you really need to design functions for tests—with their own tests and all. (2) Formulating tests with check-satisfied is occasionally easier than using check-expect (or other forms), and it is also a bit more general. When the predicate completely describes the relationship between all possible inputs and outputs of a function, computer scientists speak of a specification. Chapter 17.4 explains how to specify sort> completely.
+</P>
+
+<EXERCISE>
+Exercise 187. Design a program that sorts lists of game players by score:
+</EXERCISE>
+
+<CODE>
+(define-struct gp [name score]) ; A GamePlayer is a structure: ;    (make-gp String Number) ; interpretation (make-gp p s) represents player p who ; scored a maximum of s points
+</CODE>
+
+<P>
+Hint Formulate a function that compares two elements of GamePlayer.
+</P>
+
+<EXERCISE>
+Exercise 188. Design a program that sorts lists of emails by date:
+</EXERCISE>
+
+<CODE>
+(define-struct email [from date message]) ; An Email Message is a structure: ;   (make-email String Number String) ; interpretation (make-email f d m) represents text m ; sent by f, d seconds after the beginning of time
+</CODE>
+
+<P>
+Also develop a program that sorts lists of email messages by name. To compare two strings alphabetically, use the string<? primitive.
+</P>
+
+<EXERCISE>
+Exercise 189. Here is the function search:
+</EXERCISE>
+
+<CODE>
+; Number List-of-numbers -> Boolean (define (search n alon)   (cond    [(empty? alon) #false]    [else (or (= (first alon) n)              (search n (rest alon)))]))
+</CODE>
+
+<P>
+It determines whether some number occurs in a list of numbers. The function may have to traverse the entire list to find out that the number of interest isn’t contained in the list.
+</P>
+
+<P>
+Develop the function search-sorted, which determines whether a number occurs in a sorted list of numbers. The function must take advantage of the fact that the list is sorted.
+</P>
+
+<EXERCISE>
+Exercise 190. Design the prefixes function, which consumes a list of 1Strings and produces the list of all prefixes. A list p is a prefix of l if p and l are the same up through all items in p. For example, (list "a" "b" "c") is a prefix of itself and (list "a" "b" "c" "d").
+</EXERCISE>
+
+<P>
+Design the function suffixes, which consumes a list of 1Strings and produces all suffixes. A list s is a suffix of l if p and l are the same from the end, up through all items in s. For example, (list "b" "c" "d") is a suffix of itself and (list "a" "b" "c" "d").
+</P>
+
+<h2>
+11.4 Auxiliary Functions that Generalize
+</h2>
+
+<P>
+On occasion an auxiliary function is not just a small helper function but a solution to a more general problem. Such auxiliaries are needed when a problem statement is too narrow. As programmers work through the steps of the design recipe, they may discover that the “natural” solution is wrong. An analysis of this broken solution may suggest a slightly different, but more general, problem statement, as well as a simple way of using the solution to the general problem for the original one.
+</P>
+
+<MARGIN_NOTE>
+Paul C. Fisher suggested this problem.
+</MARGIN_NOTE>
+
+<P>
+We illustrate this idea with a solution to the following problem:
+</P>
+
+<P>
+Sample Problem Design a function that adds a polygon to a given scene.
+</P>
+
+<P>
+Just in case you don’t recall your basic geometry (domain) knowledge, we add a (simplistic) definition of polygon:
+</P>
+
+<P>
+A polygon is a planar figure with at least three points (not on a straight line) connected by three straight sides.
+</P>
+
+<P>
+One natural data representation for a polygon is thus a list of Posns. For example, the following two definitions
+</P>
+
+<FIGURE src="images/00260.png">
+
+</FIGURE>
+
+<P>
+introduce a triangle and a square, just as the names say. Now you may wonder how to interpret '() or (list (make-posn 30 40)) as polygons, and the answer is that they do not describe polygons. Because a polygon consists of at least three points, a good data representation of polygons is the collection of lists with at least three Posns.
+</P>
+
+<P>
+Following the development of the data definition for non-empty lists of temperatures (NEList-of-temperatures, in chapter 9.2), formulating a data representation for polygons is straightforward:
+</P>
+
+<CODE>
+; A Polygon is one of: ; -- (list Posn Posn Posn) ; -- (cons Posn Polygon)
+</CODE>
+
+<P>
+The first clause says that a list of three Posns is a Polygon, and the second clause says that consing a Posn onto some existing Polygon creates another one. Since this data definition is the very first to use list in one of its clauses, we spell it out with cons just to make sure you see this conversion from an abbreviation to long-hand in this context:
+</P>
+
+<CODE>
+; a Polygon is one of: ; -- (cons Posn (cons Posn (cons Posn '()))) ; -- (cons Posn Polygon)
+</CODE>
+
+<P>
+The point is that a naively chosen data representation—plain lists of Posns—may not properly represent the intended information. Revising the data definition during an initial exploration is normal; indeed, on occasion such revisions become necessary during the rest of the design process. As long as you stick to a systematic approach, though, changes to the data definition can naturally be propagated through the rest of the design.
+</P>
+
+<P>
+The second step calls for the signature, purpose statement, and header of the function. Since the problem statement mentions just one task and no other task is implied, we start with one function:
+</P>
+
+<CODE>
+; a plain background image (define MT (empty-scene 50 50)) ; Image Polygon -> Image ; renders the given polygon p into img (define (render-poly img p)   img)
+</CODE>
+
+<P>
+The additional definition of MT is called for because it simplifies the formulation of examples.
+</P>
+
+<P>
+For the first example, we use the above-mentioned triangle. A quick look in the 2htdp/image library suggests scene+line is the function needed to render the three lines for a triangle:
+</P>
+
+<FIGURE src="images/00261.png">
+
+</FIGURE>
+
+<P>
+The innermost scene+line renders the line from the first to the second Posn; the middle one uses the second and third Posn; and the outermost scene+line connects the third and the first Posn.
+</P>
+
+<MARGIN_NOTE>
+Of course, we experimented in DrRacket’s interactions area to get this expression right.
+</MARGIN_NOTE>
+
+<P>
+Given that the first and smallest polygon is a triangle, then a rectangle or a square suggests itself as the second example. We use square-p:
+</P>
+
+<FIGURE src="images/00262.png">
+
+</FIGURE>
+
+<P>
+A square is just one more point than a triangle, and it is easy to render. You may also wish to draw these shapes on a piece of graph paper.
+</P>
+
+<P>
+The construction of the template poses a challenge. Specifically, the first and the second questions of figure 52 ask whether the data definition differentiates distinct subsets and how to distinguish among them. While the data definition clearly sets apart triangles from all other polygons in the first clause, it is not immediately clear how to differentiate the two. Both clauses describe lists of Posns. The first describes lists of three Posns, while the second one describes lists of Posns that have at least four items. Thus one alternative is to ask whether the given polygon is three items long:
+</P>
+
+<CODE>
+(= (length p) 3)
+</CODE>
+
+<P>
+Using the long-hand version of the first clause, that is,
+</P>
+
+<CODE>
+(cons Posn (cons Posn (cons Posn '())))
+</CODE>
+
+<P>
+suggests a second way to formulate the first condition, namely, checking whether the given Polygon is empty after using three rest functions:
+</P>
+
+<CODE>
+(empty? (rest (rest (rest p))))
+</CODE>
+
+<P>
+Since all Polygons consist of at least three Posns, using rest three times is legal. Unlike length, rest is a primitive, easy-to-understand operation with a clear operational meaning. It selects the second field in a cons structure and that is all it does.
+</P>
+
+<MARGIN_NOTE>
+It is truly better to formulate conditions in terms of built-in predicates and selectors than your own (recursive) functions. See intermezzo 5 for an explanation.
+</MARGIN_NOTE>
+
+<P>
+The rest of the questions in figure 52 have direct answers, and thus we get this template:
+</P>
+
+<FIGURE src="images/00263.png">
+
+</FIGURE>
+
+<P>
+Because p describes a triangle in the first clause, it must consist of exactly three Posns, which are extracted via first, second, and third. In the second clause, p consists of a Posn and a Polygon, justifying (first p) and (rest p). The former extracts a Posn from p, the latter a Polygon. We therefore add a self-referential function call around it; we must also keep in mind that dealing with (first p) in this clause and the three Posns in the first clause may demand the design of an auxiliary function.
+</P>
+
+<P>
+Now we are ready to focus on the function definition, dealing with one clause at a time. The first clause concerns triangles, which suggests a straightforward answer. Specifically, there are three Posns and render-poly should connect the three in an empty scene of 50 by 50 pixels. Given that Posn is a separate data definition, we get an obvious wish-list entry:
+</P>
+
+<CODE>
+; Image Posn Posn -> Image ; draws a red line from Posn p to Posn q into im (define (render-line im p q)   im)
+</CODE>
+
+<P>
+Using this function, the first cond clause in render-poly is this:
+</P>
+
+<FIGURE src="images/00264.png">
+
+</FIGURE>
+
+<P>
+This expression obviously renders the given Polygon p as a triangle by drawing a line from the first to the second, the second to the third, and the third to the first Posn.
+</P>
+
+<P>
+The second cond clause is about Polygons that have been extended with one Posn. In the template, we find two expressions, and, following figure 53, we remind ourselves of what these expressions compute:
+</P>
+
+<P>
+1. (first p) extracts the first Posn;
+</P>
+
+<P>
+2. (rest p) extracts the Polygon from p; and
+</P>
+
+<P>
+3. (render-polygon img (rest p)) renders (rest p), which is what the purpose statement of the function says.
+</P>
+
+<P>
+The question is how to use these pieces to render the given Polygon p.
+</P>
+
+<P>
+One idea that may come to mind is that (rest p) consists of at least three Posns. It is therefore possible to extract at least one Posn from this embedded Polygon and to connect (first p) with this additional point. Here is what this idea looks like with BSL+ code:
+</P>
+
+<FIGURE src="images/00265.png">
+
+</FIGURE>
+
+<P>
+As mentioned, the highlighted sub-expression renders the embedded Polygon in an empty 50 by 50 scene. The use of render-line adds one line to this scene, from the first to the second Posn of p.
+</P>
+
+<P>
+Our analysis suggests a rather natural, complete function definition:
+</P>
+
+<FIGURE src="images/00266.png">
+
+</FIGURE>
+
+<P>
+Designing render-line is the kind of problem that you solved in the first part of the book. Hence we just provide the final definition so that you can test the above function:
+</P>
+
+<FIGURE src="images/00267.png">
+
+</FIGURE>
+
+<P>
+Stop! Develop a test for render-line.
+</P>
+
+<P>
+Lastly, we must test the functions. The tests for render-poly fail. On the one hand, the test failure is fortunate because it is the purpose of tests to find problems before they affect regular consumers. On the other hand, the flaw is unfortunate because we followed the design recipe, we made fairly natural choices, and yet the function doesn’t work.
+</P>
+
+<P>
+Stop! Why do you think the tests fail? Draw an image of the pieces in the template of render-poly. Then draw the line that combines them. Alternatively, experiment in DrRacket’s interactions area:
+</P>
+
+<FIGURE src="images/00268.png">
+
+</FIGURE>
+
+<P>
+The image shows that render-polygon connects the three dots of (rest p) and then connects (first p) to the first point of (rest p), that is, (second p). You can easily validate this claim with an interaction that uses (rest square-p) directly as input for render-poly:
+</P>
+
+<FIGURE src="images/00269.png">
+
+</FIGURE>
+
+<P>
+In addition, you may wonder what render-poly would draw if we added another point, say, (make-posn 40 30), to the original square:
+</P>
+
+<FIGURE src="images/00270.png">
+
+</FIGURE>
+
+<P>
+Instead of the desired pentagon, render-polygon always draws the triangle at the end of the given Polygon and otherwise connects the Posns that precede the triangle.
+</P>
+
+<P>
+While the experiments confirm the problems of our design, they also suggest that the function is “almost correct.” It connects the successive dots specified by a list of Posns, and then it draws a line from the first to the last Posn of the trailing triangle. If it skipped this last step, the function would just “connect the dots” and thus draw an “open” polygon. By connecting the first and the last point, it could then complete its task.
+</P>
+
+<P>
+Put differently, the analysis of our failure suggests a two-step solution:
+</P>
+
+<P>
+1. Solve a more general problem.
+</P>
+
+<P>
+2. Use the solution to this general problem to solve the original one.
+</P>
+
+<P>
+We start with the statement for the general problem:
+</P>
+
+<P>
+Sample Problem Design a function that draws connections between a given bunch of dots and into a given scene.
+</P>
+
+<P>
+Although the design of render-poly almost solves this problem, we design this function mostly from scratch. First, we need a data definition. Connecting the dots makes no sense unless we have at least a couple of dots. To keep things simple, we go with at least one dot:
+</P>
+
+<CODE>
+; An NELoP is one of: ; -- (cons Posn '()) ; -- (cons Posn NELoP)
+</CODE>
+
+<P>
+Second, we formulate a signature, a purpose statement, and a header for a “connect the dots” function:
+</P>
+
+<CODE>
+; Image NELoP -> Image ; connects the dots in p by rendering lines in img (define (connect-dots img p)   MT)
+</CODE>
+
+<P>
+Third, we adapt the examples for render-poly for this new function. As our failure analysis says, the function connects the first Posn on p to the second one, the second one to the third, the third to the fourth, and so on, all the way to the last one, which isn’t connected to anything. Here is the adaptation of the first example, a list of three Posns:
+</P>
+
+<FIGURE src="images/00271.png">
+
+</FIGURE>
+
+<P>
+The expected value is an image with two lines: one from the first Posn to the second one, and another one from the second to the third Posn.
+</P>
+
+<EXERCISE>
+Exercise 191. Adapt the second example for the render-poly function to connect-dots.
+</EXERCISE>
+
+<P>
+Fourth, we use the template for functions that process non-empty lists:
+</P>
+
+<FIGURE src="images/00272.png">
+
+</FIGURE>
+
+<P>
+The template has two clauses: one for lists of one Posn and the second one for lists with more than one. Since there is at least one Posn in both cases, the template contains (first p) in both clauses; the second one also contains (connects-dots (rest p)) to remind us of the self-reference in the second clause of the data definition.
+</P>
+
+<P>
+The fifth and central step is to turn the template into a function definition. Since the first clause is the simplest one, we start with it. As we have already said, it is impossible to connect anything when the given list contains only one Posn. Hence, the function just returns MT from the first cond clause. For the second cond clause, let us remind ourselves of what the template expressions compute:
+</P>
+
+<P>
+1. (first p) extracts the first Posn;
+</P>
+
+<P>
+2. (rest p) extracts the NELoP from p; and
+</P>
+
+<P>
+3. (connect-dots img (rest p)) connects the dots in (rest p) by rendering lines in img.
+</P>
+
+<P>
+From our first attempt to design render-poly, we know connect-dots needs to add one line to the result of (connect-dots img (rest p)), namely, from (first p) to (second p). We know that p contains a second Posn because otherwise the evaluation of cond would have picked the first clause.
+</P>
+
+<P>
+Putting everything together, we get the following definition:
+</P>
+
+<FIGURE src="images/00273.png">
+
+</FIGURE>
+
+<P>
+This definition looks simpler than the faulty version of render-poly, even though it copes with two more lists of Posns than render-poly.
+</P>
+
+<P>
+Conversely, we say that connect-dots generalizes render-poly. Every input for the latter is also an input for the former. Or in terms of data definitions, every Polygon is also an NELoP. But, there are many NELoPs that are not Polygons. To be precise, all lists of Posns that contain two items or one belong to NELoP but not to Polygon. The key insight for you is, however, that just because a function has to deal with more inputs than another function does not mean that the former is more complex than the latter; generalizations often simplify function definitions.
+</P>
+
+<MARGIN_NOTE>
+This argument is informal. If you ever need a formal argument for such claims about the relationship between sets or functions, you will need to study logic. Indeed, this book’s design process is deeply informed by logic, and a course on logic in computation is a natural complement. In general, logic is to computing what analysis is to engineering.
+</MARGIN_NOTE>
+
+<P>
+As spelled out above, render-polygon can use connect-dots to connect all successive Posns of the given Polygon; to complete its task, it must then add a line from the first to the last Posn of the given Polygon. In terms of code, this just means composing two functions: connect-dots and render-line, but we also need a function to extract the last Posn from the Polygon. Once we are granted this wish, the definition of render-poly is a one-liner:
+</P>
+
+<FIGURE src="images/00274.png">
+
+</FIGURE>
+
+<P>
+Formulating the wish-list entry for last is straightforward:
+</P>
+
+<CODE>
+; Polygon -> Posn ; extracts the last item from p
+</CODE>
+
+<P>
+Then again, it is clear that last could be a generally useful function and we might be better off designing it for inputs from NELoP:
+</P>
+
+<CODE>
+; NELoP -> Posn ; extracts the last item from p (define (last p)   (first p))
+</CODE>
+
+<P>
+Stop! Why is it acceptable to use first for the stub definition of last?
+</P>
+
+<EXERCISE>
+Exercise 192. Argue why it is acceptable to use last on Polygons. Also argue why you may adapt the template for connect-dots to last:
+</EXERCISE>
+
+<CODE>
+(define (last p)   (cond     [(empty? (rest p)) (… (first p) …)]     [else (… (first p) … (last (rest p)) …)]))
+</CODE>
+
+<P>
+Finally, develop examples for last, turn them into tests, and ensure that the definition of last in figure 73 works on your examples.
+</P>
+
+<FIGURE src="images/00275.png">
+Figure 73: Drawing a polygon
+</FIGURE>
+
+<P>
+In summary, the development of render-poly naturally points us to consider the general problem of connecting a list of successive dots. We can then solve the original problem by defining a function that composes the general function with other auxiliary functions. The program therefore consists of a relatively straightforward main function—render-poly—and complex auxiliary functions that perform most of the work. You will see time and again that this kind of design approach is common and a good method for designing and organizing programs.
+</P>
+
+<EXERCISE>
+Exercise 193. Here are two more ideas for defining render-poly:
+</EXERCISE>
+
+<P>
+•  render-poly could cons the last item of p onto p and then call connect-dots.
+</P>
+
+<P>
+•  render-poly could add the first item of p to the end of p via a version of add-at-end that works on Polygons.
+</P>
+
+<P>
+Use both ideas to define render-poly; make sure both definitions pass the test cases.
+</P>
+
+<EXERCISE>
+Exercise 194. Modify connect-dots so that it consumes an additional Posn to which the last Posn is connected. Then modify render-poly to use this new version of connect-dots.
+</EXERCISE>
+
+<P>
+Naturally, functions such as last are available in a full-fledged programming language, and something like render-poly is available in the 2htdp/image library. If you are wondering why we just designed these functions, consider the titles of both the book and this section. The goal is not (just) to design useful functions but to study how code is designed systematically. Specifically, this section is about the idea of generalization in the design process; for more on this idea see part III and part VI.
+</P>
+
+<h1>
+12 Projects: Lists
+</h1>
+
+<P>
+This chapter presents several extended exercises, all of which aim to solidify your understanding of the elements of design: the design of batch and interactive programs, design by composition, design wish lists, and the design recipe for functions. The first section covers problems involving real-world data: English dictionaries and iTunes libraries. A word-games problem requires two sections: one to illustrate design by composition, the other to tackle the heart of the problem. The remaining sections are about games and finite-state machines.
+</P>
+
+<MARGIN_NOTE>
+This chapter relies on the 2htdp/batch-io library.
+</MARGIN_NOTE>
+
+<h2>
+12.1 Real-World Data: Dictionaries
+</h2>
+
+<P>
+Information in the real world tends to come in large quantities, which is why it makes so much sense to use programs for processing it. For example, a dictionary does not just contain a dozen words, but hundreds of thousands. When you want to process such large pieces of information, you must carefully design the program using small examples. Once you have convinced yourself that the programs work properly, you run them on the real-world data to get real results. If the program is too slow to process this large quantity of data, reflect on each function and how it works. Question whether you can eliminate any redundant computations.
+</P>
+
+<MARGIN_NOTE>
+For performance concerns, see part V. From here to there, the focus is on designing programs systematically so that you can then explore performance problems properly.
+</MARGIN_NOTE>
+
+<P>
+Figure 74 displays the one line of code needed to read in an entire dictionary of the English language. To get an idea of how large such dictionaries are, adapt the code from the figure for your particular computer and use length to determine how many words are in your dictionary. There are 235,886 words in ours today, July 25, 2017.
+</P>
+
+<FIGURE src="images/00276.png">
+Figure 74: Reading a dictionary
+</FIGURE>
+
+<P>
+In the following exercises, letters play an important role. You may wish to add the following to the top of your program in addition to your adaptation of figure 74:
+</P>
+
+<CODE>
+; A Letter is one of the following 1Strings: ; -- "a" ; -- … ; -- "z" ; or, equivalently, a member? of this list: (define LETTERS   (explode "abcdefghijklmnopqrstuvwxyz"))
+</CODE>
+
+<P>
+Hint Use list to formulate examples and tests for the exercises.
+</P>
+
+<EXERCISE>
+Exercise 195. Design the function starts-with#, which consumes a Letter and Dictionary and then counts how many words in the given Dictionary start with the given Letter. Once you know that your function works, determine how many words start with "e" in your computer’s dictionary and how many with "z".
+</EXERCISE>
+
+<EXERCISE>
+Exercise 196. Design count-by-letter. The function consumes a Dictionary and counts how often each letter is used as the first one of a word in the given dictionary. Its result is a list of Letter-Counts, a piece of data that combines letters and counts.
+</EXERCISE>
+
+<P>
+Once your function is designed, determine how many words appear for all letters in your computer’s dictionary.
+</P>
+
+<P>
+Note on Design Choices An alternative is to design an auxiliary function that consumes a list of letters and a dictionary and produces a list of Letter-Counts that report how often the given letters occur as first ones in the dictionary. You may of course reuse your solution of exercise 195. Hint If you design this variant, notice that the function consumes two lists, requiring a design problem that is covered in chapter 23 in detail. Think of Dictionary as an atomic piece of data that is along for the ride and is handed over to starts-with# as needed.
+</P>
+
+<EXERCISE>
+Exercise 197. Design most-frequent. The function consumes a Dictionary. It produces the Letter-Count for the letter that occurs most often as the first one in the given Dictionary.
+</EXERCISE>
+
+<P>
+What is the most frequently used letter in your computer’s dictionary and how often is it used?
+</P>
+
+<P>
+Note on Design Choices This exercise calls for the composition of the solution to the preceding exercise with a function that picks the correct pairing from a list of Letter-Counts. There are two ways to design this latter function:
+</P>
+
+<P>
+•  Design a function that picks the pair with the maximum count.
+</P>
+
+<P>
+•  Design a function that selects the first from a sorted list of pairs.
+</P>
+
+<P>
+Consider designing both. Which one do you prefer? Why?
+</P>
+
+<EXERCISE>
+Exercise 198. Design words-by-first-letter. The function consumes a Dictionary and produces a list of Dictionarys, one per Letter.
+</EXERCISE>
+
+<P>
+Redesign most-frequent from exercise 197 using this new function. Call the new function most-frequent.v2. Once you have completed the design, ensure that the two functions compute the same result on your computer’s dictionary:
+</P>
+
+<CODE>
+(check-expect   (most-frequent AS-LIST)   (most-frequent.v2 AS-LIST))
+</CODE>
+
+<P>
+Note on Design Choices For words-by-first-letter you have a choice for dealing with the situation when the given dictionary does not contain any words for some letter:
+</P>
+
+<P>
+•  One alternative is to exclude the resulting empty dictionaries from the overall result. Doing so simplifies both the testing of the function and the design of most-frequent.v2, but it also requires the design of an auxiliary function.
+</P>
+
+<P>
+•  The other one is to include '() as the result of looking for words of a certain letter, even if there aren’t any. This alternative avoids the auxiliary function needed for the first alternative but adds complexity to the design of most-frequent.v2. End
+</P>
+
+<P>
+Note on Intermediate Data and Deforestation This second version of the word-counting function computes the desired result via the creation of a large intermediate data structure that serves no real purpose other than that its parts are counted. On occasion, the programming language eliminates them automatically by fusing the two functions into one, a transformation on programs that is also called deforestation. When you know that the language does not deforest programs, consider eliminating such data structures if the program does not process data fast enough.
+</P>

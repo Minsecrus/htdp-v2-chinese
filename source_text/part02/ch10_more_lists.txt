@@ -1,0 +1,1333 @@
+# Chapter 10: More on Processing Lists / 第 10 章：更深入的列表处理
+
+<h2>
+10.1 Functions that Produce Lists
+</h2>
+
+<P>
+Here is a function for determining the wage of an hourly employee:
+</P>
+
+<CODE>
+; Number -> Number ; computes the wage for h hours of work (define (wage h)   (* 12 h))
+</CODE>
+
+<P>
+It consumes the number of hours worked and produces the wage. A company that wishes to use payroll software isn’t interested in this function, however. It wants one that computes the wages for all its employees.
+</P>
+
+<P>
+Call this new function wage*. Its task is to process all employee work hours and to determine the wages due to each of them. For simplicity, let’s assume that the input is a list of numbers, each representing the number of hours that one employee worked, and that the expected result is a list of the weekly wages earned, also represented with a list of numbers.
+</P>
+
+<P>
+Since we already have a data definition for the inputs and outputs, we can immediately move to the second design step:
+</P>
+
+<CODE>
+; List-of-numbers -> List-of-numbers ; computes the weekly wages for the weekly hours (define (wage* whrs)   '())
+</CODE>
+
+<P>
+Next you need some examples of inputs and the corresponding outputs. So you make up some short lists of numbers that represent weekly hours:
+</P>
+
+<FIGURE src="images/00213.png">
+
+</FIGURE>
+
+<P>
+In order to compute the output, you determine the weekly wage for each number on the given input list. For the first example, there are no numbers on the input list so the output is '(). Make sure you understand why the second and third expected outputs are what you want.
+</P>
+
+<P>
+Given that wage* consumes the same kind of data as several other functions from chapter 8 and given that a template depends only on the shape of the data definition, you can reuse this template:
+</P>
+
+<FIGURE src="images/00214.png">
+
+</FIGURE>
+
+<P>
+In case you want to practice the development of templates, use the questions from figure 52.
+</P>
+
+<P>
+It is now time for the most creative design step. Following the design recipe, we consider each cond line of the template in isolation. For the non-recursive case, (empty? whrs) is true, meaning the input is '(). The examples from above specify the desired answer, '(), and so we are done.
+</P>
+
+<P>
+In the second case, the design questions tell us to state what each expression of the template computes:
+</P>
+
+<P>
+•  (first whrs) yields the first number on whrs, which is the first number of hours worked;
+</P>
+
+<P>
+•  (rest whrs) is the rest of the given list; and
+</P>
+
+<P>
+•  (wage* (rest whrs)) says that the rest is processed by the very function we are defining. As always, we use its signature and its purpose statement to figure out the result of this expression. The signature tells us that it is a list of numbers, and the purpose statement explains that this list represents the list of wages for its input, which is the rest of the list of hours.
+</P>
+
+<P>
+The key is to rely on these facts when you formulate the expression that computes the result in this case, even if the function is not yet defined.
+</P>
+
+<P>
+Since we already have the list of wages for all but the first item of whrs, the function must perform two computations to produce the expected output for the entire whrs: compute the weekly wage for (first whrs) and construct the list that represents all weekly wages for whrs. For the first part, we reuse wage. For the second, we cons the two pieces of information together into one list:
+</P>
+
+<CODE>
+(cons (wage (first whrs)) (wage* (rest whrs)))
+</CODE>
+
+<P>
+And with that, the definition is complete: see figure 64.
+</P>
+
+<FIGURE src="images/00215.png">
+Figure 64: Computing the wages of all employees
+</FIGURE>
+
+<EXERCISE>
+Exercise 161. Translate the examples into tests and make sure they all succeed. Then change the function in figure 64 so that everyone gets $14 per hour. Now revise the entire program so that changing the wage for everyone is a single change to the entire program and not several.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 162. No employee could possibly work more than 100 hours per week. To protect the company against fraud, the function should check that no item of the input list of wage* exceeds 100. If one of them does, the function should immediately signal an error. How do we have to change the function in figure 64 if we want to perform this basic reality check?
+</EXERCISE>
+
+<MARGIN_NOTE>
+Show the products of the various steps in the design recipe. If you are stuck, show someone how far you got according to the design recipe. The recipe isn’t just a design tool for you to use; it is also a diagnosis system so that others can help you help yourself.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 163. Design convertFC. The function converts a list of measurements in Fahrenheit to a list of Celsius measurements.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 164. Design the function convert-euro, which converts a list of US$ amounts into a list of € amounts. Look up the current exchange rate on the web.
+</EXERCISE>
+
+<P>
+Generalize convert-euro to the function convert-euro*, which consumes an exchange rate and a list of US$ amounts and converts the latter into a list of € amounts.
+</P>
+
+<EXERCISE>
+Exercise 165. Design the function subst-robot, which consumes a list of toy descriptions (one-word strings) and replaces all occurrences of "robot" with "r2d2"; all other descriptions remain the same.
+</EXERCISE>
+
+<P>
+Generalize subst-robot to substitute. The latter consumes two strings, called new and old, and a list of strings. It produces a new list of strings by substituting all occurrences of old with new.
+</P>
+
+<h2>
+10.2 Structures in Lists
+</h2>
+
+<P>
+Representing a work week as a number is a bad choice because the printing of a paycheck requires more information than hours worked per week. Also, not all employees earn the same amount per hour. Fortunately a list may contain items other than atomic values; indeed, lists may contain whatever values we want, especially structures.
+</P>
+
+<P>
+Our running example calls for just such a data representation. Instead of numbers, we use structures that represent employees plus their work hours and pay rates:
+</P>
+
+<CODE>
+(define-struct work [employee rate hours]) ; A (piece of) Work is a structure: ;   (make-work String Number Number) ; interpretation (make-work n r h) combines the name ; with the pay rate r and the number of hours h
+</CODE>
+
+<P>
+While this representation is still simplistic, it is just enough of an additional challenge because it forces us to formulate a data definition for lists that contain structures:
+</P>
+
+<CODE>
+; Low (short for list of works) is one of: ; -- '() ; -- (cons Work Low) ; interpretation an instance of Low represents the ; hours worked for a number of employees
+</CODE>
+
+<P>
+Here are three elements of Low:
+</P>
+
+<FIGURE src="images/00216.png">
+
+</FIGURE>
+
+<P>
+Use the data definition to explain why these pieces of data belong to Low.
+</P>
+
+<P>
+Stop! Also use the data definition to generate two more examples.
+</P>
+
+<MARGIN_NOTE>
+When you work on real-world projects, you won’t use such suffixes; instead you will use a tool for managing different versions of code.
+</MARGIN_NOTE>
+
+<P>
+Now that you know that the definition of Low makes sense, it is time to redesign the function wage* so that it consumes elements of Low, not just lists of numbers:
+</P>
+
+<CODE>
+; Low -> List-of-numbers ; computes the weekly wages for the given records (define (wage*.v2 an-low)   '())
+</CODE>
+
+<P>
+The suffix “.v2” at the end of the function name informs every reader of the code that this is a second, revised version of the function. In this case, the revision starts with a new signature and an adapted purpose statement. The header is the same as above.
+</P>
+
+<P>
+The third step of the design recipe is to work through an example. Let’s start with the second list above. It contains one work record, namely, (make-work "Robby" 11.95 39). Its interpretation is that "Robby" worked for 39 hours and that he is paid at the rate of $11.95 per hour. Hence his wage for the week is $466.05, that is, (* 11.95 39). The desired result for wage*.v2 is therefore (cons 466.05 '()). Naturally, if the input list contained two work records, we would perform this kind of computation twice, and the result would be a list of two numbers. Stop! Determine the expected result for the third data example above.
+</P>
+
+<P>
+Note on Numbers Keep in mind that BSL—unlike most other programming languages—understands decimal numbers just like you do, namely, as exact fractions. A language such as Java, for example, would produce 466.04999999999995 for the expected wage of the first work record. Since you cannot predict when operations on decimal numbers behave in this strange way, you are better off writing down such examples as
+</P>
+
+<FIGURE src="images/00217.png">
+
+</FIGURE>
+
+<P>
+just to prepare yourself for other programming languages. Then again, writing down the example in this style also means you have really figured out how to compute the wage. End
+</P>
+
+<P>
+From here we move on to the development of the template. If you use the template questions, you quickly get this much:
+</P>
+
+<FIGURE src="images/00218.png">
+
+</FIGURE>
+
+<P>
+because the data definition consists of two clauses, because it introduces '() in the first clause and consed structures in the second, and so on. But you also realize that you know even more about the input than this template expresses. For example, you know that (first an-low) extracts a structure of three fields from the given list. This seems to suggest the addition of three more expressions to the template:
+</P>
+
+<FIGURE src="images/00219.png">
+
+</FIGURE>
+
+<P>
+This template lists all potentially interesting data.
+</P>
+
+<P>
+We use a different strategy here. Specifically, we suggest that you create and refer to a separate function template whenever you are developing a template for a data definition that refers to other data definitions:
+</P>
+
+<FIGURE src="images/00220.png">
+
+</FIGURE>
+
+<P>
+Splitting the templates leads to a natural partition of work into functions and among functions; none of them grows too large, and all of them relate to a specific data definition.
+</P>
+
+<P>
+Finally, you are ready to program. As always you start with the simple-looking case, which is the first cond line here. If wage*.v2 is applied to '(), you expect '() back and that settles it. Next you move on to the second line and remind yourself of what these expressions compute:
+</P>
+
+<P>
+1. (first an-low) extracts the first work structure from the list;
+</P>
+
+<P>
+2. (for-work …) says that you wish to design a function that processes work structures;
+</P>
+
+<P>
+3. (rest an-low) extracts the rest of the given list; and
+</P>
+
+<P>
+4. (wage*.v2 (rest an-low)) determines the list of wages for all the work records other than the first one, according to the purpose statement of the function.
+</P>
+
+<P>
+If you are stuck here, use the table method from figure 54.
+</P>
+
+<P>
+If you understand it all, you see that it is enough to cons the two expressions together:
+</P>
+
+<FIGURE src="images/00221.png">
+
+</FIGURE>
+
+<P>
+assuming that for-work computes the wage for the first work record. In short, you have finished the function by adding another entry to your wish list of functions.
+</P>
+
+<P>
+Since for-work is a name that just serves as a stand-in and since it is a bad name for this function, let’s call the function wage.v2 and write down its complete wish-list entry:
+</P>
+
+<CODE>
+; Work -> Number ; computes the wage for the given work record w (define (wage.v2 w)   0)
+</CODE>
+
+<P>
+The design of this kind of function is extensively covered in Part I and thus doesn’t need any additional explanation here. Figure 65 shows the final result of developing wage and wage*.v2.
+</P>
+
+<FIGURE src="images/00222.png">
+Figure 65: Computing the wages from work records
+</FIGURE>
+
+<EXERCISE>
+Exercise 166. The wage*.v2 function consumes a list of work records and produces a list of numbers. Of course, functions may also produce lists of structures.
+</EXERCISE>
+
+<P>
+Develop a data representation for paychecks. Assume that a paycheck contains two distinctive pieces of information: the employee’s name and an amount. Then design the function wage*.v3. It consumes a list of work records and computes a list of paychecks from it, one per record.
+</P>
+
+<P>
+In reality, a paycheck also contains an employee number. Develop a data representation for employee information and change the data definition for work records so that it uses employee information and not just a string for the employee’s name. Also change your data representation of paychecks so that it contains an employee’s name and number, too. Finally, design wage*.v4, a function that maps lists of revised work records to lists of revised paychecks.
+</P>
+
+<P>
+Note on Iterative Refinement This exercise demonstrates the iterative refinement of a task. Instead of using data representations that include all relevant information, we started from simplistic representation of paychecks and gradually made the representation realistic. For this simple program, refinement is overkill; later we will encounter situations where iterative refinement is not just an option but a necessity.
+</P>
+
+<EXERCISE>
+Exercise 167. Design the function sum, which consumes a list of Posns and produces the sum of all of its x-coordinates.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 168. Design the function translate. It consumes and produces lists of Posns. For each (make-posn x y) in the former, the latter contains (make-posn x (+ y 1)). We borrow the word “translate” from geometry, where the movement of a point by a constant distance along a straight line is called a translation.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 169. Design the function legal. Like translate from exercise 168, the function consumes and produces a list of Posns. The result contains all those Posns whose x-coordinates are between 0 and 100 and whose y-coordinates are between 0 and 200.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 170. Here is one way to represent a phone number:
+</EXERCISE>
+
+<CODE>
+(define-struct phone [area switch four]) ; A Phone is a structure: ;   (make-phone Three Three Four) ; A Three is a Number between 100 and 999. ; A Four is a Number between 1000 and 9999.
+</CODE>
+
+<P>
+Design the function replace. It consumes and produces a list of Phones. It replaces all occurrence of area code 713 with 281.
+</P>
+
+<h2>
+10.3 Lists in Lists, Files
+</h2>
+
+<P>
+Chapter 2 introduces read-file, a function for reading an entire text file as a string. In other words, the creator of read-file chose to represent text files as strings, and the function creates the data representation for specific files (specified by a name). Text files aren’t plain long texts or strings, however. They are organized into lines and words, rows and cells, and many other ways. In short, representing the content of a file as a plain string might work on rare occasions but is usually a bad choice.
+</P>
+
+<MARGIN_NOTE>
+Add (require 2htdp/batch-io) to your definitions area.
+</MARGIN_NOTE>
+
+<P>
+For concreteness, take a look at the sample file in figure 66. It contains a poem by Piet Hein, and it consists of many lines and words. When you use the program
+</P>
+
+<CODE>
+(read-file "ttt.txt")
+</CODE>
+
+<FIGURE src="images/00223.png">
+Figure 66: Things take time
+</FIGURE>
+
+<P>
+to turn this file into a BSL string, you get this:
+</P>
+
+<CODE>
+"TTT \n \n Put up in a place\nwhere ...."
+</CODE>
+
+<P>
+where the "\n" inside the string indicates line breaks.
+</P>
+
+<MARGIN_NOTE>
+The dots aren’t really a part of the result, as you probably guessed.
+</MARGIN_NOTE>
+
+<P>
+While it is indeed possible to break apart this string with primitive operations on strings, for example, explode, most programming languages—including BSL—support many different representations of files and functions that create such representations from existing files:
+</P>
+
+<P>
+•  One way to represent this file is as a list of lines, where each line is represented as one string:
+</P>
+
+<FIGURE src="images/00224.png">
+
+</FIGURE>
+
+<P>
+Here the second item of the list is the empty string because the file contains an empty line.
+</P>
+
+<P>
+•  Another way is to use a list of words, again each word represented as a string:
+</P>
+
+<FIGURE src="images/00225.png">
+
+</FIGURE>
+
+<P>
+Note how the empty second line disappears with this representation. After all, there are no words on the empty line.
+</P>
+
+<P>
+•  And a third representation relies on lists of lists of words:
+</P>
+
+<FIGURE src="images/00226.png">
+
+</FIGURE>
+
+<P>
+This representation has an advantage over the second one in that it preserves the organization of the file, including the emptiness of the second line. The price is that all of a sudden lists contain lists.
+</P>
+
+<P>
+While the idea of list-containing lists may sound frightening at first, you need not worry. The design recipe helps even with such complications.
+</P>
+
+<P>
+Before we get started, take a look at figure 67. It introduces a number of useful file reading functions. They are not comprehensive: there are many other ways of dealing with text from files, and you will need to know a lot more to deal with all possible text files. For our purposes here—teaching and learning the principles of systematic program design—they suffice, and they empower you to design reasonably interesting programs.
+</P>
+
+<FIGURE src="images/00227.png">
+Figure 67: Reading files
+</FIGURE>
+
+<P>
+Figure 67 uses the names of two data definitions that do not exist yet, including one involving list-containing lists. As always, we start with a data definition, but this time we leave this task to you. Hence, before you read on, solve the following exercises. The solutions are needed to make complete sense out of the figure, and without working through the solutions, you cannot really understand the rest of this section.
+</P>
+
+<EXERCISE>
+Exercise 171. You know what the data definition for List-of-strings looks like. Spell it out. Make sure that you can represent Piet Hein’s poem as an instance of the definition where each line is represented as a string and another instance where each word is a string. Use read-lines and read-words to confirm your representation choices.
+</EXERCISE>
+
+<P>
+Next develop the data definition for List-of-list-of-strings. Again, represent Piet Hein’s poem as an instance of the definition where each line is represented as a list of strings, one per word, and the entire poem is a list of such line representations. You may use read-words/line to confirm your choice.
+</P>
+
+<P>
+As you probably know, operating systems come with programs that measure files. One counts the number of lines, another determines how many words appear per line. Let us start with the latter to illustrate how the design recipe helps with the design of complex functions.
+</P>
+
+<P>
+The first step is to ensure that we have all the necessary data definitions. If you solved the above exercise, you have a data definition for all possible inputs of the desired function, and the preceding section defines List-of-numbers, which describes all possible inputs. To keep things short, we use LLS to refer to the class of lists of lists of strings, and use it to write down the header material for the desired function:
+</P>
+
+<CODE>
+; LLS -> List-of-numbers ; determines the number of words on each line (define (words-on-line lls) '())
+</CODE>
+
+<P>
+We name the functions words-on-line because it is appropriate and captures the purpose statement in one phrase.
+</P>
+
+<P>
+What is really needed, though, is a set of data examples:
+</P>
+
+<CODE>
+(define line0 (cons "hello" (cons "world" '()))) (define line1 '()) (define lls0 '()) (define lls1 (cons line0 (cons line1 '())))
+</CODE>
+
+<P>
+The first two definitions introduce two examples of lines: one contains two words, the other contains none. The last two definitions show how to construct instances of LLS from these line examples. Determine what the expected result is when the function is given these two examples.
+</P>
+
+<P>
+Once you have data examples, it is easy to formulate functional examples; just imagine applying the function to each of the data examples. When you apply words-on-line to lls0, you should get the empty list back because there are no lines. When you apply words-on-line to lls1, you should get a list of two numbers back because there are two lines. The two numbers are 2 and 0, respectively, given that the two lines in lls1 contain two and no words each.
+</P>
+
+<P>
+Here is how you translate all this into test cases:
+</P>
+
+<FIGURE src="images/00228.png">
+
+</FIGURE>
+
+<P>
+By doing it at the end of the second step, you have a complete program, though running it just fails some of the test cases.
+</P>
+
+<P>
+The development of the template is the interesting step for this sample problem. By answering the template questions from figure 52, you get the usual list-processing template immediately:
+</P>
+
+<FIGURE src="images/00229.png">
+
+</FIGURE>
+
+<P>
+As in the preceding section, we know that the expression (first lls) extracts a List-of-strings, which has a complex organization, too. The temptation is to insert a nested template to express this knowledge, but as you should recall, the better idea is to develop a second auxiliary template and to change the first line in the second condition so that it refers to this auxiliary template.
+</P>
+
+<P>
+Since this auxiliary template is for a function that consumes a list, the template looks nearly identical to the previous one:
+</P>
+
+<FIGURE src="images/00230.png">
+
+</FIGURE>
+
+<P>
+The important differences are that (first ln) extracts a string from the list, and we consider strings as atomic values. With this template in hand, we can change the first line of the second case in words-on-line to
+</P>
+
+<CODE>
+… (line-processor (first lls)) …
+</CODE>
+
+<P>
+which reminds us for the fifth step that the definition for words-on-line may demand the design of an auxiliary function.
+</P>
+
+<P>
+Now it is time to program. As always, we use the questions from figure 53 to guide this step. The first case, concerning empty lists of lines, is the easy case. Our examples tell us that the answer in this case is '(), that is, the empty list of numbers. The second case, concerning cons, contains several expressions, and we start with a reminder of what they compute:
+</P>
+
+<P>
+•  (first lls) extracts the first line from the non-empty list of (represented) lines;
+</P>
+
+<P>
+•  (line-processor (first lls)) suggests that we may wish to design an auxiliary function to process this line;
+</P>
+
+<P>
+•  (rest lls) is the rest of the list of line; and
+</P>
+
+<P>
+•  (words-on-line (rest lls)) computes a list of words per line for the rest of the list. How do we know this? We promised just that with the signature and the purpose statement for words-on-line.
+</P>
+
+<P>
+Assuming we can design an auxiliary function that consumes a line and counts the words on one line—let’s call it words#—it is easy to complete the second condition:
+</P>
+
+<FIGURE src="images/00231.png">
+
+</FIGURE>
+
+<P>
+This expression conses the number of words on the first line of lls onto a list of numbers that represents the number of words on the remainder of the lines of lls.
+</P>
+
+<P>
+It remains to design the words# function. Its template is dubbed line-processor and its purpose is to count the number of words on a line, which is just a list of strings. So here is the wish-list entry:
+</P>
+
+<CODE>
+; List-of-strings -> Number ; counts the number of words on los (define (words# los) 0)
+</CODE>
+
+<P>
+At this point, you may recall the example used to illustrate the design recipe for self-referential data in chapter 9. The function is called how-many, and it too counts the number of strings on a list of strings. Even though the input for how-many is supposed to represent a list of names, this difference simply doesn’t matter; as long as it correctly counts the number of strings on a list of strings, how-many solves our problem.
+</P>
+
+<P>
+Since it is good to reuse existing functions, you may define words# as
+</P>
+
+<CODE>
+(define (words# los)   (how-many los))
+</CODE>
+
+<P>
+In reality, however, programming languages come with functions that solve such problems already. BSL calls this function length, and it counts the number of values on any list of values, no matter what the values are.
+</P>
+
+<MARGIN_NOTE>
+You may wish to look over the list of functions that come with BSL. Some may look obscure but may become useful in one of the upcoming problems. Using such functions saves your time, not ours.
+</MARGIN_NOTE>
+
+<P>
+Figure 68 summarizes the full design for our sample problem. The figure includes two test cases. Also, instead of using the separate function words#, the definition of words-on-line simply calls the length function that comes with BSL. Experiment with the definition in DrRacket and make sure that the two test cases cover the entire function definition.
+</P>
+
+<FIGURE src="images/00232.png">
+Figure 68: Counting the words on a line
+</FIGURE>
+
+<P>
+With one small step, you can now design your first file utility:
+</P>
+
+<CODE>
+; String -> List-of-numbers ; counts the words on each line in the given file (define (file-statistic file-name)   (words-on-line     (read-words/line file-name)))
+</CODE>
+
+<P>
+It merely composes a library function with words-on-line. The former reads a file as a List-of-list-of-strings and hands this value to the latter.
+</P>
+
+<P>
+This idea of composing a built-in function with a newly designed function is common. Naturally, people don’t design functions randomly and expect to find something in the chosen programming language to complement their design. Instead, program designers plan ahead and design the function to the output that available functions deliver. More generally still and as mentioned above, it is common to think about a solution as a composition of two computations and to develop an appropriate data collection with which to communicate the result of one computation to the second one, where each computation is implemented with a function.
+</P>
+
+<EXERCISE>
+Exercise 172. Design the function collapse, which converts a list of lines into a string. The strings should be separated by blank spaces (" "). The lines should be separated with a newline ("\n").
+</EXERCISE>
+
+<P>
+Challenge When you are finished, use the program like this:
+</P>
+
+<FIGURE src="images/00233.png">
+
+</FIGURE>
+
+<P>
+To make sure the two files "ttt.dat" and "ttt.txt" are identical, remove all extraneous white spaces in your version of the T.T.T. poem.
+</P>
+
+<EXERCISE>
+Exercise 173. Design a program that removes all articles from a text file. The program consumes the name n of a file, reads the file, removes the articles, and writes the result out to a file whose name is the result of concatenating "no-articles-" with n. For this exercise, an article is one of the following three words: "a", "an", and "the".
+</EXERCISE>
+
+<P>
+Use read-words/line so that the transformation retains the organization of the original text into lines and words. When the program is designed, run it on the Piet Hein poem.
+</P>
+
+<EXERCISE>
+Exercise 174. Design a program that encodes text files numerically. Each letter in a word should be encoded as a numeric three-letter string with a value between 0 and 256. Figure 69 shows our encoding function for single letters. Before you start, explain these functions.
+</EXERCISE>
+
+<FIGURE src="images/00234.png">
+Figure 69: Encoding strings
+</FIGURE>
+
+<P>
+Hints (1) Use read-words/line to preserve the organization of the file into lines and words. (2) Read up on explode again.
+</P>
+
+<EXERCISE>
+Exercise 175. Design a BSL program that simulates the Unix command wc. The purpose of the command is to count the number of 1Strings, words, and lines in a given file. That is, the command consumes the name of a file and produces a value that consists of three numbers.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 176. Mathematics teachers may have introduced you to matrix calculations by now. In principle, matrix just means rectangle of numbers. Here is one possible data representation for matrices:
+</EXERCISE>
+
+<CODE>
+; A Matrix is one of: ;  -- (cons Row '()) ;  -- (cons Row Matrix) ; constraint all rows in matrix are of the same length ; A Row is one of: ; -- '() ; -- (cons Number Row)
+</CODE>
+
+<P>
+Note the constraints on matrices. Study the data definition and translate the two-by-two matrix consisting of the numbers 11, 12, 21, and 22 into this data representation. Stop, don’t read on until you have figured out the data examples.
+</P>
+
+<P>
+Here is the solution for the five-second puzzle:
+</P>
+
+<CODE>
+(define row1 (cons 11 (cons 12 '()))) (define row2 (cons 21 (cons 22 '()))) (define mat1 (cons row1 (cons row2 '())))
+</CODE>
+
+<P>
+If you didn’t create it yourself, study it now.
+</P>
+
+<P>
+The function in figure 70 implements the important mathematical operation of transposing the entries in a matrix. To transpose means to mirror the entries along the diagonal, that is, the line from the top-left to the bottom-right.
+</P>
+
+<FIGURE src="images/00235.png">
+Figure 70: Transpose a matrix
+</FIGURE>
+
+<P>
+Stop! Transpose mat1 by hand, then read figure 70. Why does transpose ask (empty? (first lln))?
+</P>
+
+<P>
+The definition assumes two auxiliary functions:
+</P>
+
+<P>
+•  first*, which consumes a matrix and produces the first column as a list of numbers; and
+</P>
+
+<P>
+•  rest*, which consumes a matrix and removes the first column. The result is a matrix.
+</P>
+
+<P>
+Even though you lack definitions for these functions, you should be able to understand how transpose works. You should also understand that you cannot design this function with the design recipes you have seen so far. Explain why.
+</P>
+
+<P>
+Design the two wish-list functions. Then complete the design of transpose with some test cases.
+</P>
+
+<h2>
+10.4 A Graphical Editor, Revisited
+</h2>
+
+<P>
+Chapter 5.10 is about the design of an interactive graphical one-line editor. It suggests two different ways to represent the state of the editor and urges you to explore both: a structure that contains a pair of strings or a structure that combines a string with an index to a current position (see exercise 87).
+</P>
+
+<P>
+A third alternative is to use structures that combine two lists of 1Strings:
+</P>
+
+<CODE>
+(define-struct editor [pre post]) ; An Editor is a structure: ;   (make-editor Lo1S Lo1S) ; An Lo1S is one of: ; -- '() ; -- (cons 1String Lo1S)
+</CODE>
+
+<P>
+Before you wonder why, let’s make up two data examples:
+</P>
+
+<CODE>
+(define good   (cons "g" (cons "o" (cons "o" (cons "d" '()))))) (define all   (cons "a" (cons "l" (cons "l" '())))) (define lla   (cons "l" (cons "l" (cons "a" '())))) ; data example 1: (make-editor all good) ; data example 2: (make-editor lla good)
+</CODE>
+
+<P>
+The two examples demonstrate how important it is to write down an interpretation. While the two fields of an editor clearly represent the letters to the left and right of the cursor, the two examples demonstrate that there are at least two ways to interpret the structure types:
+</P>
+
+<P>
+1. (make-editor pre post) could mean the letters in pre precede the cursor and those in post succeed it and that the combined text is
+</P>
+
+<CODE>
+(string-append (implode pre) (implode post))
+</CODE>
+
+<P>
+Recall that implode turns a list of 1Strings into a String.
+</P>
+
+<P>
+2. (make-editor pre post) could equally well mean that the letters in pre precede the cursor in reverse order. If so, we obtain the text in the displayed editor like this:
+</P>
+
+<FIGURE src="images/00236.png">
+
+</FIGURE>
+
+<P>
+The function rev must consume a list of 1Strings and reverse it.
+</P>
+
+<P>
+Even without a complete definition for rev, you can imagine how it works. Use this understanding to make sure you understand that translating the first data example into information according to the first interpretation and treating the second data example according to the second interpretation yields the same editor display:
+</P>
+
+<FIGURE src="images/00237.png">
+
+</FIGURE>
+
+<P>
+Both interpretations are fine choices, but it turns out that using the second one greatly simplifies the design of the program. The rest of this section demonstrates this point, illustrating the use of lists inside of structures at the same time. To appreciate the lesson properly, you should have solved the exercises in chapter 5.10.
+</P>
+
+<P>
+Let’s start with rev because we clearly need this function to make sense out of the data definition. Its header material is straightforward:
+</P>
+
+<CODE>
+; Lo1s -> Lo1s ; produces a reverse version of the given list (check-expect   (rev (cons "a" (cons "b" (cons "c" '()))))   (cons "c" (cons "b" (cons "a" '())))) (define (rev l) l)
+</CODE>
+
+<P>
+For good measure, we have added one “obvious” example as a test case. You may want to add some extra examples just to make sure you understand what is needed.
+</P>
+
+<P>
+The template for rev is the usual list template:
+</P>
+
+<FIGURE src="images/00238.png">
+
+</FIGURE>
+
+<P>
+There are two cases, and the second case comes with several selector expressions and a self-referential one.
+</P>
+
+<P>
+Filling in the template is easy for the first clause: the reverse version of the empty list is the empty list. For the second clause, we once again use the coding questions:
+</P>
+
+<P>
+•  (first l) is the first item on the list of 1Strings;
+</P>
+
+<P>
+•  (rest l) is the rest of the list; and
+</P>
+
+<P>
+•  (rev (rest l)) is the reverse of the rest of the list.
+</P>
+
+<P>
+Stop! Try to finish the design of rev with these hints.
+</P>
+
+<P>
+If these hints leave you stuck, remember to create a table from the examples. Figure 71 shows the table for two examples: (cons "a" '()) and (cons "a" (cons "b" (cons "c" '()))). The second example is particularly illustrative. A look at the next to last column shows that (rev (rest l)) accomplishes most of the work by producing (cons "c" (cons "b" '())). Since the desired result is (cons "c" (cons "b" (cons "a" '()))), rev must somehow add "a" to the end of the result of the recursion. Indeed, because (rev (rest l)) is always the reverse of the rest of the list, it clearly suffices to add (first l) to its end. While we don’t have a function that adds items to the end of a list, we can wish for it and use it to complete the function definition:
+</P>
+
+<CODE>
+(define (rev l)   (cond     [(empty? l) '()]     [else (add-at-end (rev (rest l)) (first l))]))
+</CODE>
+
+<FIGURE src="images/00239.png">
+Figure 71: Tabulating for rev
+</FIGURE>
+
+<P>
+Here is the extended wish-list entry for add-at-end:
+</P>
+
+<FIGURE src="images/00240.png">
+
+</FIGURE>
+
+<P>
+It is “extended” because it comes with an example formulated as a test case. The example is derived from the example for rev, and indeed, it is precisely the example that motivates the wish-list entry. Make up an example where add-at-end consumes an empty list before you read on.
+</P>
+
+<P>
+Since add-at-end is also a list-processing function, the template is just a renaming of the one you know so well now:
+</P>
+
+<FIGURE src="images/00241.png">
+
+</FIGURE>
+
+<P>
+To complete it into a function definition, we proceed according to the recipe questions for step 5. Our first question is to formulate an answer for the “basic” case, that is, the first case here. If you worked through the suggested exercise, you know that the result of
+</P>
+
+<CODE>
+(add-at-end '() s)
+</CODE>
+
+<P>
+is always (cons s '()). After all, the result must be a list and the list must contain the given 1String.
+</P>
+
+<P>
+The next two questions concern the “complex” or “self-referential” case. We know what the expressions in the second cond line compute: the first expression extracts the first 1String from the given list and the second expression “creates a new list by adding s to the end of (rest l).” That is, the purpose statement dictates what the function must produce here. From here, it is clear that the function must add (first l) back to the result of the recursion:
+</P>
+
+<FIGURE src="images/00242.png">
+
+</FIGURE>
+
+<P>
+Run the tests-as-examples to reassure yourself that this function works and that therefore rev works, too. Of course, you shouldn’t be surprised to find out that BSL already provides a function that reverses any given list, including lists of 1Strings. And naturally, it is called reverse.
+</P>
+
+<EXERCISE>
+Exercise 177. Design the function create-editor. The function consumes two strings and produces an Editor. The first string is the text to the left of the cursor and the second string is the text to the right of the cursor. The rest of the section relies on this function.
+</EXERCISE>
+
+<P>
+At this point, you should have a complete understanding of our data representation for the graphical one-line editor. Following the design strategy for interactive programs from chapter 3.6, you should define physical constants—the width and height of the editor, for example—and graphical constants—for example, the cursor. Here are ours:
+</P>
+
+<CODE>
+(define HEIGHT 20) ; the height of the editor (define WIDTH 200) ; its width (define FONT-SIZE 16) ; the font size (define FONT-COLOR "black") ; the font color (define MT (empty-scene WIDTH HEIGHT)) (define CURSOR (rectangle 1 HEIGHT "solid" "red"))
+</CODE>
+
+<P>
+The important point, however, is to write down the wish list for your event handler(s) and your function that draws the state of the editor. Recall that the 2htdp/universe library dictates the header material for these functions:
+</P>
+
+<CODE>
+; Editor -> Image ; renders an editor as an image of the two texts ; separated by the cursor (define (editor-render e) MT) ; Editor KeyEvent -> Editor ; deals with a key event, given some editor (define (editor-kh ed ke) ed)(index "editor-kh")
+</CODE>
+
+<P>
+In addition, chapter 3.6 demands that you write down a main function for your program:
+</P>
+
+<CODE>
+; main : String -> Editor ; launches the editor given some initial string (define (main s)    (big-bang (create-editor s "")      [on-key editor-kh]      [to-draw editor-render]))
+</CODE>
+
+<P>
+Reread exercise 177 to determine the initial editor for this program.
+</P>
+
+<P>
+While it does not matter which wish you tackle next, we choose to design editor-kh first and editor-render second. Since we have the header material, let’s explain the functioning of the key-event handler with two examples:
+</P>
+
+<FIGURE src="images/00243.png">
+
+</FIGURE>
+
+<P>
+Both of these examples demonstrate what happens when you press the letter “e” on your keyboard. The computer runs the function editor-kh on the current state of the editor and "e". In the first example, the editor is empty, which means that the result is an editor with just the letter "e" in it followed by the cursor. In the second example, the cursor is between the strings "cd" and "fgh", and therefore the result is an editor with the cursor between "cde" and "fgh". In short, the function always inserts any normal letter at the cursor position.
+</P>
+
+<P>
+Before you read on, you should make up examples that illustrate how editor-kh works when you press the backspace ("\b") key to delete some letter, the "left" and "right" arrow keys to move the cursor, or some other arrow keys. In all cases, consider what should happen when the editor is empty, when the cursor is at the left end or right end of the non-empty string in the editor, and when it is in the middle. Even though you are not working with intervals here, it is still a good idea to develop examples for the “extreme” cases.
+</P>
+
+<P>
+Once you have test cases, it is time to develop the template. In the case of editor-kh you are working with a function that consumes two complex forms of data: one is a structure containing lists, the other one is a large enumeration of strings. Generally speaking, this design case calls for an improved design recipe; but in cases like these, it is also clear that you should deal with one of the inputs first, namely, the keystroke.
+</P>
+
+<P>
+Having said that, the template is just a large cond expression for checking which KeyEvent the function received:
+</P>
+
+<FIGURE src="images/00244.png">
+
+</FIGURE>
+
+<P>
+The cond expression doesn’t quite match the data definition for KeyEvent because some KeyEvents need special attention ("left", "\b", and so on), some need to be ignored because they are special ("\t" and "\r"), and some should be classified into one large group (ordinary keys).
+</P>
+
+<EXERCISE>
+Exercise 178. Explain why the template for editor-kh deals with "\t" and "\r" before it checks for strings of length 1.
+</EXERCISE>
+
+<P>
+For the fifth step—the definition of the function—we tackle each clause in the conditional separately. The first clause demands a result that moves the cursor and leaves the string content of the editor alone. So does the second clause. The third clause, however, demands the deletion of a letter from the editor’s content—if there is a letter. Last, the sixth cond clause concerns the addition of letters at the cursor position. Following the first basic guideline, we make extensive use of a wish-list and imagine one function per task:
+</P>
+
+<FIGURE src="images/00245.png">
+
+</FIGURE>
+
+<P>
+As you can tell from the definition of editor-kh, three of the four wish-list functions have the same signature:
+</P>
+
+<CODE>
+; Editor -> Editor
+</CODE>
+
+<P>
+The last one takes two arguments instead of one:
+</P>
+
+<CODE>
+; Editor 1String -> Editor
+</CODE>
+
+<P>
+We leave the proper formulation of wishes for the first three functions to you and focus on the fourth one.
+</P>
+
+<P>
+Let’s start with a purpose statement and a function header:
+</P>
+
+<CODE>
+; insert the 1String k between pre and post (define (editor-ins ed k)   ed)
+</CODE>
+
+<P>
+The purpose is straight out of the problem statement. For the construction of a function header, we need an instance of Editor. Since pre and post are the pieces of the current one, we just put them back together.
+</P>
+
+<P>
+Next we derive examples for editor-ins from those for editor-kh:
+</P>
+
+<FIGURE src="images/00246.png">
+
+</FIGURE>
+
+<P>
+You should work through these examples using the interpretation of Editor. That is, make sure you understand what the given editor means in terms of information and what the function call is supposed to achieve in those terms. In this particular case, it is best to draw the visual representation of the editor because it represents the information well.
+</P>
+
+<P>
+The fourth step demands the development of the template. The first argument is guaranteed to be a structure, and the second one is a string, an atomic piece of data. In other words, the template just pulls out the pieces from the given editor representation:
+</P>
+
+<CODE>
+(define (editor-ins ed k)   (… ed … k …    … (editor-pre ed) …    … (editor-post ed) …))
+</CODE>
+
+<P>
+Remember a template lists parameters because they are available, too.
+</P>
+
+<P>
+From the template and the examples, it is relatively easy to conclude that editor-ins is supposed to create an editor from the given editor’s pre and post fields with k added to the front of the former:
+</P>
+
+<FIGURE src="images/00247.png">
+
+</FIGURE>
+
+<P>
+Even though both (editor-pre ed) and (editor-post ed) are lists of 1Strings, there is no need to design auxiliary functions. To get the desired result, it suffices to use cons, which creates lists.
+</P>
+
+<P>
+At this point, you should do two things. First, run the tests for this function. Second, use the interpretation of Editor and explain abstractly why this function performs the insertion. And as if this isn’t enough, you may wish to compare this simple definition with the one from exercise 84 and figure out why the other one needs an auxiliary function while our definition here doesn’t.
+</P>
+
+<EXERCISE>
+Exercise 179. Design the functions
+</EXERCISE>
+
+<CODE>
+; Editor -> Editor ; moves the cursor position one 1String left, ; if possible (define (editor-lft ed) ed) ; Editor -> Editor ; moves the cursor position one 1String right, ; if possible (define (editor-rgt ed) ed) ; Editor -> Editor ; deletes a 1String to the left of the cursor, ; if possible (define (editor-del ed) ed)
+</CODE>
+
+<P>
+Again, it is critical that you work through a good range of examples.
+</P>
+
+<P>
+Designing the rendering function for Editors poses some new but small challenges. The first one is to develop a sufficiently large number of test cases. On the one hand, it demands coverage of the possible combinations: an empty string to the left of the cursor, an empty one on the right, and both strings empty. On the other hand, it also requires some experimenting with the functions that the image library provides. Specifically, it needs a way to compose the two pieces of strings rendered as text images, and it needs a way of placing the text image into the empty image frame (MT). Here is what we do to create an image for the result of (create-editor "pre" "post"):
+</P>
+
+<FIGURE src="images/00248.png">
+
+</FIGURE>
+
+<P>
+If you compare this with the editor image above, you notice some differences, which is fine because the exact layout isn’t essential to the purpose of this exercise, and because the revised layout doesn’t trivialize the problem. In any case, do experiment in the interactions area of DrRacket to find your favorite editor display.
+</P>
+
+<P>
+You are now ready to develop the template, and you should come up with this much:
+</P>
+
+<CODE>
+(define (editor-render e)   (… (editor-pre e) … (editor-post e)))
+</CODE>
+
+<P>
+The given argument is just a structure type with two fields. Their values, however, are lists of 1Strings, and you might be tempted to refine the template even more. Don’t! Instead, keep in mind that when one data definition refers to another complex data definition, you are better off using the wish list.
+</P>
+
+<P>
+If you have worked through a sufficient number of examples, you also know what you want on your wish list: one function that turns a string into a text of the right size and color. Let’s call this function editor-text. Then the definition of editor-render just uses editor-text twice and then composes the result with beside and place-image:
+</P>
+
+<FIGURE src="images/00249.png">
+
+</FIGURE>
+
+<P>
+Although this definition nests expressions three levels deep, the use of the imaginary editor-text function renders it quite readable.
+</P>
+
+<P>
+What remains is to design editor-text. From the design of editor-render, we know that editor-text consumes a list of 1Strings and produces a text image:
+</P>
+
+<CODE>
+; Lo1s -> Image ; renders a list of 1Strings as a text image (define (editor-text s)   (text "" FONT-SIZE FONT-COLOR))
+</CODE>
+
+<P>
+This dummy definition produces an empty text image.
+</P>
+
+<P>
+To demonstrate what editor-text is supposed to compute, we work through an example. The example input is
+</P>
+
+<CODE>
+(create-editor "pre" "post")
+</CODE>
+
+<P>
+which was also used to explain editor-render and is equivalent to
+</P>
+
+<CODE>
+(make-editor   (cons "e" (cons "r" (cons "p" '())))   (cons "p" (cons "o" (cons "s" (cons "t" '())))))
+</CODE>
+
+<P>
+We pick the second list as our sample input for editor-text, and we know the expected result from the example for editor-render:
+</P>
+
+<CODE>
+(check-expect   (editor-text    (cons "p" (cons "o" (cons "s" (cons "t" '())))))   (text "post" FONT-SIZE FONT-COLOR))
+</CODE>
+
+<P>
+You may wish to make up a second example before reading on.
+</P>
+
+<P>
+Given that editor-text consumes a list of 1Strings, we can write down the template without much ado:
+</P>
+
+<FIGURE src="images/00250.png">
+
+</FIGURE>
+
+<P>
+After all, the template is dictated by the data definition that describes the function input. But you don’t need the template if you understand and keep in mind the interpretation for Editor. It uses explode to turn a string into a list of 1Strings. Naturally, there is a function implode that performs the inverse computation, that is,
+</P>
+
+<CODE>
+> (implode    (cons "p" (cons "o" (cons "s" (cons "t" '()))))) "post"
+</CODE>
+
+<P>
+Using this function, the definition of editor-text is just a small step from the example to the function body:
+</P>
+
+<CODE>
+(define (editor-text s)   (text (implode s) FONT-SIZE FONT-COLOR))
+</CODE>
+
+<EXERCISE>
+Exercise 180. Design editor-text without using implode.
+</EXERCISE>
+
+<P>
+The true surprise comes when you test the two functions. While our test for editor-text succeeds, the test for editor-render fails. An inspection of the failure shows that the string to the left of the cursor—"pre"—is typeset backward. We forgot that this part of the editor’s state is represented in reverse. Fortunately, the unit tests for the two functions pinpoint which function is wrong and even tell us what is wrong with the function and suggest how to fix the problem:
+</P>
+
+<FIGURE src="images/00251.png">
+
+</FIGURE>
+
+<P>
+This definition uses the reverse function on the pre field of ed.
+</P>
+
+<P>
+Note Modern applications allow users to position the cursor with the mouse (or other gesture-based devices). While it is in principle possible to add this capability to your editor, we wait with doing so until chapter 32.4.
+</P>
+
+<h1>
+11 Design by Composition
+</h1>
+
+<P>
+By now you know that programs are complex products and that their production requires the design of many collaborating functions. This collaboration works well if the designer knows when to design several functions and how to compose these functions into one program.
+</P>
+
+<P>
+You have encountered this need to design interrelated functions several times. Sometimes a problem statement implies several different tasks, and each task is best realized with a function. At other times, a data definition may refer to another one, and in that case, a function processing the former kind of data relies on a function processing the latter.
+</P>
+
+<P>
+In this chapter, we present several scenarios that call for the design of programs that compose many functions. To support this kind of design, the chapter presents some informal guidelines on divvying up functions and composing them. Since these examples demand complex forms of lists, however, this chapter starts with a section on concise list notation.
+</P>
+
+<h2>
+11.1 The list Function
+</h2>
+
+<P>
+At this point, you should have tired of writing so many conses just to create a list, especially for lists that contain a bunch of values. Fortunately, we have an additional teaching language for you that provides mechanisms for simplifying this part of a programmer’s life. BSL+ does so, too.
+</P>
+
+<MARGIN_NOTE>
+You have graduated from BSL. It is time to use the “Language” menu and to select “Beginning Student with List Abbreviations” for your studies.
+</MARGIN_NOTE>
+
+<P>
+The key innovation is list, which consumes an arbitrary number of values and creates a list. The simplest way to understand list is to think of it as an abbreviation. Specifically, every expression of the shape
+</P>
+
+<CODE>
+(list exp-1 … exp-n)
+</CODE>
+
+<P>
+stands for a series of n cons expressions:
+</P>
+
+<CODE>
+(cons exp-1 (cons … (cons exp-n '())))
+</CODE>
+
+<P>
+Keep in mind that '() is not an item of the list here, but actually the rest of the list. Here is a table with three examples:
+</P>
+
+<FIGURE src="images/00252.png">
+
+</FIGURE>
+
+<P>
+They introduce lists with one, two, and three items, respectively.
+</P>
+
+<P>
+Of course, we can apply list not only to values but also to expressions:
+</P>
+
+<CODE>
+> (list (+ 0 1) (+ 1 1)) (list 1 2) > (list (/ 1 0) (+ 1 1)) /:division by zero
+</CODE>
+
+<P>
+Before the list is constructed, the expressions must be evaluated. If during the evaluation of an expression an error occurs, the list is never formed. In short, list behaves just like any other primitive operation that consumes an arbitrary number of arguments; its result just happens to be a list constructed with conses.
+</P>
+
+<P>
+The use of list greatly simplifies the notation for lists with many items and lists that contain lists or structures. Here is an example:
+</P>
+
+<CODE>
+(list 0 1 2 3 4 5 6 7 8 9)
+</CODE>
+
+<P>
+This list contains 10 items and its formation with cons would require 10 uses of cons and one instance of '(). Similarly, the list
+</P>
+
+<FIGURE src="images/00253.png">
+
+</FIGURE>
+
+<P>
+requires 11 uses of list, which sharply contrasts with 40 cons and 11 additional uses of '().
+</P>
+
+<EXERCISE>
+Exercise 181. Use list to construct the equivalent of these lists:
+</EXERCISE>
+
+<P>
+1. (cons "a" (cons "b" (cons "c" (cons "d" '()))))
+</P>
+
+<P>
+2. (cons (cons 1 (cons 2 '())) '())
+</P>
+
+<P>
+3. (cons "a" (cons (cons 1 '()) (cons #false '())))
+</P>
+
+<P>
+4. (cons (cons "a" (cons 2 '())) (cons "hello" '()))
+</P>
+
+<P>
+Also try your hand at this one:
+</P>
+
+<FIGURE src="images/00254.png">
+
+</FIGURE>
+
+<P>
+Start by determining how many items each list and each nested list contains. Use check-expect to express your answers; this ensures that your abbreviations are really the same as the long-hand.
+</P>
+
+<EXERCISE>
+Exercise 182. Use cons and '() to form the equivalent of these lists:
+</EXERCISE>
+
+<P>
+1. (list 0 1 2 3 4 5)
+</P>
+
+<P>
+2. (list (list "he" 0) (list "it" 1) (list "lui" 14))
+</P>
+
+<P>
+3. (list 1 (list 1 2) (list 1 2 3))
+</P>
+
+<P>
+Use check-expect to express your answers.
+</P>
+
+<EXERCISE>
+Exercise 183. On some occasions lists are formed with cons and list.
+</EXERCISE>
+
+<P>
+1. (cons "a" (list 0 #false))
+</P>
+
+<P>
+2. (list (cons 1 (cons 13 '())))
+</P>
+
+<P>
+3. (cons (list 1 (list 13 '())) '())
+</P>
+
+<P>
+4. (list '() '() (cons 1 '()))
+</P>
+
+<P>
+5. (cons "a" (cons (list 1) (list #false '())))
+</P>
+
+<P>
+Reformulate each of the following expressions using only cons or only list. Use check-expect to check your answers.
+</P>
+
+<EXERCISE>
+Exercise 184. Determine the values of the following expressions:
+</EXERCISE>
+
+<P>
+1. (list (string=? "a" "b") #false)
+</P>
+
+<P>
+2. (list (+ 10 20) (* 10 20) (/ 10 20))
+</P>
+
+<P>
+3. (list "dana" "jane" "mary" "laura")
+</P>
+
+<P>
+Use check-expect to express your answers.
+</P>
+
+<EXERCISE>
+Exercise 185. You know about first and rest from BSL, but BSL+ comes with even more selectors than that. Determine the values of the following expressions:
+</EXERCISE>
+
+<P>
+1. (first (list 1 2 3))
+</P>
+
+<P>
+2. (rest (list 1 2 3))
+</P>
+
+<P>
+3. (second (list 1 2 3))
+</P>
+
+<P>
+Find out from the documentation whether third and fourth exist.
+</P>

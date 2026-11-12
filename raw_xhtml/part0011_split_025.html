@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_26"><a id="sec23-2" class="calibre16"></a>23.2 Processing Two Lists Simultaneously: Case 2</h2>
+<p class="tni">Chapter 10.1 presents the function <samp class="mono">wages*</samp>, which computes the weekly wages of some workers given their work hours. It consumes a list of numbers, which represents the hours worked per week, and produces a list of numbers, which are the corresponding weekly wages. While the problem assumes that all employees received the same pay rate, even a small company pays its workers differentiated wages.</p>
+<p class="calibre8">Here we look at a slightly more realistic version. The function now consumes <b class="calibre9">two</b> lists: the list of hours worked and the list of corresponding hourly wages. We translate this revised problem into a revised header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] [</samp>List-of Number<samp class="mono">] -&gt;</samp> <samp class="mono">[</samp>List-of Number<samp class="mono">] <br class="calibre4"/>;</samp><samp class="mono"> multiplies the</samp><samp class="mono"> corresponding items</samp><samp class="mono"> on</samp><br class="calibre4"/> <samp class="mono">; hours</samp><samp class="mono"> and wages/h <br class="calibre4"/>;</samp><span class="calibre9">  assume</span><samp class="mono"> the two</samp><samp class="mono"> lists are</samp><samp class="mono"> of equal</samp> <samp class="mono">length <br class="calibre4"/>(define</samp><samp class="mono"> (wages*.v2 hours</samp><samp class="mono"> wages/h)</samp> <br class="calibre4"/><samp class="mono">  '())</samp></p>
+</div>
+<p class="tni">Making up examples is straightforward:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_560" title="560"></span><img src="../images/00522.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As required, all three examples use lists of equal length.</p>
+<p class="calibre8">The assumption concerning the inputs can also be exploited for the development of the template. More concretely, the condition says that <samp class="mono">(empty? hours)</samp> is true when <samp class="mono">(empty? wages/h)</samp> is true, and furthermore, <samp class="mono">(cons? hours)</samp> is true when <samp class="mono">(cons? wages/h)</samp> is true. It is thus acceptable to use a template for one of the two lists:</p>
+<figure class="co"><img src="../images/00523.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In the first <samp class="mono">cond</samp> clause, both <samp class="mono">hours</samp> and <samp class="mono">wages/h</samp> are <samp class="mono">'()</samp>. Hence no selector expressions are needed. In the second clause, both <samp class="mono">hours</samp> and <samp class="mono">wages/h</samp> are <samp class="mono">constructed</samp> lists, which means we need four selector expressions. Finally, because the last two are lists of equal length, they make up a natural candidate for the natural recursion of <samp class="mono">wages*.v2</samp>.</p>
+<p class="calibre8">The only unusual aspect of this template is that the recursive application consists of two expressions, both selector expressions for the two arguments. But, this idea directly follows from the assumption.</p>
+<p class="calibre8">From here, it is a short step to a complete function definition:</p>
+<figure class="co"><img src="../images/00524.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first example implies that the answer for the first <samp class="mono">cond</samp> clause is <samp class="mono">'()</samp>. In the second one, we have three values available:</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_561" title="561"></span>1. <samp class="mono">(first hours)</samp>, which represents the first number of weekly hours;</p>
+<p class="nlf">2. <samp class="mono">(first wages/h)</samp>, which is the first pay rate; and</p>
+<p class="nll">3. <samp class="mono">(wages*.v2 (rest hours) (rest wages/h))</samp>, which, according to the purpose statement, computes the list of weekly wages for the remainders of the two lists.</p>
+<p class="tni">Now we just need to combine these values to get the final answer. As suggested by the examples, we must compute the weekly wage for the first employee and <samp class="mono">construct</samp> a list from that wage and the rest of the wages:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons (weekly-wage</samp><samp class="mono"> (first hours)</samp><samp class="mono"> (first wages/h))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (wages*.v2</samp><samp class="mono"> (rest hours)</samp><samp class="mono"> (rest wages/h)))</samp></p>
+</div>
+<p class="tni">The auxiliary function <samp class="mono">weekly-wage</samp> uses the number of hours worked and the pay rate to compute the weekly wage for one worker:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number Number<samp class="mono"> -&gt; </samp>Number<samp class="mono"> <br class="calibre4"/>; computes</samp><samp class="mono"> the weekly</samp> <samp class="mono">wage from</samp><samp class="mono"> pay-rate and</samp><samp class="mono"> hours <br class="calibre4"/>(define</samp><samp class="mono"> (weekly-wage pay-rate</samp><samp class="mono"> hours)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> pay-rate hours))</samp></p>
+</div>
+<p class="tni">Stop! Which function do you need to use if you wish to compute the wages for one worker? Which function do you need to change if you wish to deal with income taxes?</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 388. In the real world, <samp class="mono">wages*.v2</samp> consumes lists of employee structures and lists of work records. An employee structure contains an employee’s name, social security number, and pay rate. A work record also contains an employee’s name and the number of hours worked in a week. The result is a list of structures that contain the name of the employee and the weekly wage.</p>
+<p class="calibre8">Modify the program in this section so that it works on these realistic versions of data. Provide the necessary structure type definitions and data definitions. Use the design recipe to guide the modification process. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 389. Design the <samp class="mono">zip</samp> function, which consumes a list of names, represented as strings, and a list of phone numbers, also strings. It combines those equally long lists into a list of phone records:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct phone-record</samp><samp class="mono"> [name number])</samp><samp class="mono"> <br class="calibre4"/>; A</samp> <span class="calibre6">PhoneRecord</span><samp class="mono"> is a</samp><samp class="mono"> structure: <br class="calibre4"/>;</samp><samp class="mono">  </samp><samp class="mono"> (make-phone-record</samp> String String<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Assume that the corresponding list items belong to the same person. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

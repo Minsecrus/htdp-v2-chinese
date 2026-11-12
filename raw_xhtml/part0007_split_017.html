@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_18"><a id="sec10-3" class="calibre16"></a>10.3 Lists in Lists, Files</h2>
+<p class="tni">Chapter 2 introduces <samp class="mono">read-file</samp>, a function for reading an entire text file as a string. In other words, the creator of <samp class="mono">read-file</samp> chose to represent text files as strings, and the function creates the data representation for specific files (specified by a name). Text files aren’t plain long texts or strings, however. They are organized into lines and words, rows and cells, and many other ways. In short, representing the content of a file as a plain string might work on rare occasions but is usually a bad choice.</p>
+
+
+<p class="marginpar">Add <samp class="monospace-margin">(require 2htdp/batch-io)</samp> to your definitions area.</p>
+
+<p class="calibre8">For concreteness, take a look at the sample file in <a id="rfig66" href="part0007_split_017.html#fig66" class="calibre5">figure 66</a>. It contains a poem by Piet Hein, and it consists of many lines and words. When you use the program</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(read-file "ttt.txt")</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig66" class="calibre5"></a><img src="../images/00223.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_017.html#rfig66" class="calibre5">Figure 66</a>:</span> <span>Things take time</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">to turn this file into a BSL string, you get this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">"TTT \n</samp><samp class="mono"> \n Put</samp><samp class="mono"> up in</samp><samp class="mono"> a place\nwhere</samp><samp class="mono"> ...."</samp></p>
+</div>
+<p class="tni">where the <samp class="mono">"\n"</samp> inside the string indicates line breaks.</p>
+<p class="marginpar">The dots aren’t really a part of the result, as you probably guessed.</p>
+<p class="calibre8">While it is indeed possible to break apart this string with primitive operations on strings, for example, <samp class="mono">explode</samp>, most programming languages—including BSL—support many different representations of files and functions that create such representations from existing files:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_292" title="292"></span>•  One way to represent this file is as a list of lines, where each line is represented as one string:</p>
+<figure class="co"><img src="../images/00224.gif" alt="" class="calibre10"/></figure>
+<p class="bl-tni">Here the second item of the list is the empty string because the file contains an empty line.</p>
+<p class="blf">•  Another way is to use a list of words, again each word represented as a string:</p>
+<figure class="co"><img src="../images/00225.gif" alt="" class="calibre10"/></figure>
+<p class="bl-tni"><span epub:type="pagebreak" id="pg_293" title="293"></span>Note how the empty second line disappears with this representation. After all, there are no words on the empty line.</p>
+<p class="blf">•  And a third representation relies on lists of lists of words:</p>
+<figure class="co"><img src="../images/00226.gif" alt="" class="calibre10"/></figure>
+<p class="bl-tni">This representation has an advantage over the second one in that it preserves the organization of the file, including the emptiness of the second line. The price is that all of a sudden lists contain lists.</p>
+<p class="stni">While the idea of list-containing lists may sound frightening at first, you need not worry. The design recipe helps even with such complications.</p>
+<p class="calibre8">Before we get started, take a look at <a id="rfig67" href="part0007_split_017.html#fig67" class="calibre5">figure 67</a>. It introduces a number of useful file reading functions. They are not comprehensive: there are many other ways of dealing with text from files, and you will need to know a lot more to deal with all possible text files. For our purposes here—teaching and learning the principles of systematic program design—they suffice, and they empower you to design reasonably interesting programs.</p>
+<div class="figure">
+<figure class="img"><a id="fig67" class="calibre5"></a><img src="../images/00227.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_017.html#rfig67" class="calibre5">Figure 67</a>:</span> <span>Reading files</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><a href="part0007_split_017.html#fig67" class="calibre5">Figure 67</a> uses the names of two data definitions that do not exist yet, including one involving list-containing lists. As always, we start with a data definition, but this time we leave this task to you. Hence, before you read on, solve the following exercises. The solutions are needed to make complete sense out of the figure, and without working through the solutions, you cannot really understand the rest of this section.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 171. You know what the data definition for List-of-strings looks like. Spell it out. Make sure that you can represent Piet Hein’s poem as an instance of the definition where each line is represented as a string and another instance where each word is a string. Use <samp class="mono">read-lines</samp> and <samp class="mono">read-words</samp> to confirm your representation choices.</p>
+<p class="calibre8">Next develop the data definition for <i class="calibre6">List-of-list-of-strings</i>. Again, represent Piet Hein’s poem as an instance of the definition where each line is represented as a list of strings, one per word, and the entire poem is a list of such line representations. You may use <samp class="mono">read-words/line</samp> to confirm your choice. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_294" title="294"></span>As you probably know, operating systems come with programs that measure files. One counts the number of lines, another determines how many words appear per line. Let us start with the latter to illustrate how the design recipe helps with the design of complex functions.</p>
+<p class="calibre8">The first step is to ensure that we have all the necessary data definitions. If you solved the above exercise, you have a data definition for all possible inputs of the desired function, and the preceding section defines List-of-numbers, which describes all possible inputs. To keep things short, we use LLS to refer to the class of lists of lists of strings, and use it to write down the header material for the desired function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>LLS<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> the number</samp><samp class="mono"> of words</samp><samp class="mono"> on each</samp><samp class="mono"> line</samp> <br class="calibre4"/><samp class="mono">(define (words-on-line</samp><samp class="mono"> lls) '())</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_295" title="295"></span>We name the functions <samp class="mono">words-on-line</samp> because it is appropriate and captures the purpose statement in one phrase.</p>
+<p class="calibre8">What is really needed, though, is a set of <b class="calibre9">data examples</b>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define line0</samp><samp class="mono"> (cons "hello"</samp><samp class="mono"> (cons "world"</samp><samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">(define line1</samp><samp class="mono"> '())</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define lls0</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">(define lls1</samp><samp class="mono"> (cons line0</samp><samp class="mono"> (cons line1</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">The first two definitions introduce two examples of lines: one contains two words, the other contains none. The last two definitions show how to construct instances of LLS from these line examples. Determine what the expected result is when the function is given these two examples.</p>
+<p class="calibre8">Once you have data examples, it is easy to formulate functional examples; just imagine applying the function to each of the data examples. When you apply <samp class="mono">words-on-line</samp> to <samp class="mono">lls0</samp>, you should get the empty list back because there are no lines. When you apply <samp class="mono">words-on-line</samp> to <samp class="mono">lls1</samp>, you should get a list of two numbers back because there are two lines. The two numbers are <samp class="mono">2</samp> and <samp class="mono">0</samp>, respectively, given that the two lines in <samp class="mono">lls1</samp> contain two and no words each.</p>
+<p class="calibre8">Here is how you translate all this into test cases:</p>
+<figure class="co"><img src="../images/00228.gif" alt="" class="calibre10"/></figure>
+<p class="tni">By doing it at the end of the second step, you have a complete program, though running it just fails some of the test cases.</p>
+<p class="calibre8">The development of the template is the interesting step for this sample problem. By answering the template questions from <a href="part0007_split_007.html#fig52" class="calibre5">figure 52</a>, you get the usual list-processing template immediately:</p>
+<figure class="co"><img src="../images/00229.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As in the preceding section, we know that the expression <samp class="mono">(first lls)</samp> extracts a List-of-strings, which has a complex organization, too. The temptation is to insert a nested template to express this knowledge, but as you <span epub:type="pagebreak" id="pg_296" title="296"></span>should recall, the better idea is to develop a second auxiliary template and to change the first line in the second condition so that it refers to this auxiliary template.</p>
+<p class="calibre8">Since this auxiliary template is for a function that consumes a list, the template looks nearly identical to the previous one:</p>
+<figure class="co"><img src="../images/00230.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The important differences are that <samp class="mono">(first ln)</samp> extracts a string from the list, and we consider strings as atomic values. With this template in hand, we can change the first line of the second case in <samp class="mono">words-on-line</samp> to</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span>…</span> (line-processor</samp><samp class="mono"> (first lls))</samp><samp class="mono"> <span>…</span></samp></p>
+</div>
+<p class="tni">which reminds us for the fifth step that the definition for <samp class="mono">words-on-line</samp> may demand the design of an auxiliary function.</p>
+<p class="calibre8">Now it is time to program. As always, we use the questions from <a href="part0007_split_007.html#fig53" class="calibre5">figure 53</a> to guide this step. The first case, concerning empty lists of lines, is the easy case. Our examples tell us that the answer in this case is <samp class="mono">'()</samp>, that is, the empty list of numbers. The second case, concerning <samp class="mono">cons</samp>, contains several expressions, and we start with a reminder of what they compute:</p>
+<p class="blf">•  <samp class="mono">(first lls)</samp> extracts the first line from the non-empty list of (represented) lines;</p>
+<p class="blf">•  <samp class="mono">(line-processor (first lls))</samp> suggests that we may wish to design an auxiliary function to process this line;</p>
+<p class="blf">•  <samp class="mono">(rest lls)</samp> is the rest of the list of line; and</p>
+<p class="bll">•  <samp class="mono">(words-on-line (rest lls))</samp> computes a list of words per line for the rest of the list. How do we know this? We promised just that with the signature and the purpose statement for <samp class="mono">words-on-line</samp>.</p>
+<p class="tni">Assuming we can design an auxiliary function that consumes a line and counts the words on one line—let’s call it <samp class="mono">words#</samp>—it is easy to complete the second condition:</p>
+<figure class="co"><img src="../images/00231.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_297" title="297"></span>This expression <samp class="mono">cons</samp>es the number of words on the first line of <samp class="mono">lls</samp> onto a list of numbers that represents the number of words on the remainder of the lines of <samp class="mono">lls</samp>.</p>
+<p class="calibre8">It remains to design the <samp class="mono">words#</samp> function. Its template is dubbed <samp class="mono">line-processor</samp> and its purpose is to count the number of words on a line, which is just a list of strings. So here is the wish-list entry:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-strings<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; counts</samp><samp class="mono"> the number</samp><samp class="mono"> of words</samp><samp class="mono"> on los</samp> <br class="calibre4"/><samp class="mono">(define (words#</samp><samp class="mono"> los) 0)</samp></p>
+</div>
+<p class="tni">At this point, you may recall the example used to illustrate the design recipe for self-referential data in chapter 9. The function is called <samp class="mono">how-many</samp>, and it too counts the number of strings on a list of strings. Even though the input for <samp class="mono">how-many</samp> is supposed to represent a list of names, this difference simply doesn’t matter; as long as it correctly counts the number of strings on a list of strings, <samp class="mono">how-many</samp> solves our problem.</p>
+<p class="calibre8">Since it is good to reuse existing functions, you may define <samp class="mono">words#</samp> as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (words#</samp><samp class="mono"> los)</samp> <br class="calibre4"/><samp class="mono">  (how-many</samp><samp class="mono"> los))</samp></p>
+</div>
+<p class="tni">In reality, however, programming languages come with functions that solve such problems already. BSL calls this function <samp class="mono">length</samp>, and it counts the number of values on any list of values, no matter what the values are.</p>
+<div class="calibre4">
+<p class="marginpar">You may wish to look over the list of functions that come with BSL. Some may look obscure but may become useful in one of the upcoming problems. Using such functions saves your time, not ours.</p>
+</div>
+<p class="calibre8"><a id="rfig68" href="part0007_split_017.html#fig68" class="calibre5">Figure 68</a> summarizes the full design for our sample problem. The figure includes two test cases. Also, instead of using the separate function <samp class="mono">words#</samp>, the definition of <samp class="mono">words-on-line</samp> simply calls the <samp class="mono">length</samp> function that comes with BSL. Experiment with the definition in DrRacket and make sure that the two test cases cover the entire function definition.</p>
+<div class="figure">
+<figure class="img"><a id="fig68" class="calibre5"></a><img src="../images/00232.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_017.html#rfig68" class="calibre5">Figure 68</a>:</span> <span>Counting the words on a line</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">With one small step, you can now design your first file utility:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>String<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; counts</samp><samp class="mono"> the words</samp><samp class="mono"> on each</samp><samp class="mono"> line in</samp><samp class="mono"> the given</samp><samp class="mono"> file</samp> <br class="calibre4"/><samp class="mono">(define (file-statistic</samp><samp class="mono"> file-name)</samp> <br class="calibre4"/><samp class="mono">  (words-on-line</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (read-words/line</samp><samp class="mono"> file-name)))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_298" title="298"></span>It merely composes a library function with <samp class="mono">words-on-line</samp>. The former reads a file as a List-of-list-of-strings and hands this value to the latter.</p>
+<p class="calibre8">This idea of composing a built-in function with a newly designed function is common. Naturally, people don’t design functions randomly and expect to find something in the chosen programming language to complement their design. Instead, program designers plan ahead and design the function <b class="calibre9">to the output</b> that available functions deliver. More generally still and as mentioned above, it is common to think about a solution as a composition of two computations and to develop an appropriate data collection with which to communicate the result of one computation to the second one, where each computation is implemented with a function.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 172. Design the function <samp class="mono">collapse</samp>, which converts a list of lines into a string. The strings should be separated by blank spaces (<samp class="mono">" "</samp>). The lines should be separated with a newline (<samp class="mono">"\n"</samp>).</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_299" title="299"></span><b class="calibre9">Challenge</b> When you are finished, use the program like this:</p>
+<figure class="co"><img src="../images/00233.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To make sure the two files <samp class="mono">"ttt.dat"</samp> and <samp class="mono">"ttt.txt"</samp> are identical, remove all extraneous white spaces in your version of the <samp class="mono">T.T.T.</samp> poem. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 173. Design a program that removes all articles from a text file. The program consumes the name <samp class="mono">n</samp> of a file, reads the file, removes the articles, and writes the result out to a file whose name is the result of concatenating <samp class="mono">"no-articles-"</samp> with <samp class="mono">n</samp>. For this exercise, an article is one of the following three words: <samp class="mono">"a"</samp>, <samp class="mono">"an"</samp>, and <samp class="mono">"the"</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_300" title="300"></span>Use <samp class="mono">read-words/line</samp> so that the transformation retains the organization of the original text into lines and words. When the program is designed, run it on the Piet Hein poem. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 174. Design a program that encodes text files numerically. Each letter in a word should be encoded as a numeric three-letter string with a value between 0 and 256. <a id="rfig69" href="part0007_split_017.html#fig69" class="calibre5">Figure 69</a> shows our encoding function for single letters. Before you start, explain these functions.</p>
+<div class="figure">
+<figure class="img"><a id="fig69" class="calibre5"></a><img src="../images/00234.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_017.html#rfig69" class="calibre5">Figure 69</a>:</span> <span>Encoding strings</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Hints</b> (1) Use <samp class="mono">read-words/line</samp> to preserve the organization of the file into lines and words. (2) Read up on <samp class="mono">explode</samp> again. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 175. Design a BSL program that simulates the Unix command <samp class="mono">wc</samp>. The purpose of the command is to count the number of 1Strings, words, and lines in a given file. That is, the command consumes the name of a file and produces a value that consists of three numbers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 176. Mathematics teachers may have introduced you to matrix calculations by now. In principle, matrix just means rectangle of numbers. Here is one possible data representation for matrices:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Matrix</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>Row<samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>Row Matrix<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">constraint</b><samp class="mono"> all rows</samp><samp class="mono"> in matrix</samp><samp class="mono"> are of</samp><samp class="mono"> the same</samp><samp class="mono"> length</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Row</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Number Row<samp class="mono">)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_301" title="301"></span>Note the constraints on matrices. Study the data definition and translate the two-by-two matrix consisting of the numbers 11, 12, 21, and 22 into this data representation. Stop, don’t read on until you have figured out the data examples.</p>
+<p class="calibre8">Here is the solution for the five-second puzzle:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define row1</samp><samp class="mono"> (cons 11</samp><samp class="mono"> (cons 12</samp><samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">(define row2</samp><samp class="mono"> (cons 21</samp><samp class="mono"> (cons 22</samp><samp class="mono"> '())))</samp> <br class="calibre4"/><samp class="mono">(define mat1</samp><samp class="mono"> (cons row1</samp><samp class="mono"> (cons row2</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">If you didn’t create it yourself, study it now.</p>
+<p class="calibre8">The function in <a id="rfig70" href="part0007_split_017.html#fig70" class="calibre5">figure 70</a> implements the important mathematical operation of transposing the entries in a matrix. To transpose means to mirror the entries along the diagonal, that is, the line from the top-left to the bottom-right.</p>
+<div class="figure">
+<figure class="img"><a id="fig70" class="calibre5"></a><img src="../images/00235.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_017.html#rfig70" class="calibre5">Figure 70</a>:</span> <span>Transpose a matrix</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Stop! Transpose <samp class="mono">mat1</samp> by hand, then read <a href="part0007_split_017.html#fig70" class="calibre5">figure 70</a>. Why does <samp class="mono">transpose</samp> ask <samp class="mono">(empty? (first lln))</samp>?</p>
+<p class="calibre8">The definition assumes two auxiliary functions:</p>
+<p class="blf">•  <samp class="mono">first*</samp>, which consumes a matrix and produces the first column as a list of numbers; and</p>
+<p class="bll">•  <samp class="mono">rest*</samp>, which consumes a matrix and removes the first column. The result is a matrix.</p>
+<p class="calibre8">Even though you lack definitions for these functions, you should be able to understand how <samp class="mono">transpose</samp> works. You should also understand that you <b class="calibre9">cannot</b> design this function with the design recipes you have seen so far. Explain why.</p>
+<p class="calibre8">Design the two wish-list functions. Then complete the design of <samp class="mono">transpose</samp> with some test cases. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_42"><a id="sec5-9" class="calibre16"></a>5.9 Structure in the World</h2>
+<p class="tni">When a world program must track two independent pieces of information, we must use a collection of structures to represent the world state data. One field keeps track of one piece of information and the other field the second piece of information. Naturally, if the domain world contains more than two independent pieces of information, the structure type definition must specify as many fields as there are distinct pieces of information.</p>
+<p class="calibre8">Consider a space invader game that consists of a UFO and a tank. The UFO descends along a straight vertical line and a tank moves horizontally at the bottom of a scene. If both objects move at known constant speeds, all that’s needed to describe these two objects is one piece of information per object: the y-coordinate for the UFO and the x-coordinate for the tank. Putting those together requires a structure with two fields:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct space-game</samp><samp class="mono"> [ufo tank])</samp></samp></p>
+</div>
+<p class="tni">We leave it to you to formulate an adequate data definition for this structure type definition, including an interpretation. Ponder the hyphen in the name of the structure. BSL really allows the use of all kinds of characters in the names of variables, functions, structures, and field names. What are the selector names for this structure? The name of the predicate?</p>
+<p class="calibre8">Every time we say “piece of information,” we don’t necessarily mean a single number or a single word. A piece of information may itself combine several pieces of information. Creating a data representation for that kind of information naturally leads to nested structures.</p>
+<p class="calibre8">Let’s add a modicum of spice to our imaginary space invader game. A UFO that descends only along a vertical line is boring. To turn this idea into an interesting game where the tank attacks the UFO with some weapon, <span epub:type="pagebreak" id="pg_169" title="169"></span>the UFO must be able to descend in nontrivial lines, perhaps jumping randomly. An implementation of this idea means that we need two coordinates to describe the location of the UFO, so that our revised data definition for the space game becomes:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; A</samp><samp class="mono"> </samp><span><i class="calibre6">SpaceGame</i></span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-space-game </samp><span>Posn Number</span><samp class="mono">). <br class="calibre4"/>;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> (make-space-game (make-posn</samp><samp class="mono"> ux uy)</samp><samp class="mono"> tx)</samp> <br class="calibre4"/><samp class="mono">; describes</samp><samp class="mono"> a configuration</samp><samp class="mono"> where the</samp><samp class="mono"> UFO is</samp> <br class="calibre4"/><samp class="mono">; at</samp><samp class="mono"> (ux,uy) and</samp><samp class="mono"> the tank's</samp><samp class="mono"> x-coordinate is</samp><samp class="mono"> tx</samp></samp></p>
+</div>
+<p class="calibre8">Understanding what kind of data representations are needed for world programs takes practice. The following two sections introduce several reasonably complex problem statements. Solve them before moving on to the kind of games that you might like to design on your own.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

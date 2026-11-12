@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_25"><a id="sec23-1" class="calibre16"></a>23.1 Processing Two Lists Simultaneously: Case 1</h2>
+<p class="tni">Consider the following signature, purpose statement, and header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] [</samp>List-of Number<samp class="mono">] -&gt;</samp> <samp class="mono">[</samp>List-of Number<samp class="mono">] <br class="calibre4"/>;</samp><samp class="mono"> replaces the</samp><samp class="mono"> final '()</samp><samp class="mono"> in front</samp><samp class="mono"> with</samp> <samp class="mono">end <br class="calibre4"/>(define</samp><samp class="mono"> (replace-eol-with front</samp><samp class="mono"> end)</samp> <br class="calibre4"/><samp class="mono">  front)</samp></p>
+</div>
+<p class="tni">The signature says that the function consumes two lists. Let’s see how the design recipe works in this case.</p>
+<p class="calibre8">We start by working through examples. If the first argument is <samp class="mono">'()</samp>, <samp class="mono">replace-eol-with</samp> must produce the second one, no matter what it is:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (replace-eol-with</samp><samp class="mono"> '() '(a</samp><samp class="mono"> b)) '(a</samp><samp class="mono"> b))</samp></p>
+</div>
+<p class="tni">In contrast, if the first argument is not <samp class="mono">'()</samp>, the purpose statement requires that we replace <samp class="mono">'()</samp> at the end of <samp class="mono">front</samp> with <samp class="mono">end</samp>:</p>
+<figure class="co"><img src="../images/00519.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">The purpose statement and the examples suggest that as long as the second argument is a list, the function does not need to know anything about it. By implication, its template should be that of a list-processing function with respect to the first argument:</p>
+<figure class="co"><img src="../images/00520.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Let’s fill the gaps in the template following the fifth step of the design recipe. If <samp class="mono">front</samp> is <samp class="mono">'()</samp>, <samp class="mono">replace-eol-with</samp> produces <samp class="mono">end</samp>. If <samp class="mono">front</samp> is not <samp class="mono">'()</samp>, we must recall what the template expressions compute:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_559" title="559"></span>•  <samp class="mono">(first front)</samp> evaluates to the first item on the list, and</p>
+<p class="bll">•  <samp class="mono">(replace-eol-with (rest front) end)</samp> replaces the final <samp class="mono">'()</samp> in <samp class="mono">(rest front)</samp> with <samp class="mono">end</samp>.</p>
+<p class="tni">Stop! Use the table method to understand what these bullets mean for the running example.</p>
+<p class="calibre8">From here it is a small step to the complete definition:</p>
+<figure class="co"><img src="../images/00521.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 387. Design <samp class="mono">cross</samp>. The function consumes a list of symbols and a list of numbers and produces all possible ordered pairs of symbols and numbers. That is, when given <samp class="mono">'(a b c)</samp> and <samp class="mono">'(1 2)</samp>, the expected result is <samp class="mono">'((a 1) (a 2) (b 1) (b 2) (c 1) (c 2))</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

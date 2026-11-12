@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_23"><a id="sec22-4" class="calibre16"></a>22.4 Reading XML</h2>
+<p class="tni">Systems administrators expect that sophisticated applications read configuration programs from a file or possibly from some place on the web. In ISL+ your programs can retrieve (some) XML information. <a id="rfig132" href="part0011_split_022.html#fig132" class="calibre5">Figure 132</a> <span epub:type="pagebreak" id="pg_553" title="553"></span>shows the relevant excerpt from the teachpack. For consistency, the figure uses the suffix <samp class="mono">.v3</samp> for its XML representation, including those data definitions for which there is no version 2:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Xexpr.v3</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- </samp>Symbol<samp class="mono"> <br class="calibre4"/>; --</samp>  String<samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> </samp>Number<samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (cons </samp>Symbol <samp class="mono">(cons </samp>Attribute*.v3<samp class="mono"> [</samp>List-of Xexpr.v3<samp class="mono">])) <br class="calibre4"/>;</samp><samp class="mono"> --</samp>  <samp class="mono">(cons </samp>Symbol<samp class="mono"> [</samp>List-of Xexpr.v3<samp class="mono">]) <br class="calibre4"/>;</samp><samp class="mono"> <br class="calibre4"/>; An</samp> <span class="calibre6">Attribute*.v3</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of Attribute.v3<samp class="mono">]. <br class="calibre4"/>;</samp><samp class="mono"> <br class="calibre4"/>;</samp> <samp class="mono">An </samp><span class="calibre6">Attribute.v3</span><samp class="mono"> is a</samp><samp class="mono"> list of</samp><samp class="mono"> two items:</samp><samp class="mono"> <br class="calibre4"/>;   (list</samp> Symbol String<samp class="mono">)</samp></p>
+</div>
+<p class="marginpar">This section uses <i class="calibre6">2htdp/batch-io 2htdp/universe</i>, and <i class="calibre6">2htdp/image</i> libraries.</p>
+
+
+<p class="calibre8">Assume we have the file in <a id="rfig131" href="part0011_split_022.html#fig131" class="calibre5">figure 131</a>. If the <i class="calibre6">2htdp/batch-io</i> library is required, a program can read the element with <samp class="mono">read-plain-xexpr</samp>. The function retrieves the XML element in a format that matches the XMachine data definition. A function for retrieving XML elements from the web is also available in the teachpack. Try this in DrRacket:</p>
+<figure class="co"><img src="../images/00513.gif" alt="" class="calibre10"/></figure>
+<div class="figure">
+<figure class="img"><a id="fig131" class="calibre5"></a><img src="../images/00514.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_022.html#rfig131" class="calibre5">Figure 131</a>:</span> <span>A file with a machine configuration</span></p></figcaption>
+</figure>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_554" title="554"></span>If your computer is connected to the web, this expression retrieves our standard machine configuration.</p>
+<p class="calibre8">Reading files or web pages introduces an entirely novel idea into our computational model. As intermezzo 1 explains, a BSL program is evaluated in the same manner in which you evaluate variable expressions in algebra. Function definitions are also treated just like in algebra. Indeed, most algebra courses introduce conditional function definitions, meaning <samp class="mono">cond</samp> does not pose any challenges either. Finally, while ISL+ introduces functions as values, the evaluation model remains fundamentally the same.</p>
+<p class="calibre8">One essential property of this computational model is that no matter how often you call a function <samp class="mono">f</samp> on some argument(s) <samp class="mono">a<span>…</span></samp></p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(f a</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<p class="tni">the answer remains the same. The introduction of <samp class="mono">read-file</samp>, <samp class="mono">read-xexpr</samp>, <span epub:type="pagebreak" id="pg_555" title="555"></span>and their relatives destroys this property, however. The problem is that files and web sites may change over time so that every time a program reads files or web sites it may get a new result.</p>
+<p class="calibre8">Consider the idea of looking up the stock price of a company. Point your browser to <samp class="mono">google.com/finance</samp> or any other such financial web site and enter the name of your favorite company, say, <samp class="mono">Ford</samp>. In response, the site will display the current price of the company’s stock and other information—for example, how much the price has changed since the last time it was posted, the current time, and many other facts and ads. The important point is that as you reload this page over the course of a day or a week, some of the information on this web page will change.</p>
+<p class="calibre8">An alternative to looking up such company information manually is to write a small program that retrieves such information on a regular basis, say, every 15 seconds. With ISL you can write a world program that performs this task. You would launch it like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (stock-alert</samp><samp class="mono"> "Ford")</samp></p>
+</div>
+<p class="tni">to see a world window that displays an image like the following:</p>
+<figure class="co"><img src="../images/00515.gif" alt="" class="calibre31"/></figure>
+<p class="calibre8">To develop such a program requires skills beyond normal program design. First, you need to investigate how the web site formats its information. In the case of Google’s financial service page, an inspection of the web source code shows the following pattern near the top:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;meta content="17.09"</samp><samp class="mono"> itemprop="price" /&gt;</samp><samp class="mono"> <br class="calibre4"/>&lt;meta content="+0.07"</samp> <samp class="mono">itemprop="priceChange" /&gt;</samp><samp class="mono"> <br class="calibre4"/>&lt;meta content="0.41"</samp> <samp class="mono">itemprop="priceChangePercent" /&gt;</samp><br class="calibre4"/><samp class="mono">&lt;meta</samp> <samp class="mono">content="2013-08-12T16:59:06Z" itemprop="quoteTime"</samp><samp class="mono"> /&gt;<br class="calibre4"/>&lt;meta</samp> <samp class="mono">content="NYSE real-time</samp><samp class="mono"> data" itemprop="dataSource"</samp><samp class="mono"> /&gt;</samp></p>
+</div>
+<p class="tni">If we had a function that could search an Xexpr.v3 and extract (the representation of XML) <samp class="mono">meta</samp> elements with the attribute value <samp class="mono">"price"</samp> and <samp class="mono">"priceChange"</samp>, the rest of <samp class="mono">stock-alert</samp> would be straightforward.</p>
+<p class="calibre8"><a id="rfig133" href="part0011_split_022.html#fig133" class="calibre5">Figure 133</a> displays the core of the program. The design of <samp class="mono">get</samp> is left to the exercises because its workings are all about intertwined data.</p>
+
+
+<p class="calibre8">As the figure shows, the main function defines two local ones: a clock-tick handler and a rendering function. The <samp class="mono">big-bang</samp> specification requests that the clock tick every 15 seconds. When the clock ticks, ISL+ <span epub:type="pagebreak" id="pg_556" title="556"></span>applies <samp class="mono">retrieve-stock-data</samp> to the current world, which it ignores. Instead, the function visits the web site via <samp class="mono">read-xexpr/web</samp> and extracts the appropriate information with <samp class="mono">get</samp>. Thus, the new world is created from newly available information on the web, not some local data.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 384. <a href="part0011_split_022.html#fig133" class="calibre5">Figure 133</a> mentions <samp class="mono">read-xexpr/web</samp>. See <a href="part0011_split_022.html#fig132" class="calibre5">figure 132</a> for its signature and purpose statement and then read its documentation to determine the difference to its “plain” relative.</p>
+
+<div class="figure">
+<figure class="img"><a id="fig132" class="calibre5"></a><img src="../images/00516.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_022.html#rfig132" class="calibre5">Figure 132</a>:</span> <span>Reading X-expressions</span></p></figcaption>
+</figure>
+</div>
+
+
+<p class="calibre8"><a href="part0011_split_022.html#fig133" class="calibre5">Figure 133</a> is also missing several important pieces, in particular the interpretation of <samp class="mono">data</samp> and purpose statements for all the locally defined <span epub:type="pagebreak" id="pg_557" title="557"></span>functions. Formulate the missing pieces so that you get to understand the program. <img class="inline" src="../images/00038.gif" alt=""/></p>
+
+<div class="figure">
+<figure class="img"><a id="fig133" class="calibre5"></a><img src="../images/00517.gif" alt="" class="calibre13"/>
+<figcaption><p class="cap"><span><a href="part0011_split_022.html#rfig133" class="calibre5">Figure 133</a>:</span> <span>Web data as an event</span></p></figcaption>
+</figure>
+</div>
+
+
+<p class="calibre8"><b class="calibre9">Exercise</b> 385. Look up the current stock price for your favorite company at Google’s financial service page. If you don’t favor a company, pick Ford. Then save the source code of the page as a file in your working directory. Use <samp class="mono">read-xexpr</samp> in DrRacket to view the source as an Xexpr.v3. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 386. Here is the <samp class="mono">get</samp> function:</p>
+<figure class="co"><img src="../images/00518.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It assumes the existence of <samp class="mono">get-xexpr</samp>, a function that searches an arbitrary Xexpr.v3 for the desired attribute and produces [Maybe String].</p>
+<p class="calibre8">Formulate test cases that look for other values than <samp class="mono">"F"</samp> and that force <samp class="mono">get</samp> to signal an error.</p>
+<p class="calibre8">Design <samp class="mono">get-xexpr</samp>. Derive functional examples for this function from those for <samp class="mono">get</samp>. Generalize these examples so that you are confident <samp class="mono">get-xexpr</samp> can traverse an arbitrary Xexpr.v3. Finally, formulate a test that uses the web data saved in exercise 385. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

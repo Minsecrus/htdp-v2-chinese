@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_17"><span epub:type="pagebreak" id="pg_286" title="286" class="calibre1"></span><a id="sec10-2" class="calibre16"></a>10.2 Structures in Lists</h2>
+<p class="tni">Representing a work week as a number is a bad choice because the printing of a paycheck requires more information than hours worked per week. Also, not all employees earn the same amount per hour. Fortunately a list may contain items other than atomic values; indeed, lists may contain whatever values we want, especially structures.</p>
+<p class="calibre8">Our running example calls for just such a data representation. Instead of numbers, we use structures that represent employees plus their work hours and pay rates:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct work</samp><samp class="mono"> [employee rate</samp><samp class="mono"> hours])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> (piece of)</samp><samp class="mono"> </samp><i class="calibre6">Work</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-work</samp><samp class="mono"> </samp>String Number Number<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> (make-work n</samp><samp class="mono"> r h)</samp><samp class="mono"> combines the</samp><samp class="mono"> name</samp> <br class="calibre4"/><samp class="mono">; with</samp><samp class="mono"> the pay</samp><samp class="mono"> rate r</samp><samp class="mono"> and the</samp><samp class="mono"> number of</samp><samp class="mono"> hours h</samp></p>
+</div>
+<p class="tni">While this representation is still simplistic, it is just enough of an additional challenge because it forces us to formulate a data definition for lists that contain structures:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><i class="calibre6">Low</i><samp class="mono"> (short for</samp><samp class="mono"> </samp><i class="calibre6">list of works</i><samp class="mono">) is</samp><samp class="mono"> one of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons Work</samp><samp class="mono"> Low)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> an instance</samp><samp class="mono"> of Low</samp><samp class="mono"> represents the</samp> <br class="calibre4"/><samp class="mono">; hours</samp><samp class="mono"> worked for</samp><samp class="mono"> a number</samp><samp class="mono"> of employees</samp></p>
+</div>
+<p class="tni">Here are three elements of Low:</p>
+<figure class="co"><img src="../images/00216.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Use the data definition to explain why these pieces of data belong to Low.</p>
+<p class="calibre8">Stop! Also use the data definition to generate two more examples.</p>
+<div class="calibre4">
+<p class="marginpar">When you work on real-world projects, you won’t use such suffixes; instead you will use a tool for managing different versions of code.</p>
+</div>
+<p class="calibre8">Now that you know that the definition of Low makes sense, it is time to redesign the function <samp class="mono">wage*</samp> so that it consumes elements of Low, not just lists of numbers:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_287" title="287"></span><samp class="mono">; </samp>Low<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the weekly</samp><samp class="mono"> wages for</samp><samp class="mono"> the given</samp><samp class="mono"> records</samp> <br class="calibre4"/><samp class="mono">(define (wage*.v2</samp><samp class="mono"> an-low)</samp> <br class="calibre4"/><samp class="mono">  '())</samp></p>
+</div>
+<p class="tni">The suffix “.v2” at the end of the function name informs every reader of the code that this is a second, revised version of the function. In this case, the revision starts with a new signature and an adapted purpose statement. The header is the same as above.</p>
+<p class="calibre8">The third step of the design recipe is to work through an example. Let’s start with the second list above. It contains one work record, namely, <samp class="mono">(make-work "Robby" 11.95 39)</samp>. Its interpretation is that <samp class="mono">"Robby"</samp> worked for <samp class="mono">39</samp> hours and that he is paid at the rate of $11.95 per hour. Hence his wage for the week is $466.05, that is, <samp class="mono">(* 11.95 39)</samp>. The desired result for <samp class="mono">wage*.v2</samp> is therefore <samp class="mono">(cons 466.05 '())</samp>. Naturally, if the input list contained two work records, we would perform this kind of computation twice, and the result would be a list of two numbers. Stop! Determine the expected result for the third data example above.</p>
+<p class="calibre8"><b class="calibre9">Note on Numbers</b> Keep in mind that BSL—unlike most other programming languages—understands decimal numbers just like you do, namely, as exact fractions. A language such as Java, for example, would produce 466.04999999999995 for the expected wage of the first work record. Since you cannot predict when operations on decimal numbers behave in this strange way, you are better off writing down such examples as</p>
+<figure class="co"><img src="../images/00217.gif" alt="" class="calibre10"/></figure>
+<p class="tni">just to prepare yourself for other programming languages. Then again, writing down the example in this style also means you have really figured out how to compute the wage. <b class="calibre9">End</b></p>
+<p class="calibre8">From here we move on to the development of the template. If you use the template questions, you quickly get this much:</p>
+<figure class="co"><img src="../images/00218.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_288" title="288"></span>because the data definition consists of two clauses, because it introduces <samp class="mono">'()</samp> in the first clause and <samp class="mono">cons</samp>ed structures in the second, and so on. But you also realize that you know even more about the input than this template expresses. For example, you know that <samp class="mono">(first an-low)</samp> extracts a structure of three fields from the given list. This seems to suggest the addition of three more expressions to the template:</p>
+<figure class="co"><img src="../images/00219.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This template lists <b class="calibre9">all</b> potentially interesting data.</p>
+<p class="calibre8">We use a different strategy here. Specifically, we suggest that you <b class="calibre9">create and refer to a separate function template</b> whenever you are developing a template for a data definition that refers to other data definitions:</p>
+<figure class="co"><img src="../images/00220.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Splitting the templates leads to a natural partition of work into functions and among functions; none of them grows too large, and all of them relate to a specific data definition.</p>
+<p class="calibre8">Finally, you are ready to program. As always you start with the simple-looking case, which is the first <samp class="mono">cond</samp> line here. If <samp class="mono">wage*.v2</samp> is applied to <span epub:type="pagebreak" id="pg_289" title="289"></span><samp class="mono">'()</samp>, you expect <samp class="mono">'()</samp> back and that settles it. Next you move on to the second line and remind yourself of what these expressions compute:</p>
+<p class="nlf">1. <samp class="mono">(first an-low)</samp> extracts the first <samp class="mono">work</samp> structure from the list;</p>
+<p class="nlf">2. <samp class="mono">(for-work <span>…</span>)</samp> says that you wish to design a function that processes <samp class="mono">work</samp> structures;</p>
+<p class="nlf">3. <samp class="mono">(rest an-low)</samp> extracts the rest of the given list; and</p>
+<p class="nll">4. <samp class="mono">(wage*.v2 (rest an-low))</samp> determines the list of wages for all the <samp class="mono">work</samp> records other than the first one, according to the purpose statement of the function.</p>
+<p class="tni">If you are stuck here, use the table method from <a href="part0007_split_007.html#fig54" class="calibre5">figure 54</a>.</p>
+<p class="calibre8">If you understand it all, you see that it is enough to <samp class="mono">cons</samp> the two expressions together:</p>
+<figure class="co"><img src="../images/00221.gif" alt="" class="calibre10"/></figure>
+<p class="tni">assuming that <samp class="mono">for-work</samp> computes the wage for the first work record. In short, you have finished the function by adding another entry to your wish list of functions.</p>
+<p class="calibre8">Since <samp class="mono">for-work</samp> is a name that just serves as a stand-in and since it is a bad name for this function, let’s call the function <samp class="mono">wage.v2</samp> and write down its complete wish-list entry:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Work<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the wage</samp><samp class="mono"> for the</samp><samp class="mono"> given work</samp><samp class="mono"> record w</samp> <br class="calibre4"/><samp class="mono">(define (wage.v2</samp><samp class="mono"> w)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></p>
+</div>
+<p class="tni">The design of this kind of function is extensively covered in Part I and thus doesn’t need any additional explanation here. <a id="rfig65" href="part0007_split_016.html#fig65" class="calibre5">Figure 65</a> shows the final result of developing <samp class="mono">wage</samp> and <samp class="mono">wage*.v2</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig65" class="calibre5"></a><img src="../images/00222.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_016.html#rfig65" class="calibre5">Figure 65</a>:</span> <span>Computing the wages from work records</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 166. The <samp class="mono">wage*.v2</samp> function consumes a list of work records and produces a list of numbers. Of course, functions may also produce lists of structures.</p>
+<p class="calibre8">Develop a data representation for paychecks. Assume that a paycheck contains two distinctive pieces of information: the employee’s name and an amount. Then design the function <samp class="mono">wage*.v3</samp>. It consumes a list of work records and computes a list of paychecks from it, one per record.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_290" title="290"></span>In reality, a paycheck also contains an employee number. Develop a data representation for employee information and change the data definition for work records so that it uses employee information and not just a string for the employee’s name. Also change your data representation of paychecks so that it contains an employee’s name and number, too. Finally, design <samp class="mono">wage*.v4</samp>, a function that maps lists of revised work records to lists of revised paychecks.</p>
+<p class="calibre8"><b class="calibre9">Note on Iterative Refinement</b> This exercise demonstrates the <i class="calibre6">iterative refinement</i> of a task. Instead of using data representations that include all relevant information, we started from simplistic representation of paychecks and gradually made the representation realistic. For this simple program, refinement is overkill; later we will encounter situations where iterative refinement is not just an option but a necessity. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 167. Design the function <samp class="mono">sum</samp>, which consumes a list of <samp class="mono">Posn</samp>s and produces the sum of all of its x-coordinates. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 168. Design the function <samp class="mono">translate</samp>. It consumes and produces lists of Posns. For each <samp class="mono">(make-posn x y)</samp> in the former, the latter contains <samp class="mono">(make-posn x (+ y 1))</samp>. We borrow the word “translate” <span epub:type="pagebreak" id="pg_291" title="291"></span>from geometry, where the movement of a point by a constant distance along a straight line is called a <i class="calibre6">translation</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 169. Design the function <samp class="mono">legal</samp>. Like <samp class="mono">translate</samp> from exercise 168, the function consumes and produces a list of Posns. The result contains all those Posns whose x-coordinates are between 0 and 100 and whose y-coordinates are between 0 and 200. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 170. Here is one way to represent a phone number:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct phone</samp><samp class="mono"> [area switch</samp><samp class="mono"> four])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Phone</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-phone</samp><samp class="mono"> </samp>Three Three Four<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Three</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono"> between 100</samp><samp class="mono"> and 999.</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">Four</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono"> between 1000</samp><samp class="mono"> and 9999.</samp></p>
+</div>
+<p class="tni">Design the function <samp class="mono">replace</samp>. It consumes and produces a list of Phones. It replaces all occurrence of area code <samp class="mono">713</samp> with <samp class="mono">281</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

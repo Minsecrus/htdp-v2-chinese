@@ -1,0 +1,316 @@
+% ==============================================================================
+% 第 23 章：多输入同步处理 (Chapter 23: Simultaneous Processing)
+% ==============================================================================
+
+\chapter{多输入同步处理}
+\label{sec:ch23_simultaneous}
+
+某些函数必须接收两个（或更多）属于非平凡复杂数据定义的参数。如何设计此类函数，取决于这些参数之间的\textbf{结构对应关系}。大体可分为三类情形：
+\begin{enumerate}
+  \item \textbf{情形 1：被动参数。} 其中一个参数被当作原子值处理，仅对其余参数展开递归遍历。
+  \item \textbf{情形 2：步调一致（齐头并进）。} 两个参数具有完全对称的相同结构，函数在两个参数上以同步锁步（lockstep）的方式并行前进。
+  \item \textbf{情形 3：全部分支穷举。} 两个参数各自拥有多个分支，函数必须考虑两个参数数据分支的\textbf{笛卡尔积组合}。
+\end{enumerate}
+
+本章通过典型示例逐一阐述这三种情形，并给出扩展的设计配方。最后两节将探讨复合数据的相等性判定，以及一个完整的数据库（Database）关系代数查询引擎项目。
+
+\section{同时处理两个列表：情形 1 (Processing Two Lists: Case 1)}
+\label{sec:23.1_case1}
+
+考虑如下函数签名、目的说明与函数头：
+\begin{lstlisting}[language=BSL]
+; [List-of Number] [List-of Number] -> [List-of Number]
+; 将 front 末尾的 '() 替换为 end
+(define (replace-eol-with front end)
+  front)
+\end{lstlisting}
+
+签名表明该函数接收两个列表。我们来看设计配方在此如何展开。首先设计用例：
+\begin{lstlisting}[language=BSL]
+(check-expect (replace-eol-with '() '(a b)) '(a b))
+(check-expect (replace-eol-with (cons 1 '()) '(a b)) (cons 1 '(a b)))
+(check-expect (replace-eol-with (cons 2 (cons 1 '())) '(a b))
+              (cons 2 (cons 1 '(a b))))
+\end{lstlisting}
+
+目的说明与示例清晰地表明：只要第二个参数 \code{end} 是一个合法的值，函数在整个执行过程中\textbf{完全不需要拆解它}。因此，模板只需针对第一个参数 \code{front} 建立标准的列表递归模板，而将 \code{end} 作为不变量随身传递：
+
+\begin{lstlisting}[language=BSL]
+(define (replace-eol-with front end)
+  (cond
+    [(empty? front) end]
+    [else
+     (cons (first front)
+           (replace-eol-with (rest front) end))]))
+\end{lstlisting}
+
+这正是列表拼接操作（即内置函数 \code{append}）的标准实现！
+
+\begin{exercise}{笛卡尔积 cross}{387}
+设计函数 \code{cross}。该函数接收一个符号列表和一个数字列表，产生所有可能的有序符号-数字对（长度为 2 的列表）。例如当输入 \code{'(a b c)} 与 \code{'(1 2)} 时，预期结果为：
+\begin{lstlisting}[language=BSL]
+'((a 1) (a 2) (b 1) (b 2) (c 1) (c 2))
+\end{lstlisting}
+\end{exercise}
+
+\section{同时处理两个列表：情形 2 (Processing Two Lists: Case 2)}
+\label{sec:23.2_case2}
+
+第 10.1 节介绍了根据工时计算周薪的 \code{wages*} 函数。当时假定所有工人的时薪统一。现实中，每位员工的时薪各不相同。我们设计更真实的进阶版本：函数同时接收\textbf{工时列表}与\textbf{对应时薪列表}。
+
+\begin{lstlisting}[language=BSL]
+; [List-of Number] [List-of Number] -> [List-of Number]
+; 将 hours 与 wages/h 中的对应项逐一相乘
+; 假设两个列表具有完全相同的长度
+(define (wages*.v2 hours wages/h)
+  '())
+\end{lstlisting}
+
+两个列表长度相等的先决条件意味着：\code{(empty? hours)} 为真当且仅当 \code{(empty? wages/h)} 为真；\code{(cons? hours)} 为真当且仅当 \code{(cons? wages/h)} 为真。因此，函数可以以\textbf{锁步（lockstep）}的方式同步拆解两个列表：
+
+\begin{lstlisting}[language=BSL]
+(define (wages*.v2 hours wages/h)
+  (cond
+    [(empty? hours) '()]
+    [else
+     (cons (weekly-wage (first hours) (first wages/h))
+           (wages*.v2 (rest hours) (rest wages/h)))]))
+
+(define (weekly-wage h r)
+  (* h r))
+\end{lstlisting}
+
+\begin{exercise}{真实员工薪资计算}{388}
+在现实中，\code{wages*.v2} 接收员工信息结构体列表与打卡记录结构体列表。员工结构体包含姓名、身份证号与时薪；打卡记录包含姓名与周工作小时数。请制定结构体定义与数据定义，并修改函数使其生成包含员工姓名与周薪的工资单结构体列表。
+\end{exercise}
+
+\begin{exercise}{列表打包函数 zip}{389}
+设计函数 \code{zip}。它接收一个姓名列表（字符串）和一个电话号码列表（字符串），且两列表长度相等。函数将它们配对打包为电话簿记录列表：
+\begin{lstlisting}[language=BSL]
+(define-struct phone-record [name number])
+; 一个 PhoneRecord 是：(make-phone-record String String)
+\end{lstlisting}
+\end{exercise}
+
+\section{同时处理两个列表：情形 3 (Processing Two Lists: Case 3)}
+\label{sec:23.3_case3}
+
+当两个复杂参数之间既不存在从属关系，也不存在长度同步约束时，我们就进入了最一般的情形：
+
+\begin{notebox}[样本问题]
+给定符号列表 \code{los} 和自然数 \code{n}，设计函数 \code{list-pick} 提取 \code{los} 中索引为 \code{n} 的符号（索引从 0 开始计数）；若索引越界，则报错。
+\end{notebox}
+
+两个输入分别属于两个复杂数据定义：
+\begin{itemize}
+  \item \code{[List-of Symbol]} 有两个分支：\code{'()} 或 \code{(cons Symbol [List-of Symbol])}；
+  \item \code{N}（自然数）有两个分支：\code{0} 或 \code{(add1 N)}。
+\end{itemize}
+
+两两组合构成了 $2 \times 2 = 4$ 种输入情形。我们用表格罗列这些组合：
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+& \code{(= n 0)} & \code{(> n 0)} \\
+\hline
+\code{(empty? los)} & 列表为空，报错 \code{"list too short"} & 列表为空，报错 \code{"list too short"} \\
+\hline
+\code{(cons? los)} & 返回首元素 \code{(first los)} & 递归：\code{(list-pick (rest los) (sub1 n))} \\
+\hline
+\end{tabular}
+\end{center}
+
+据此直接导出的初始实现如图~\ref{fig:134} 所示。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00529.png}
+  \caption{基于全状态分支矩阵的列表索引检索 (Indexing into a list)}
+  \label{fig:134}
+\end{figure}
+
+\begin{exercise}{树结构索引检索 tree-pick}{390}
+设计函数 \code{tree-pick}。该函数接收一棵符号二叉树和一个由方向指令（\code{'left} 与 \code{'right}）组成的方向路径列表，沿着路径检索目标节点处的符号。
+\end{exercise}
+
+\section{简化函数结构}
+\label{sec:23.4_simplification}
+
+图~\ref{fig:134} 中的四个条件分支可以直接合并化简。前两个分支都在 \code{(empty? los)} 时抛出相同的错误，因此无论 \code{n} 取何值，只要列表为空就应立即报错。图~\ref{fig:135} 展示了精炼合并后的代码。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00534.png}
+  \caption{化简后的列表索引函数 (Indexing into a list, simplified)}
+  \label{fig:135}
+\end{figure}
+
+\begin{exercise}{用全分支分析法重构 replace-eol-with}{391}
+使用 23.3 节的情形 3 分析策略重新设计 \code{replace-eol-with}。构建 $2 \times 2$ 的状态转移表格，然后化简得到最终函数，验证其与情形 1 版本的等价性。
+\end{exercise}
+
+\begin{exercise}{化简 tree-pick 函数}{392}
+运用本节的方法，对练习 390 中的 \code{tree-pick} 函数实施化简。
+\end{exercise}
+
+\section{设计接收两个复杂输入的函数 }
+\label{sec:23.5_recipe_two_inputs}
+
+面对两个复杂参数时，我们可以将设计配方总结为如下矩阵设计法：
+
+\begin{recipebox}[处理两个复杂输入的设计配方]
+\textbf{1. 维度分析：} 分析输入参数的数据定义分支数。若参数 1 有 $M$ 个分支，参数 2 有 $N$ 个分支，建立一个 $M \times N$ 的二维表格。
+
+\textbf{2. 逐格填充：} 为表格中的每一个单元格填入代表性的测试用例和期望结果。
+\begin{itemize}
+  \item 若某些行或列的结果完全独立于另一参数，则属于\textbf{情形 1}；
+  \item 若仅对角线上的单元格合法且有意义，则属于\textbf{情形 2}；
+  \item 若所有单元格均具有独特逻辑，则属于\textbf{情形 3}。
+\end{itemize}
+
+\textbf{3. 编写条件分支：} 将表格的每个有效单元格直接转译为 \code{cond} 中的一条条件分支。
+
+\textbf{4. 化简合并：} 观察各分支的处理逻辑，利用布尔组合（\code{or}、\code{and}）合并抛出相同错误或执行相同操作的冗余分支。
+\end{recipebox}
+
+\section{练手习题：两个输入 }
+\label{sec:23.6_finger_exercises}
+
+\begin{exercise}{有限集合的并集}{393}
+设计函数 \code{set-union}。该函数接收两个表示有限集合的无重复列表，计算它们的并集。
+\end{exercise}
+
+\begin{exercise}{合并两个有序列表 merge}{394}
+设计函数 \code{merge}。该函数接收两个严格升序排列的数字列表，产生将二者合并后的单一升序排列列表。
+\end{exercise}
+
+\begin{exercise}{列表切片函数 take 与 drop}{395}
+设计函数 \code{take}（获取列表的前 $n$ 项）与 \code{drop}（丢弃列表的前 $n$ 项）。
+\end{exercise}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00537.png}
+  \caption{简易猜词游戏 (A simple hangman game)}
+  \label{fig:136}
+\end{figure}
+
+\begin{exercise}{猜词游戏 Hangman}{396}
+图~\ref{fig:136} 展示了经典的猜词游戏 Hangman。请完善其中比对单词字母与猜测字符的核心判定逻辑。
+\end{exercise}
+
+\begin{exercise}{工时打卡记录匹配}{397}
+工厂员工在上下班时打卡。设计函数计算所有员工的累计有效工时。
+\end{exercise}
+
+\begin{exercise}{线性组合计算}{398}
+一个多元一次线性组合形如 $a_1 x_1 + a_2 x_2 + \dots + a_n x_n$。设计函数接收系数列表与变量值列表，计算其代数和。
+\end{exercise}
+
+\begin{exercise}{抽奖礼物互赠配对}{399}
+五位朋友决定举行秘密礼物互赠抽奖。设计函数产生一个不包含任何人抽到自己（即无不动点的错排，derangement）的赠礼配对列表。
+\end{exercise}
+
+\begin{exercise}{DNA 前缀匹配 DNAprefix}{400}
+设计函数 \code{DNAprefix}，判断一个核苷酸碱基序列是否是另一个较长 DNA 序列的严格前缀。
+\end{exercise}
+
+\begin{exercise}{S-表达式相等性判定 sexp=?}{401}
+设计通用谓词函数 \code{sexp=?}，判断两个任意构造的 S-表达式是否完全结构等价。
+\end{exercise}
+
+\begin{exercise}{复合数据的相等性探讨}{402}
+探讨判断两个复杂数据结构相等的本质难点：为什么我们无法为通用函数本身编写一个 \code{fun=?} 判定函数？（停机问题与哥德尔不完备定理的直观隐喻）。
+\end{exercise}
+
+\section{项目：数据库 }
+\label{sec:23.7_database}
+
+关系数据库管理系统（RDBMS）是现代软件工业的基石。在本质上，关系数据库将数据存储为二维表格（Table），并通过关系代数（如投影、筛选、笛卡尔积、连接）进行结构化查询。
+
+图~\ref{fig:137} 展示了两个表格实例：学生表与出勤表。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00539.png}
+  \caption{作为二维数据表的数据库 (Databases as tables)}
+  \label{fig:137}
+\end{figure}
+
+图~\ref{fig:138} 展示了在 ISL+ 中对数据库及其模式（Schema）的严谨数据定义。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00540.png}
+  \caption{数据库在 ISL+ 中的数据表示 (Databases as ISL+ data)}
+  \label{fig:138}
+\end{figure}
+
+\begin{exercise}{规范定义 Spec}{403}
+模式规范定义将列名（Label）与该列值的校验谓词（Predicate）关联起来。为 \code{Spec} 建立结构体定义与验证函数。
+\end{exercise}
+
+\begin{exercise}{双列表断言函数 andmap2}{404}
+设计函数 \code{andmap2}。它接收一个二元谓词函数与两个等长列表，仅当对应位置的元素对全部满足该谓词时才返回 \code{\#true}。
+\end{exercise}
+
+图~\ref{fig:139} 与图~\ref{fig:140} 给出了数据库列投影运算的设计模板与表达式外提（hoisting）优化技术。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00547.png}
+  \caption{系统的表达式外提优化结果 (The result of systematic expression hoisting)}
+  \label{fig:139}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00550.png}
+  \caption{数据库投影项目模板 (A template for project)}
+  \label{fig:140}
+\end{figure}
+
+\begin{exercise}{行过滤函数 row-filter}{405}
+设计函数 \code{row-filter}。该函数根据给定的谓词条件筛选数据表中符合条件的行记录。
+\end{exercise}
+
+图~\ref{fig:141} 与图~\ref{fig:142} 说明了投影运算（\code{project}）的运作全貌。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00552.png}
+  \caption{数据库列投影示意图 (Database projection)}
+  \label{fig:141}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00553.png}
+  \caption{基于模式投影的完整流程 (Database projection)}
+  \label{fig:142}
+\end{figure}
+
+\begin{exercise}{投影标签优化}{406}
+优化投影算法，避免在处理每一行时重复计算保留列的索引位置。
+\end{exercise}
+
+\begin{exercise}{使用 foldr 重构行过滤}{407}
+使用 \code{foldr} 重新设计 \code{row-filter}。
+\end{exercise}
+
+\begin{exercise}{数据库投影查询 select}{408}
+设计函数 \code{select}。它接收一个数据库和一组目标列名列表，产生仅包含这些列的新数据库。
+\end{exercise}
+
+\begin{exercise}{数据库行排序 reorder}{409}
+设计函数 \code{reorder}，按照指定列的值对数据库中的行记录进行排序。
+\end{exercise}
+
+\begin{exercise}{数据库并集 db-union}{410}
+设计函数 \code{db-union}，计算具有相同模式的两个数据库表的行并集（自动去重）。
+\end{exercise}
+
+\begin{exercise}{数据库自然连接 join}{411}
+设计数据库关系代数中最核心的运算：自然连接函数 \code{join}。它接收具有公共列的两个数据表，根据公共列上取值相等的条件将它们拼接为包含更丰富信息的新表。
+\end{exercise}

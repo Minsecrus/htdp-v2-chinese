@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_9"><span epub:type="pagebreak" id="pg_711" title="711" class="calibre1"></span><a id="sec32-3" class="calibre16"></a>32.3 Transforming Functions into Accumulator Style</h2>
+<p class="tni">Articulating the accumulator statement is difficult, but, without formulating a good invariant, it is impossible to understand an accumulator-style function. Since the goal of a programmer is to make sure that others who follow understand the code easily, practicing this skill is critical. And formulating invariants deserves a lot of practice.</p>
+<p class="calibre8">The goal of this section is to study the formulation of accumulator statements with three case studies: a summation function, the factorial function, and a tree-traversal function. Each such case is about the conversion of a structurally recursive function into accumulator style. None actually calls for the use of an accumulator parameter. But they are easily understood and, with the elimination of all other distractions, using such examples allows us to focus on the articulation of the accumulator invariant.</p>
+<p class="calibre8">For the first example, consider these definitions of the <samp class="mono">sum</samp> function:</p>
+<figure class="co"><img src="../images/00732.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Here is the first step toward an accumulator version:</p>
+<figure class="co"><img src="../images/00733.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Supply a signature and a test case that works for both.</p>
+<p class="calibre8">As suggested by our first step, we have put the template for <samp class="mono">sum/a</samp> into a <samp class="mono">local</samp> definition, added an accumulator parameter, and renamed the parameter of <samp class="mono">sum</samp>.</p>
+<p class="calibre8"><a id="rfig183" href="part0015_split_008.html#fig183" class="calibre5">Figure 183</a> shows two side-by-side sketches of hand-evaluations. A comparison immediately suggests the central idea, namely, that <samp class="mono">sum/a</samp> can use the accumulator to add up the numbers it encounters. Concerning the <span epub:type="pagebreak" id="pg_712" title="712"></span>accumulator invariant, the calculations suggest <samp class="mono">a</samp> represents the sum of the numbers encountered so far:</p>
+<div class="figure">
+<figure class="img"><a id="fig183" class="calibre5"></a><img src="../images/00734.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_008.html#rfig183" class="calibre5">Figure 183</a>:</span> <span>Calculating with accumulator-style templates</span></p></figcaption>
+</figure>
+</div>
+<div class="ex">
+<p class="exf"><samp class="mono">a</samp> is the sum of the numbers that <samp class="mono">alon</samp> lacks from <samp class="mono">alon0</samp></p>
+</div>
+<p class="tni">For example, the invariant forces the following relationships to hold:</p>
+<figure class="co"><img src="../images/00735.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Given this precise invariant, the rest of the design is straightforward:</p>
+<figure class="co"><img src="../images/00736.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If <samp class="mono">alon</samp> is <samp class="mono">'()</samp>, <samp class="mono">sum/a</samp> returns <samp class="mono">a</samp> because it represents the sum of all numbers on <samp class="mono">alon</samp>. The invariant also implies that <samp class="mono">0</samp> is the initial value for <samp class="mono">a0</samp> and <samp class="mono">+</samp> updates the accumulator by adding the number that is about to be “forgotten”—<samp class="mono">(first alox)</samp>—to the accumulator <samp class="mono">a</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 495. Complete the manual evaluation of <samp class="mono">(sum/a '(10 4) 0)</samp> in <a href="part0015_split_006.html#fig182" class="calibre5">figure 182</a>. Doing so shows that the <samp class="mono">sum</samp> and <samp class="mono">sum.v2</samp> add up the <span epub:type="pagebreak" id="pg_713" title="713"></span>given numbers in reverse order. While <samp class="mono">sum</samp> adds up the numbers from right to left, the accumulator-style version adds them up from left to right.</p>
+<p class="calibre8"><b class="calibre9">Note on Numbers</b> Remember that for exact numbers, this difference has no effect on the final result. For inexact numbers, the difference can be significant. See the exercises at the end of intermezzo 5. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">For the second example, we turn to the well-known factorial function:</p>
+<figure class="co"><img src="../images/00737.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">The factorial function is useful for the analysis of algorithms.</p>
+<p class="tni">While <samp class="mono">relative-2-absolute</samp> and <samp class="mono">invert</samp> processed lists, the factorial function works on natural numbers, which its template reflects.</p>
+<p class="calibre8">We proceed as before with a template for an accumulator-style version:</p>
+<figure class="co"><img src="../images/00738.gif" alt="" class="calibre10"/></figure>
+<p class="tni">followed by a sketch of a hand-evaluation:</p>
+<figure class="co"><img src="../images/00739.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The left column indicates how the original version works; the right one sketches how the accumulator-style function proceeds. Both structurally traverse a natural number until they reach <samp class="mono">0</samp>. While the original version <span epub:type="pagebreak" id="pg_714" title="714"></span>schedules only multiplications, the accumulator keeps track of each number as the structural traversal descends through the given natural number.</p>
+<p class="calibre8">Given the goal of multiplying these numbers, <samp class="mono">!/a</samp> can use the accumulator to multiply the numbers immediately:</p>
+<div class="ex">
+<p class="exf"><samp class="mono">a</samp> is the product of the natural numbers in the interval [<samp class="mono">n0</samp>,<samp class="mono">n</samp>).</p>
+</div>
+<p class="tni">In particular, when <samp class="mono">n0</samp> is <samp class="mono">3</samp> and <samp class="mono">n</samp> is <samp class="mono">1</samp>, <samp class="mono">a</samp> is <samp class="mono">6</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 496. What should the value of <samp class="mono">a</samp> be when <samp class="mono">n0</samp> is <samp class="mono">3</samp> and <samp class="mono">n</samp> is <samp class="mono">1</samp>? How about when <samp class="mono">n0</samp> is <samp class="mono">10</samp> and <samp class="mono">n</samp> is <samp class="mono">8</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Using this invariant we can easily pick the initial value for <samp class="mono">a</samp>—it is <samp class="mono">1</samp>—and we know that multiplying the current accumulator with <samp class="mono">n</samp> is the proper update operation:</p>
+<figure class="co"><img src="../images/00740.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It also follows from the accumulator statement that when <samp class="mono">n</samp> is <samp class="mono">0</samp>, the accumulator is the product of <samp class="mono">n</samp> through <samp class="mono">1</samp>, meaning it is the desired result. So, like <samp class="mono">sum</samp>, <samp class="mono">!/a</samp> returns <samp class="mono">a</samp> in this case and uses the result of the recursion in the second case.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 497. Like <samp class="mono">sum</samp>, <samp class="mono">!.v1</samp> performs the primitive computations, multiplication in this case, in reverse order. Surprisingly, this affects the performance of the function in a negative manner.</p>
+<p class="calibre8">Measure how long it takes to evaluate <samp class="mono">(!.v1 20)</samp> 1<i class="calibre6">,</i>000 times. Recall that <samp class="mono">(time an-expression)</samp> function determines how long it takes to run <samp class="mono">an-expression</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">For the third and last example, we use a function that measures the height of simplified binary trees. The example illustrates that accumulator-style programming applies to all kinds of data, not just those defined with single self-references. Indeed, it is as commonly used for complicated data definitions as it is for lists and natural numbers.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_715" title="715"></span>Here are the relevant definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct node</samp><samp class="mono"> [left right])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Tree</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-node </samp>Tree Tree<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">(define example</samp> <br class="calibre4"/><samp class="mono">  (make-node</samp><samp class="mono"> (make-node '()</samp><samp class="mono"> (make-node '()</samp><samp class="mono"> '())) '()))</samp></p>
+</div>
+<p class="tni">These trees carry no information; their leafs are <samp class="mono">'()</samp>. Still, there are many different trees, as <a id="rfig184" href="part0015_split_008.html#fig184" class="calibre5">figure 184</a> shows; it also uses suggestive graphics to bring across what these pieces of data look like as trees.</p>
+<div class="figure">
+<figure class="img"><a id="fig184" class="calibre5"></a><img src="../images/00741.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_008.html#rfig184" class="calibre5">Figure 184</a>:</span> <span>Some stripped-down binary trees</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">One property that one may wish to compute is the height of such a tree:</p>
+<figure class="co"><img src="../images/00742.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Supply a signature and a test. The table in <a href="part0015_split_008.html#fig184" class="calibre5">figure 184</a> indicates how to measure the height of a tree, though it leaves the notion somewhat ambiguous: it is either the number of nodes from the root of the tree to the highest leaf or the number of connections on such a path. The <samp class="mono">height</samp> function follows the second option.</p>
+<p class="calibre8">To transform this function into an accumulator-style function, we follow the standard path. We begin with an appropriate template:</p>
+<figure class="co"><img src="../images/00743.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_716" title="716"></span>As always, the problem is to determine what knowledge the accumulator represents. One obvious choice is the number of traversed branches:</p>
+<div class="ex">
+<p class="exf"><samp class="mono">a</samp> is the number of steps it takes to reach <samp class="mono">abt</samp> from <samp class="mono">abt0</samp>.</p>
+</div>
+<p class="calibre8">Illustrating this accumulator invariant is best done with a graphical example. Take a second look at <a href="part0015_split_008.html#fig184" class="calibre5">figure 184</a>. The bottom-most tree comes with two annotations, each pointing out one subtree:</p>
+<p class="nlf">1. If <samp class="mono">abt0</samp> is the complete tree and <samp class="mono">abt</samp> is the subtree pointed to by the circled 1, the accumulator’s value must be <samp class="mono">1</samp> because it takes exactly one step to get from the root of <samp class="mono">abt</samp> to the root of <samp class="mono">abt0</samp>.</p>
+<p class="nll">2. In the same spirit, for the subtree labeled 2 the accumulator is <samp class="mono">2</samp> because it takes two steps to get to this place.</p>
+<p class="calibre8">As for the preceding two examples, the invariant basically dictates how to follow the rest of the design recipe for accumulators: the initial value for <samp class="mono">a</samp> is <samp class="mono">0</samp>; the update operation is <samp class="mono">add1</samp>; and the base case uses the accumulated knowledge by returning it. Translating this into code yields the following skeleton definition:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_717" title="717"></span><img src="../images/00744.gif" alt="" class="calibre10"/></figure>
+<p class="tni">But, in contrast to the first two examples, <samp class="mono">a</samp> is not the final result. In the second <samp class="mono">cond</samp> clause, the two recursive calls yield two values. The design recipe for structural functions dictates that we combine those in order to formulate an answer for this case; the dots above indicate that we still need to pick an operation that combines these values.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_718" title="718"></span>Following the design recipe also tells us that we need to interpret the two values to find the appropriate function. According to the purpose statement for <samp class="mono">height/a</samp>, the first value is the height of the left subtree, and the second one is the height of the right one. Given that we are interested in the height of <samp class="mono">abt</samp> itself and that the height is the largest number of steps it takes to reach a leaf, we use the <samp class="mono">max</samp> function to pick the proper one; see <a id="rfig185" href="part0015_split_008.html#fig185" class="calibre5">figure 185</a> for the complete definition.</p>
+<div class="figure">
+<figure class="img"><a id="fig185" class="calibre5"></a><img src="../images/00745.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_008.html#rfig185" class="calibre5">Figure 185</a>:</span> <span>The accumulator-style version of <i class="calibre6">height</i></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Note on an Alternative Design</b> In addition to counting the number of steps it takes to reach a node, an accumulator function could hold on to the largest height encountered so far. Here is the accumulator statement for the design idea:</p>
+<div class="ex">
+<p class="exf">The first accumulator represents the number of steps it takes to reach <samp class="mono">abt</samp> from (the root of) <samp class="mono">abt0</samp>. The second one stands for the height of the part in <samp class="mono">abt0</samp> that is strictly to to the left of <samp class="mono">abt</samp>.</p>
+</div>
+<p class="tni">Clearly, this statement assumes a template with two accumulator parameters, something we have not encountered before:</p>
+<figure class="co"><img src="../images/00746.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 498. Complete <samp class="mono">height.v3</samp>. <b class="calibre9">Hint</b> The bottom-most tree of <a href="part0015_split_008.html#fig184" class="calibre5">figure 184</a> contains no subtree to the left of the subtree marked with 1. It contains one complete path from root to tree in the part of the tree that is to the left of the subtree marked with 2; this path consists of two steps. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">This second design has a more complex accumulator invariant than the first one. By implication, its implementation requires more care than the first one. At the same time, it comes without any obvious advantages.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_719" title="719"></span>Our point is that different accumulator invariants yield different variants. You can design both variants systematically, following the same design recipe. When you have complete function definitions, you can compare and contrast the results, and you can then decide which one to keep, based on evidence. <b class="calibre9">End</b></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 499. Design an accumulator-style version of <samp class="mono">product</samp>, the function that computes the product of a list of numbers. Stop when you have formulated the accumulator invariant and have someone check it.</p>
+<p class="calibre8">The performance of <samp class="mono">product</samp> is <i class="calibre6">O</i>(<i class="calibre6">n</i>) where <i class="calibre6">n</i> is the length of the list. Does the accumulator version improve on this? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 500. Design an accumulator-style version of <samp class="mono">how-many</samp>, which is the function that determines the number of items on a list. Stop when you have formulated the invariant and have someone check it.</p>
+<p class="calibre8">The performance of <samp class="mono">how-many</samp> is <i class="calibre6">O</i>(<i class="calibre6">n</i>) where <i class="calibre6">n</i> is the length of the list. Does the accumulator version improve on this?</p>
+<div class="calibre4">
+<p class="marginpar">Computer scientists refer to this space as <i class="calibre6">stack space</i>, but you can safely ignore this terminology for now.</p>
+</div>
+<p class="calibre8">When you evaluate <samp class="mono">(how-many some-non-empty-list)</samp> by hand, <i class="calibre6">n</i> applications of <samp class="mono">add1</samp> are pending by the time the function reaches <samp class="mono">'()</samp>—where <i class="calibre6">n</i> is the number of items on the list. Computer scientists sometime say that <samp class="mono">how-many</samp> needs <i class="calibre6">O</i>(<i class="calibre6">n</i>) space to represent these pending function applications. Does the accumulator reduce the amount of space needed to compute the result? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 501. Design an accumulator-style version of <samp class="mono">add-to-pi</samp>. The function adds a natural number to <samp class="mono">pi</samp> without using <samp class="mono">+</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> n to</samp><samp class="mono"> pi without</samp><samp class="mono"> using +</samp> <br class="calibre4"/><samp class="mono">(check-within (add-to-pi</samp><samp class="mono"> 2) (+</samp><samp class="mono"> 2 pi)</samp><samp class="mono"> 0.001)</samp> <br class="calibre4"/><samp class="mono">(define (add-to-pi</samp><samp class="mono"> n)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(zero?</samp><samp class="mono"> n) pi]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (add1 (add-to-pi</samp><samp class="mono"> (sub1 n)))]))</samp></p>
+</div>
+<p class="tni">Stop when you have formulated the accumulator invariant and have someone check it. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 502. Design the function <samp class="mono">palindrome</samp>, which accepts a non-empty list and constructs a palindrome by mirroring the list around the last item. When given <samp class="mono">(explode "abc")</samp>, it yields <samp class="mono">(explode "abcba")</samp>.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Here is a solution designed by function composition:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_720" title="720"></span><img src="../images/00747.gif" alt="" class="calibre10"/></figure>
+<p class="tni">See chapter 11.4 for <samp class="mono">last</samp>; design <samp class="mono">all-but-last</samp> in an analogous manner.</p>
+<p class="calibre8">This solution traverses <samp class="mono">s0</samp> four times:</p>
+<p class="nlf">1. via <samp class="mono">all-but-last</samp>,</p>
+<p class="nlf">2. via <samp class="mono">last</samp>,</p>
+<p class="nlf">3. via <samp class="mono">all-but-last</samp> again, and</p>
+<p class="nll">4. via <samp class="mono">reverse</samp>, which is ISL+’s version of <samp class="mono">invert</samp>.</p>
+<p class="tni">Even with <samp class="mono">local</samp> definition for the result of <samp class="mono">all-but-last</samp>, the function needs three traversals. While these traversals aren’t “stacked” and therefore don’t have a disastrous impact on the function’s performance, an accumulator version can compute the same result with a single traversal. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 503. Exercise 467 implicitly asks for the design of a function that rotates a Matrix until the first coefficient of the first row differs from <samp class="mono">0</samp>. In the context of Exercise 467, the solution calls for a generative-recursive function that creates a new matrix by shifting the first row to the end when it encounters a <samp class="mono">0</samp> in the first position. Here is the solution:</p>
+<figure class="co"><img src="../images/00748.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Modify this function so that it signals an error when all rows start with <samp class="mono">0</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_721" title="721"></span>If you measure this function on large instances of Matrix, you get a surprising result:</p>
+<figure class="co"><img src="../images/00749.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As the number of rows increases from 1<i class="calibre6">,</i>000 to 5<i class="calibre6">,</i>000, the time spent by <samp class="mono">rotate</samp> does not increase by a factor of five but by twenty.</p>
+<p class="calibre8">The problem is that <samp class="mono">rotate</samp> uses <samp class="mono">append</samp>, which makes a brand-new list like <samp class="mono">(rest M)</samp> only to add <samp class="mono">(first M)</samp> at the end. If <samp class="mono">M</samp> consists of 1<i class="calibre6">,</i>000 rows and the last row is the only one with a non-<samp class="mono">0</samp> coefficient, that’s roughly</p>
+<figure class="co"><img src="../images/00750.gif" alt="" class="calibre10"/></figure>
+<p class="tni">lists. How many lists do we get if <samp class="mono">M</samp> consists of 5<i class="calibre6">,</i>000 lines?</p>
+<p class="calibre8">Now suppose we conjecture that the accumulator-style version is faster than the generative one. Here is the accumulator template for a structurally recursive version of <samp class="mono">rotate</samp>:</p>
+<figure class="co"><img src="../images/00751.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The goal is to remember the first row when its leading coefficient is <samp class="mono">0</samp> without using <samp class="mono">append</samp> for every recursion.</p>
+<p class="calibre8">Formulate an accumulator statement. Then follow the accumulator design recipe to complete the above function. Measure how fast it runs on a <samp class="mono">Matrix</samp> that consists of rows with leading <samp class="mono">0</samp>s except for the last one. If you completed the design correctly, the function is quite fast. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 504. Design <samp class="mono">to10</samp>. It consumes a list of digits and produces the corresponding number. The first item on the list is the <b class="calibre9">most significant</b> digit. Hence, when applied to <samp class="mono">'(1 0 2)</samp>, it produces <samp class="mono">102</samp>.</p>
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> You may recall from grade school that the result is determined by 1 · 10<sup class="calibre15">2</sup> + 0 · 10<sup class="calibre15">1</sup> + 2 · 10<sup class="calibre15">0</sup> = ((1 · 10 + 0) · 10) + 2 = 102. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_722" title="722"></span><b class="calibre9">Exercise</b> 505. Design the function <samp class="mono">is-prime</samp>, which consumes a natural number and returns <samp class="mono">#true</samp> if it is prime and <samp class="mono">#false</samp> otherwise.</p>
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> A number <i class="calibre6">n</i> is prime if it is not divisible by any number between <i class="calibre6">n -</i> 1 and 2.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> The design recipe for N [ &gt;=1] suggests the following template:</p>
+<figure class="co"><img src="../images/00752.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This template immediately tells you that the function forgets <samp class="mono">n</samp>, its initial argument as it recurs. Since <samp class="mono">n</samp> is definitely needed to determine whether <samp class="mono">n</samp> is divisible by <samp class="mono">(</samp>- <samp class="mono">n 1)</samp>, <samp class="mono">(</samp>- <samp class="mono">n 2)</samp>, and so on, you know that you need an accumulator-style function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Note on Speed</b> Programmers who encounter accumulator-style functions for the first time often get the impression that they are always faster than their plain counterparts. So let’s take a look at the solution of exercise 497:</p>
+<figure class="co"><img src="../images/00753.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">An explanation of these times is beyond the scope of this book.</p>
+<p class="tni">The table’s top row shows the number of seconds for five runs of <samp class="mono">(!.v1 20)</samp>, while the bottom one lists those of running <samp class="mono">(!.v2 20)</samp>. The last column shows the averages. In short, the table shows that people jump to premature conclusions; the performance of at least one accumulator-style function is worse than that of the original. <b class="calibre9">Do not trust prejudices.</b> Instead, measure performance characteristics of your programs for yourself. <b class="calibre9">End</b></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 506. Design an accumulator-style version of <samp class="mono">map</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 507. Exercise 257 explains how to design <samp class="mono">foldl</samp> with the design recipes and guidelines of the first two parts of the book:</p>
+<figure class="co"><img src="../images/00754.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_723" title="723"></span>That is, <samp class="mono">foldl</samp> is the result of reversing the given list and then using <samp class="mono">foldr</samp> to fold the given function over this intermediate list.</p>
+<p class="calibre8">The <samp class="mono">f*ldl</samp> function obviously traverses the list twice, but once we design all the functions, it becomes clear how much harder it has to work:</p>
+<figure class="co"><img src="../images/00755.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We know that <samp class="mono">reverse</samp> has to traverse a list once for every item on the list, meaning <samp class="mono">f*ldl</samp> really performs <i class="calibre6">n</i><sup class="calibre15">2</sup> traversals for a list of length <i class="calibre6">n</i>. Fortunately, we know how to eliminate this bottleneck with an accumulator:</p>
+<figure class="co"><img src="../images/00756.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_724" title="724"></span>Once <samp class="mono">reverse</samp> uses an accumulator, we actually get the apparent performance of two traversals of the list. The question is whether we can improve on this by adding an accumulator to the locally defined <samp class="mono">fold</samp>:</p>
+<figure class="co"><img src="../images/00757.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Since equipping the function with an accumulator reverses the order in which the list is traversed, the initial reversal of the list is superfluous.</p>
+<p class="calibre8"><b class="calibre9">Task 1</b> Recall the signature for <samp class="mono">foldl</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> Y] [X</samp><samp class="mono"> Y -&gt;</samp><samp class="mono"> Y] Y</samp><samp class="mono"> [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> Y</samp></p>
+</div>
+<p class="tni">It is also the signature of <samp class="mono">f*ldl</samp>. Formulate the signature for <samp class="mono">fold/a</samp> and its accumulator invariant. <b class="calibre9">Hint</b> Assume that the difference between <samp class="mono">l0</samp> and <samp class="mono">l</samp> is <samp class="mono">(list x1 x2 x3)</samp>. What is <samp class="mono">a</samp>, then?</p>
+<p class="calibre8">You may also be wondering why <samp class="mono">fold/a</samp> consumes its arguments in this unusual order, first the accumulator and then the list. To understand the reason for this ordering, imagine instead that <samp class="mono">fold/a</samp> also consumes <samp class="mono">f</samp>—as the first argument. At this point it becomes abundantly clear that <samp class="mono">fold/a</samp> is <samp class="mono">foldl</samp>:</p>
+<figure class="co"><img src="../images/00758.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Task 2</b> Design <samp class="mono">build-l*st</samp> using an accumulator-style approach. The function must satisfy the following tests:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (build-l*st</samp><samp class="mono"> n f)</samp><samp class="mono"> (build-list n</samp><samp class="mono"> f))</samp></p>
+</div>
+<p class="tni">for any natural number <samp class="mono">n</samp> and function <samp class="mono">f</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

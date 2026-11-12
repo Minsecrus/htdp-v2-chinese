@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_20"><a id="sec16-6" class="calibre16"></a>16.6 Designing with Abstractions</h2>
+<p class="tni">The three sample problems from the preceding section suffice for formulating a design recipe:</p>
+<p class="nlf">1. Step 1 is <b class="calibre9">to follow the design recipe for functions</b> for three steps. Specifically, you should distill the problem statement into a signature, a purpose statement, an example, and a stub definition.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_434" title="434"></span>Consider the problem of defining a function that places small red circles on a 200 × 200 canvas for a given list of Posns. The first three steps of the design recipe yields this much:</p>
+<figure class="co"><img src="../images/00382.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">Add definitions for the constants so DrRacket can run the code.</p>
+<p class="nlf">2. Next we exploit the signature and purpose statement to find a matching abstraction. <b class="calibre9">To match</b> means to pick an abstraction whose purpose is more general than the one for the function to be designed; it also means that the signatures are related. It is often best to start with the desired output and to find an abstraction that has the same or a more general output.</p>
+<p class="nltni">For our running example, the desired output is an Image. While none of the available abstractions produces an image, two of them have a variable to the right of</p>
+<figure class="co"><img src="../images/00383.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">meaning we can plug in any data collection we want. If we do use Image, the signature on the left of <samp class="mono">-&gt;</samp> demands a helper function that consumes an <samp class="mono">X</samp> together with an Image and produces an Image. Furthermore, since the given list contains Posns, <samp class="mono">X</samp> does stand for the Posn collection.</p>
+<p class="nlf">3. Write down <b class="calibre9">a template</b>. For the reuse of abstractions, a template uses <samp class="mono">local</samp> for two different purposes. The first one is to note which abstraction to use, and how, in the body of the <samp class="mono">local</samp> expression. The second one is to write down a stub for the helper function: its signature, its purpose (optionally), and its header. Keep in mind that the signature comparison in the preceding step suggests most of the signature for the auxiliary function.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_435" title="435"></span>Here is what this template looks like for our running example if we choose the <samp class="mono">foldr</samp> function:</p>
+<figure class="co"><img src="../images/00384.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">The <samp class="mono">foldr</samp> description calls for a “base” <samp class="mono">Image</samp> value, to be used if or when the list is empty. In our case, we clearly want the empty canvas for this case. Otherwise, <samp class="mono">foldr</samp> uses a helper function and traverses the list of Posns.</p>
+<p class="nlf">4. Finally, it is time to define the auxiliary function inside <samp class="mono">local</samp>. In most cases, this function consumes relatively simple kinds of data, like those encountered in part I. You know how to design those in principle. The difference is that now you use not only the function’s arguments and global constants but also the arguments of the surrounding function.</p>
+<p class="nltni">In our running example, the purpose of the helper function is to add one dot to the given scene, which you can (1) guess or (2) derive from the example:</p>
+<figure class="co"><img src="../images/00385.gif" alt="" class="calibre10"/></figure>
+<p class="nlf">5. The last step is <b class="calibre9">to test</b> the definition in the usual manner.</p>
+<p class="nltni">For abstract functions, it is occasionally possible to use the abstract example of their purpose statement to confirm their workings at a more general level. You may wish to use the abstract example for <samp class="mono">foldr</samp> to confirm that <samp class="mono">dots</samp> does add one dot after another to the background scene.</p>
+<p class="stni">In the third step, we picked <samp class="mono">foldr</samp> without further ado. Experiment with <samp class="mono">foldl</samp> to see how it would help complete this function. Functions like <span epub:type="pagebreak" id="pg_436" title="436"></span><samp class="mono">foldl</samp> and <samp class="mono">foldr</samp> are well-known and are spreading in usage in various forms. Becoming familiar with them is a good idea, and that’s the point of the next two sections.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

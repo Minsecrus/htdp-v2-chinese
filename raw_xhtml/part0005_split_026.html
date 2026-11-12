@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_27"><a id="sec4-2" class="calibre16"></a>4.2 Computing Conditionally</h2>
+<p class="tni">From reading the “Many Ways to Compute” and chapter 1.6, you roughly know how DrRacket evaluates conditional expressions. Let’s go over the idea a bit more precisely for <samp class="mono">cond</samp> expressions. Take another look at this definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (reward</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 s</samp><samp class="mono"> 10) "bronze"]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> s) (&lt;=</samp><samp class="mono"> s 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> "gold"]))</samp></samp></p>
+</div>
+<p class="tni">This function consumes a numeric score—a positive number—and produces a color.</p>
+<p class="calibre8">Just looking at the <samp class="mono">cond</samp> expression, you cannot predict which of the three <samp class="mono">cond</samp> clauses is going to be used. And that is the point of a function. The function deals with many different inputs, for example, <samp class="mono">2</samp>, <samp class="mono">3</samp>, <samp class="mono">7</samp>, <samp class="mono">18</samp>, <samp class="mono">29</samp>. For each of these inputs, it may have to proceed in a different manner. Differentiating among the varying classes of inputs is the purpose of the <samp class="mono">cond</samp> expression.</p>
+<p class="calibre8">Take, for example</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(reward 3)</samp></samp></p>
+</div>
+<p class="tni">You know that DrRacket replaces function applications with the function’s body after substituting the argument for the parameter. Hence,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_106" title="106"></span><samp class="mono">(reward 3)</samp><samp class="mono"> ; say</samp><samp class="mono"> ''equals''</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 3</samp><samp class="mono"> 10) "bronze"]</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 3) (&lt;=</samp><samp class="mono"> 3 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp></samp></p>
+</div>
+<p class="tni">At this point, DrRacket evaluates one condition at a time. For the <b class="calibre9">first</b> one to evaluate to <samp class="mono">#true</samp>, it continues with the result expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(reward 3)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 3</samp><samp class="mono"> 10) "bronze"]</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 3) (&lt;=</samp><samp class="mono"> 3 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#true</samp><samp class="mono"> "bronze"]</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 3) (&lt;=</samp><samp class="mono"> 3 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">"bronze"</samp></samp></p>
+</div>
+<p class="tni">Here the first condition holds because <samp class="mono">3</samp> is between <samp class="mono">0</samp> and <samp class="mono">10</samp>.</p>
+<p class="calibre8">Here is a second example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(reward 21)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(&lt;=</samp><samp class="mono"> 0 21</samp><samp class="mono"> 10) "bronze"]</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 21) (&lt;=</samp><samp class="mono"> 21 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#false</samp><samp class="mono"> "bronze"]</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 21) (&lt;=</samp><samp class="mono"> 21 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 21) (&lt;=</samp><samp class="mono"> 21 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_107" title="107"></span>Note how the first condition evaluated to <samp class="mono">#false</samp> this time, and as mentioned in “Many Ways to Compute” the entire <samp class="mono">cond</samp> clause is dropped. The rest of the calculation proceeds as expected:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> (&lt; 10</samp><samp class="mono"> 21) (&lt;=</samp><samp class="mono"> 21 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> #true (&lt;=</samp><samp class="mono"> 21 20))</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(and</samp><samp class="mono"> #true #false)</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#false</samp><samp class="mono"> "silver"]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> "gold"])</samp> <br class="calibre4"/><samp class="mono">== "gold"</samp></samp></p>
+</div>
+<p class="tni">Like the first condition, the second one also evaluates to <samp class="mono">#false</samp> and thus the calculation proceeds to the third <samp class="mono">cond</samp> line. The <samp class="mono">else</samp> tells DrRacket to replace the entire <samp class="mono">cond</samp> expression with the answer from this clause.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 48. Enter the definition of <samp class="mono">reward</samp> followed by <samp class="mono">(reward 18)</samp> into the definitions area of DrRacket and use the stepper to find out <b class="calibre9">how</b> DrRacket evaluates applications of the function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 49. A <samp class="mono">cond</samp> expression is really just an expression and may therefore show up in the middle of another expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(- 200</samp><samp class="mono"> (cond [(&gt;</samp><samp class="mono"> y 200)</samp><samp class="mono"> 0] [else</samp><samp class="mono"> y]))</samp></samp></p>
+</div>
+<p class="tni">Use the stepper to evaluate the expression for <samp class="mono">y</samp> as <samp class="mono">100</samp> and <samp class="mono">210</samp>.</p>
+<p class="calibre8">Nesting <samp class="mono">cond</samp> expressions can eliminate common expressions. Consider the function for launching a rocket, repeated in <a id="rfig20" href="part0005_split_026.html#fig20" class="calibre5">figure 20</a>. Both branches of the <samp class="mono">cond</samp> expression have the same shape except as indicated with <samp class="mono"><span>…</span></samp>:</p>
+
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(place-image ROCKET</samp><samp class="mono"> X <span>…</span></samp><samp class="mono"> MTSCN)</samp></samp></p>
+</div>
+
+<div class="figure">
+<figure class="img"><a id="fig20" class="calibre5"></a><img src="../images/00072.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_026.html#rfig20" class="calibre5">Figure 20</a>:</span> <span>Recall from “One Program, Many Definitions”</span></p></figcaption>
+</figure>
+</div>
+
+
+<p class="calibre8"><span epub:type="pagebreak" id="pg_108" title="108"></span>Reformulate <samp class="mono">create-rocket-scene.v5</samp> to use a <samp class="mono">nested</samp> expression; the resulting function mentions <samp class="mono">place-image</samp> only once. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

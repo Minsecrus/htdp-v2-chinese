@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_33"><a id="sec12-8" class="calibre16"></a>12.8 Finite State Machines</h2>
+<p class="tni">Finite state machines (FSMs) and regular expressions are ubiquitous elements of programming. As chapter 4.7 explains, state machines are one way to think about world programs. Conversely, exercise 109 shows how to design world programs that implement an FSM and check whether a player presses a specific series of keystrokes.</p>
+<p class="calibre8">As you may also recall, a finite state machine is equivalent to a regular expression. Hence, computer scientists tend to say that an FSM accepts the keystrokes that match a particular regular expression, like this one</p>
+<figure class="co"><img src="../images/00293.gif" alt="" class="calibre10"/></figure>
+<p class="tni">from exercise 109. If you wanted a program that recognizes a different pattern, say,</p>
+<figure class="co"><img src="../images/00294.gif" alt="" class="calibre10"/></figure>
+<p class="tni">you would just modify the existing program appropriately. The two programs would resemble each other, and if you were to repeat this exercise for several different regular expressions, you would end up with a whole bunch of similar-looking programs.</p>
+<p class="calibre8">A natural idea is to look for a general solution, that is, a world program that consumes a <b class="calibre9">data representation of an FSM</b> and recognizes whether a player presses a matching sequence of keys. This section presents the design of just such a world program, though a greatly simplified one. In particular, the FSMs come without initial or final states, and the matching ignores the actual keystrokes; instead the transition from one state to another takes place whenever <b class="calibre9">any</b> key is pressed. Furthermore, we require that the states are color strings. That way, the FSM-interpreting program can simply display the current state as a color.</p>
+<p class="calibre8"><b class="calibre9">Note on Design Choices</b> Here is another attempt to generalize:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a program that interprets a given FSM on a specific list of KeyEvents. That is, the program consumes a data representation of an FSM and a string. Its result is <samp class="mono">#true</samp> if the string matches the regular expression that corresponds to the FSM; otherwise it is <samp class="mono">#false</samp>.</p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_361" title="361"></span>As it turns out, however, you <b class="calibre9">cannot design</b> this program with the principles of the first two parts. Indeed, solving this problem has to wait until chapter 30; see exercise 476. <b class="calibre9">End</b></p>
+<p class="calibre8">The simplified problem statement dictates a number of points, including the need for a data definition for the representation of FSMs, the nature of its states, and their appearance as an image. <a id="rfig82" href="part0007_split_032.html#fig82" class="calibre5">Figure 82</a> collects this information. It starts with a data definition for FSMs. As you can see, an FSM is just a list of Transitions. We must use a list because we want our world program to work with any FSM and that means a finite, but arbitrarily large, number of states. Each Transition combines two states in a structure: the <samp class="mono">current</samp> state and the <samp class="mono">next</samp> state, that is, the one that the machine transitions to when the player presses a key. The final part of the data definition says that a state is just the name of a color.</p>
+<div class="figure">
+<figure class="img"><a id="fig82" class="calibre5"></a><img src="../images/00295.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_032.html#rfig82" class="calibre5">Figure 82</a>:</span> <span>Representing and interpreting finite state machines in general</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 226. Design <samp class="mono">state=?</samp>, an equality predicate for states. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Since this definition is complex, we follow the design recipe and create an example:</p>
+<figure class="co"><img src="../images/00296.gif" alt="" class="calibre10"/></figure>
+<p class="tni">You probably guessed that this transition table describes a traffic light. Its <span epub:type="pagebreak" id="pg_362" title="362"></span>first transition tells us that the traffic light jumps from <samp class="mono">"red"</samp> to <samp class="mono">"green"</samp>, the second one represents the transition from <samp class="mono">"green"</samp> to <samp class="mono">"yellow"</samp>, and the last one is for <samp class="mono">"yellow"</samp> to <samp class="mono">"red"</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 227. The BW Machine is an FSM that flips from black to white and back to black for every key event. Formulate a data representation for the BW Machine. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Clearly, the solution to our problem is a world program:</p>
+<figure class="co"><img src="../images/00297.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It is supposed to consume a FSM, but we have no clue what the program is to produce. We call the program <samp class="mono">simulate</samp> because it acts like the given FSM in response to a player’s keystrokes.</p>
+<p class="calibre8">Let’s follow the design recipe for world programs anyway to see how far it takes us. It tells us to differentiate between those things in the “real world” that change and those that remain the same. While the <samp class="mono">simulate</samp> function consumes an instance of FSM, we also know that this FSM does not change. What changes is the current state of the machine.</p>
+<p class="calibre8">This analysis suggests the following data definition</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">SimulationState.v1</span><samp class="mono"> is an</samp><samp class="mono"> </samp>FSM-State<samp class="mono">.</samp></p>
+</div>
+<p class="marginpar">The <samp class="monospace-margin">empty-image</samp> constant represents an “invisible” image. It is a good default value for writing down the headers of rendering functions.</p>
+<p class="tni">According to the design recipe for world programs, this data definition completes the main function:</p>
+<figure class="co"><img src="../images/00298.gif" alt="" class="calibre10"/></figure>
+<p class="tni">and implies a wish list with two entries:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>SimulationState.v1<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> a world</samp><samp class="mono"> state as</samp><samp class="mono"> an image</samp> <br class="calibre4"/><samp class="mono">(define (render-state.v1</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  empty-image)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>SimulationState.v1 KeyEvent<samp class="mono"> -&gt; </samp>SimulationState.v1 <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the next</samp><samp class="mono"> state from</samp><samp class="mono"> ke and</samp><samp class="mono"> cs</samp> <br class="calibre4"/><samp class="mono">(define (find-next-state.v1</samp><samp class="mono"> cs ke)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> cs)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_363" title="363"></span>The sketch raises two questions. First, there is the issue of how the very first SimulationState.v1 is determined. Currently, the chosen state, <samp class="mono">initial-state</samp>, is marked in grey to warn you about the issue. Second, the second entry on the wish list must cause some consternation:</p>
+<div class="ex">
+<p class="exf">How can <samp class="mono">find-next-state</samp> possibly find the next state when all it is given is the current state and a keystroke?</p>
+</div>
+<p class="tni">This question rings especially true because, according to the simplified problem statement, the exact nature of the keystroke is irrelevant; the FSM transitions to the next state regardless of which key is pressed.</p>
+<p class="calibre8">What this second issue exposes is <b class="calibre9">a fundamental limitation of BSL+</b>. To appreciate this limitation, we start with a work-around. Basically, the analysis demands that the <samp class="mono">find-next-state</samp> function receives not only the current state but also the FSM so that it can search the list of transitions and pick the next state. In other words, the state of the world must include both the current state of the FSM and the FSM itself:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct fs</samp><samp class="mono"> [fsm current])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">SimulationState.v2</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-fs</samp><samp class="mono"> </samp>FSM FSM-State<samp class="mono">)</samp></p>
+</div>
+<p class="marginpar">Alonzo Church and Alan Turing, the first two computer scientists, proved in the 1930s that all programming languages can compute certain functions on numbers. Hence, they argued that all programming languages were equal. The first author of this book disagrees. He distinguishes languages according to <b class="calibre9">how</b> they allow programmers to express solutions.</p>
+<p class="tni">According to the world design recipe, this change also means that the key-event handler must return this combination:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>SimulationState.v2<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> a world</samp><samp class="mono"> state as</samp><samp class="mono"> an image</samp> <br class="calibre4"/><samp class="mono">(define (render-state.v2</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  empty-image)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>SimulationState.v2 KeyEvent<samp class="mono"> -&gt; </samp>SimulationState.v2 <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the next</samp><samp class="mono"> state from</samp><samp class="mono"> ke and</samp><samp class="mono"> cs</samp> <br class="calibre4"/><samp class="mono">(define (find-next-state.v2</samp><samp class="mono"> cs ke)</samp> <br class="calibre4"/><samp class="mono">  cs)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_364" title="364"></span>Finally, the main function must now consume two arguments: the FSM and its first state. After all, the various FSMs that <samp class="mono">simulate</samp> consumes come with all kinds of states; we cannot assume that all of them have the same initial state. Here is the revised function header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>FSM<samp class="mono"> </samp>FSM-State<samp class="mono"> -&gt;</samp> SimulationState.v2 <br class="calibre4"/><samp class="mono">; match</samp><samp class="mono"> the keys</samp><samp class="mono"> pressed with</samp><samp class="mono"> the given</samp> FSM <br class="calibre4"/><samp class="mono">(define (simulate.v2</samp><samp class="mono"> an-fsm s0)</samp> <br class="calibre4"/><samp class="mono">  (big-bang</samp><samp class="mono"> (make-fs an-fsm</samp><samp class="mono"> s0)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [to-draw</samp><samp class="mono"> state-as-colored-square]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [on-key</samp><samp class="mono"> find-next-state]))</samp></p>
+</div>
+<p class="calibre8">Let’s return to the example of the traffic-light FSM. For this machine, it would be best to apply <samp class="mono">simulate</samp> to the machine and <samp class="mono">"red"</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(simulate.v2 fsm-traffic</samp><samp class="mono"> "red")</samp></p>
+</div>
+<p class="tni">Stop! Why do you think <samp class="mono">"red"</samp> is good for traffic lights?</p>
+<p class="marginpar">Engineers call <samp class="monospace-margin">"red"</samp> the <b class="calibre9">safe state</b>.</p>
+<p class="calibre8"><b class="calibre9">Note on Expressive Power</b> Given the work-around, we can now explain the limitation of BSL. Even though the given FSM does not change during the course of the simulation, its description must become a part of the world’s state. Ideally, the program should express that the description of the FSM remains constant, but instead the program must treat the FSM as part of the ever-changing state. The reader of a program cannot deduce this fact from the first piece of <samp class="mono">big-bang</samp> alone.</p>
+<p class="calibre8">The next part of the book resolves this conundrum with the introduction of a new programming language and a specific linguistic construct: ISL and <samp class="mono">local</samp> definitions. For details, see chapter 16.3. <b class="calibre9">End</b></p>
+<p class="calibre8">At this point, we can turn to the wish list and work through its entries, one at a time. The first one, the design of <samp class="mono">state-as-colored-square</samp>, is so straightforward that we simply provide the complete definition:</p>
+<figure class="co"><img src="../images/00299.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_365" title="365"></span>In contrast, the design of the key-event handler deserves some discussion. Recall the header material:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; SimulationState.v2</samp><samp class="mono"> KeyEvent -&gt;</samp><samp class="mono"> SimulationState.v2</samp> <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the next</samp><samp class="mono"> state from</samp><samp class="mono"> ke and</samp><samp class="mono"> cs</samp> <br class="calibre4"/><samp class="mono">(define (find-next-state</samp><samp class="mono"> an-fsm current)</samp> <br class="calibre4"/><samp class="mono">  an-fsm)</samp></p>
+</div>
+<p class="tni">According to the design recipe, the handler must consume a state of the world and a KeyEvent, and it must produce the next state of the world. This articulation of the signature in plain words also guides the design of examples. Here are the first two:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (find-next-state</samp><samp class="mono"> (make-fs fsm-traffic</samp><samp class="mono"> "red") "n")</samp> <br class="calibre4"/><samp class="mono">  (make-fs</samp><samp class="mono"> fsm-traffic "green"))</samp> <br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (find-next-state</samp><samp class="mono"> (make-fs fsm-traffic</samp><samp class="mono"> "red") "a")</samp> <br class="calibre4"/><samp class="mono">  (make-fs</samp><samp class="mono"> fsm-traffic "green"))</samp></p>
+</div>
+<p class="tni">The examples say that when the current state combines the <samp class="mono">fsm-traffic</samp> machine and its <samp class="mono">"red"</samp> state, the result combines the same FSM with <samp class="mono">"green"</samp>, regardless of whether the player hit <samp class="mono">"n"</samp> or <samp class="mono">"a"</samp> on the keyboard. Here is one more example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (find-next-state</samp><samp class="mono"> (make-fs fsm-traffic</samp><samp class="mono"> "green") "q")</samp> <br class="calibre4"/><samp class="mono">  (make-fs</samp><samp class="mono"> fsm-traffic "yellow"))</samp></p>
+</div>
+<p class="tni">Interpret the example before reading on. Can you think of another one?</p>
+<p class="calibre8">Since the function consumes a structure, we write down a template for structures processing:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (find-next-state</samp><samp class="mono"> an-fsm ke)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (fs-fsm an-fsm)</samp><samp class="mono"> .. (fs-current</samp><samp class="mono"> an-fsm) <span>…</span>))</samp></p>
+</div>
+<p class="tni">Furthermore, because the desired result is a SimulationState.v2, we can refine the template with the addition of an appropriate constructor:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (find-next-state</samp><samp class="mono"> an-fsm ke)</samp> <br class="calibre4"/><samp class="mono">  (make-fs</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (fs-fsm</samp><samp class="mono"> an-fsm) <span>…</span></samp><samp class="mono"> (fs-current an-fsm)</samp><samp class="mono"> <span>…</span>))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_366" title="366"></span>The examples suggest that the extracted FSM becomes the first component of the new SimulationState.v2 and that the function really just needs to compute the next state from the current one and the list of Transitions that make up the given FSM. Because the latter is arbitrarily long, we make up a wish—a <samp class="mono">find</samp> function that traverses the list to look for a Transition whose <samp class="mono">current</samp> state is <samp class="mono">(fs-current an-fsm)</samp>—and finish the definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (find-next-state</samp><samp class="mono"> an-fsm ke)</samp> <br class="calibre4"/><samp class="mono">  (make-fs</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (fs-fsm</samp><samp class="mono"> an-fsm)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (find</samp><samp class="mono"> (fs-fsm an-fsm)</samp><samp class="mono"> (fs-current an-fsm))))</samp></p>
+</div>
+<p class="calibre8">Here is the formulation of the new wish:</p>
+<figure class="co"><img src="../images/00300.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The examples are derived from the examples for <samp class="mono">find-next-state</samp>.</p>
+<p class="calibre8">Stop! Develop some additional examples, then tackle the exercises.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 228. Complete the design of <samp class="mono">find</samp>.</p>
+<p class="calibre8">Once the auxiliary functions are tested, use <samp class="mono">simulate</samp> to play with <samp class="mono">fsm-traffic</samp> and the BW Machine from exercise 227. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Our simulation program is intentionally quite restrictive. In particular, you cannot use it to represent FSMs that transition from one state to another depending on which key a player presses. Given the systematic design, though, you can extend the program with such capabilities.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 229. Here is a revised data definition for Transition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct ktransition</samp><samp class="mono"> [current key</samp><samp class="mono"> next])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Transition.v2</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-ktransition</samp><samp class="mono"> </samp>FSM-State KeyEvent FSM-State<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Represent the FSM from Transition.v2s; ignore errors and final states.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_367" title="367"></span>Modify the design of <samp class="mono">simulate</samp> so that it deals with keystrokes in the appropriate manner now. Follow the design recipe, starting with the adaptation of the data examples.</p>
+<p class="calibre8">Use the revised program to simulate a run of the FSM from exercise 109 on the following sequence of keystrokes: <samp class="mono">"a"</samp>, <samp class="mono">"b"</samp>, <samp class="mono">"b"</samp>, <samp class="mono">"c"</samp>, and <samp class="mono">"d"</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Finite state machines do come with initial and final states. When a program that “runs” an FSM reaches a final state, it should stop. The final exercise revises the data representation of FSMs one more time to introduce these ideas.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 230. Consider the following data representation for FSMs:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct fsm</samp><samp class="mono"> [initial transitions</samp><samp class="mono"> final])</samp> <br class="calibre4"/><samp class="mono">(define-struct transition</samp><samp class="mono"> [current key</samp><samp class="mono"> next])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">FSM.v2</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-fsm</samp><samp class="mono"> </samp>FSM-State LOT FSM-State<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">LOT</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Transition.v3 LOT<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Transition.v3</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-transition</samp><samp class="mono"> </samp>FSM-State KeyEvent FSM-State<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Represent the FSM from exercise 109 in this context.</p>
+<p class="calibre8">Design the function <samp class="mono">fsm-simulate</samp>, which accepts an FSM.v2 and runs it on a player’s keystrokes. If the sequence of keystrokes forces the FSM.v2 to reach a final state, <samp class="mono">fsm-simulate</samp> stops. <b class="calibre9">Hint</b> The function uses the <samp class="mono">initial</samp> field of the given <samp class="mono">fsm</samp> structure to track the current state. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Note on Iterative Refinement</b> These last two projects introduce the notion of “design by iterative refinement.” The basic idea is that the first program implements only a fraction of the desired behavior, the next one a bit more, and so on. Eventually you end up with a program that exhibits all of the desired behavior, or at least enough of it to satisfy a customer. For more details, see chapter 20. <b class="calibre9">End</b></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

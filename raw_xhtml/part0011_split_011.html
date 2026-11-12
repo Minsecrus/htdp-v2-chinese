@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_12"><span epub:type="pagebreak" id="pg_517" title="517" class="calibre1"></span><a id="sec20-2" class="calibre16"></a>20.2 Refining Data Definitions</h2>
+<p class="tni">Exercise 329 lists some of the questions that users routinely ask about directories. To answer such questions, the computer’s operating system provides programs that can answer them. If you want to design such programs, you need to develop a data representation for directory trees.</p>
+<p class="calibre8">In this section, we use iterative refinement to develop three such data representations. For each stage, we need to decide which attributes to include and which to ignore. Consider the directory tree in <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a> and imagine how it is created. When a user first creates a directory, it is empty. As time goes by, the user adds files and directories. In general, a user refers to files by names but mostly thinks of directories as containers.</p>
+<p class="stni"><b class="calibre9">Model 1</b> Our thought experiment suggests that our first model should focus on files as atomic entities with a name and directories as containers. Here is a data definition that deals with directories as lists and files as <span epub:type="pagebreak" id="pg_518" title="518"></span>strings, that is, their names:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Dir.v1</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">directory</span><samp class="mono">) is</samp><samp class="mono"> one of:</samp><samp class="mono"> <br class="calibre4"/>; --</samp> <samp class="mono">'() <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>File.v1<samp class="mono"> </samp>Dir.v1<samp class="mono">) <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp> Dir.v1<samp class="mono"> </samp>Dir.v1<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">File.v1</span><samp class="mono"> is a</samp><samp class="mono"> </samp>String<samp class="mono">.</samp></p>
+</div>
+<p class="tni">The names have a <i class="calibre6">.v1</i> suffix to distinguish them from future refinements.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_519" title="519"></span><b class="calibre9">Exercise</b> 330. Translate the directory tree in <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a> into a data representation according to model 1. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 331. Design the function <samp class="mono">how-many</samp>, which determines how many files a given Dir.v1 contains. Remember to follow the design recipe; exercise 330 provides you with data examples. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Model 2</b> If you solved exercise 331, you know that this first data definition is still reasonably simple. But, it also obscures the nature of directories. With this first representation, we would not be able to list all the names of the sub-directories of some given directory. To model directories in a more faithful manner than containers, we must introduce a structure type that combines a name with a container:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct dir</samp><samp class="mono"> [name content])</samp></p>
+</div>
+<p class="calibre8">This new structure type, in turn, suggests the following revision of the data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Dir.v2</span><samp class="mono"> is a</samp><samp class="mono"> structure: <br class="calibre4"/>;</samp><samp class="mono">   (make-dir </samp>String LOFD<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">LOFD</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">list of</span><span class="calibre6"> files and</span> <span class="calibre6">directories</span><samp class="mono">) is</samp><samp class="mono"> one of:</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> '() <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>File.v2 <samp class="mono">LOFD) <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>Dir.v2<samp class="mono"> </samp>LOFD<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">File.v2</span><samp class="mono"> is a</samp><samp class="mono"> </samp>String<samp class="mono">.</samp></p>
+</div>
+<p class="tni">Note how the data definition for Dir.v2 refers to the definition for LOFDs, and the one for LOFDs refers back to that of Dir.v2. The two definitions are mutually recursive.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 332. Translate the directory tree in <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a> into a data representation according to model 2. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 333. Design the function <samp class="mono">how-many</samp>, which determines how many files a given Dir.v2 contains. Exercise 332 provides you with data examples. Compare your result with that of exercise 331. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 334. Show how to equip a directory with two more attributes: size and readability. The former measures how much space the directory itself (as opposed to its content) consumes; the latter specifies whether anyone else besides the user may browse the content of the directory. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Model 3</b> Like directories, files have attributes. To introduce these, we proceed just as above. First, we define a structure for files:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct file</samp><samp class="mono"> [name size</samp><samp class="mono"> content])</samp></p>
+</div>
+<p class="tni">Second, we provide a data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">File.v3</span><samp class="mono"> is a</samp><samp class="mono"> structure: <br class="calibre4"/>;</samp><samp class="mono">  </samp><samp class="mono"> (make-file </samp>String N String<samp class="mono">)</samp></p>
+</div>
+<p class="tni">As indicated by the field names, the string represents the name of the file, the natural number its size, and the string its content.</p>
+<p class="calibre8">Finally, let’s split the <samp class="mono">content</samp> field of directories into two pieces: a list of files and a list of sub-directories. This change requires a revision of the structure type definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct dir.v3</samp><samp class="mono"> [name dirs</samp><samp class="mono"> files])</samp></p>
+</div>
+<p class="tni">Here is the refined data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Dir.v3</span><samp class="mono"> is a</samp><samp class="mono"> structure: <br class="calibre4"/>;</samp><samp class="mono">   (make-dir.v3 </samp>String Dir* File*<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Dir*</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- '()</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (cons </samp>Dir.v3 Dir*<samp class="mono">)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">File*</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- '()</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (cons </samp>File.v3 File*<samp class="mono">)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_520" title="520"></span>Following a convention in computer science, the use of <samp class="mono">*</samp> as the ending of a name suggests “many” and is a marker distinguishing the name from similar ones: File.v3 and Dir.v3.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 335. Translate the directory tree in <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a> into a data representation according to model 3. Use <samp class="mono">""</samp> for the content of files. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 336. Design the function <samp class="mono">how-many</samp>, which determines how many files a given Dir.v3 contains. Exercise 335 provides you with data examples. Compare your result with that of exercise 333.</p>
+<p class="calibre8">Given the complexity of the data definition, contemplate how anyone can design correct functions. Why are you confident that <samp class="mono">how-many</samp> produces correct results? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 337. Use List-of to simplify the data definition Dir.v3. Then use ISL+’s list-processing functions from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a> to simplify the function definition(s) for the solution of exercise 336. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Starting with a simple representation of the first model and refining it step-by-step, we have developed a reasonably accurate data representation for directory trees. Indeed, this third data representation captures the nature of a directory tree much more faithfully than the first two. Based on this model, we can create a number of other functions that users expect from a computer’s operating system.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_23"><a id="sec3-6" class="calibre16"></a>3.6 Designing World Programs</h2>
+<p class="tni">While the previous chapter introduces the <i class="calibre6">2htdp/universe</i> library in an ad hoc way, this section demonstrates how the design recipe also helps you create world programs systematically. It starts with a brief summary of the <i class="calibre6">2htdp/universe</i> library based on data definitions and function signatures. Then it spells out the design recipe for world programs.</p>
+<p class="calibre8">The teachpack expects that a programmer develops a data definition that represents the state of the world and a function <samp class="mono">render</samp> that knows how to create an image for every possible state of the world. Depending on the needs of the program, the programmer must then design functions that respond to clock ticks, keystrokes, and mouse events. Finally, an interactive program may need to stop when its current world belongs to a sub-class of states; <samp class="mono">end?</samp> recognizes these <i class="calibre6">final states</i>. <a id="rfig18" href="part0005_split_022.html#fig18" class="calibre5">Figure 18</a> spells out this idea in a schematic and simplified way.</p>
+<div class="figure">
+<figure class="img"><a id="fig18" class="calibre5"></a><img src="../images/00062.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_022.html#rfig18" class="calibre5">Figure 18</a>:</span> <span>The wish list for designing world programs</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Assuming that you have a rudimentary understanding of the workings of <samp class="mono">big-bang</samp>, you can focus on the truly important problem of designing world programs. Let’s construct a concrete example for the following design recipe:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a program that moves a car from left to right on the world canvas, three pixels per clock tick.</p>
+</div>
+<p class="tni">For this problem statement, it is easy to imagine scenes for the domain:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_91" title="91"></span><img src="../images/00063.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In this book, we often refer to the domain of an interactive <samp class="mono">big-bang</samp> program as a “world,” and we speak of designing “world programs.”</p>
+<p class="calibre8">The design recipe for world programs, like the one for functions, is a tool for systematically moving from a problem statement to a working program. It consists of three big steps and one small one:</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_92" title="92"></span>1. For all those properties of the world that remain the same over time and are needed to render it as an Image, introduce constants. In BSL, we specify such constants via definitions. For the purpose of world programs, we distinguish between two kinds of constants:</p>
+<p class="nl-lower">(a) “Physical” constants describe general attributes of objects in the world, such as the speed or velocity of an object, its color, its height, its width, its radius, and so forth. Of course these constants don’t really refer to physical facts, but many are analogous to physical aspects of the real world.</p>
+<p class="myenumitem-lower">In the context of our sample problem, the radius of the car’s wheels and the distance between the wheels are such “physical” constants:</p>
+<div class="ind-lower">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define WIDTH-OF-WORLD</samp><samp class="mono"> 200)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define WHEEL-RADIUS</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">(define WHEEL-DISTANCE</samp><samp class="mono"> (* WHEEL-RADIUS</samp><samp class="mono"> 5))</samp></samp></p>
+</div>
+</div>
+<p class="myenumitem-lower">Note how the second constant is computed from the first.</p>
+<p class="nlf-lower">(b) Graphical constants are images of objects in the world. The program composes them into images that represent the complete state of the world.</p>
+<p class="marginpar">We suggest you experiment in DrRacket’s interactions area to develop such graphical constants.</p>
+<p class="myenumitem-lower">Here are graphical constants for wheel images of our sample car:</p>
+<div class="ind-lower">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define WHEEL</samp> <br class="calibre4"/><samp class="mono">  (circle</samp><samp class="mono"> WHEEL-RADIUS "solid"</samp><samp class="mono"> "black"))</samp> <br class="calibre4"/><samp class="mono">(define SPACE</samp> <br class="calibre4"/><samp class="mono">  (rectangle</samp><samp class="mono"> <span>…</span> WHEEL-RADIUS</samp><samp class="mono"> <span>…</span> "white"))</samp> <br class="calibre4"/><samp class="mono">(define BOTH-WHEELS</samp> <br class="calibre4"/><samp class="mono">  (beside</samp><samp class="mono"> WHEEL SPACE</samp><samp class="mono"> WHEEL))</samp></samp></p>
+</div>
+</div>
+<p class="myenumitem-lower">Graphical constants are usually computed, and the computations tend to involve physical constants and other images.</p>
+<p class="nltni">It is good practice to annotate constant definitions with a comment that explains what they mean.</p>
+<p class="nlf">2. Those properties that change over time—in reaction to clock ticks, keystrokes, or mouse actions—give rise to the current state of the <span epub:type="pagebreak" id="pg_93" title="93"></span>world. Your task is to develop a data representation for all possible states of the world. The development results in a data definition, which comes with a comment that tells readers how to represent world information as data and how to interpret data as information about the world.</p>
+<p class="nltni">Choose simple forms of data to represent the state of the world.</p>
+<p class="nltni">For the running example, it is the car’s distance from the left margin that changes over time. While the distance to the right margin changes, too, it is obvious that we need only one or the other to create an image. A distance is measured in numbers, so the following is an adequate data definition:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp>A <i class="calibre6">WorldState</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono">.</samp> <br class="calibre4"/><samp class="mono">; </samp><b class="calibre9">interpretation</b><samp class="mono"> the number</samp><samp class="mono"> of pixels</samp><samp class="mono"> between</samp> <br class="calibre4"/><samp class="mono">; the</samp><samp class="mono"> left border</samp><samp class="mono"> of the</samp><samp class="mono"> scene and</samp><samp class="mono"> the car</samp></p>
+</div>
+<p class="nltni">An alternative is to count the number of clock ticks that have passed and to use this number as the state of the world. We leave this design variant as an exercise.</p>
+<p class="nlf">3. Once you have a data representation for the state of the world, you need to design a number of functions so that you can form a valid <samp class="mono">big-bang</samp> expression.</p>
+<p class="nltni">To start with, you need a function that maps any given state into an image so that <samp class="mono">big-bang</samp> can render the sequence of states as images:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; render</samp></samp></p>
+</div>
+<p class="nltni">Next you need to decide which kind of events should change which aspects of the world state. Depending on your decisions, you need to design some or all of the following three functions:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; clock-tick-handler</samp> <br class="calibre4"/><samp class="mono">; keystroke-handler</samp> <br class="calibre4"/><samp class="mono">; mouse-event-handler</samp></samp></p>
+</div>
+<p class="nltni">Finally, if the problem statement suggests that the program should stop if the world has certain properties, you must design</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp><samp class="mono"> end?</samp></samp></p>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_94" title="94"></span>For the generic signatures and purpose statements of these functions, see <a href="part0005_split_022.html#fig18" class="calibre5">figure 18</a>. Adapt these generic purpose statements to the particular problems you solve so that readers know what they compute.</p>
+<p class="nltni">In short, the desire to design an interactive program automatically creates several initial entries for your wish list. Work them off one by one and you get a complete world program.</p>
+<p class="nltni">Let’s work through this step for the sample program. While <samp class="mono">big-bang</samp> dictates that we must design a rendering function, we still need to figure out whether we want any event-handling functions. Since the car is supposed to move from left to right, we definitely need a function that deals with clock ticks. Thus, we get this wish list:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp>WorldState -&gt; Image <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> the image</samp><samp class="mono"> of the</samp><samp class="mono"> car x</samp><samp class="mono"> pixels from</samp> <br class="calibre4"/><samp class="mono">; the</samp><samp class="mono"> left margin</samp><samp class="mono"> of the</samp><samp class="mono"> BACKGROUND image</samp> <br class="calibre4"/><samp class="mono">(define(render x)</samp> <br class="calibre4"/><samp class="mono">  BACKGROUND)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>WorldState -&gt; WorldState <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> 3 to</samp><samp class="mono"> x to</samp><samp class="mono"> move the</samp><samp class="mono"> car right</samp> <br class="calibre4"/><samp class="mono">(define(tock x)</samp> <br class="calibre4"/><samp class="mono">  x)</samp></p>
+</div>
+<p class="nltni">Note how we tailored the purpose statements to the problem at hand, with an understanding of how <samp class="mono">big-bang</samp> will use these functions.</p>
+<p class="nlf">4. Finally, you need a <samp class="mono">main</samp> function. Unlike all other functions, a <samp class="mono">main</samp> function for world programs doesn’t demand design or testing. Its sole reason for existing is that you can <b class="calibre9">launch</b> your world program conveniently from DrRacket’s interactions area.</p>
+<p class="nltni">The one decision you must make concerns <samp class="mono">main</samp>’s arguments. For our sample problem, we opt for one argument: the initial state of the world. Here we go:</p>
+<figure class="co"><img src="../images/00064.gif" alt="" class="calibre10"/></figure>
+<p class="nltni"><span epub:type="pagebreak" id="pg_95" title="95"></span>Hence, you can launch this interactive program with</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (main</samp><samp class="mono"> 13)</samp></samp></p>
+</div>
+<p class="nltni">to watch the car start at 13 pixels from the left margin. It will stop when you close <samp class="mono">big-bang</samp>’s window. Remember that <samp class="mono">big-bang</samp> returns the current state of the world when the evaluation stops.</p>
+<p class="stx">Naturally, you don’t have to use the name “WorldState” for the class of data that represents the states of the world. Any name will do as long as you use it consistently for the signatures of the event-handling functions. Also, you don’t have to use the names <samp class="mono">tock</samp>, <samp class="mono">end?</samp>, or <samp class="mono">render</samp>. You may name these functions whatever you like, as long as you use the same names when you write down the clauses of the <samp class="mono">big-bang</samp> expression. Lastly, you may have noticed that you may list the clauses of a <samp class="mono">big-bang</samp> expression in any order as long as you list the initial state first.</p>
+<p class="calibre8">Let’s now work through the rest of the program design process, using the design recipe for functions and other design concepts spelled out so far.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 39. Good programmers ensure that an image such as <samp class="mono">CAR</samp> can be enlarged or reduced via a single change to a constant definition. We started the development of our car image with a single plain definition:</p>
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define WHEEL-RADIUS</samp><samp class="mono"> 5)</samp></samp></p>
+</div>
+
+<p class="marginpar">Good programmers establish a single point of control for all aspects of their programs, not just the graphical constants. Several chapters deal with this issue.</p>
+
+<p class="tni">The definition of <samp class="mono">WHEEL-DISTANCE</samp> is based on the wheel’s radius. Hence, changing <samp class="mono">WHEEL-RADIUS</samp> from <samp class="mono">5</samp> to <samp class="mono">10</samp> doubles the size of the car image. This kind of program organization is dubbed <i class="calibre6">single point of control</i>, and good design employs this idea as much as possible.</p>
+<p class="calibre8">Develop your favorite image of an automobile so that <samp class="mono">WHEEL-RADIUS</samp> remains the single point of control. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The next entry on the wish list is the clock tick handling function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>WorldState -&gt; WorldState <br class="calibre4"/><samp class="mono">; moves</samp><samp class="mono"> the car</samp><samp class="mono"> by 3</samp><samp class="mono"> pixels for</samp><samp class="mono"> every clock</samp><samp class="mono"> tick</samp> <br class="calibre4"/><samp class="mono">(define (tock</samp><samp class="mono"> ws) ws)</samp></p>
+</div>
+<p class="tni">Since the state of the world represents the distance between the left margin of the canvas and the car, and since the car moves at three pixels per clock tick, a concise purpose statement combines these two facts into one. This also makes it easy to create examples and to define the function:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_96" title="96"></span><samp class="mono">; </samp>WorldState -&gt; WorldState <br class="calibre4"/><samp class="mono">; moves</samp><samp class="mono"> the car</samp><samp class="mono"> by </samp><samp class="mono"> 3 pixels</samp><samp class="mono"> for every</samp><samp class="mono"> clock tick</samp> <br class="calibre4"/><samp class="mono">; examples:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  given:</samp><samp class="mono"> 20, expect</samp><samp class="mono"> 23</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  given:</samp><samp class="mono"> 78, expect</samp><samp class="mono"> 81</samp> <br class="calibre4"/><samp class="mono">(define(tock ws)</samp> <br class="calibre4"/>  <samp class="mono">(+ ws</samp><samp class="mono"> 3))</samp></p>
+</div>
+<p class="calibre8">The last design step calls for confirmation that the examples work as expected. So we click the <i class="calibre6">RUN</i> button and evaluate these expressions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (tock</samp><samp class="mono"> 20)</samp> <br class="calibre4"/><samp class="mono">23</samp> <br class="calibre4"/><samp class="mono">&gt; (tock</samp><samp class="mono"> 78)</samp> <br class="calibre4"/><samp class="mono">81</samp></samp></p>
+</div>
+<p class="tni">Since the results are as expected, the design of <samp class="mono">tock</samp> is finished.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 40. Formulate the examples as BSL tests, that is, using the <samp class="mono">check-expect</samp> form. Introduce a mistake. Re-run the tests. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Our second entry on the wish list specifies a function that translates the state of the world into an image:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>WorldState -&gt; Image <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> the car</samp><samp class="mono"> into the</samp><samp class="mono"> BACKGROUND scene,</samp> <br class="calibre4"/><samp class="mono">; according</samp><samp class="mono"> to the</samp><samp class="mono"> given world</samp><samp class="mono"> state</samp> <br class="calibre4"/><samp class="mono">(define (render</samp><samp class="mono"> ws)</samp> <br class="calibre4"/><samp class="mono">  BACKGROUND)</samp></p>
+</div>
+<p class="calibre8">To make examples for a rendering function, we suggest arranging a table like the upper half of <a id="rfig19" href="part0005_split_022.html#fig19" class="calibre5">figure 19</a>. It lists the given world states and the desired scenes. For your first few rendering functions, you may wish to draw these images by hand.</p>
+<div class="figure">
+<figure class="img"><a id="fig19" class="calibre5"></a><img src="../images/00065.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_022.html#rfig19" class="calibre5">Figure 19</a>:</span> <span>Examples for a moving car program</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Even though this kind of image table is intuitive and explains what the running function is going to display—a moving car—it does not explain <b class="calibre9">how</b> the function creates this result. To get from here to there, we recommend writing down expressions like those in the lower half of <a href="part0005_split_022.html#fig19" class="calibre5">figure 19</a> that create the images in the table. The capitalized names refer to the obvious constants: the image of a car, its fixed y-coordinate, and the background scene, which is currently empty.</p>
+<p class="calibre8">This extended table suggests a pattern for the formula that goes into the body of the <samp class="mono">render</samp> function:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_97" title="97"></span><samp class="mono">; </samp>WorldState -&gt; Image <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> the car</samp><samp class="mono"> into the</samp><samp class="mono">  BACKGROUND</samp><samp class="mono"> scene,</samp> <br class="calibre4"/><samp class="mono">; according</samp><samp class="mono"> to the</samp><samp class="mono"> given world</samp><samp class="mono"> state</samp> <br class="calibre4"/><samp class="mono">(define (render</samp><samp class="mono"> ws)</samp> <br class="calibre4"/><samp class="mono">  place-image</samp><samp class="mono"> CAR ws</samp><samp class="mono"> Y-CAR BACKGROUND))</samp></p>
+</div>
+<p class="tni">And that is mostly all there is to designing a simple world program.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 41. Finish the sample problem and get the program to run. That is, assuming that you have solved exercise 39, define the constants <samp class="mono">BACKGROUND</samp> and <samp class="mono">Y-CAR</samp>. Then assemble all the function definitions, including their tests. When your program runs to your satisfaction, add a tree to the scenery. We used</p>
+<figure class="co"><img src="../images/00066.gif" alt="" class="calibre10"/></figure>
+<p class="tni">to create a tree-like shape. Also add a clause to the <samp class="mono">big-bang</samp> expression that stops the animation when the car has disappeared on the right side. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">After settling on an initial data representation for world states, a careful programmer may have to revisit this fundamental design decision during the rest of the design process. For example, the data definition for the sample problem represents the car as a point. But (the image of) the car isn’t just <span epub:type="pagebreak" id="pg_98" title="98"></span>a mathematical point without width and height. Hence, the interpretation statement—the number of pixels from the left margin—is an ambiguous statement. Does this statement measure the distance between the left margin and the left end of the car? Its center point? Or even its right end? We ignored this issue here and leave it to BSL’s image primitives to make the decision for us. If you don’t like the result, revisit the data definition above and modify it or its interpretation statement to suit your taste.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 42. Modify the interpretation of the sample data definition so that a state denotes the x-coordinate of the right-most edge of the car. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 43. Let’s work through the same problem statement with a time-based data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">AnimationState</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono">.</samp> <br class="calibre4"/><samp class="mono">; </samp><b class="calibre9">interpretation</b><samp class="mono"> the number</samp><samp class="mono"> of clock</samp><samp class="mono"> ticks</samp> <br class="calibre4"/><samp class="mono">; since</samp><samp class="mono"> the animation</samp><samp class="mono"> started</samp></p>
+</div>
+<p class="tni">Like the original data definition, this one also equates the states of the world with the class of numbers. Its interpretation, however, explains that the number means something entirely different.</p>
+<p class="calibre8">Design the functions <samp class="mono">tock</samp> and <samp class="mono">render</samp>. Then develop a <samp class="mono">big-bang</samp> expression so that once again you get an animation of a car traveling from left to right across the world’s canvas.</p>
+<p class="calibre8">How do you think this program relates to <samp class="mono">animate</samp> from the Prologue?</p>
+<p class="calibre8">Use the data definition to design a program that moves the car according to a sine wave. (Don’t try to drive like that.) <img class="inline" src="../images/00038.gif" alt=""/></p>
+
+<div class="calibre4">
+<p class="marginpar">Dealing with mouse movements is occasionally tricky because they aren’t exactly what they seems to be. For a first idea of why that is, read the note on “Mice and Characters” in the on-line version.</p>
+</div>
+
+
+<p class="calibre8">We end the section with an illustration of mouse event handling, which also illustrates the advantages that a separation of view and model provide. Suppose we wish to allow people to move the car through “hyperspace”:</p>
+
+
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a program that moves a car across the world canvas, from left to right, at the rate of three pixels per clock tick. <b class="calibre9">If the mouse is clicked anywhere on the canvas, the car is placed at the x-coordinate of that click.</b></p>
+</div>
+
+<p class="tni">The bold part is the expansion of the sample problem from above.</p>
+<p class="calibre8">When we are confronted with a modified problem, we use the design process to guide us to the necessary changes. If used properly, this process naturally determines what we need to add to our existing program to cope with the expansion of the problem statement. So here we go:</p>
+<p class="nlf">1. There are no new properties, meaning we do not need new constants.</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_99" title="99"></span>2. The program is still concerned with just one property that changes over time, the x-coordinate of the car. Hence, the data representation suffices.</p>
+<p class="nlf">3. The revised problem statement calls for a mouse-event handler, without giving up on the clock-based movement of the car. Hence, we state an appropriate wish:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp><samp class="mono">WorldState</samp> Number Number String -&gt; <samp class="mono">WorldState</samp> <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> the car</samp><samp class="mono"> at x-mouse</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> the given</samp><samp class="mono"> me is</samp><samp class="mono"> "button-down"</samp> <br class="calibre4"/><samp class="mono">(define (hyper</samp><samp class="mono"> x-position-of-car x-mouse</samp><samp class="mono"> y-mouse me)</samp> <br class="calibre4"/><samp class="mono">  x-position-of-car)</samp></p>
+</div>
+<p class="nll">4. Lastly, we need to modify <samp class="mono">main</samp> to take care of mouse events. All this requires is the addition of an <samp class="mono">on-mouse</samp> clause that defers to the new entry on our wish list:</p>
+<figure class="co"><img src="../images/00067.gif" alt="" class="calibre10"/></figure>
+<p class="ext__new">After all, the modified problem calls for dealing with mouse clicks and everything else remains the same.</p>
+<p class="tni">The rest is a mere matter of designing one more function, and for that we use the design recipe for functions.</p>
+<p class="calibre8">An entry on the wish list covers the first two steps of the design recipe for functions. Hence, our next step is to develop some functional examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; </samp>WorldState Number Number String -&gt; WorldState <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> the car</samp><samp class="mono"> at x-mouse</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> the given</samp><samp class="mono"> me is</samp><samp class="mono"> "button-down"</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 21 10</samp><samp class="mono"> 20 "enter"</samp> <br class="calibre4"/><samp class="mono">; wanted:</samp><samp class="mono"> 21</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 42 10</samp><samp class="mono"> 20 "button-down"</samp> <br class="calibre4"/><samp class="mono">; wanted:</samp><samp class="mono"> 10</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono">  42</samp><samp class="mono"> 10 20</samp><samp class="mono"> "move"</samp> <br class="calibre4"/><samp class="mono">; wanted:</samp><samp class="mono"> 42</samp> <br class="calibre4"/><samp class="mono">(define (hyper</samp><samp class="mono"> x-position-of-car x-mouse</samp><samp class="mono"> y-mouse me)</samp> <br class="calibre4"/><samp class="mono">  x-position-of-car)</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_100" title="100"></span>The examples say that if the string argument is equal to <samp class="mono">"button-down"</samp>, the function returns <samp class="mono">x-mouse</samp>; otherwise it returns <samp class="mono">x-position-of-car</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 44. Formulate the examples as BSL tests. Click <i class="calibre6">RUN</i> and watch them fail. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">To complete the function definition, we must appeal to your fond memories from the Prologue, specifically memories about the <samp class="mono">cond</samp>itional form. Using <samp class="mono">cond</samp>, <samp class="mono">hyper</samp> is a two-line definition:</p>
+<figure class="co"><img src="../images/00068.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">In the next chapter, we explain designing with <samp class="monospace-margin">cond</samp> in detail.</p>
+<p class="tni">If you solved exercise 44, rerun the program and watch all tests succeed. Assuming the tests do succeed, evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(main 1)</samp></samp></p>
+</div>
+<p class="tni">in DrRacket’s interactions area and transport your car through hyperspace.</p>
+<p class="calibre8">You may wonder why this program modification is so straightforward. There are really two reasons. First, this book and its software strictly separate the data that a program tracks—the <i class="calibre6">model</i>—and the image that it shows—the <i class="calibre6">view</i>. In particular, functions that deal with events have nothing to do with how the state is rendered. If we wish to modify how a state is rendered, we can focus on the function specified in a <samp class="mono">to-draw</samp> clause. Second, the design recipes for programs and functions organize programs in the right way. If anything changes in a problem statement, following the design recipe a second time naturally points out where the original problem solution has to change. While this may look obvious for the simple kind of problems we are dealing with now, it is critical for the kind of problems that programmers encounter in the real world.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

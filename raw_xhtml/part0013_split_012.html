@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_13"><span epub:type="pagebreak" id="pg_632" title="632" class="calibre1"></span><a id="sec27-2" class="calibre16"></a>27.2 Binary Search</h2>
+<p class="tni">Applied mathematicians model the real world with nonlinear equations and then try to solve them. Specifically, they translate problems into a function <i class="calibre6">f</i> from numbers to numbers and look for some number <i class="calibre6">r</i> such that</p>
+<figure class="co"><img src="../images/00604.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The value <i class="calibre6">r</i> is called the <i class="calibre6">root</i> of <i class="calibre6">f</i>.</p>
+<p class="calibre8">Here is a problem from the physical domain:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> A rocket is flying at the constant speed of <i class="calibre6">v</i> miles per hour on a straight line toward some target, <i class="calibre6">d</i><sub class="calibre17">0</sub> miles away. It then accelerates at the rate of <i class="calibre6">a</i> miles per hour squared for <i class="calibre6">t</i> hours. When will it hit its target?</p>
+</div>
+<p class="tni">Physics tells us that the distance covered is the following function of time:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_633" title="633"></span><img src="../images/00605.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The question of when it hits the target asks us to find the time <i class="calibre6">t</i><sub class="calibre17">0</sub> such that the object reaches the desired goal:</p>
+<figure class="co"><img src="../images/00606.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From algebra we know that this is a quadratic equation and that it is possible to solve such equations if <i class="calibre6">d</i><sub class="calibre17">0</sub>, <i class="calibre6">a</i>, and <i class="calibre6">v</i> satisfy certain conditions.</p>
+<p class="calibre8">Generally such problems call for more complexity than quadratic equations. In response, mathematicians have spent the last few centuries developing root-finding methods for different types of functions. In this section, we study a solution that is based on the <i class="calibre6">Intermediate Value Theorem</i> (IVT), an early result of analysis. The resulting algorithm is a primary example of generative recursion based on a mathematical theorem. Computer scientists have generalized it to the <i class="calibre6">binary search</i> algorithm.</p>
+<p class="calibre8">The Intermediate Value Theorem says that a continuous function <i class="calibre6">f</i> has a root in an interval [<i class="calibre6">a,b</i>] if <i class="calibre6">f</i> (<i class="calibre6">a</i>) and <i class="calibre6">f</i> (<i class="calibre6">b</i>) are on opposite sides of the x-axis. By <i class="calibre6">continuous</i> we mean a function that doesn’t “jump,” that doesn’t have gaps, and that proceeds on a “smooth” path.</p>
+<p class="calibre8"><a id="rfig158" href="part0013_split_012.html#fig158" class="calibre5">Figure 158</a> illustrates the Intermediate Value Theorem. The function <i class="calibre6">f</i> is a continuous function, as suggested by the uninterrupted, smooth graph. It is below the x-axis at <i class="calibre6">a</i> and above at <i class="calibre6">b</i>, and indeed, it intersects the x-axis somewhere in this interval, labeled “range 1” in the figure.</p>
+<div class="figure">
+<figure class="img"><a id="fig158" class="calibre5"></a><img src="../images/00607.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_012.html#rfig158" class="calibre5">Figure 158</a>:</span> <span>A numeric function <i class="calibre6">f</i> with root in interval [<i class="calibre6">a,b</i>] (stage)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Now take a look at the midpoint between <i class="calibre6">a</i> and <i class="calibre6">b</i>:</p>
+<figure class="co"><img src="../images/00608.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It partitions the interval [<i class="calibre6">a,b</i>] into two smaller, equally sized intervals. We can now compute the value of <i class="calibre6">f</i> at <i class="calibre6">m</i> and see whether it is below 0 or above. Here <i class="calibre6">f</i> (<i class="calibre6">m</i>) &gt; 0, so, according to the Intermediate Value Theorem, the root is in the left interval: [<i class="calibre6">a,m</i>]. Our picture confirms this because the root is in the left half of the interval, labeled “range 2” in <a href="part0013_split_012.html#fig158" class="calibre5">figure 158</a>.</p>
+<p class="calibre8">We now have a description of the key step in the root-finding process. Next, we translate this description into an ISL+ algorithm. Our first task is to state its purpose. Clearly the algorithm consumes a function and the boundaries of the interval in which we expect to find a root:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">] </samp>Number Number<samp class="mono"> -&gt; <span>…</span></samp> <br class="calibre4"/><samp class="mono">(define (find-root</samp><samp class="mono"> f left</samp><samp class="mono"> right) <span>…</span>)</samp></p>
+</div>
+<p class="tni">The three parameters can’t be just any function and numbers. For <samp class="mono">find-root</samp> to work, we must assume that the following holds:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_634" title="634"></span><samp class="mono">(or (&lt;=</samp><samp class="mono"> (f left)</samp><samp class="mono"> 0 (f</samp><samp class="mono"> right))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (&lt;=</samp><samp class="mono"> (f right)</samp><samp class="mono"> 0 (f</samp><samp class="mono"> left)))</samp></p>
+</div>
+<p class="tni">that is, <samp class="mono">(f left)</samp> and <samp class="mono">(f right)</samp> must be on opposite sides of the x-axis.</p>
+
+<p class="marginpar">DrRacket allows the use of Greek symbols such as <i class="calibre6">ε</i>. But you can also write <samp class="monospace-margin">EPSILON</samp> instead.</p>
+
+<p class="calibre8">Next we need to fix the function’s result and formulate a purpose statement. Simply put, <samp class="mono">find-root</samp> finds an interval that contains a root. The search divides the interval until its size, <samp class="mono">(</samp>- <samp class="mono">right left)</samp>, is tolerably small, say, smaller than some constant <i class="calibre6">ε</i>. At that point, the function could produce one of three results: the left boundary, the right one, or a representation of the interval. Any one of them completely identifies the interval, and since it is simpler to return numbers, we pick the left boundary. Here is the complete header material:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">] </samp>Number Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> R such</samp><samp class="mono"> that f</samp><samp class="mono"> has a</samp><samp class="mono"> root in</samp><samp class="mono"> [R,(+ R</samp><samp class="mono"> <i class="calibre6">ε</i>)]</samp> <br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">assume</span><samp class="mono"> f is</samp><samp class="mono"> continuous</samp> <br class="calibre4"/><samp class="mono">; (2)</samp><samp class="mono"> (or (&lt;=</samp><samp class="mono"> (f left)</samp><samp class="mono"> 0 (f</samp><samp class="mono"> right)) (&lt;=</samp><samp class="mono"> (f right)</samp><samp class="mono"> 0 (f</samp><samp class="mono"> left)))</samp> <br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">generative</span><samp class="mono"> divides interval</samp><samp class="mono"> in half,</samp><samp class="mono"> the root</samp><samp class="mono"> is in</samp> <br class="calibre4"/><samp class="mono">; one</samp><samp class="mono"> of the</samp><samp class="mono"> two halves,</samp><samp class="mono"> picks according</samp><samp class="mono"> to (2)</samp> <br class="calibre4"/><samp class="mono">(define (find-root</samp><samp class="mono"> f left</samp><samp class="mono"> right)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></p>
+</div>
+
+
+<p class="calibre8"><b class="calibre9">Exercise</b> 445. Consider the following function definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">(define (poly</samp><samp class="mono"> x)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> (- x</samp><samp class="mono"> 2) (-</samp><samp class="mono"> x 4)))</samp></p>
+</div>
+<p class="tni">It defines a binomial for which we can determine its roots by hand:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (poly</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">0</samp> <br class="calibre4"/><samp class="mono">&gt; (poly</samp><samp class="mono"> 4)</samp> <br class="calibre4"/><samp class="mono">0</samp></p>
+</div>
+<p class="tni">Use <samp class="mono">poly</samp> to formulate a <samp class="mono">check-satisfied</samp> test for <samp class="mono">find-root</samp>.</p>
+<p class="calibre8">Also use <samp class="mono">poly</samp> to illustrate the root-finding process. Start with the interval [3<i class="calibre6">,</i>6] and tabulate the information as follows for <i class="calibre6">ε =</i> 0:</p>
+<figure class="co"><img src="../images/00609.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_635" title="635"></span>Our next task is to address the four questions of algorithm design:</p>
+<p class="nlf">1. We need a condition that describes when the problem is solved and a matching answer. Given our discussion so far, this is straightforward:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(&lt;= (-</samp><samp class="mono"> right left)</samp><samp class="mono"> </samp>ε<samp class="mono">)</samp></samp></p>
+</div>
+<p class="nlf">2. The matching result in the trivial case is <samp class="mono">left</samp>.</p>
+<p class="nlf">3. For the generative case, we need an expression that generates new problems for <samp class="mono">find-root</samp>. According to our informal description, this step requires determining the midpoint and its function value:</p>
+<figure class="co"><img src="../images/00610.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">The midpoint is then used to pick the next interval. Following IVT, the interval [<i class="calibre6">left,mid</i>] is the next candidate if</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(or (&lt;=</samp><samp class="mono"> (f left)</samp><samp class="mono"> 0 f@m)</samp><samp class="mono"> (&lt;= f@m</samp><samp class="mono"> 0 (f</samp><samp class="mono"> left)))</samp></samp></p>
+</div>
+<p class="nltni">while [<i class="calibre6">mid,right</i>] is used for the recursive call if</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(or (&lt;=</samp><samp class="mono"> f@m 0</samp><samp class="mono"> (f right))</samp><samp class="mono"> (&lt;= (f</samp><samp class="mono"> right) 0</samp><samp class="mono"> f@m))</samp></samp></p>
+</div>
+<p class="nltni">Translated into code, the body of <samp class="mono">local</samp> must be a conditional:</p>
+<figure class="co"><img src="../images/00611.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">In both clauses, we use <samp class="mono">find-root</samp> to continue the search.</p>
+<p class="nll">4. The answer to the final question is obvious. Since the recursive call to <samp class="mono">find-root</samp> finds the root of <samp class="mono">f</samp>, there is nothing else to do.</p>
+<p class="tni">The completed function is displayed in <a id="rfig159" href="part0013_split_012.html#fig159" class="calibre5">figure 159</a>; the following exercises elaborate on its design.</p>
+<div class="figure">
+<figure class="img"><a id="fig159" class="calibre5"></a><img src="../images/00612.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_012.html#rfig159" class="calibre5">Figure 159</a>:</span> <span>The <i class="calibre6">find-root</i> algorithm</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_636" title="636"></span><b class="calibre9">Exercise</b> 446. Add the test from exercise 445 to the program in <a href="part0013_split_012.html#fig159" class="calibre5">figure 159</a>. Experiment with different values for <i class="calibre6">ε</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 447. The <samp class="mono">poly</samp> function has two roots. Use <samp class="mono">find-root</samp> with <samp class="mono">poly</samp> and an interval that contains both roots. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 448. The <samp class="mono">find-root</samp> algorithm terminates for all (continuous) <samp class="mono">f</samp>, <samp class="mono">left</samp>, and <samp class="mono">right</samp> for which the assumption holds. Why? Formulate a termination argument.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Suppose the arguments of <samp class="mono">find-root</samp> describe an interval of size <samp class="mono">S1</samp>. How large is the distance between <samp class="mono">left</samp> and <samp class="mono">right</samp> for the first and second recursive call to <samp class="mono">find-root</samp>? After how many steps is <samp class="mono">(</samp>- <samp class="mono">right left)</samp> smaller than or equal to <i class="calibre6">ε</i>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 449. As presented in <a href="part0013_split_012.html#fig159" class="calibre5">figure 159</a>, <samp class="mono">find-root</samp> computes the value of <samp class="mono">f</samp> for each boundary value twice to generate the next interval. Use <samp class="mono">local</samp> to avoid this recomputation.</p>
+<p class="calibre8">In addition, <samp class="mono">find-root</samp> recomputes the value of a boundary across recursive calls. For example, <samp class="mono">(find-root f left right)</samp> computes <samp class="mono">(f <span epub:type="pagebreak" id="pg_637" title="637"></span>left)</samp> and, if [<i class="calibre6">left,mid</i>] is chosen as the next interval, <samp class="mono">find-root</samp> computes <samp class="mono">(f left)</samp> again. Introduce a helper function that is like <samp class="mono">find-root</samp> but consumes not only <samp class="mono">left</samp> and <samp class="mono">right</samp> but also <samp class="mono">(f left)</samp> and <samp class="mono">(f right)</samp> at each recursive stage.</p>
+<p class="calibre8">How many recomputations of <samp class="mono">(f left)</samp> does this design maximally avoid? <b class="calibre9">Note</b> The two additional arguments to this helper function change at each recursive stage, but the change is related to the change in the numeric arguments. These arguments are so-called <i class="calibre6">accumulators</i>, which are the topic of part VI. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 450. A function <samp class="mono">f</samp> is <i class="calibre6">monotonically increasing</i> if <samp class="mono">(&lt;= (f a) (f b))</samp> holds whenever <samp class="mono">(&lt; a b)</samp> holds. Simplify <samp class="mono">find-root</samp> assuming the given function is not only continuous but also monotonically increasing. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 451. A table is a structure of two fields: the natural number <samp class="mono">VL</samp> and a function <samp class="mono">array</samp>, which consumes natural numbers and, for those between <samp class="mono">0</samp> and <samp class="mono">VL</samp> (exclusive), produces answers:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct table</samp><samp class="mono"> [length array])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Table</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-table</samp><samp class="mono"> </samp>N<samp class="mono"> [</samp>N<samp class="mono"> -&gt; </samp>Number<samp class="mono">])</samp></p>
+</div>
+<p class="marginpar">Many programming languages, including Racket, support arrays and vectors, which are similar to tables.</p>
+<p class="tni">Since this data structure is somewhat unusual, it is critical to illustrate it with examples:</p>
+<figure class="co"><img src="../images/00613.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Here <samp class="mono">table1</samp>’s array function is defined for more inputs than its length field allows; <samp class="mono">table2</samp> is defined for just one input, namely <samp class="mono">0</samp>. Finally, we also define a useful function for looking up values in tables:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Table N<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; looks</samp><samp class="mono"> up the</samp><samp class="mono"> ith value</samp><samp class="mono"> in array</samp><samp class="mono"> of t</samp> <br class="calibre4"/><samp class="mono">(define (table-ref</samp><samp class="mono"> t i)</samp> <br class="calibre4"/><samp class="mono">  ((table-array</samp><samp class="mono"> t) i))</samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_638" title="638"></span>The root of a table <samp class="mono">t</samp> is a number in <samp class="mono">(table-array t)</samp> that is close to <samp class="mono">0</samp>. A <i class="calibre6">root index</i> is a natural number <samp class="mono">i</samp> such that <samp class="mono">(table-ref t i)</samp> is a root of table <samp class="mono">t</samp>. A table <samp class="mono">t</samp> is monotonically increasing if <samp class="mono">(table-ref t 0)</samp> is less than <samp class="mono">(table-ref t 1)</samp>, <samp class="mono">(table-ref t 1)</samp> is less than <samp class="mono">(table-ref t 2)</samp>, and so on.</p>
+<p class="calibre8">Design <samp class="mono">find-linear</samp>. The function consumes a monotonically increasing table and finds the smallest index for a root of the table. Use the structural recipe for N, proceeding from <samp class="mono">0</samp> through <samp class="mono">1</samp>, <samp class="mono">2</samp>, and so on to the <samp class="mono">array-length</samp> of the given table. This kind of root-finding process is often called a <i class="calibre6">linear search</i>.</p>
+<p class="calibre8">Design <samp class="mono">find-binary</samp>, which also finds the smallest index for the root of a monotonically increasing table but uses generative recursion to do so. Like ordinary binary search, the algorithm narrows an interval down to the smallest possible size and then chooses the index. Don’t forget to formulate a termination argument.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> The key problem is that a table index is a <b class="calibre9">natural</b> number, not a plain number. Hence the interval boundary arguments for <samp class="mono">find</samp> must be natural numbers. Consider how this observation changes (1) the nature of trivially solvable problem instances, (2) the midpoint computation, (3) and the decision as to which interval to generate next. To make this concrete, imagine a table with 1024 slots and the root at 1023. How many calls to <samp class="mono">find</samp> are needed in <samp class="mono">find-linear</samp> and <samp class="mono">find-binary</samp>, respectively? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div id="ch6" style="height:0pt"></div><div class="body">
+<article epub:type="chapter" role="main">
+<hgroup>
+<h1 class="chapter-number" id="calibre_pb_2"><span epub:type="pagebreak" id="pg_695" title="695" class="calibre1"></span>VI</h1>
+<h1 class="chapter-title">A<small class="calibre7">CCUMULATORS</small></h1>
+</hgroup>
+<p class="tni">When you ask ISL+ to apply some function <samp class="mono">f</samp> to an argument <samp class="mono">a</samp>, you usually get some value <samp class="mono">v</samp>. If you evaluate <samp class="mono">(f a)</samp> again, you get <samp class="mono">v</samp> again. As a matter of fact, you get <samp class="mono">v</samp> no matter how often you request the evaluation of <samp class="mono">(f a)</samp>. Whether the function is applied for the first time or the hundredth time, whether the application is located in DrRacket’s interactions area or inside the function itself, doesn’t matter. The function works according to its purpose statement, and that’s all you need to know.</p>
+<p class="marginpar">The function application may also loop forever or signal an error, but we ignore these possibilities. We also ignore <samp class="monospace-margin">random</samp>, which is the true exception to this rule.</p>
+<p class="calibre8">This principle of context-independence plays a critical role in the design of recursive functions. When it comes to design, you are free to assume that the function computes what the purpose statement promises—even if the function isn’t defined yet. In particular, you are free to use the results of recursive calls to create the code of some function, usually in one of its <samp class="mono">cond</samp> clauses. The template and coding steps of the design recipes for both structurally and generative-recursive functions rely on this idea.</p>
+<p class="calibre8">While context-independence facilitates the design of functions, it causes two problems. In general, context-independence induces a loss of knowledge during a recursive evaluation; a function does not “know” whether it is called on a complete list or on a piece of that list. For structurally recursive programs, this loss of knowledge means that they may have to traverse data more than once, inducing a performance cost. For functions that employ generative recursion, the loss means that the function may not be able to compute the result at all. The preceding part illustrates this second problem with a graph traversal function that cannot find a path between two nodes for a circular graph.</p>
+<p class="calibre8">This part introduces a variant of the design recipes to address this “loss of context” problem. Since we wish to retain the principle that <samp class="mono">(f a)</samp> returns the same result no matter how often or where it is evaluated, the only solution is to add <b class="calibre9">an argument that represents the context</b> of the function call. We call this additional argument an <i class="calibre6">accumulator</i>. During the traversal of data, the recursive calls continue to receive regular arguments while accumulators change in relation to those and the context.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_696" title="696"></span>Designing functions with accumulators correctly is clearly more complex than any of the design approaches from the preceding chapters. The key is to understand the relationship between the proper arguments and the accumulators. The following chapters explain how to design functions with accumulators and how they work.</p>
+</article>
+</div>
+</body></html>

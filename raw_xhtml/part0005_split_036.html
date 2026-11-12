@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_37"><a id="sec5-4" class="calibre16"></a>5.4 Defining Structure Types</h2>
+<p class="tni">Unlike numbers or Boolean values, structures such as <samp class="mono">posn</samp> usually don’t come with a programming language. Only the mechanism to define structure types is provided; the rest is left up to the programmer. This is also true for BSL.</p>
+<p class="calibre8">A <i class="calibre6">structure type definition</i> is another form of definition, distinct from constant and function definitions. Here is how the creator of DrRacket defined the <samp class="mono">posn</samp> structure type in BSL:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct posn</samp><samp class="mono"> [x y])</samp></samp></p>
+</div>
+<p class="tni">In general, a structure type definition has this shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct </samp><samp class="monospace-italic">StructureName</samp><samp class="mono"> [</samp><samp class="monospace-italic">FieldName</samp><samp class="mono"> <span>…</span>])</samp></samp></p>
+</div>
+<p class="marginpar">The use of brackets in a structure type definition is a convention, not a necessity. It makes the field names stand out. Replacing brackets with parentheses is perfectly acceptable.</p>
+<p class="tni">The keyword <samp class="mono">define-struct</samp> signals the introduction of a new structure type. It is followed by the name of the structure. The third part of a structure type definition is a sequence of names enclosed in brackets; these names are the <i class="calibre6">fields</i>.</p>
+<p class="calibre8">A structure type definition actually defines functions. But, unlike an ordinary function definition, <b class="calibre9">a structure type definition defines many functions</b> simultaneously. Specifically, it defines three kinds of functions:</p>
+<p class="blf">•  one <i class="calibre6">constructor</i>, a function that creates <i class="calibre6">structure instances</i>. It takes as many values as there are fields; as mentioned, <i class="calibre6">structure</i> is short for <span epub:type="pagebreak" id="pg_144" title="144"></span>structure instance. The phrase <i class="calibre6">structure type</i> is a generic name for the collection of all possible instances;</p>
+<p class="blf">•  one <i class="calibre6">selector</i> per field, which extracts the value of the field from a structure instance; and</p>
+<p class="bll">•  one <i class="calibre6">structure predicate</i>, which, like ordinary predicates, distinguishes instances from all other kinds of values.</p>
+<p class="tni">A program can use these as if they were functions or built-in primitives.</p>
+<p class="calibre8">Curiously, a structure type definition makes up names for the various new operations it creates. For the name of the constructor, it prefixes the structure name with “make-” and for the names of the selectors it postfixes the structure name with the field names. Finally, the predicate is just the structure name with “?” added, pronounced “huh” when read aloud.</p>
+<p class="calibre8">This naming convention looks complicated and perhaps even confusing. But, with a little bit of practice, you’ll get the hang of it. It also explains the functions that come with <samp class="mono">posn</samp> structures: <samp class="mono">make-posn</samp> is the constructor, <samp class="mono">posn-x</samp> and <samp class="mono">posn-y</samp> are selectors. While we haven’t encountered <samp class="mono">posn?</samp> yet, we now know that it exists; the next chapter explains the role of these predicates in detail.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 65. Take a look at the following structure type definitions:</p>
+<p class="blf">•  <samp class="mono">(define-struct movie [title producer year])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct person [name hair eyes phone])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct pet [name number])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct CD [artist title price])</samp></p>
+<p class="bll">•  <samp class="mono">(define-struct sweater [material size producer])</samp></p>
+<p class="tni">Write down the names of the functions (constructors, selectors, and predicates) that each introduces. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Enough with <samp class="mono">posn</samp> structures for a while. Let’s look at a structure type definition that we might use to keep track of contacts such as those in your cell phone:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct entry</samp><samp class="mono"> [name phone</samp><samp class="mono"> email])</samp></samp></p>
+</div>
+<p class="tni">Here are the names of the functions that this definition introduces:</p>
+<p class="blf">•  <samp class="mono">make-entry</samp>, which consumes three values and constructs an instance of <samp class="mono">entry</samp>;</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_145" title="145"></span>•  <samp class="mono">entry-name</samp>, <samp class="mono">entry-phone</samp>, and <samp class="mono">entry-email</samp>, which consume one instance of <samp class="mono">entry</samp> and select one of the three field values; and</p>
+<p class="bll">•  <samp class="mono">entry?</samp>, the predicate.</p>
+<p class="tni">Since each <samp class="mono">entry</samp> combines three values, the expression</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(make-entry "Al</samp><samp class="mono"> Abe" "666-7771"</samp><samp class="mono"> "lee@x.me")</samp></samp></p>
+</div>
+<p class="tni">creates an <samp class="mono">entry</samp> structure with <samp class="mono">"Al Abe"</samp> in the <samp class="mono">name</samp> field, <samp class="mono">"666-7771"</samp> in the <samp class="mono">phone</samp> field, and <samp class="mono">"lee@x.me"</samp> in the <samp class="mono">email</samp> field.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 66. Revisit the structure type definitions of exercise 65. Make sensible guesses as to what kind of values go with which fields. Then create at least one instance per structure type definition. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Every structure type definition introduces a new kind of structure, distinct from all others. Programmers want this kind of expressive power because they wish to convey an <b class="calibre9">intention</b> with the structure name. Wherever a structure is created, selected, or tested, the text of the program explicitly reminds the reader of this intention. If it weren’t for these future readers of code, programmers could use one structure definition for structures with one field, another for structures with two fields, a third for structures with three, and so on.</p>
+<p class="calibre8">In this context, let’s study another programming problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Develop a structure type definition for a program that deals with “bouncing balls,” briefly mentioned at the very beginning of this chapter. The ball’s location is a single number, namely the distance of pixels from the top. Its constant <i class="calibre6">speed</i> is the number of pixels it moves per clock tick. Its <i class="calibre6">velocity</i> is the speed <b class="calibre9">plus</b> the direction in which it moves.</p>
+</div>
+<p class="tni">Since the ball moves along a straight, vertical line, a number is a perfectly adequate data representation for its velocity:</p>
+<p class="blf">•  A positive number means the ball moves down.</p>
+<p class="bll">•  A negative number means it moves up.</p>
+<p class="tni">We can use this domain knowledge to formulate a structure type definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct ball</samp><samp class="mono"> [location velocity])</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_146" title="146"></span>Both fields are going to contain numbers, so <samp class="mono">(make-ball 10 -3)</samp> is a good data example. It represents a ball that is <samp class="mono">10</samp> pixels from the top and moves up at <samp class="mono">3</samp> pixels per clock tick.</p>
+<p class="calibre8">Notice how, in principle, a <samp class="mono">ball</samp> structure merely combines two numbers, just like a <samp class="mono">posn</samp> structure. When a program contains the expression <samp class="mono">(ball-velocity a-ball)</samp>, it immediately conveys that this program deals with the representation of a ball and its velocity. In contrast, if the program used <samp class="mono">posn</samp> structures instead, <samp class="mono">(posn-y a-ball)</samp> might mislead a reader of the code into thinking that the expression is about a y-coordinate.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 67. Here is another way to represent bouncing balls:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define SPEED</samp><samp class="mono"> 3)</samp> <br class="calibre4"/><samp class="mono">(define-struct balld</samp><samp class="mono"> [location direction])</samp> <br class="calibre4"/><samp class="mono">(make-balld 10</samp><samp class="mono"> "up")</samp></samp></p>
+</div>
+<p class="tni">Interpret this code fragment and create other instances of <samp class="mono">balld</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Since structures are values, just like numbers or Booleans or strings, it makes sense that one instance of a structure occurs inside another instance. Consider game objects. Unlike bouncing balls, such objects don’t always move along vertical lines. Instead, they move in some “oblique” manner across the canvas. Describing both the location and the velocity of a ball moving across a 2-dimensional world canvas demands two numbers: one per direction. For the location part, the two numbers represent the x- and y-coordinates. Velocity describes the <i class="calibre6">changes</i> in the horizontal and vertical direction; in other words, these “change numbers” must be added to the respective coordinates to find out where the object will be next.</p>
+<p class="marginpar">It is physics that tells you to add an object’s velocity to its location to obtain its next location. Developers need to learn whom to ask about which domain.</p>
+<p class="calibre8">Clearly, <samp class="mono">posn</samp> structures can represent locations. For the velocities, we define the <samp class="mono">vel</samp> structure type:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct vel</samp><samp class="mono"> [deltax deltay])</samp></samp></p>
+</div>
+<p class="tni">It comes with two fields: <samp class="mono">deltax</samp> and <samp class="mono">deltay</samp>. The word “delta” is commonly used to speak of change when it comes to simulations of physical activities, and the x and y parts indicate which axis is concerned.</p>
+<p class="calibre8">Now we can use instances of <samp class="mono">ball</samp> to combine a <samp class="mono">posn</samp> structure with a <samp class="mono">vel</samp> structure to represent balls that move in straight lines but not necessarily along only vertical (or horizontal) lines:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define ball1</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (make-ball (make-posn</samp><samp class="mono"> 30 40)</samp><samp class="mono"> (make-vel -10</samp><samp class="mono"> 5)))</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_147" title="147"></span>One way to interpret this instance is to think of a ball that is <samp class="mono">30</samp> pixels from the left and <samp class="mono">40</samp> pixels from the top. It moves <samp class="mono">10</samp> pixels toward the left per clock tick, because subtracting 10 pixels from the x-coordinate brings it closer to the left. As for the vertical direction, the ball drops at <samp class="mono">5</samp> pixels per clock tick, because adding positive numbers to a y-coordinate increases the distance from the top.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 68. An alternative to the nested data representation of balls uses four fields to keep track of the four properties:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct ballf</samp><samp class="mono"> [x y</samp><samp class="mono"> deltax deltay])</samp></samp></p>
+</div>
+<p class="marginpar">Yet another alternative is to use <i class="calibre6">complex numbers</i>. If you know about them, contemplate a data representation that uses them for both location and velocity. For example, in BSL, <samp class="monospace-margin">4-3i</samp> is a complex number and could be used to represent the location or velocity (4,-3).</p>
+<p class="tni">Programmers call this a <i class="calibre6">flat representation</i>. Create an instance of <samp class="mono">ballf</samp> that has the same interpretation as <samp class="mono">ball1</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">For a second example of nested structures, let’s briefly look at the example of contact lists. Many cell phones support contact lists that allow several phone numbers per name: one for a home line, one for the office, and one for a cell phone number. For phone numbers, we wish to include both the area code and the local number. Since this nests the information, it’s best to create a nested data representation, too:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct centry</samp><samp class="mono"> [name home</samp><samp class="mono"> office cell])</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define-struct phone</samp><samp class="mono"> [area number])</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(make-centry "Shriram</samp><samp class="mono"> Fisler"</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 207</samp><samp class="mono"> "363-2421")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 101</samp><samp class="mono"> "776-1099")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (make-phone 208</samp><samp class="mono"> "112-9981"))</samp></samp></p>
+</div>
+<p class="tni">The intention here is that an entry on a contact list has four fields: a name and three phone records. The latter are represented with instance of <samp class="mono">phone</samp>, which separates the area code from the local phone number.</p>
+<p class="calibre8">In sum, nesting information is natural. The best way to represent such information with data is to mirror the nesting with nested structure instances. Doing so makes it easy to interpret the data in the application domain of the program, and it is also straightforward to go from examples of information to data. Of course, it is really the task of data definitions to specify how to go back and forth between information and data. Before we study data definitions for structure type definitions, however, we first take a systematic look at computing with, and thinking about, structures.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

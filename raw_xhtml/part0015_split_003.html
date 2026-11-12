@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec31-1" class="calibre16"></a>31.1 A Problem with Structural Processing</h2>
+<p class="tni">Let’s start with a seemingly straightforward example:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> You are working for a geometer team that will measure the length of road segments. The team asked you to design a program that translates these relative distances between a series of road points into absolute distances from some starting point.</p>
+</div>
+<p class="calibre8">For example, we might be given a line such as this:</p>
+<figure class="co"><img src="../images/00713.gif" alt="" class="calibre23"/></figure>
+<p class="tni">Each number specifies the distance between two dots. What we need is the following picture, where each dot is annotated with the distance to the left-most end:</p>
+<figure class="co"><img src="../images/00714.gif" alt="" class="calibre23"/></figure>
+<p class="calibre8">Designing a program that performs this calculation is a mere exercise in structural function design. <a id="rfig177" href="part0015_split_003.html#fig177" class="calibre5">Figure 177</a> contains the complete program. When the given list is not <samp class="mono">'()</samp>, the natural recursion computes the absolute distance of the remainder of the dots to the first one on <samp class="mono">(rest l)</samp>. <span epub:type="pagebreak" id="pg_697" title="697"></span>Because the first is not the actual origin and has a distance of <samp class="mono">(first l)</samp> to the origin, we must add <samp class="mono">(first l)</samp> to each number on the result of the natural recursion. This second step—adding a number to each item on a list of numbers—requires an auxiliary function.</p>
+<div class="figure">
+<figure class="img"><a id="fig177" class="calibre5"></a><img src="../images/00715.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_003.html#rfig177" class="calibre5">Figure 177</a>:</span> <span>Converting relative distances to absolute distances</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">While designing the program is relatively straightforward, using it on larger and larger lists reveals a problem. Consider the evaluation of the following expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(relative-&gt;absolute (build-list</samp><samp class="mono"> size add1))</samp></p>
+</div>
+<p class="tni">As we increase <samp class="mono">size</samp>, the time needed grows even faster:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_698" title="698"></span><img src="../images/00716.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Instead of doubling as we go from 1000 to 2000 items, the time quadruples. This is also the approximate relationship for going from 2000 to 4000, and so on. Using the terminology of intermezzo 5, we say that the function’s performance is <i class="calibre6">O</i>(<i class="calibre6">n</i><sup class="calibre15">2</sup>) where <i class="calibre6">n</i> is the length of the given list.</p>
+<p class="marginpar">The times will differ from computer to computer and year to year. These measurements were conducted in 2017 on a MacMini running OS X 10.11; the previous measurement took place in 1998, and the times were 100<i class="calibre6">x</i> larger.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 489. Reformulate <samp class="mono">add-to-each</samp> using <samp class="mono">map</samp> and <samp class="mono">lambda</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 490. Develop a formula that describes the abstract running time of <samp class="mono">relative-&gt;absolute</samp>. <b class="calibre9">Hint</b> Evaluate the expression</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(relative-&gt;absolute (build-list</samp><samp class="mono"> size add1))</samp></p>
+</div>
+<p class="tni">by hand. Start by replacing <samp class="mono">size</samp> with 1, 2, and 3. How many recursions of <samp class="mono">relative-&gt;absolute</samp> and <samp class="mono">add-to-each</samp> are required each time? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Considering the simplicity of the problem, the amount of work that the program performs is surprising. If we were to convert the same list by hand, we would tally up the total distance and just add it to the relative distances as we take steps along the line. Why can’t a program do so?</p>
+<p class="calibre8">Let’s attempt to design a version of the function that is close to our manual method. We still start from the list-processing template:</p>
+<figure class="co"><img src="../images/00717.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Now let’s simulate a hand-evaluation:</p>
+<figure class="co"><img src="../images/00718.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_699" title="699"></span>The first item of the result list should obviously be <samp class="mono">3</samp>, and it is easy to construct this list. But, the second one should be <samp class="mono">(+ 3 2)</samp>, yet the second instance of <samp class="mono">relative-&gt;absolute/a</samp> has no way of “knowing” that the first item of the <b class="calibre9">original</b> list is <samp class="mono">3</samp>. The “knowledge” is lost.</p>
+<p class="calibre8">Again, the problem is that recursive functions are independent of their context. A function processes <samp class="mono">L</samp> in <samp class="mono">(cons N L)</samp> the same way as in <samp class="mono">(cons K L)</samp>. Indeed, if given <samp class="mono">L</samp> by itself, it would also process the list in that way.</p>
+<p class="calibre8">To make up for the loss of “knowledge,” we equip the function with an additional parameter: <samp class="mono">accu-dist</samp>. The latter represents the accumulated distance, which is the tally that we keep when we convert a list of relative distances to a list of absolute distances. Its initial value must be <samp class="mono">0</samp>. As the function traverses the list, it must add its numbers to the tally.</p>
+<p class="calibre8">Here is the revised definition:</p>
+<figure class="co"><img src="../images/00719.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The recursive application consumes the rest of the list and the new absolute distance of the current point to the origin. Although both arguments are changing for every call, the change in the second one strictly depends on the first argument. The function is still a plain list-processing procedure.</p>
+<p class="calibre8">Now let’s evaluate our running example again:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(relative-&gt;absolute/a (list</samp><samp class="mono"> 3 2</samp><samp class="mono"> 7))</samp> <br class="calibre4"/><samp class="mono">== (relative-&gt;absolute/a</samp><samp class="mono"> (list 3</samp><samp class="mono"> 2 7)</samp><samp class="mono"> 0)</samp> <br class="calibre4"/><samp class="mono">== (cons</samp><samp class="mono"> 3 (relative-&gt;absolute/a</samp><samp class="mono"> (list 2</samp><samp class="mono"> 7) 3))</samp> <br class="calibre4"/><samp class="mono">== (cons</samp><samp class="mono"> 3 (cons</samp><samp class="mono"> 5 (relative-&gt;absolute/a</samp><samp class="mono"> (list 7)</samp><samp class="mono"> 5)))</samp> <br class="calibre4"/><samp class="mono">== (cons</samp><samp class="mono"> 3 (cons</samp><samp class="mono"> 5 (cons</samp><samp class="mono"> 12 ???)))</samp> <br class="calibre4"/><samp class="mono">== (cons</samp><samp class="mono"> 3 (cons</samp><samp class="mono"> 5 (cons</samp><samp class="mono"> 12 '())))</samp></p>
+</div>
+<p class="tni">Stop! Fill in the question marks in line 4.</p>
+<p class="calibre8">The hand-evaluation shows just how much the use of an accumulator simplifies the conversion process. Each item in the list is processed once. When <samp class="mono">relative-&gt;absolute/a</samp> reaches the end of the argument list, the result is completely determined and no further work is needed. In general, <span epub:type="pagebreak" id="pg_700" title="700"></span>the function performs on the order of <i class="calibre6">N</i> natural recursion steps for a list with <i class="calibre6">N</i> items.</p>
+<p class="calibre8">One problem is that, unlike <samp class="mono">relative-&gt;absolute</samp>, the new function consumes two arguments, not just one. Worse, someone might accidentally misuse <samp class="mono">relative-&gt;absolute/a</samp> by applying it to a list of numbers and a number that isn’t <samp class="mono">0</samp>. We can solve both problems with a function definition that uses a <samp class="mono">local</samp> definition to encapsulate <samp class="mono">relative-&gt;absolute/a</samp>; <a id="rfig178" href="part0015_split_003.html#fig178" class="calibre5">figure 178</a> shows the result. Now, <samp class="mono">relative-&gt;absolute</samp> is indistinguishable from <samp class="mono">relative-&gt;absolute.v2</samp> with respect to input-output.</p>
+<div class="figure">
+<figure class="img"><a id="fig178" class="calibre5"></a><img src="../images/00720.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_003.html#rfig178" class="calibre5">Figure 178</a>:</span> <span>Converting relative distances with an accumulator</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Now let’s look at how this version of the program performs. To this end, we evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(relative-&gt;absolute.v2 (build-list</samp><samp class="mono"> size add1))</samp></p>
+</div>
+<p class="tni">and tabulate the results for several values of <samp class="mono">size</samp>:</p>
+<figure class="co"><img src="../images/00721.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_701" title="701"></span>Amazingly, <samp class="mono">relative-&gt;absolute.v2</samp> never takes more than one second to process such lists, even for a list of 7000 numbers. Comparing this performance to the one of <samp class="mono">relative-&gt;absolute</samp>, you may think that accumulators are a miracle cure for all slow-running programs. Unfortunately, this isn’t the case, but when a structurally recursive function has to re-process the result of the natural recursion you should definitely consider the use of accumulators. In this particular case, the performance improved from <i class="calibre6">O</i>(<i class="calibre6">n</i><sup class="calibre15">2</sup>) to <i class="calibre6">O</i>(<i class="calibre6">n</i>)—with an additional large reduction in the constant.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 491. With a bit of design and a bit of tinkering, a friend of yours came up with the following solution for the sample problem:</p>
+<figure class="co"><img src="../images/00722.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">Adrian German and Mardin Yadegar suggested this exercise.</p>
+<p class="tni">This simple solution merely uses well-known ISL+ functions: <samp class="mono">reverse</samp> and <samp class="mono">foldr</samp>. Using <samp class="mono">lambda</samp>, as you know, is just a convenience. You may also recall from part III that <samp class="mono">foldr</samp> is designable with the design recipes presented in the first two parts of the book.</p>
+<p class="calibre8">Does your friend’s solution mean there is no need for our complicated design in this motivational section? For an answer, see chapter 32.1, but reflect on the question first. <b class="calibre9">Hint</b> Try to design <samp class="mono">reverse</samp> on your own. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

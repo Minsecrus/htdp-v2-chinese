@@ -1,0 +1,120 @@
+\documentclass[UTF8,10pt,twocolumn,openany]{ctexbook}
+
+\input{preamble}
+
+\title{\Huge\textbf{\color{NavyTheme}程序设计方法}\\[1.5ex]
+\LARGE\textbf{程序设计与计算引论}\\[1ex]
+\large\textit{How to Design Programs: An Introduction to Programming and Computing (Second Edition)}}
+\author{\Large Matthias Felleisen \quad Robert Bruce Findler \\[0.5ex]
+\Large Matthew Flatt \quad Shriram Krishnamurthi\\[2ex]
+\large Minsecrus 译}
+\date{\today}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+% ------------------------------------------------------------------------------
+% 译者序与排版说明：单栏、在第 2 页上下左右完全居中
+% ------------------------------------------------------------------------------
+\clearpage
+\onecolumn
+\thispagestyle{empty}
+\pdfbookmark[0]{译者序与排版说明}{translator_preface}
+\vspace*{\fill}
+\begin{center}
+\begin{minipage}{0.75\textwidth}
+  \begin{center}
+    {\Large\bfseries\color{NavyTheme} 译者序与排版说明}\\[2em]
+  \end{center}
+  \setlength{\parindent}{2\ccwd}
+  \linespread{1.35}\selectfont
+  本书基于麻省理工学院出版社（MIT Press）出版的著名计算机科学经典名著《How to Design Programs: An Introduction to Programming and Computing》（Second Edition），由 \textbf{Minsecrus} 进行全书中文翻译与高质量 \LaTeX{} 现代化紧凑重排。
+
+  全书系统性地传授\textbf{程序设计配方（Design Recipe）}，帮助初学者与具备一定经验的开发者建立清晰严谨的计算思维与系统化解决问题的能力。
+
+  本次重排采用正文双栏紧凑版面，在完整收录全书 42 个章节/插曲、全部 528 道练习题与 786 幅原版插图的前提下，将原书近 800 页的体量精炼重构，力求提供兼具学术质感与阅读效率的优秀体验。
+\end{minipage}
+\end{center}
+\vspace*{\fill}
+\clearpage
+\onecolumn
+\newgeometry{top=1.8cm, bottom=1.8cm, left=2.4cm, right=2.4cm, headheight=13pt, footskip=18pt}
+\pagestyle{plain}
+
+\tableofcontents
+
+\clearpage
+\newgeometry{top=1.8cm, bottom=1.8cm, left=0.8cm, right=0.8cm, headheight=13pt, footskip=18pt, columnsep=6.5mm}
+\pagestyle{fancy}
+\twocolumn
+
+% ==================== 前言与序幕 ====================
+\include{chapters/frontmatter/preface}
+\include{chapters/frontmatter/prologue}
+
+\mainmatter
+
+% ==================== 第一部分：固定大小的数据 ====================
+\part{固定大小的数据 (Fixed-Size Data)}
+\include{chapters/part01/ch01_arithmetic}
+\include{chapters/part01/ch02_functions}
+\include{chapters/part01/ch03_htdp}
+\include{chapters/part01/ch04_intervals}
+\include{chapters/part01/ch05_structures}
+\include{chapters/part01/ch06_itemizations}
+\include{chapters/part01/ch07_summary}
+\include{chapters/part01/intermezzo01}
+
+% ==================== 第二部分：任意大小的数据 ====================
+\part{任意大小的数据 (Arbitrarily Large Data)}
+\include{chapters/part02/ch08_lists}
+\include{chapters/part02/ch09_designing_lists}
+\include{chapters/part02/ch10_more_lists}
+\include{chapters/part02/ch11_design_by_composition}
+\include{chapters/part02/ch12_projects}
+\include{chapters/part02/ch13_summary}
+\include{chapters/part02/intermezzo02}
+
+% ==================== 第三部分：抽象 ====================
+\part{抽象 (Abstraction)}
+\include{chapters/part03/ch14_similarities}
+\include{chapters/part03/ch15_abstracting}
+\include{chapters/part03/ch16_using_abstractions}
+\include{chapters/part03/ch17_nameless}
+\include{chapters/part03/ch18_summary}
+\include{chapters/part03/intermezzo03}
+
+% ==================== 第四部分：交织数据 ====================
+\part{交织数据 (Intertwined Data)}
+\include{chapters/part04/ch19_trees}
+\include{chapters/part04/ch20_refinement}
+\include{chapters/part04/ch21_interpreters}
+\include{chapters/part04/ch22_xml}
+\include{chapters/part04/ch23_simultaneous}
+\include{chapters/part04/ch24_summary}
+\include{chapters/part04/intermezzo04}
+
+% ==================== 第五部分：生成式递归 ====================
+\part{生成型递归 (Generative Recursion)}
+\include{chapters/part05/ch25_nonstandard}
+\include{chapters/part05/ch26_algorithms}
+\include{chapters/part05/ch27_variations}
+\include{chapters/part05/ch28_math}
+\include{chapters/part05/ch29_backtracking}
+\include{chapters/part05/ch30_summary}
+\include{chapters/part05/intermezzo05}
+
+% ==================== 第六部分：累加器 ====================
+\part{累加器 (Accumulators)}
+\include{chapters/part06/ch31_loss_of_knowledge}
+\include{chapters/part06/ch32_accumulator_style}
+\include{chapters/part06/ch33_more_uses}
+\include{chapters/part06/ch34_summary}
+
+% ==================== 尾声 ====================
+\backmatter
+\include{chapters/backmatter/epilogue}
+
+\end{document}

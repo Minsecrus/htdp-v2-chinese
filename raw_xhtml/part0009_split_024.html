@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_25"><span epub:type="pagebreak" id="pg_443" title="443" class="calibre1"></span><a id="sec17-2" class="calibre16"></a>17.2 Computing with <samp class="monospace-margin1">lambda</samp></h2>
+<p class="tni">The insight that <samp class="mono">lambda</samp> abbreviates a certain kind of <samp class="mono">local</samp> also connects constant definitions and function definitions. Instead of viewing function definitions as given, we can take <samp class="mono">lambda</samp>s as another fundamental concept and say that a function definition abbreviates a plain constant definition with a <samp class="mono">lambda</samp> expression on the right-hand side.</p>
+<p class="calibre8">It’s best to look at some concrete examples:</p>
+<figure class="co"><img src="../images/00390.gif" alt="" class="calibre10"/></figure>
+<p class="tni">What this line says is that a function definition consists of two steps: the creation of the function and its naming. Here, the <samp class="mono">lambda</samp> on the right-hand side creates a function of one argument <i class="calibre6">x</i> that computes 10 · <i class="calibre6">x</i>; it is <samp class="mono">define</samp> that names the <samp class="mono">lambda</samp> expression <samp class="mono">f</samp>. We give names to functions for two distinct reasons. On the one hand, a function is often called more than once from other functions, and we wouldn’t want to spell out the function with a <samp class="mono">lambda</samp> each time it is called. On the other hand, functions are often recursive because they process recursive forms of data, and naming functions makes it easy to create recursive functions.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 282. Experiment with the above definitions in DrRacket.</p>
+<p class="calibre8">Also add</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">(define (compare</samp><samp class="mono"> x)</samp> <br class="calibre4"/><samp class="mono">  (=</samp><samp class="mono"> (f-plain x)</samp><samp class="mono"> (f-lambda x)))</samp></p>
+</div>
+<p class="tni">to the definitions area after renaming the left-hand <samp class="mono">f</samp> to <samp class="mono">f-plain</samp> and the right-hand one to <samp class="mono">f-lambda</samp>. Then run</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(compare (random</samp><samp class="mono"> 100000))</samp></p>
+</div>
+<p class="tni">a few times to make sure the two functions agree on all kinds of inputs. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">If function definitions are just abbreviations for constant definitions, we can replace the function name by its <samp class="mono">lambda</samp> expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(f (f</samp><samp class="mono"> 42))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">((lambda (x)</samp><samp class="mono"> (* 10</samp><samp class="mono"> x)) ((lambda</samp><samp class="mono"> (x) (*</samp><samp class="mono"> 10 x))</samp><samp class="mono"> 42))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_444" title="444"></span>Strangely though, this substitution appears to create an expression that violates the grammar as we know it. To be precise, it generates an application expression whose function position <b class="calibre9">is</b> a <samp class="mono">lambda</samp> expression.</p>
+<p class="calibre8">The point is that ISL+’s grammar differs from ISL’s in <b class="calibre9">two</b> aspects: it obviously comes with <samp class="mono">lambda</samp> expressions, but it also allows arbitrary expressions to show up in the function position of an application. This means that you may need to evaluate the function position before you can proceed with an application, but you know how to evaluate most expressions. Of course, the real difference is that the evaluation of an expression may yield a <samp class="mono">lambda</samp> expression. Functions really are values. The following grammar revises the one from intermezzo 1 to summarize these differences:</p>
+<figure class="co"><img src="../images/00391.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">Alonzo Church, who invented <samp class="monospace-margin">lambda</samp> in the late 1920s, hoped to create a unifying theory of functions. He stated the <i class="calibre6">beta</i> axiom roughly like this.—From his work we know that from a theoretical perspective, a language does not need <samp class="monospace-margin">local</samp> once it has <samp class="monospace-margin">lambda</samp>. But the margin of this page is too small to explain this idea properly. If you are curious, read up on the <b class="calibre9">Y</b> combinator.</p>
+<p class="calibre8">What you really need to know is how to evaluate the application of a <samp class="mono">lambda</samp> expression to arguments, and that is surprisingly straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (x-1</samp><samp class="mono"> <span>…</span> x-n)</samp><samp class="mono"> f-body) v-1</samp><samp class="mono"> <span>…</span> v-n)</samp><samp class="mono"> == f-body</samp> <br class="calibre4"/><samp class="mono">; with</samp><samp class="mono"> all occurrences</samp><samp class="mono"> of x-1</samp><samp class="mono"> <span>…</span> x-n</samp> <br class="calibre4"/><samp class="mono">; replaced</samp><samp class="mono"> with v-1</samp><samp class="mono"> <span>…</span> v-n,</samp><samp class="mono"> respectively [beta-v]</samp></p>
+</div>
+<p class="tni">That is, the application of a <samp class="mono">lambda</samp> expression proceeds just like that of an ordinary function. We replace the parameters of the function with the actual argument values and compute the value of the function body.</p>
+<p class="calibre8">Here is how to use this law on the first example in this chapter:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (x)</samp><samp class="mono"> (* 10</samp><samp class="mono"> x)) 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(* 10</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">20</samp></p>
+</div>
+<p class="tni">The second one proceeds in an analogous manner:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (name</samp><samp class="mono"> rst) (string-append</samp><samp class="mono"> name ",</samp><samp class="mono"> " rst))</samp> <br class="calibre4"/><samp class="mono"> "Robby" "etc.")</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(string-append "Robby"</samp><samp class="mono"> ", "</samp><samp class="mono"> "etc.")</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">"Robby, etc."</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_445" title="445"></span>Stop! Use your intuition to calculate the third example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (ir)</samp><samp class="mono"> (&lt;= (ir-price</samp><samp class="mono"> ir) th))</samp> <br class="calibre4"/><samp class="mono"> (make-ir "bear"</samp><samp class="mono"> 10))</samp></p>
+</div>
+<p class="tni">Assume <samp class="mono">th</samp> is larger than or equal to <samp class="mono">10</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 283. Confirm that DrRacket’s stepper can deal with <samp class="mono">lambda</samp>. Use it to step through the third example and also to determine how DrRacket evaluates the following expressions:</p>
+<figure class="co"><img src="../images/00392.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 284. Step through the evaluation of this expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (x)</samp><samp class="mono"> x) (lambda</samp><samp class="mono"> (x) x))</samp></p>
+</div>
+<p class="calibre8">Now step through this one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (x)</samp><samp class="mono"> (x x))</samp><samp class="mono"> (lambda (x)</samp><samp class="mono"> x))</samp></p>
+</div>
+<p class="tni">Stop! What do you think we should try next?</p>
+<p class="calibre8">Yes, try to evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((lambda (x)</samp><samp class="mono"> (x x))</samp><samp class="mono"> (lambda (x)</samp><samp class="mono"> (x x)))</samp></p>
+</div>
+<p class="tni">Be ready to hit <i class="calibre6">STOP</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,361 @@
+% ==============================================================================
+% 第 22 章：项目：XML 应用 (Chapter 22: Project: The Commerce of XML)
+% ==============================================================================
+
+\chapter{项目：XML 应用}
+\label{sec:ch22_xml}
+
+\term{XML}（可扩展标记语言）是一种被广泛应用的数据描述语言。其核心用途之一是在网络中运行在不同计算机上的程序之间交换结构化消息。例如，当你在浏览器中访问某个网站时，你的电脑正在与远程服务器建立连接，远程服务器向你的浏览器发送 XML/HTML 数据；浏览器接收到这些数据后，将其渲染为你显示器上丰富多彩的图形界面。
+
+本章将处理 XML 数据作为交织数据定义与逐步求精的另一项大型综合实战项目。我们将对比 S-表达式与 XML 数据的内在同构性，制定精确的数据定义，并展示如何编写用于渲染、配置领域特定语言（DSL）以及读取网络实时数据的现代化程序。
+
+\section{XML 作为 S-表达式 }
+\label{sec:22.1_xml_as_sexpr}
+
+最基本的 XML 片段形如：
+\begin{lstlisting}[language=BSL]
+<machine> </machine>
+\end{lstlisting}
+它被称为一个\term{元素}（element），其中 \code{machine} 是元素的标签名。当元素内部没有实际内容时，XML 允许简写为自闭合标签：
+\begin{lstlisting}[language=BSL]
+<machine />
+\end{lstlisting}
+
+从 S-表达式的视角来看，一个 XML 元素无非就是\textbf{一对带有名字的括号，其中包裹着内容}。因此，用 S-表达式来表示它极为自然：
+\begin{lstlisting}[language=BSL]
+'(machine)
+\end{lstlisting}
+
+当元素包含嵌套的子元素时：
+\begin{lstlisting}[language=BSL]
+<machine><action /><action /><action /></machine>
+\end{lstlisting}
+在 S-表达式中直接表示为嵌套的列表：
+\begin{lstlisting}[language=BSL]
+'(machine (action) (action) (action))
+\end{lstlisting}
+
+为了给元素附加更多的元数据，XML 允许为标签指定\term{属性}（attribute）。例如：
+\begin{lstlisting}[language=BSL]
+<machine initial="red">
+  <action state="red"    next="green" />
+  <action state="green"  next="yellow" />
+  <action state="yellow" next="red" />
+</machine>
+\end{lstlisting}
+
+在 S-表达式表示法中，我们在标签名之后插入一个由两项组成的列表构成的“属性列表”，每个属性表示为形如 \code{(list Symbol String)} 的键值对：
+\begin{lstlisting}[language=BSL]
+'(machine ((initial "red"))
+   (action ((state "red")    (next "green")))
+   (action ((state "green")  (next "yellow")))
+   (action ((state "yellow") (next "red"))))
+\end{lstlisting}
+
+通过逐步求精，我们形式化建立如下渐进式数据定义：
+
+\begin{lstlisting}[language=BSL]
+; 版本 0：仅包含标签名的基础元素
+; 一个 Xexpr.v0 是：(cons Symbol '())
+
+; 版本 1：支持嵌套子元素的内容列表
+; 一个 Xexpr.v1 是：(cons Symbol [List-of Xexpr.v1])
+
+; 版本 2：支持可选属性与嵌套内容
+; 一个 Xexpr.v2 是下列之一：
+; -- (cons Symbol Body)
+; -- (cons Symbol (cons [List-of Attribute] Body))
+; 其中 Body 是 [List-of Xexpr.v2]
+; 一个 Attribute 是：(cons Symbol (cons String '()))
+\end{lstlisting}
+
+\begin{exercise}{重构 Xexpr.v2 数据定义}{363}
+在 \code{Xexpr.v2} 的定义中，所有元素都以一个 \code{Symbol} 开头，后跟属性列表或子元素列表。请重新表述该定义，提取公共头部，并消除对 \code{List-of} 抽象的依赖，用纯结构化方式展开。
+\end{exercise}
+
+\begin{exercise}{将 XML 转换为 Xexpr.v2}{364}
+将下列 XML 片段翻译为合法的 \code{Xexpr.v2} 数据表示：
+\begin{enumerate}
+  \item \verb|<transition from="seen-e" to="seen-f" />|
+  \item \verb|<ul><li><word /><word /></li><li><word /></li></ul>|
+\end{enumerate}
+思考：其中哪些片段可以被 \code{Xexpr.v0} 或 \code{Xexpr.v1} 所表示？
+\end{exercise}
+
+\begin{exercise}{将 Xexpr.v2 还原为 XML}{365}
+将下列 \code{Xexpr.v2} 数据还原为人类可读的标准 XML 代码：
+\begin{enumerate}
+  \item \code{'(server ((name "example.org")))}
+  \item \code{'(carcas (board (grass)) (player ((name "sam"))))}
+  \item \code{'(start)}
+\end{enumerate}
+\end{exercise}
+
+\subsection{编写选择器：让列表表现得像结构体}
+
+用纯列表表示 XML 数据在输入时非常便利，但在编写处理程序时，由于属性列表是\textbf{可选}的，元素后续各项的绝对索引位置会发生浮动。为了彻底隔离这种内部表示的差异，我们遵循抽象原则，设计一组专门的“选择器函数”：
+\begin{itemize}
+  \item \code{xexpr-name}：提取 XML 元素的标签名；
+  \item \code{xexpr-attr}：提取属性列表（若没有属性则统一返回 \code{'()}）；
+  \item \code{xexpr-content}：提取子元素内容列表。
+\end{itemize}
+
+图~\ref{fig:126} 给出了 \code{xexpr-attr} 的完整定义及其辅助谓词 \code{list-of-attributes?}。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00497.png}
+  \caption{xexpr-attr 的完整函数定义 (The complete definition of xexpr-attr)}
+  \label{fig:126}
+\end{figure}
+
+\begin{exercise}{设计 xexpr-name 与 xexpr-content}{366}
+遵循设计配方，设计函数 \code{xexpr-name} 与 \code{xexpr-content}。编写完备的单元测试，确保它们无论对带有属性列表的 X-表达式还是不带属性列表的 X-表达式都能正确提取。
+\end{exercise}
+
+\begin{exercise}{解析函数中的自引用分析}{367}
+按照设计配方，处理列表的模板中通常应包含自引用递归调用。请分析为什么图~\ref{fig:126} 中完成的 \code{xexpr-attr} 却不包含递归调用？
+\end{exercise}
+
+\begin{exercise}{规范化或（or）类型的签名}{368}
+\code{list-of-attributes?} 的输入签名中非正式地使用了英文单词 \code{or}：
+\begin{lstlisting}[language=BSL]
+; [List-of Attribute] or Xexpr.v2 -> Boolean
+\end{lstlisting}
+请制定一份正式的分类数据定义（Itemization），消除该非正式签名。
+\end{exercise}
+
+\begin{exercise}{设计属性查找函数 find-attr}{369}
+设计函数 \code{find-attr}。该函数接收一个属性列表和一个属性名符号。若该属性列表中包含该名字的绑定，返回其对应的字符串属性值；否则返回 \code{\#false}。查阅 DrRacket 帮助文档中的 \code{assq} 函数并用其实现。
+\end{exercise}
+
+\section{渲染 XML 枚举 }
+\label{sec:22.2_rendering_xml}
+
+XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code{<ul>} 标签表示无序列表（unordered list），列表项由 \code{<li>} 标签包裹，每个子项在视觉上由一个黑圆点（bullet）引导。
+
+为了精确建模文本内容，我们首先定义文本单元 \code{XWord}：
+\begin{lstlisting}[language=BSL]
+; 一个 XWord 是形如 '(word ((text String))) 的数据
+\end{lstlisting}
+
+\begin{exercise}{文本节点 XWord 的设计}{370}
+构造三个 \code{XWord} 的实例。随后设计谓词 \code{word?}（判断给定值是否为 \code{XWord}）与选择器 \code{word-text}（提取其唯一的字符串属性值）。
+\end{exercise}
+
+\begin{exercise}{支持纯文本字符串的 Xexpr}{371}
+精炼 \code{Xexpr} 的数据定义，使其能够直接将原生纯字符串（\code{String}）作为合法元素容纳其中。
+\end{exercise}
+
+基于此，一阶简单无序列表的数据定义如下：
+\begin{lstlisting}[language=BSL]
+; 一个 XEnum.v1 是下列之一：
+; -- (cons 'ul [List-of XItem.v1])
+; -- (cons 'ul (cons Attributes [List-of XItem.v1]))
+
+; 一个 XItem.v1 是下列之一：
+; -- (cons 'li (cons XWord '()))
+; -- (cons 'li (cons Attributes (cons XWord '())))
+\end{lstlisting}
+
+渲染这样一个列表需要将文本转为图像，并在左侧添加项目符号。渲染单个列表项的函数如下：
+\begin{lstlisting}[language=BSL]
+(define BT (circle 3 "solid" "black"))
+
+; XItem.v1 -> Image
+(define (render-item1 i)
+  (beside/align 'center BT (text " " 12 "black")
+                (text (word-text (first (xexpr-content i))) 12 "black")))
+\end{lstlisting}
+
+渲染整个枚举列表则借助 \code{foldr} 纵向堆叠所有项的渲染结果：
+\begin{lstlisting}[language=BSL]
+; XEnum.v1 -> Image
+(define (render-enum1 xe)
+  (foldr (lambda (item img) (above/align 'left (render-item1 item) img))
+         empty-image
+         (xexpr-content xe)))
+\end{lstlisting}
+
+\subsection{任意嵌套枚举的逐步求精}
+
+现实中的网页充斥着任意层级嵌套的无序列表。为此，我们将列表项 \code{XItem} 重新定义为：既可以是一个普通词汇，也可以是\textbf{另一个完整的无序列表}！
+
+图~\ref{fig:127} 展示了支持任意嵌套的真实 XML 枚举数据定义。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00506.png}
+  \caption{支持任意嵌套的 XML 枚举数据定义 (A realistic data representation of XML enumerations)}
+  \label{fig:127}
+\end{figure}
+
+数据定义的升级直接引导函数定义的升级：图~\ref{fig:128} 展示了相互递归的渲染函数集合。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00507.png}
+  \caption{数据精炼所驱动的渲染函数精炼 (Refining functions to match refinements of data definitions)}
+  \label{fig:128}
+\end{figure}
+
+\begin{exercise}{测试 render-item1}{372}
+为 \code{render-item1} 编写测试用例，确保测试断言不直接硬编码依赖于全局常量 \code{BT} 的具体像素尺寸。
+\end{exercise}
+
+\begin{exercise}{全面测试嵌套列表渲染器}{373}
+图~\ref{fig:128} 缺少测试用例。为其中涉及的所有函数设计多层嵌套的丰富测试套件。
+\end{exercise}
+
+\begin{exercise}{基于 cons 基础列表重写渲染程序}{374}
+将图~\ref{fig:127} 中的数据定义改写为显式的 \code{cons} 形式。然后完全从头推导并设计图~\ref{fig:128} 中的渲染函数，验证二者的等价性。
+\end{exercise}
+
+\begin{exercise}{项目符号并排渲染重构}{375}
+在图~\ref{fig:128} 中，\code{beside/align} 外包裹了整个 \code{cond}。修改函数定义，使得并排拼接逻辑内移到各个 \code{cond} 分支中。比较两种风格的优缺点。
+\end{exercise}
+
+\begin{exercise}{统计枚举列表中的特定单词}{376}
+设计函数，统计在某个嵌套的 \code{XEnum.v2} 结构中，单词 \code{"hello"} 出现的总频次。
+\end{exercise}
+
+\begin{exercise}{替换枚举列表中的文本}{377}
+设计函数，将某个 \code{XEnum.v2} 中所有出现的 \code{"hello"} 全部替换为 \code{"bye"}。
+\end{exercise}
+
+\section{领域特定语言 }
+\label{sec:22.3_dsl}
+
+在软件工程中，系统管理员往往需要为复杂的软件系统编写配置文件。为了降低配置门槛，软件工程师通常围绕通用的数据格式（如 XML）为特定应用场景定制一套简单直观的配置语法。这种专用于特定领域的微型语言被称为\term{领域特定语言}（Domain-Specific Language，简称 DSL）。正如著名计算机科学家 Paul Hudak 所言：\textbf{DSL 是终极的程序抽象}。
+
+本节我们将第 12.8 节中研究过的\term{有限状态机}（FSM）改造为一个由 XML DSL 驱动的通用仿真系统。
+
+图~\ref{fig:129} 重新呈现了有限状态机模拟器的核心逻辑。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00508.png}
+  \caption{有限状态机模拟器重温 (Finite state machines, revisited)}
+  \label{fig:129}
+\end{figure}
+
+\begin{exercise}{在状态方块上叠加状态名称}{378}
+修改图~\ref{fig:129} 中的渲染函数，使得在显示当前状态对应颜色的矩形方块时，在其正中央清晰叠加显示该状态的名字字符串。
+\end{exercise}
+
+\begin{exercise}{编写 find 函数的测试用例}{379}
+为图~\ref{fig:129} 中通用的关联查找函数 \code{find} 编写完备的测试用例。
+\end{exercise}
+
+\begin{exercise}{支持按键触发的状态转移}{380}
+重新表述 \code{1Transition} 的数据定义，使得状态转移能够由特定的键盘按键触发。
+\end{exercise}
+
+\subsection{用 XML 配置状态机系统}
+
+现在，我们设计一套 XML 配置语言，允许用户在不修改任何 BSL 源代码的前提下，仅凭编写一份简单的 XML 配置文件即可定义并启动任意状态机：
+
+\begin{lstlisting}[language=BSL]
+<machine initial="red">
+  <action state="red"    next="green" />
+  <action state="green"  next="yellow" />
+  <action state="yellow" next="red" />
+</machine>
+\end{lstlisting}
+
+其对应的 X-表达式数据定义为：
+\begin{lstlisting}[language=BSL]
+; 一个 XMachine 是形如：
+;   (list 'machine (list (list 'initial FSM-State)) [List-of X1T])
+; 一个 X1T 是形如：
+;   (list 'action (list (list 'state FSM-State) (list 'next FSM-State)))
+\end{lstlisting}
+
+配置解释器的主要任务是将 XML 配置解析为模拟器所需的初始状态与状态转移表：
+\begin{lstlisting}[language=BSL]
+; XMachine -> FSM-State
+; 根据传入的 XML 配置启动并模拟有限状态机
+(define (simulate-xmachine xm)
+  (simulate (xm->transitions xm) (xm-state0 xm)))
+\end{lstlisting}
+
+图~\ref{fig:130} 展示了完整的 DSL 解释与执行程序。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00512.png}
+  \caption{DSL 配置解释器完整实现 (Interpreting a DSL program)}
+  \label{fig:130}
+\end{figure}
+
+\begin{exercise}{消除 quote 规范化数据定义}{381}
+将 \code{XMachine} 与 \code{X1T} 的定义首先改写为 \code{list} 形式，继而改写为显式的 \code{cons} 形式。
+\end{exercise}
+
+\begin{exercise}{设计黑白状态机的 XML 配置}{382}
+为在黑白两色之间往复切换的 BW 状态机编写 XML 配置文件，并将其翻译为 \code{XMachine} 数据表示。
+\end{exercise}
+
+\begin{exercise}{运行黑白状态机模拟}{383}
+将练习 382 中的黑白状态机配置传入图~\ref{fig:130} 的 \code{simulate-xmachine} 中运行，验证其交互效果。
+\end{exercise}
+
+\section{读取网络 XML }
+\label{sec:22.4_reading_xml}
+
+在现实世界中，配置文件通常存储在独立的文件中，或者通过 Web API 动态拉取。借助 \code{2htdp/batch-io} 教学包，ISL+ 能够直接读取磁盘文件或互联网上的实时 XML 数据：
+
+\begin{lstlisting}[language=BSL]
+(require 2htdp/batch-io)
+
+; 从本地文件读取 XML
+(read-plain-xexpr "machine-config.xml")
+
+; 从互联网 URL 实时拉取 XML
+(read-plain-xexpr/web "http://example.org/machine.xml")
+\end{lstlisting}
+
+图~\ref{fig:131} 展示了一个存储于磁盘上的状态机配置文件样例。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00514.png}
+  \caption{磁盘上的状态机配置文件 (A file with a machine configuration)}
+  \label{fig:131}
+\end{figure}
+
+图~\ref{fig:132} 汇总了 \code{batch-io} 提供的核心 XML 读取函数接口。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00516.png}
+  \caption{X-表达式读取函数规范 (Reading X-expressions)}
+  \label{fig:132}
+\end{figure}
+
+\begin{notebox}[计算模型的深层转变：破坏引用透明性]
+在纯代数计算模型中，对于任意确定参数 $a$，函数调用 $(f\ a)$ 的计算结果必然永远相同（这被称为\term{引用透明性}）。
+
+然而，一旦引入 \code{read-file} 或网络请求函数，这一铁律就被打破了！因为磁盘上的文件内容与网络服务器上的网页会随时间动态变化。每一次读取都可能产生全新的数据——程序的世界开始与充满不确定性的外部物理世界发生交织。
+\end{notebox}
+
+图~\ref{fig:133} 展示了一个基于 \code{big-bang} 的股票价格实时警报系统：它每隔 15 秒通过网络重新拉取财经网页，解析出最新股价，并动态刷新窗口图像！
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00517.png}
+  \caption{将实时网络数据作为事件驱动源 (Web data as an event)}
+  \label{fig:133}
+\end{figure}
+
+\begin{exercise}{查阅 read-xexpr/web 规范}{384}
+查阅 DrRacket 文档，对比 \code{read-plain-xexpr/web} 与 \code{read-xexpr/web} 之间的差异。
+\end{exercise}
+
+\begin{exercise}{获取并解析真实财经网页}{385}
+从网络上保存一份包含股票或汇率信息的 XML/HTML 页面，并在 DrRacket 中使用 \code{read-plain-xexpr} 将其读入为 \code{Xexpr.v3} 进行结构分析。
+\end{exercise}
+
+\begin{exercise}{设计通用属性检索器 get-xexpr}{386}
+设计深度优先遍历树形结构的函数 \code{get-xexpr}，在任意复杂的 \code{Xexpr.v3} 中搜索具有指定属性名和属性值的目标元素。结合图~\ref{fig:133} 的股票警报器进行联调测试。
+\end{exercise}

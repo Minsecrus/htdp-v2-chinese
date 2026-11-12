@@ -1,0 +1,497 @@
+# Chapter 21: Refining Interpreters / 第 21 章：解释器的精炼
+
+<h1>
+21 Refining Interpreters
+</h1>
+
+<P>
+DrRacket is a program. It is a complex one, dealing with many different kinds of data. Like most complex programs, DrRacket also consists of many functions: one that allows programmers to edit text, another one that acts like the interactions area, a third one that checks whether definitions and expressions are “grammatical,” and so on.
+</P>
+
+<P>
+In this chapter, we show you how to design the function that implements the heart of the interactions area. Naturally, we use iterative refinement for this design project. As a matter of fact, the very idea of focusing on this aspect of DrRacket is another instance of refinement, namely, the obvious one of implementing only one piece of functionality.
+</P>
+
+<P>
+Simply put, the interactions area performs the task of determining the values of expressions that you enter. After you click RUN, the interactions area knows about all the definitions. It is then ready to accept an expression that may refer to these definitions, to determine the value of this expression, and to repeat this cycle as often as you wish. For this reason, many people also refer to the interactions area as the read-eval-print loop, where eval is short for evaluator, a function that is also called interpreter.
+</P>
+
+<P>
+Like this book, our refinement process starts with numeric BSL expressions. They are simple; they do not assume an understanding of definitions; and even your sister in fifth grade can determine their value. Once you understand this first step, you know the difference between a BSL expression and its representation. Next we move on to expressions with variables. The last step is to add definitions.
+</P>
+
+<h2>
+21.1 Interpreting Expressions
+</h2>
+
+<P>
+Our first task is to agree on a data representation for BSL programs. That is, we must figure out how to represent a BSL expression as a piece of BSL data. At first, this sounds strange and unusual, but it is not difficult. Suppose we just want to represent numbers, additions, and multiplications for a start. Clearly, numbers can stand for numbers. An addition expression, however, calls for compound data because it contains two expressions and because it is distinct from a multiplication expression, which also needs a data representation.
+</P>
+
+<P>
+Following chapter 5, a straightforward way to represent additions and multiplications is to define two structure types, each with two fields:
+</P>
+
+<CODE>
+(define-struct add [left right]) (define-struct mul [left right])
+</CODE>
+
+<P>
+The intention is that the left field contains one operand—the one to the “left” of the operator—and the right field contains the other operand. The following table shows three examples:
+</P>
+
+<FIGURE src="images/00482.png">
+
+</FIGURE>
+
+<P>
+The next question concerns an expression with sub-expressions:
+</P>
+
+<CODE>
+(+ (* 3 3) (* 4 4))
+</CODE>
+
+<P>
+The surprisingly simple answer is that fields may contain any value. In this particular case, left and right may contain representations of expressions, and you may nest this as deeply as you wish. See figure 124 for additional examples.
+</P>
+
+<FIGURE src="images/00483.png">
+Figure 124: Representing BSL expressions in BSL
+</FIGURE>
+
+<EXERCISE>
+Exercise 345. Formulate a data definition for the representation of BSL expressions based on the structure type definitions of add and mul. Let’s use BSL-expr in analogy for S-expr for the new class of data.
+</EXERCISE>
+
+<P>
+Translate the following expressions into data:
+</P>
+
+<P>
+1. (+ 10 -10)
+</P>
+
+<P>
+2. (+ (* 20 3) 33)
+</P>
+
+<P>
+3. (+ (* 3.14 (* 2 3)) (* 3.14 (* -1 -9)))
+</P>
+
+<P>
+Interpret the following data as expressions:
+</P>
+
+<P>
+1. (make-add -1 2)
+</P>
+
+<P>
+2. (make-add (make-mul -2 -3) 33)
+</P>
+
+<P>
+3. (make-mul (make-add 1 (make-mul 2 3)) 3.14)
+</P>
+
+<MARGIN_NOTE>
+Here “interpret” means “translate from data into information.” In contrast, “interpreter” in the title of this chapter refers to a program that consumes the representation of a program and produces its value. While the two ideas are related, they are not the same.
+</MARGIN_NOTE>
+
+<P>
+Now that you have a data representation for BSL programs, it is time to design an evaluator. This function consumes a representation of a BSL expression and produces its value. Again, this function is unlike any you have ever designed so it pays off to experiment with some examples. To this end, either you can use the rules of arithmetic to figure out what the value of an expression is or you can “play” in the interactions area of DrRacket. Take a look at the following table for our examples:
+</P>
+
+<FIGURE src="images/00484.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 346. Formulate a data definition for the class of values to which a representation of a BSL expression can evaluate.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 347. Design eval-expression. The function consumes a representation of a BSL expression and computes its value.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 348. Develop a data representation for Boolean BSL expressions constructed from #true, #false, and, or, and not. Then design eval-bool-expression, which consumes (representations of) Boolean BSL expressions and computes their values. What kind of values do these Boolean expressions yield?
+</EXERCISE>
+
+<P>
+Convenience and parsing S-expressions offer a convenient way to represent BSL expressions in our programming language:
+</P>
+
+<FIGURE src="images/00485.png">
+
+</FIGURE>
+
+<P>
+By simply putting a quote in front of an expression, we get ISL+ data.
+</P>
+
+<P>
+Interpreting an S-expression representation is clumsy, mostly because not all S-expressions represent BSL-exprs. For example, #true, "hello", and '(+ x 1) are not representatives of BSL expressions. As a result, S-expressions are quite inconvenient for the designers of interpreters. Programmers invented parsers to bridge the gap between convenience of use and implementation. A parser simultaneously checks whether some piece of data conforms to a data definition and, if it does, builds a matching element from the chosen class of data. The latter is called a parse tree. If the given data does not conform, a parser signals an error, much like the checked functions from chapter 6.3.
+</P>
+
+<P>
+Figure 125 presents a BSL parser for S-expressions. Specifically, parse consumes an S-expr and produces a BSL-expr—if and only if the given S-expression is the result of quoting a BSL expression that has a BSL-expr representative.
+</P>
+
+<FIGURE src="images/00486.png">
+Figure 125: From S-expr to BSL-expr
+</FIGURE>
+
+<EXERCISE>
+Exercise 349. Create tests for parse until DrRacket tells you that every element in the definitions area is covered during the test run.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 350. What is unusual about the definition of this program with respect to the design recipe?
+</EXERCISE>
+
+<P>
+Note One unusual aspect is that parse uses length on the list argument. Real parsers avoid length because it slows the functions down.
+</P>
+
+<EXERCISE>
+Exercise 351. Design interpreter-expr. The function accepts S-expressions. If parse recognizes them as BSL-expr, it produces their value. Otherwise, it signals the same error as parse.
+</EXERCISE>
+
+<h2>
+21.2 Interpreting Variables
+</h2>
+
+<P>
+Since the first section ignores constant definitions, an expression does not have a value if it contains a variable. Indeed, unless we know what x stands for, it makes no sense to evaluate (+ 3 x). Hence, one first refinement of the evaluator is to add variables to the expressions that we wish to evaluate. The assumption is that the definitions area contains a definition such as
+</P>
+
+<CODE>
+(define x 5)
+</CODE>
+
+<P>
+and that programmers evaluate expressions containing x in the interactions area:
+</P>
+
+<CODE>
+> x 5 > (+ x 3) 8 > (* 1/2 (* x 3)) 7.5
+</CODE>
+
+<P>
+Indeed, you could imagine a second definition, say (define y 3), and interactions that involve two variables:
+</P>
+
+<FIGURE src="images/00487.png">
+
+</FIGURE>
+
+<P>
+The preceding section implicitly proposes symbols as representations for variables. After all, if you were to choose quoted S-expressions to represent expressions with variables, symbols would appear naturally:
+</P>
+
+<CODE>
+> 'x 'x > '(* 1/2 (* x 3)) (list '* 0.5 (list '* 'x 3))
+</CODE>
+
+<P>
+One obvious alternative is a string, so that "x" would represent x, but this book is not about designing interpreters, so we stick with symbols. From this decision, it follows how to modify the data definition from exercise 345:
+</P>
+
+<CODE>
+; A BSL-var-expr is one of: ; -- Number ; -- Symbol ; -- (make-add BSL-var-expr BSL-var-expr) ; -- (make-mul BSL-var-expr BSL-var-expr)
+</CODE>
+
+<P>
+We simply add one clause to the data definition.
+</P>
+
+<P>
+As for data examples, the following table shows some BSL expressions with variables and their BSL-var-expr representation:
+</P>
+
+<FIGURE src="images/00488.png">
+
+</FIGURE>
+
+<P>
+They are all taken from the interactions above, meaning you know the results when x is 5 and y 3.
+</P>
+
+<P>
+One way to determine the value of variable expressions is to replace all variables with the values that they represent. This is the way you know from mathematics classes in school, and it is a perfectly fine way.
+</P>
+
+<EXERCISE>
+Exercise 352. Design subst. The function consumes a BSL-var-expr ex, a Symbol x, and a Number v. It produces a BSL-var-expr like ex with all occurrences of x replaced by v.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 353. Design the numeric? function. It determines whether a BSL-var-expr is also a BSL-expr. Here we assume that your solution to exercise 345 is the definition for BSL-var-expr without Symbols.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 354. Design eval-variable. The checked function consumes a BSL-var-expr and determines its value if numeric? yields true for the input. Otherwise it signals an error.
+</EXERCISE>
+
+<P>
+In general, a program defines many constants in the definitions area, and expressions contain more than one variable. To evaluate such expressions, we need a representation of the definitions area when it contains a series of constant definitions. For this exercise we use association lists:
+</P>
+
+<CODE>
+; An AL (short for association list) is [List-of Association]. ; An Association is a list of two items: ;    (cons Symbol (cons Number '())).
+</CODE>
+
+<P>
+Make up elements of AL.
+</P>
+
+<P>
+Design eval-variable*. The function consumes a BSL-var-expr ex and an association list da. Starting from ex, it iteratively applies subst to all associations in da. If numeric? holds for the result, it determines its value; otherwise it signals the same error as eval-variable. Hint Think of the given BSL-var-expr as an atomic value and traverse the given association list instead. We provide this hint because the creation of this function requires a little design knowledge from chapter 23.
+</P>
+
+<P>
+An environment model Exercise 354 relies on the mathematical understanding of constant definitions. If a name is defined to stand for some value, all occurrences of the name can be replaced with the value. Substitution performs this replacement once and for all before the evaluation process even starts.
+</P>
+
+<P>
+An alternative approach, dubbed the environment model, is to look up the value of a variable when needed. The evaluator starts processing the expression immediately but also carries along the representation of the definitions area. Every time the evaluator encounters a variable, it looks in the definitions area for its value and uses it.
+</P>
+
+<EXERCISE>
+Exercise 355. Design eval-var-lookup. This function has the same signature as eval-variable*:
+</EXERCISE>
+
+<CODE>
+; BSL-var-expr AL -> Number (define (eval-var-lookup e da) …)
+</CODE>
+
+<P>
+Instead of using substitution, the function traverses the expression in the manner that the design recipe for BSL-var-expr suggests. As it descends the expression, it “carries along” da. When it encounters a symbol x, it uses assq to look up the value of x in the association list. If there is no value, eval-var-lookup signals an error.
+</P>
+
+<h2>
+21.3 Interpreting Functions
+</h2>
+
+<P>
+At this point, you understand how to evaluate BSL programs that consist of constant definitions and variable expressions. Naturally you want to add function definitions so that you know—at least in principle—how to deal with all of BSL.
+</P>
+
+<P>
+The goal of this section is to refine the evaluator of chapter 21.2 so that it can cope with functions. Since function definitions show up in the definitions area, another way to describe the refined evaluator is to say that it simulates DrRacket when the definitions area contains a number of function definitions and a programmer enters an expression in the interactions area that contains uses of these functions.
+</P>
+
+<P>
+For simplicity, let’s assume that all functions in the definitions area consume one argument and that there is only one such definition. The necessary domain knowledge dates back to school where you learned that f (x) = e represents the definition of function f, that f (a) represents the application of f to a, and that to evaluate the latter, you substitute a for x in e. As it turns out, the evaluation of function applications in a language such as BSL works mostly like that, too.
+</P>
+
+<P>
+Before tackling the following exercises, you may wish to refresh your knowledge of the terminology concerning functions as presented in intermezzo 1. Most of the time, algebra courses gloss over this aspect of mathematics, but a precise use and understanding of terminology is needed when you wish to solve these problems.
+</P>
+
+<EXERCISE>
+Exercise 356. Extend the data representation of chapter 21.2 to include the application of a programmer-defined function. Recall that a function application consists of two pieces: a name and an expression. The former is the name of the function that is applied; the latter is the argument.
+</EXERCISE>
+
+<P>
+Represent these expressions: (k (+ 1 1)), (* 5 (k (+ 1 1))), (* (i 5) (k (+ 1 1))). We refer to this newly defined class of data as BSL-fun-expr.
+</P>
+
+<EXERCISE>
+Exercise 357. Design eval-definition1. The function consumes four arguments:
+</EXERCISE>
+
+<P>
+1. a BSL-fun-expr ex;
+</P>
+
+<P>
+2. a symbol f, which represents a function name;
+</P>
+
+<P>
+3. a symbol x, which represents the functions’s parameter; and
+</P>
+
+<P>
+4. a BSL-fun-expr b, which represents the function’s body.
+</P>
+
+<P>
+It determines the value of ex. When eval-definition1 encounters an application of f to some argument, it
+</P>
+
+<P>
+1. evaluates the argument,
+</P>
+
+<P>
+2. substitutes the value of the argument for x in b; and
+</P>
+
+<P>
+3. finally evaluates the resulting expression with eval-definition1.
+</P>
+
+<P>
+Here is how to express the steps as code, assuming arg is the argument of the function application:
+</P>
+
+<FIGURE src="images/00489.png">
+
+</FIGURE>
+
+<P>
+Notice that this line uses a form of recursion that has not been covered. The proper design of such functions is discussed in part V.
+</P>
+
+<P>
+If eval-definition1 encounters a variable, it signals the same error as eval-variable from exercise 354. It also signals an error for function applications that refer to a function name other than f.
+</P>
+
+<P>
+Warning The use of this uncovered form of recursion introduces a new element into your computations: non-termination. That is, a program may run forever instead of delivering a result or signaling an error. If you followed the design recipes of the first four parts, you cannot write down such programs. For fun, construct an input for eval-definition1 that causes it to run forever. Use STOP to terminate the program.
+</P>
+
+<P>
+For an evaluator that mimics the interactions area, we need a representation of the definitions area. We assume that it is a list of definitions.
+</P>
+
+<EXERCISE>
+Exercise 358. Provide a structure type and a data definition for function definitions. Recall that such a definition has three essential attributes:
+</EXERCISE>
+
+<P>
+1. the function’s name, which is represented with a symbol;
+</P>
+
+<P>
+2. the function’s parameter, which is also a name; and
+</P>
+
+<P>
+3. the function’s body, which is a variable expression.
+</P>
+
+<P>
+We use BSL-fun-def to refer to this class of data.
+</P>
+
+<P>
+Use your data definition to represent these BSL function definitions:
+</P>
+
+<P>
+1. (define (f x) (+ 3 x))
+</P>
+
+<P>
+2. (define (g y) (f (* 2 y)))
+</P>
+
+<P>
+3. (define (h v) (+ (f v) (g v)))
+</P>
+
+<P>
+Next, define the class BSL-fun-def* to represent a definitions area that consists of a number of one-argument function definitions. Translate the definitions area that defines f, g, and h into your data representation and name it da-fgh.
+</P>
+
+<P>
+Finally, work on the following wish:
+</P>
+
+<CODE>
+; BSL-fun-def* Symbol -> BSL-fun-def ; retrieves the definition of f in da ; signals an error if there is none (check-expect (lookup-def da-fgh 'g) g) (define (lookup-def da f) …)
+</CODE>
+
+<P>
+Looking up a definition is needed for the evaluation of applications.
+</P>
+
+<EXERCISE>
+Exercise 359. Design eval-function*. The function consumes ex, a BSL-fun-expr, and da, a BSL-fun-def* representation of a definitions area. It produces the result that DrRacket shows if you evaluate ex in the interactions area, assuming the definitions area contains da.
+</EXERCISE>
+
+<P>
+The function works like eval-definition1 from exercise 357. For an application of some function f, it
+</P>
+
+<P>
+1. evaluates the argument;
+</P>
+
+<P>
+2. looks up the definition of f in the BSL-fun-def representation of da, which comes with a parameter and a body;
+</P>
+
+<P>
+3. substitutes the value of the argument for the function parameter in the function’s body; and
+</P>
+
+<P>
+4. evaluates the new expression via recursion.
+</P>
+
+<P>
+Like DrRacket, eval-function* signals an error when it encounters a variable or function name without definition in the definitions area.
+</P>
+
+<h2>
+21.4 Interpreting Everything
+</h2>
+
+<P>
+Take a look at the following BSL program:
+</P>
+
+<FIGURE src="images/00490.png">
+
+</FIGURE>
+
+<P>
+Think of these definitions as the definitions area in DrRacket. After you click RUN, you can evaluate expressions involving close-to-pi, area-of-circle, and volume-of-10-cylinder in the interactions area:
+</P>
+
+<CODE>
+> (area-of-circle 1) #i3.14 > (volume-of-10-cylinder 1) #i31.400000000000002 > (* 3 close-to-pi) #i9.42
+</CODE>
+
+<P>
+The goal of this section is to refine your evaluator again so that it can mimic this much of DrRacket.
+</P>
+
+<EXERCISE>
+Exercise 360. Formulate a data definition for the representation of DrRacket’s definitions area. Concretely, the data representation should work for a sequence that freely mixes constant definitions and one-argument function definitions. Make sure you can represent the definitions area consisting of three definitions at the beginning of this section. We name this class of data BSL-da-all.
+</EXERCISE>
+
+<P>
+Design the function lookup-con-def. It consumes a BSL-da-all da and a symbol x. It produces the representation of a constant definition whose name is x, if such a piece of data exists in da; otherwise the function signals an error saying that no such constant definition can be found.
+</P>
+
+<P>
+Design the function lookup-fun-def. It consumes a BSL-da-all da and a symbol f. It produces the representation of a function definition whose name is f, if such a piece of data exists in da; otherwise the function signals an error saying that no such function definition can be found.
+</P>
+
+<EXERCISE>
+Exercise 361. Design eval-all. Like eval-function* from exercise 359, this function consumes the representation of an expression and a definitions area. It produces the same value that DrRacket shows if the expression is entered at the prompt in the interactions area and the definitions area contains the appropriate definitions. Hint Your eval-all function should process variables in the given expression like eval-var-lookup in exercise 355.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 362. It is cumbersome to enter the structure-based data representation of BSL expressions and a definitions area. As the end of chapter 21.1 demonstrates, it is much easier to quote expressions and (lists of) definitions.
+</EXERCISE>
+
+<P>
+Design a function interpreter. It consumes an S-expr and an Sl. The former is supposed to represent an expression and the latter a list of definitions. The function parses both with the appropriate parsing functions and then uses eval-all from exercise 361 to evaluate the expression. Hint You must adapt the ideas of exercise 350 to create a parser for definitions and lists of definitions.
+</P>
+
+<P>
+You should know that eval-all-sexpr makes it straightforward to check whether it really mimics DrRacket’s evaluator.
+</P>
+
+<P>
+At this point, you know a lot about interpreting BSL. Here are some of the missing pieces: Booleans with cond or if; Strings and such operations string-length or string-append; and lists with '(), empty?, cons, cons?, first, rest; and so on. Once your evaluator can cope with all these, it is basically complete because your evaluators already know how to interpret recursive functions. Now when we say “trust us, you know how to design these refinements,” we mean it.
+</P>

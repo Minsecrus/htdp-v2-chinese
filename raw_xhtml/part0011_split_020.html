@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_21"><a id="sec22-2" class="calibre16"></a>22.2 Rendering XML Enumerations</h2>
+<p class="tni">XML is actually a <b class="calibre9">family</b> of languages. People define dialects for specific channels of communication. For example, XHTML is the language for sending web content in XML format. In this section, we illustrate how to design a rendering function for a small snippet of XHTML, specifically the enumerations from the beginning of this chapter.</p>
+<p class="calibre8">The <samp class="mono">ul</samp> tag surrounds a so-called unordered HTML list. Each item of this list is tagged with <samp class="mono">li</samp>, which tends to contain words but also other elements, even enumerations. With “unordered” HTML means is that each item is to be rendered with a leading bullet instead of a number.</p>
+<p class="calibre8">Since Xexpr does not come with plain strings, it is not immediately obvious how to represent XHTML enumerations in a subset. One option is to refine the data representation one more time, so that an Xexpr could be a String. Another option is to introduce a representation for text:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">XWord</span><samp class="mono"> is '(word</samp><samp class="mono"> ((text </samp>String<samp class="mono">))).</samp></p>
+</div>
+<p class="tni">Here, we use this second option; Racket, the language from which the teaching languages are derived, offers libraries that include String in Xexpr.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 370. Make up three examples for XWords. Design <samp class="mono">word?</samp>, which checks whether some ISL+ value is in XWord, and <samp class="mono">word-text</samp>, which extracts the value of the only attribute of an instance of XWord. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 371. Refine the definition of Xexpr so that you can represent XML elements, including items in enumerations, that are plain strings. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Given the representation of words, representing an XHTML-style enumeration of words is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">XEnum.v1</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> 'ul [</samp>List-of XItem.v1<samp class="mono">]) <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> 'ul (cons</samp><samp class="mono"> Attributes [</samp>List-of XItem.v1<samp class="mono">])) <br class="calibre4"/>;</samp><samp class="mono"> An </samp><span class="calibre6">XItem.v1</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> 'li</samp> <samp class="mono">(cons </samp>XWord<samp class="mono"> '())) <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> 'li (cons</samp><samp class="mono"> Attributes (cons</samp> XWord<samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">For completeness, the data definition includes attribute lists, even though they do not affect rendering.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_542" title="542"></span>Stop! Argue that every element of XEnum.v1 is also in XExpr.</p>
+<p class="calibre8">Here is a sample element of XEnum.v1:</p>
+<figure class="co"><img src="../images/00499.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It corresponds to the inner enumeration of the example from the beginning of the chapter. Rendering it with help from the <i class="calibre6">2htdp/image</i> library should yield an image like this:</p>
+<figure class="co"><img src="../images/00500.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The radius of the bullet and the distance between the bullet and the text are matters of aesthetics; here the idea matters.</p>
+<p class="marginpar">We developed these expressions in the interactions area. What would you do?</p>
+<p class="calibre8">To create this kind of image, you might use this ISL+ program:</p>
+<figure class="co"><img src="../images/00501.gif" alt="" class="calibre10"/></figure>
+<p class="tni">assuming <samp class="mono">BT</samp> is a rendering of a bullet.</p>
+<p class="calibre8">Now let’s design the function carefully. Since the data representation requires two data definitions, the design recipe tells you that you must design two functions in parallel. A second look reveals, however, that in this particular case the second data definition is disconnected from the first one, meaning we can deal with it separately.</p>
+<p class="calibre8">Furthermore, the definition for XItem.v1 consists of two clauses, meaning the function itself should consist of a <samp class="mono">cond</samp> with two clauses. The point of viewing XItem.v1 as a sub-language of Xexpr, however, is to think of these two clauses in terms of Xexpr selector functions, in particular, <samp class="mono">xexpr-content</samp>. With this function we can extract the textual part of an item, regardless of whether it comes with attributes or not:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>XItem.v1<samp class="mono"> -&gt; </samp>Image<samp class="mono"> <br class="calibre4"/>; renders</samp><samp class="mono"> an item</samp><samp class="mono"> as a</samp> <samp class="mono">"word" prefixed</samp><samp class="mono"> by a</samp><samp class="mono"> bullet <br class="calibre4"/>(define</samp><samp class="mono"> (render-item1 i)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (xexpr-content i)</samp><samp class="mono"> <span>…</span>))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_543" title="543"></span>In general, <samp class="mono">xexpr-content</samp> extracts a list of Xexpr; in this specific case, the list contains exactly one XWord, and this word contains one text:</p>
+<figure class="co"><img src="../images/00502.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From here, it is straightforward:</p>
+<figure class="co"><img src="../images/00503.gif" alt="" class="calibre10"/></figure>
+<p class="tni">After extracting the text to be rendered in the item, it is simply a question of rendering it as text and equipping it with a leading bullet; see the examples above for how you might discover this last step.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 372. Before you read on, equip the definition of <samp class="mono">render-item1</samp> with tests. Make sure to formulate these tests in such a way that they don’t depend on the <samp class="mono">BT</samp> constant. Then explain <b class="calibre9">how</b> the function works; keep in mind that the purpose statement explains <b class="calibre9">what</b> it does. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Now we can focus on the design of a function that renders an enumeration. Using the example from above, the first two design steps are easy:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>XEnum.v1<samp class="mono"> -&gt; </samp>Image<samp class="mono"> <br class="calibre4"/>; renders</samp><samp class="mono"> a simple</samp> <samp class="mono">enumeration as</samp><samp class="mono"> an image</samp><samp class="mono"> <br class="calibre4"/>(check-expect (render-enum1</samp><samp class="mono"> e0)</samp> <samp class="mono">e0-rendered) <br class="calibre4"/>(define</samp><samp class="mono"> (render-enum1 xe)</samp><samp class="mono"> empty-image)</samp></p>
+</div>
+<p class="tni">The key step is the development of a template. According to the data definition, an element of XEnum.v1 contains one interesting piece of data, namely, the (representation of the) XML elements. The first item is always <samp class="mono">'ul</samp>, so there is no need to extract it, and the second, optional item is a list of attributes, which we ignore. With this in mind, the first template draft looks just like the one for <samp class="mono">render-item1</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (render-enum1</samp><samp class="mono"> xe)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (xexpr-content xe)</samp><samp class="mono"> <span>…</span>)) ;</samp><span> [List-of XItem.v1]</span></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_544" title="544"></span>While the data-oriented design recipe tells you that you should design a separate function whenever you encounter a complex form of data, the abstraction-based design recipe from part III tells you to reuse an existing abstraction, say, a list-processing function from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>, when possible. Given that <samp class="mono">render-enum1</samp> is supposed to process a list and create a single image from it, the only two list-processing abstractions whose signatures fit the bill are <samp class="mono">foldr</samp> and <samp class="mono">foldl</samp>. If you also study their purpose statements, you see a pattern that is like the <samp class="mono">e0-rendered</samp> example above, especially for <samp class="mono">foldr</samp>. Let’s try to use it, following the reuse design recipe:</p>
+<figure class="co"><img src="../images/00504.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From the type matching, you also know that:</p>
+<p class="nlf">1. the first argument to <samp class="mono">foldr</samp> must be a two-argument function;</p>
+<p class="nlf">2. the second argument must be an image; and</p>
+<p class="nll">3. the last argument is the list representing XML content.</p>
+<p class="tni">Naturally <samp class="mono">empty-image</samp> is the correct starting point.</p>
+<p class="calibre8">This design-by-reuse focuses our attention on the function to be “folded” over the list. It turns one item and the image that <samp class="mono">foldr</samp> has created so far into another image. The signature for <samp class="mono">deal-with-one</samp> articulates this insight. Since the first argument is an XItem.v1, <samp class="mono">render-item1</samp> is the function that renders it. This yields two images that must be combined: the image of the first item and the image of the rest of the items. To stack them, we use <samp class="mono">above</samp>:</p>
+<figure class="co"><img src="../images/00505.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_545" title="545"></span>Flat enumerations are common, but they are also a simple approximation of the full-fledged case. In the real world, web browsers must cope with arbitrarily nested enumerations that arrive over the web. In XML and its web browser dialect XHTML, nesting is straightforward. Any element may show up as the content of any other element. To represent this relationship in our limited XHTML representation, we say that an item is either a word or another enumeration. <a id="rfig127" href="part0011_split_020.html#fig127" class="calibre5">Figure 127</a> displays the second revision of the data definition. It includes a revision of the data definition for enumerations so that the first definition refers to the correct form of item.</p>
+<div class="figure">
+<figure class="img"><a id="fig127" class="calibre5"></a><img src="../images/00506.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_020.html#rfig127" class="calibre5">Figure 127</a>:</span> <span>A realistic data representation of XML enumerations</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">Are you wondering whether arbitrary nesting is the correct way to think about this problem? If so, develop a data definition that allows only three levels of nesting and then use it.</p>
+<p class="calibre8">The next question is how this change to the data definition affects the rendering functions. Put differently, we need to revise <samp class="mono">render-enum1</samp> and <samp class="mono">render-item1</samp> so that they can cope with XEnum.v2 and XItem.v2, respectively. Software engineers face these kinds of questions all the time, and it is another situation where the design recipe shines.</p>
+<p class="calibre8"><a id="rfig128" href="part0011_split_020.html#fig128" class="calibre5">Figure 128</a> shows the complete answer. Since the change is confined to the data definitions for XItem.v2, it should not come as a surprise that the change to the rendering program shows up in the function for rendering items. While <samp class="mono">render-item1</samp> does not need to distinguish between different forms of XItem.v1, <samp class="mono">render-item</samp> is forced to use a <samp class="mono">cond</samp> because XItem.v2 lists two different kinds of items. Given that this data definition is close to one from the real world, the distinguishing characteristic is not something simple—like <samp class="mono">'()</samp> vs <samp class="mono">cons</samp>—but a specific piece of the given item. If the item’s content is a Word, the rendering function proceeds as before. Otherwise, the item contains an enumeration, in which case <samp class="mono">render-item</samp> <span epub:type="pagebreak" id="pg_546" title="546"></span>uses <samp class="mono">render-enum</samp> to deal with the data, because the data definition for XItem.v2 refers back to XEnum.v2 precisely at this point.</p>
+<div class="figure">
+<figure class="img"><a id="fig128" class="calibre5"></a><img src="../images/00507.gif" alt="" class="calibre13"/>
+<figcaption><p class="cap"><span><a href="part0011_split_020.html#rfig128" class="calibre5">Figure 128</a>:</span> <span>Refining functions to match refinements of data definitions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 373. <a href="part0011_split_020.html#fig128" class="calibre5">Figure 128</a> is missing test cases. Develop test cases for all the functions. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 374. The data definitions in <a href="part0011_split_020.html#fig127" class="calibre5">figure 127</a> use <samp class="mono">list</samp>. Rewrite them so they use <samp class="mono">cons</samp>. Then use the recipe to design the rendering functions for XEnum.v2 and XItem.v2 from scratch. You should come up with the same definitions as in <a href="part0011_split_020.html#fig128" class="calibre5">figure 128</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_547" title="547"></span><b class="calibre9">Exercise</b> 375. The wrapping of <samp class="mono">cond</samp> with</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(beside/align 'center</samp><samp class="mono"> BT <span>…</span>)</samp></p>
+</div>
+<p class="tni">may surprise you. Edit the function definition so that the wrap-around appears once in each clause. Why are you confident that your change works? Which version do you prefer? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 376. Design a program that counts all <samp class="mono">"hello"</samp>s in an instance of XEnum.v2. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 377. Design a program that replaces all <samp class="mono">"hello"</samp>s with <samp class="mono">"bye"</samp> in an enumeration. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

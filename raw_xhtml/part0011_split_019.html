@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_20"><a id="sec22-1" class="calibre16"></a>22.1 XML as S-expressions</h2>
+<p class="tni">The most basic piece of XML data looks like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine&gt; &lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">It is called an <i class="calibre6">element</i> and “machine” is the name of the element. The two parts of the element are like parentheses that delimit the <i class="calibre6">content</i> of an element. When there is no content between the two parts—other than white space—XML allows a short-hand:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine /&gt;</samp></p>
+</div>
+<p class="tni">But, as far as we are concerned here, this short-hand is equivalent to the explicitly bracketed version.</p>
+<p class="marginpar">Racket’s <samp class="monospace-italic">xml</samp> library represents XML with structures as well as S-expressions.</p>
+<p class="calibre8">From an S-expression perspective, an XML element is a <b class="calibre9">named</b> pair of parentheses that surround some content. And indeed, representing the above with an S-expression is quite natural:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_535" title="535"></span><samp class="mono">'(machine)</samp></p>
+</div>
+<p class="tni">This piece of data has the opening and closing parentheses, and it comes with space to embed content.</p>
+<p class="calibre8">Here is a piece of XML data with content:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine&gt;&lt;action /&gt;&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">Remember that the <samp class="mono">&lt;action /&gt;</samp> part is a short-hand, meaning we are really looking at this piece of data:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine&gt;&lt;action&gt;&lt;/action&gt;&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">In general, the content of an XML element is a series of XML elements:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine&gt;&lt;action /&gt;&lt;action</samp><samp class="mono"> /&gt;&lt;action /&gt;&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">Stop! Expand the short-hand for <samp class="mono">&lt;action /&gt;</samp> before you continue.</p>
+<p class="calibre8">The S-expression representation continues to look simple. Here is the first one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">'(machine (action))</samp></p>
+</div>
+<p class="tni">And this is the representation for the second one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">'(machine (action)</samp><samp class="mono"> (action) (action))</samp></p>
+</div>
+<p class="calibre8">When you look at the piece of XML data with a sequence of three <samp class="mono">&lt;action /&gt;</samp> elements as its content, you realize that you may wish to distinguish such elements from each other. To this end, XML elements come with <i class="calibre6">attributes</i>. For example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine initial="red"&gt;&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">is the “machine” element equipped with one attribute whose <i class="calibre6">name</i> is “initial” and whose value is “red” between string quotes. Here is a complex XML element with nested elements that have attributes, too:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine initial="red"&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="red" </samp><samp class="mono">  </samp><samp class="mono"> next="green" /&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="green" </samp><samp class="mono"> next="yellow" /&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="yellow" next="red"</samp><samp class="mono"> /&gt;</samp> <br class="calibre4"/><samp class="mono">&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_536" title="536"></span>We use blanks, indentation, and line breaks to make the element readable, but this white space has no meaning for our XML data here.</p>
+<p class="marginpar">XML is 40 years younger than S-expressions.</p>
+<p class="calibre8">Naturally, S-expressions for these “machine” elements look much like their XML cousins:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">'(machine ((initial</samp><samp class="mono"> "red")))</samp></p>
+</div>
+<p class="tni">To add attributes to an element, we use a list of lists where each of the latter contains two items: a symbol and a string. The symbol represents the name of the attribute and the string its value. This idea naturally applies to complex forms of XML data, too:</p>
+<figure class="co"><img src="../images/00492.gif" alt="" class="calibre10"/></figure>
+<p class="tni">For now note how the attributes are marked by two opening parentheses and the remaining list of (representations of) XML elements has one opening parenthesis.</p>
+<p class="calibre8">You may recall the idea from intermezzo 2, which uses S-expressions to represent XHTML, a special dialect of XML. In particular, the intermezzo shows how easily a programmer can write down nontrivial XML data and even templates of XML representations using <samp class="mono">backquote</samp> and <samp class="mono">unquote</samp>. Of course, chapter 21.1 points out that you need a parser to determine whether any given S-expression is a representation of XML data, and a parser is a complex and unusual kind of function.</p>
+<p class="calibre8">Nevertheless, we choose to go with a representation of XML based on S-expressions to demonstrate the usefulness of this old, poetic idea in practical terms. We proceed gradually to work out a data definition, putting iterative refinement to work. Here is a first attempt:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Xexpr.v0</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">X-expression</span><samp class="mono">) is</samp><samp class="mono"> a</samp> <samp class="mono">one-item list:</samp><samp class="mono"> <br class="calibre4"/>; </samp><samp class="mono">  (cons</samp><samp class="mono"> </samp><span>Symbol</span><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">This is the “named parentheses” idea from the beginning of this section. Equipping this element representation with content is easy:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Xexpr.v1</span><samp class="mono"> is a</samp><samp class="mono"> list: <br class="calibre4"/>;</samp><samp class="mono">  </samp><samp class="mono">  (cons</samp><samp class="mono"> </samp>Symbol <samp class="mono">[List-of </samp>Xexpr.v1<samp class="mono">])</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_537" title="537"></span>The symbolic name becomes the first item on a list that otherwise consists of XML element representatives.</p>
+<p class="calibre8">The last refinement step is to add attributes. Since the attributes in an XML element are optional, the revised data definition has two clauses:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Xexpr.v2</span><samp class="mono"> is a</samp><samp class="mono"> list: <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>Symbol <span class="calibre6">Body</span><samp class="mono">) <br class="calibre4"/>;</samp><samp class="mono"> -- (cons</samp><samp class="mono"> </samp>Symbol<samp class="mono"> (cons [</samp>List-of Attribute<samp class="mono">] </samp><span class="calibre6">Body</span><samp class="mono">)) <br class="calibre4"/>;</samp><samp class="mono"> where </samp><span class="calibre6">Body</span><samp class="mono"> is short</samp><samp class="mono"> for</samp> <samp class="mono">[</samp>List-of Xexpr.v2<samp class="mono">] <br class="calibre4"/>;</samp><samp class="mono"> An </samp><span class="calibre6">Attribute</span><samp class="mono"> is a</samp><samp class="mono"> list of</samp> <samp class="mono">two items:</samp><samp class="mono"> <br class="calibre4"/>; </samp><samp class="mono">  </samp><samp class="mono"> (cons </samp>Symbol<samp class="mono"> (cons </samp>String<samp class="mono"> '()))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 363. All elements of Xexpr.v2 start with a Symbol, but some are followed by a list of attributes and some by just a list of Xexpr.v2s. Reformulate the definition of Xexpr.v2 to isolate the common beginning and highlight the different kinds of endings.</p>
+<p class="calibre8">Eliminate the use of List-of from Xexpr.v2. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 364. Represent this XML data as elements of Xexpr.v2:</p>
+<p class="nlf">1. <samp class="mono">&lt;transition from="seen-e" to="seen-f" /&gt;</samp></p>
+<p class="nll">2. <samp class="mono">&lt;ul&gt;&lt;li&gt;&lt;word /&gt;&lt;word /&gt;&lt;/li&gt;&lt;li&gt;&lt;word /&gt;&lt;/li&gt;&lt;/ul&gt;</samp></p>
+<p class="tni">Which one could be represented in Xexpr.v0 or Xexpr.v1? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 365. Interpret the following elements of Xexpr.v2 as XML data:</p>
+<p class="nlf">1. <samp class="mono">'(server ((name "example.org")))</samp></p>
+<p class="nlf">2. <samp class="mono">'(carcas (board (grass)) (player ((name "sam"))))</samp></p>
+<p class="nll">3. <samp class="mono">'(start)</samp></p>
+<p class="tni">Which ones are elements of Xexpr.v0 or Xexpr.v1? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Roughly speaking, X-expressions simulate structures via lists. The simulation is convenient for programmers; it asks for the least amount of keyboard typing. For example, if an X-expression does not come with an attribute list, it is simply omitted. This choice of data representation represents a trade-off between authoring such expressions manually and processing them automatically. The best way to deal with the latter problem is to provide functions that make X-expressions look like structures, especially functions that access the quasi-fields:</p>
+<p class="blf">•  <samp class="mono">xexpr-name</samp>, which extracts the tag of the element representation;</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_538" title="538"></span>•  <samp class="mono">xexpr-attr</samp>, which extracts the list of attributes; and</p>
+<p class="bll">•  <samp class="mono">xexpr-content</samp>, which extracts the list of content elements.</p>
+<p class="tni">Once we have these functions, we can use lists to represent XML yet that act as if they were instances of a structure type.</p>
+<p class="calibre8">These functions parse S-expressions, and parsers are tricky to design. So let’s design them carefully, starting with some data examples:</p>
+<figure class="co"><img src="../images/00493.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first definition introduces a list of attributes, which is reused twice in the construction of X-expressions. The definition of <samp class="mono">e0</samp> reminds us that an X-expression may not come with either attributes or content. You should be able to explain why <samp class="mono">e2</samp> and <samp class="mono">e3</samp> are basically equivalent.</p>
+<p class="calibre8">Next we formulate a signature, a purpose statement, and a header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><span class="no-italic">Xexpr.v2</span><samp class="mono"> -&gt; [</samp><span class="no-italic">List-of Attribute</span><samp class="mono">] <br class="calibre4"/>;</samp><samp class="mono"> retrieves</samp> <samp class="mono">the list</samp><samp class="mono"> of attributes</samp><samp class="mono"> of xe</samp><samp class="mono"> <br class="calibre4"/>(define (xexpr-attr</samp><samp class="mono"> xe) '())</samp></p>
+</div>
+<p class="tni">Here we focus on <samp class="mono">xexpr-attr</samp>; we leave the other two as exercises.</p>
+<p class="calibre8">Making up functional examples requires a decision concerning the extraction of attributes from X-expressions without any. While our chosen representation completely omits missing attributes, we must supply <samp class="mono">'()</samp> for the structure-based representation of XML. The function therefore produces <samp class="mono">'()</samp> for such X-expressions:</p>
+<figure class="co"><img src="../images/00494.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">It is time to develop the template. Since the data definition for Xexpr.v2 is complex, we proceed slowly, step-by-step. First, while the data definition distinguishes two kinds of X-expressions, both clauses describe data <span epub:type="pagebreak" id="pg_539" title="539"></span>constructed by <samp class="mono">cons</samp>ing a symbol onto a list. Second, what differentiates the two clauses is the rest of the list and especially the optional presence of a list of attributes. Let’s translate these two insights into a template:</p>
+<figure class="co"><img src="../images/00495.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The local definition chops off the name of the X-expression and leaves the remainder of the list, which may or may not start with a list of attributes. The key is that it is just a list, and the two <samp class="mono">cond</samp> clauses indicate so. Third, this list is <b class="calibre9">not</b> defined via a self-reference but as the optional <samp class="mono">cons</samp> of some attributes onto a possibly empty list of X-expressions. In other words, we still need to distinguish the two usual cases and extract the usual pieces:</p>
+<figure class="co"><img src="../images/00496.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">At this point, we can already see that recursion is not needed for the task at hand. So, we switch to the fifth step of the design recipe. Clearly, there are no attributes if the given X-expression comes with nothing but a name. In the second clause, the question is whether the first item on the list is a list of attributes or just an Xexpr.v2. Because this sounds complicated, we make a wish:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Attribute<samp class="mono">] or</samp><samp class="mono"> </samp>Xexpr.v2<samp class="mono"> -&gt; ???</samp><samp class="mono"> <br class="calibre4"/>;</samp>  <samp class="mono">determines whether</samp><samp class="mono"> x is</samp><samp class="mono"> an element</samp><samp class="mono"> of [</samp>List-of Attribute<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; #false</samp><samp class="mono"> otherwise <br class="calibre4"/>(define</samp><samp class="mono"> (list-of-attributes? x)</samp> <br class="calibre4"/><samp class="mono"> </samp><samp class="mono"> #false)</samp></p>
+</div>
+<p class="tni">With this function, it is straightforward to finish <samp class="mono">xexpr-attr</samp>; see <a id="rfig126" href="part0011_split_019.html#fig126" class="calibre5">figure 126</a>. If the first item is a list of attributes, the function produces it; otherwise there are no attributes.</p>
+<div class="figure">
+<figure class="img"><a id="fig126" class="calibre5"></a><img src="../images/00497.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_019.html#rfig126" class="calibre5">Figure 126</a>:</span> <span>The complete definition of <samp class="mono">xexpr-attr</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">For the design of <samp class="mono">list-of-attributes?</samp>, we proceed in the same manner and get this definition:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_540" title="540"></span><img src="../images/00498.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We skip the details of the design process because they are unremarkable. What is <b class="calibre9">remarkable</b> is the signature of this function. Instead of specifying a single data definition as possible inputs, the signature combines two data definitions separated by the English word “or.” In ISL+ such an informal signature with a definite meaning is acceptable on occasion.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 366. Design <samp class="mono">xexpr-name</samp> and <samp class="mono">xexpr-content</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 367. The design recipe calls for a self-reference in the template for <samp class="mono">xexpr-attr</samp>. Add this self-reference to the template and then explain why the finished parsing function does not contain it. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 368. Formulate a data definition that replaces the informal “or” signature for the definition of the <samp class="mono">list-of-attributes?</samp> function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 369. Design <samp class="mono">find-attr</samp>. The function consumes a list of attributes and a symbol. If the attributes list associates the symbol with a string, the function retrieves this string; otherwise it returns <samp class="mono">#false</samp>. Look up <samp class="mono">assq</samp> and use it to define the function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_541" title="541"></span>For the remainder of this chapter, <i class="calibre6">Xexpr</i> refers to Xexpr.v2. Also, we assume <samp class="mono">xexpr-name</samp>, <samp class="mono">xexpr-attr</samp>, and <samp class="mono">xexpr-content</samp> are defined. Finally, we use <samp class="mono">find-attr</samp> from exercise 369 to retrieve attribute values.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

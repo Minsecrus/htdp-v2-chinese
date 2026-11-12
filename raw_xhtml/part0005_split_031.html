@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_32"><a id="sec4-7" class="calibre16"></a>4.7 Finite State Worlds</h2>
+<p class="tni">With the design knowledge in this chapter, you can develop a complete simulation of American traffic lights. When such a light is green and it is time to stop the traffic, the light turns yellow, and, after that, it turns red. When the light is red and it is time to get the traffic going, the light simply switches to green.</p>
+<p class="calibre8">The left-hand side of <a id="rfig26" href="part0005_split_031.html#fig26" class="calibre5">Figure 26</a> summarizes this description as a <i class="calibre6">state transition diagram</i>. Such a diagram consists of <i class="calibre6">states</i> and arrows that connect these states. Each state depicts a traffic light in one particular configuration: red, yellow, or green. Each arrow shows how the world can change, from which state it can <i class="calibre6">transition</i> to another state. Our sample diagram contains three arrows, because there are three possible ways in which the traffic light can change. Labels on the arrows indicate the reason for changes; a traffic light transitions from one state to another as time passes.</p>
+<div class="figure">
+<figure class="img"><a id="fig26" class="calibre5"></a><img src="../images/00089.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_031.html#rfig26" class="calibre5">Figure 26</a>:</span> <span>How a traffic light functions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">In many situations, state transition diagrams have only a finite number of states and arrows. Computer scientists call such diagrams <i class="calibre6">finite state machines</i> (FSM), also known as <i class="calibre6">finite state automata</i> (FSA). Despite their simplicity, FSMs/FSAs play an important role in computer science.</p>
+<p class="calibre8">To create a world program for an FSA, we must first pick a data representation for the possible “states of the world,” which, according to chapter 3.6, represents those aspects of the world that may change in some ways as opposed to those that remain the same. In the case of our traffic light, <span epub:type="pagebreak" id="pg_131" title="131"></span>what changes is the color of the light, that is, which bulb is turned on. The size of the bulbs, their arrangement (horizontal or vertical), and other aspects don’t change. Since there are only three states, we reuse the string-based data definition of TrafficLight from above.</p>
+<p class="calibre8">The right-hand side of <a href="part0005_split_031.html#fig26" class="calibre5">figure 26</a> is a diagrammatic interpretation of the TrafficLight data definition. Like the diagram in <a href="part0005_split_031.html#fig26" class="calibre5">figure 26</a>, it consists of three states, arranged in such a way that it is easy to view each data element as a representation of a concrete configuration. Also, the arrows are now labeled with <b class="calibre9">tick</b> to suggest that our world program uses the passing of time as the trigger that changes the state of the traffic light. If we wanted to simulate a manually operated light, we might choose transitions based on keystrokes.</p>
+<p class="calibre8">Now that we know how to represent the states of our world, how to go from one to the next, and that the state changes at every tick of the clock, we can write down the signature, a purpose statement, and a stub for the two functions we must design:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>TrafficLight<samp class="mono"> -&gt; </samp>TrafficLight <br class="calibre4"/><samp class="mono">; yields</samp><samp class="mono"> the next</samp><samp class="mono"> state, given</samp><samp class="mono"> current state</samp><samp class="mono"> cs</samp> <br class="calibre4"/><samp class="mono">(define (tl-next</samp><samp class="mono"> cs) cs)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>TrafficLight<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> the current</samp><samp class="mono"> state cs</samp><samp class="mono"> as an</samp><samp class="mono"> image</samp> <br class="calibre4"/><samp class="mono">(define (tl-render</samp><samp class="mono"> current-state)</samp> <br class="calibre4"/><samp class="mono">  (empty-scene</samp><samp class="mono"> 90 30))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_132" title="132"></span>Preceding sections use the names <samp class="mono">render</samp> and <samp class="mono">next</samp> to name the functions that translate a state of the world into an image and that deal with clock ticks. Here we prefix these names with some syllable that suggests to which world the functions belong. Because the specific functions have appeared before, we leave them as exercises.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 59. Finish the design of a world program that simulates the traffic light FSA. Here is the main function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>TrafficLight<samp class="mono"> -&gt; </samp>TrafficLight <br class="calibre4"/><samp class="mono">; simulates</samp><samp class="mono"> a clock-based</samp><samp class="mono"> American traffic</samp><samp class="mono"> light</samp> <br class="calibre4"/><samp class="mono">(define (traffic-light-simulation</samp><samp class="mono"> initial-state)</samp> <br class="calibre4"/><samp class="mono">  (big-bang</samp><samp class="mono"> initial-state</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [to-draw</samp><samp class="mono"> tl-render]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [on-tick</samp><samp class="mono"> tl-next 1]))</samp></p>
+</div>
+<p class="tni">The function’s argument is the initial state for the <samp class="mono">big-bang</samp> expression, which tells DrRacket to redraw the state of the world with <samp class="mono">tl-render</samp> and to handle clock ticks with <samp class="mono">tl-next</samp>. Also note that it informs the computer that the clock should tick once per second.</p>
+<p class="calibre8">Complete the design of <samp class="mono">tl-render</samp> and <samp class="mono">tl-next</samp>. Start with copying TrafficLight, <samp class="mono">tl-next</samp>, and <samp class="mono">tl-render</samp> into DrRacket’s definitions area.</p>
+<p class="calibre8">Here are some test cases for the design of the latter:</p>
+<figure class="co"><img src="../images/00090.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Your function may use these images directly. If you decide to create images with the functions from the <i class="calibre6">2htdp/image</i> library, design an auxiliary function for creating the image of a one-color bulb. Then read up on the <samp class="mono">place-image</samp> function, which can place bulbs into a background scene. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 60. An alternative data representation for a traffic light program may use numbers instead of strings:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">N-TrafficLight</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 0 </samp><span class="calibre9">interpretation</span><samp class="mono"> the traffic</samp><samp class="mono"> light shows</samp><samp class="mono"> red</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 1 </samp><span class="calibre9">interpretation</span><samp class="mono"> the traffic</samp><samp class="mono"> light shows</samp><samp class="mono"> green</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 2 </samp><span class="calibre9">interpretation</span><samp class="mono"> the traffic</samp><samp class="mono"> light shows</samp><samp class="mono"> yellow</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_133" title="133"></span>It greatly simplifies the definition of <samp class="mono">tl-next</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N-TrafficLight<samp class="mono"> -&gt; </samp>N-TrafficLight <br class="calibre4"/><samp class="mono">; yields</samp><samp class="mono"> the next</samp><samp class="mono"> state, given</samp><samp class="mono"> current state</samp><samp class="mono"> cs</samp> <br class="calibre4"/><samp class="mono">(define (tl-next-numeric</samp><samp class="mono"> cs) (modulo</samp><samp class="mono"> (+ cs</samp><samp class="mono"> 1) 3))</samp></p>
+</div>
+<p class="tni">Reformulate <samp class="mono">tl-next</samp>’s tests for <samp class="mono">tl-next-numeric</samp>.</p>
+<p class="calibre8">Does the <samp class="mono">tl-next</samp> function convey its intention more clearly than the <samp class="mono">tl-next-numeric</samp> function? If so, why? If not, why not? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 61. As chapter 3.4 says, programs must define constants and use names instead of actual constants. In this spirit, a data definition for traffic lights must use constants, too:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define RED</samp><samp class="mono"> 0) would</samp><samp class="mono"> use.</samp> <br class="calibre4"/><samp class="mono">(define GREEN</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">(define YELLOW</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">S-TrafficLight</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> RED</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> GREEN</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> YELLOW</samp></p>
+</div>
+<p class="marginpar">This form of data definition is what a seasoned designer would use.</p>
+<p class="tni">If the names are chosen properly, the data definition does not need an interpretation statement.</p>
+<p class="calibre8"><a id="rfig27" href="part0005_split_031.html#fig27" class="calibre5">Figure 27</a> displays two different functions that switch the state of a traffic light in a simulation program. Which of the two is properly designed <span epub:type="pagebreak" id="pg_134" title="134"></span>using the recipe for itemization? Which of the two continues to work if you change the constants to the following</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define RED</samp><samp class="mono"> "red")</samp> <br class="calibre4"/><samp class="mono">(define GREEN</samp><samp class="mono"> "green")</samp> <br class="calibre4"/><samp class="mono">(define YELLOW</samp><samp class="mono"> "yellow")</samp></samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig27" class="calibre5"></a><img src="../images/00091.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_031.html#rfig27" class="calibre5">Figure 27</a>:</span> <span>A symbolic traffic light</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Does this help you answer the questions?</p>
+<p class="calibre8"><b class="calibre9">Aside</b> The <samp class="mono">equal?</samp> function in <a href="part0005_split_031.html#fig27" class="calibre5">figure 27</a> compares two arbitrary values, regardless of what these values are. Equality is a complicated topic in the world of programming. <b class="calibre9">End</b> <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Here is another finite state problem that introduces a few additional complications:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a world program that simulates the working of a door with an automatic door closer. If this kind of door is locked, you can unlock it with a key. An unlocked door is closed, but someone pushing at the door opens it. Once the person has passed through the door and lets go, the automatic door takes over and closes the door again. When a door is closed, it can be locked again.</p>
+</div>
+<p class="calibre8">To tease out the essential elements, we again draw a transition diagram; see the left-hand side of <a href="part0005_split_031.html#fig27" class="calibre5">figure 27</a>. Like the traffic light, the door has three distinct states: locked, closed, and open. Locking and unlocking are the activities that cause the door to transition from the locked to the closed state and vice versa. As for opening an unlocked door, we say that one needs to <b class="calibre9">push</b> the door open. The remaining transition is unlike the others because it doesn’t require any activities by anyone or anything else. Instead, the door closes automatically over time. The corresponding transition arrow is labeled with *time* to emphasize this.</p>
+<p class="calibre8">Following our recipe, we start with a translation of the three real-world states into BSL data:</p>
+<div class="ex">
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define LOCKED</samp><samp class="mono"> "locked") </samp><samp class="mono">  </samp><samp class="mono"> ; A</samp><samp class="mono"> </samp><span class="calibre6">DoorState</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">(define CLOSED</samp><samp class="mono"> "closed") </samp><samp class="mono">  </samp><samp class="mono"> ; --</samp><samp class="mono"> LOCKED</samp> <br class="calibre4"/><samp class="mono">(define OPEN</samp><samp class="mono"> "open") </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> ; --</samp><samp class="mono"> CLOSED</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  ;</samp><samp class="mono"> -- OPEN</samp></p>
+</div>
+</div>
+<p class="tni">We also keep in mind the lesson of exercise 61, namely, that it is best to define symbolic constants and formulate data definitions in terms of such constants.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_135" title="135"></span>The next step of a world design demands that we translate the chosen actions in our domain—the arrows in the left-hand diagram—into interactions with the computer that the <i class="calibre6">2htdp/universe</i> library can deal with. Our pictorial representation of the door’s states and transitions, specifically the arrow from <samp class="mono">open</samp> to <samp class="mono">closed</samp>, suggests the use of clock ticks. For the other arrows, we could use either key presses or mouse clicks. Let’s use three keystrokes: <samp class="mono">"u"</samp> for unlocking the door, <samp class="mono">"l"</samp> for locking it, and the space bar <samp class="mono">" "</samp> for pushing it open. The right-hand-side diagram of <a id="rfig28" href="part0005_split_031.html#fig28" class="calibre5">figure 28</a> expresses these choices graphically; it translates the state-machine diagram from the world of information into the world of data in BSL.</p>
+<div class="figure">
+<figure class="img"><a id="fig28" class="calibre5"></a><img src="../images/00092.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_031.html#rfig28" class="calibre5">Figure 28</a>:</span> <span>A transition diagram for a door with an automatic closer</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Once we have decided to use the passing of time for one action and key presses for the others, we must design functions that render the current state of the world—represented as DoorState—and that transform it into the next state of the world. And that, of course, amounts to a wish list of <samp class="mono">big-bang</samp> functions:</p>
+<p class="blf">•  <samp class="mono">door-closer</samp>, which closes the door during one tick;</p>
+<p class="blf">•  <samp class="mono">door-action</samp>, which acts on it in response to pressing a key; and</p>
+<p class="bll">•  <samp class="mono">door-render</samp>, which translates the current state into an image.</p>
+<p class="tni">Stop! Formulate appropriate signatures.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_136" title="136"></span>We start with <samp class="mono">door-closer</samp>. Since <samp class="mono">door-closer</samp> acts as the <samp class="mono">on-tick</samp> handler, we get its signature from our choice of DoorState as the collection of world states:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>DoorState<samp class="mono"> -&gt; </samp>DoorState <br class="calibre4"/><samp class="mono">; closes</samp><samp class="mono"> an open</samp><samp class="mono"> door over</samp><samp class="mono"> the period</samp><samp class="mono"> of one</samp><samp class="mono"> tick</samp> <br class="calibre4"/><samp class="mono">(define (door-closer</samp><samp class="mono"> state-of-door) state-of-door)</samp></p>
+</div>
+<p class="tni">Making up examples is trivial when the world can only be in one of three states. Here we use a table to express the basic idea, just like in some of the mathematical examples given above:</p>
+<figure class="table-small">
+<table class="small">
+<tr class="calibre12">
+<td class="tb"><p class="crt">given state</p></td>
+<td class="tb"><p class="crt">desired state</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">LOCKED</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">LOCKED</samp></p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">OPEN</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+</tr>
+</table>
+</figure>
+<p class="tni">Stop! Express these examples as BSL tests.</p>
+<p class="calibre8">The template step demands a conditional with three clauses:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (door-closer</samp><samp class="mono"> state-of-door)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> LOCKED state-of-door)</samp><samp class="mono"> <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> CLOSED state-of-door)</samp><samp class="mono"> <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> OPEN state-of-door)</samp><samp class="mono"> <span>…</span>]))</samp></samp></p>
+</div>
+<p class="tni">and the process of turning this template into a function definition is dictated by the examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (door-closer</samp><samp class="mono"> state-of-door)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> LOCKED state-of-door)</samp><samp class="mono"> LOCKED]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> CLOSED state-of-door)</samp><samp class="mono"> CLOSED]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string=?</samp><samp class="mono"> OPEN state-of-door)</samp><samp class="mono"> CLOSED]))</samp></samp></p>
+</div>
+<p class="tni">Don’t forget to run your tests.</p>
+<p class="calibre8">The second function, <samp class="mono">door-action</samp>, takes care of the remaining three arrows of the diagram. Functions that deal with keyboard events consume both a world and a key event, meaning the signature is as follows:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>DoorState KeyEvent<samp class="mono"> -&gt; </samp>DoorState <br class="calibre4"/><samp class="mono">; turns</samp><samp class="mono"> key event</samp><samp class="mono"> k into</samp><samp class="mono"> an action</samp><samp class="mono"> on state</samp><samp class="mono"> s</samp> <br class="calibre4"/><samp class="mono">(define (door-action</samp><samp class="mono"> s k)</samp> <br class="calibre4"/><samp class="mono">  s)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_137" title="137"></span>We once again present the examples in tabular form:</p>
+<figure class="table-small">
+<table class="small">
+<tr class="calibre12">
+<td class="tb"><p class="crt">given state</p></td>
+<td class="tb"><p class="crt">given key event</p></td>
+<td class="tb"><p class="crt">desired state</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">LOCKED</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">"u"</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">"l"</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">LOCKED</samp></p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">CLOSED</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">" "</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">OPEN</samp></p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"><samp class="mono">OPEN</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">—</samp></p></td>
+<td class="tb"><p class="crt"><samp class="mono">OPEN</samp></p></td>
+</tr>
+</table>
+</figure>
+<p class="tni">The examples combine information from our drawing with the choices we made about mapping actions to keyboard events. Unlike the table of examples for traffic light, this table is incomplete. Think of some other examples; then consider why our table suffices.</p>
+<p class="calibre8">From here, it is straightforward to create a complete design:</p>
+<figure class="co"><img src="../images/00093.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Note the use of <samp class="mono">and</samp> to combine two conditions: one concerning the current state of the door and the other concerning the given key event.</p>
+<p class="calibre8">Lastly, we need to render the state of the world as a scene:</p>
+<figure class="co"><img src="../images/00094.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This simplistic function uses large text. Here is how we run it all:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_138" title="138"></span><samp class="mono">; </samp>DoorState<samp class="mono"> -&gt; </samp>DoorState <br class="calibre4"/><samp class="mono">; simulates</samp><samp class="mono"> a door</samp><samp class="mono"> with an</samp><samp class="mono"> automatic door</samp><samp class="mono"> closer</samp> <br class="calibre4"/><samp class="mono">(define (door-simulation</samp><samp class="mono"> initial-state)</samp> <br class="calibre4"/><samp class="mono">  (big-bang</samp><samp class="mono"> initial-state</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [on-tick door-closer]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [on-key door-action]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [to-draw door-render]))</samp></p>
+</div>
+<p class="tni">Now it is time for you to collect the pieces and run them in DrRacket to see whether it all works.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 62. During a door simulation the “open” state is barely visible. Modify <samp class="mono">door-simulation</samp> so that the clock ticks once every three seconds. Rerun the simulation. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

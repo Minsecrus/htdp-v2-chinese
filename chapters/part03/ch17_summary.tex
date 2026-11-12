@@ -1,0 +1,508 @@
+% ==============================================================================
+% 第 17 章：匿名函数 (Nameless Functions)
+% 第 18 章：小结 (Summary)
+% ==============================================================================
+
+\chapter{匿名函数}
+\label{sec:ch17_nameless_functions}
+
+使用抽象函数必然需要将其他函数作为参数传递进去。有时候，这些参数是现成的语言原语、库函数或者你自己先前定义的函数：
+\begin{itemize}
+  \item \code{(build-list n add1)} 产生列表 \code{(list 1 ... n)}；
+  \item \code{(foldr cons another-list a-list)} 将两个列表串联为一个单一列表；
+  \item \code{(foldr above empty-image images)} 将图像列表自上而下纵向层叠拼装。
+\end{itemize}
+
+然而在更多的时候，为了调用抽象函数，我们不得不定义一个极其微小、往往仅由单行代码构成的局部辅助函数。请看下面这个使用 \code{filter} 的例子：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00387.png}
+\end{center}
+
+它的功能是从库存列表中找出所有零售价低于阈值 \code{th} 的商品。辅助函数本身平淡无奇，但仅仅为了给它命名并定义它，就占用了三行代码。
+
+\begin{notebox}[切换至带 lambda 的 ISL 语言]
+在 DrRacket 中，请从“Language”（语言）菜单的“How to Design Programs”子菜单中选择“Intermediate Student with lambda”（带 lambda 的中级学生语言）。lambda 的历史与现代编程语言设计和理论计算模型的黎明期紧密交织在一起。
+\end{notebox}
+
+这种情形呼唤着语言的进一步进化：程序员应当能够极其轻松地就地创建这种微小的临时函数，而无需大费周章地为其起名并建立复杂的局部结构。教学语言家族的下一阶梯——“带 lambda 的中级学生语言”（ISL with lambda）通过引入\term{匿名函数}（nameless functions）完美解决了这个问题。有了 \code{lambda}，上述定义在概念上便彻底蜕化为一个优美的单行定义：
+
+\begin{lstlisting}[language=BSL]
+; [List-of IR] Number -> [List-of IR]
+(define (find l th)
+  (filter (lambda (ir) (<= (ir-price ir) th)) l))
+\end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\section{用 lambda 创建函数}
+\label{sec:17_1}
+
+\code{lambda} 的语法极为直观而优美：
+
+\begin{lstlisting}[language=BSL]
+(lambda (variable-1 ... variable-N) expression)
+\end{lstlisting}
+
+其标志性的特征是关键字 \code{lambda}。紧随其后的是由圆括号包裹的形参序列；最后一部分是一个任意合法的表达式作为函数体，用于在参数被赋予具体值时计算并返回函数的结果。
+
+以下是三个接收单一实参的简单示例：
+\begin{enumerate}
+  \item \code{(lambda (x) (expt 10 x))}：假设实参为一个数字，计算 10 的该数字次幂；
+  \item \code{(lambda (n) (string-append "To " n ","))}：根据给定的收件人姓名合成信件抬头；
+  \item \code{(lambda (ir) (<= (ir-price ir) th))}：从库存记录结构体中提取单价并判断是否不高于阈值 \code{th}。
+\end{enumerate}
+
+理解 \code{lambda} 运行机制的一种绝佳视角，是将其实质视为一种匿名的局部定义简写：
+\begin{lstlisting}[language=BSL]
+(lambda (x) (* 10 x))
+\end{lstlisting}
+等价于：
+\begin{lstlisting}[language=BSL]
+(local ((define some-name (lambda (x) (* 10 x))))
+  some-name)
+\end{lstlisting}
+
+只要生成的这个隐藏名称在函数体内部不被直接引用，这种转换就是普遍成立的。换句话说，\code{lambda} 创建出了一个拥有“全天下谁也不知道的名字”的纯粹函数——既然没有任何人知道它的名字，它自然就可以被看作是\textbf{无名的}。
+
+要调用一个由 \code{lambda} 表达式创建的函数，只需将其作为函数调用表达式的首项，并紧随正确数量的实参即可：
+
+\begin{replbox}
+> ((lambda (x) (expt 10 x)) 2)
+100
+> ((lambda (name rst) (string-append name ", " rst)) "Robby" "etc.")
+"Robby, etc."
+> (define th 20)
+> ((lambda (ir) (<= (ir-price ir) th)) (make-ir "bear" 10))
+#true
+\end{replbox}
+
+最核心的关键在于：\textbf{这些匿名函数可以作为一等公民的值，传递给任何期望函数作为参数的地方}，包括我们熟悉的各类高阶列表抽象：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00388.png}
+\end{center}
+
+\begin{exercise}{辨识合法的 lambda 表达式}{279}
+判断下列短语中哪些是语法上合法的 \code{lambda} 表达式：
+\begin{enumerate}
+  \item \code{(lambda (x y) (x y y))}
+  \item \code{(lambda () 10)}
+  \item \code{(lambda (x) x)}
+  \item \code{(lambda (x y) x)}
+  \item \code{(lambda x 10)}
+\end{enumerate}
+详细阐述它们合法或非法的理由。如有疑问，请在 DrRacket 交互区中实验验证。
+\end{exercise}
+
+\begin{exercise}{计算 lambda 表达式的值}{280}
+手动推导并计算以下表达式的最终求值结果：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00389.png}
+\end{center}
+
+在 DrRacket 中运行以验证你的手动推导。
+\end{exercise}
+
+\begin{exercise}{编写 lambda 表达式}{281}
+分别编写满足下列要求的 \code{lambda} 表达式：
+\begin{enumerate}
+  \item 接收一个数字，判断其是否小于 10；
+  \item 接收两个数字，计算其乘积并将结果转换为字符串；
+  \item 接收一个自然数，若为偶数则返回 0，若为奇数则返回 1；
+  \item 接收两件库存记录，按照价格进行大小比较；
+  \item 接收一个 Posn 和一幅 Image，在图像的给定点上绘制一个红点。
+\end{enumerate}
+在交互区演示如何调用这些匿名函数。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{用 lambda 进行求值计算}
+\label{sec:17_2}
+
+将 \code{lambda} 视为某种 \code{local} 的见解，同样揭示了普通函数定义与常量定义之间的深刻内在统一：我们无需将函数定义视为一种独立且不可分割的语法基本范畴，而可以认为\textbf{任何传统的函数定义，本质上不过是一个将其右侧绑定到无名 lambda 表达式上的普通常量定义}！
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00390.png}
+\end{center}
+
+这一等价性表明，常规函数定义包含两个独立的步骤：\textbf{创建函数}（由 \code{lambda} 负责）与\textbf{给函数命名}（由 \code{define} 负责）。我们之所以要给函数命名，主要是因为：该函数常被多次复用，我们不愿每次调用都重写一遍匿名函数；且自引用的递归函数需要通过名称来表达结构型递归。
+
+\begin{exercise}{验证命名函数与 lambda 的完全等价性}{282}
+在 DrRacket 中定义：
+\begin{lstlisting}[language=BSL]
+; Number -> Boolean
+(define (compare x)
+  (= (f-plain x) (f-lambda x)))
+\end{lstlisting}
+（其中 \code{f-plain} 使用传统语法定义，\code{f-lambda} 使用绑定的 lambda 定义）。多次调用 \code{(compare (random 100000))}，确认两者对所有随机输入均给出完全相同的输出。
+\end{exercise}
+
+如果函数定义仅仅是常量绑定的简写，那么我们就可以自由地将函数名代换为其背后的 \code{lambda} 表达式：
+
+\begin{lstlisting}[language=BSL]
+(f (f 42)) == ((lambda (x) (* 10 x)) ((lambda (x) (* 10 x)) 42))
+\end{lstlisting}
+
+在此，ISL+ 的语法在两个维度上彻底放宽：它引入了 \code{lambda} 作为表达式的一等形式，同时\textbf{允许任意能够求值为函数的表达式出现在函数调用表达式的首项}！
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00391.png}
+\end{center}
+
+\begin{notebox}[邱奇与 $\lambda$-演算]
+阿隆佐·邱奇（Alonzo Church）在 20 世纪 20 年代末发明了 $\lambda$-演算，旨在建立统一的函数基础理论。由此我们知道，从理论计算模型的高度来看，只要有了 \code{lambda}，语言甚至完全不再需要 \code{local}（有兴趣的读者可深入探究著名的 Y 组合子）。
+\end{notebox}
+
+对 \code{lambda} 表达式调用的求值法则（著名的 $\beta$-归约，$\beta$-v）简单而优美：
+
+\begin{lstlisting}[language=BSL]
+((lambda (x-1 ... x-n) f-body) v-1 ... v-n)
+== f-body 中所有的 x-1 ... x-n 分别被实参 v-1 ... v-n 替换
+\end{lstlisting}
+
+代换推导极其自然流畅：
+\begin{lstlisting}[language=BSL]
+((lambda (x) (* 10 x)) 2) == (* 10 2) == 20
+\end{lstlisting}
+
+\begin{exercise}{单步求值器跟踪 lambda 单步计算}{283}
+利用 DrRacket 单步求值器跟踪图~\ref{fig:00392_trace} 中各表达式的求值全过程：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00392.png}
+  \captionof{figure}{lambda 表达式求值步骤}\label{fig:00392_trace}
+\end{center}
+\end{exercise}
+
+\begin{exercise}{自应用与无穷循环：$\Omega$ 组合子}{284}
+在单步求值器中跟踪求值：
+\begin{lstlisting}[language=BSL]
+((lambda (x) x) (lambda (x) x))
+\end{lstlisting}
+接着步进跟踪自应用：
+\begin{lstlisting}[language=BSL]
+((lambda (x) (x x)) (lambda (x) x))
+\end{lstlisting}
+现在，尝试跟踪著名的 $\Omega$ 组合子：
+\begin{lstlisting}[language=BSL]
+((lambda (x) (x x)) (lambda (x) (x x)))
+\end{lstlisting}
+做好随时点击 DrRacket“STOP”按钮的准备！
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{用 lambda 进行抽象}
+\label{sec:17_3}
+
+尽管初学时需要稍作适应，但你很快就会体会到：对于简短的临时辅助逻辑，\code{lambda} 比臃肿的 \code{local} 具有好得多的可读性。事实上，第 16.6 节中的设计配方第四步可以直接无缝迁移为使用 \code{lambda}：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00393.png}
+\end{center}
+
+将形参类型直接融入形参命名中，即可将原本分散在 \code{local} 中的辅助逻辑浓缩进单一的 \code{lambda} 表达式：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00394.png}
+\end{center}
+
+从而顺理成章地一气呵成写出终极代码：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00395.png}
+\end{center}
+
+更多的实战对比生动展示了 \code{lambda} 的利落与优雅：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00396.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00397.png}
+\end{center}
+
+\begin{notebox}[何时用 local，何时用 lambda？]
+\code{lambda} 并非万灵丹。当辅助函数仅有一两行时，内联 \code{lambda} 是无与伦比的利器；但当辅助逻辑复杂、包含长篇分支或拥有重大独立意义时，使用带有明确名称与目的说明的 \code{local} 辅助函数能够提供更好的代码自解释性。
+\end{notebox}
+
+\begin{exercise}{使用 lambda 重构 map 任务}{285}
+使用 \code{map} 与 \code{lambda} 分别定义：
+\begin{enumerate}
+  \item \code{convert-euro}：按 1.06 汇率将美元列表换算为欧元列表；
+  \item \code{convertFC}：将华氏度温度列表转换为摄氏度列表；
+  \item \code{translate}：将 Posn 列表转换为数字坐标二元对的列表。
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}{按差价对库存排序}{286}
+库存记录包含名称、描述、进价与建议零售价。使用高阶函数与 \code{lambda}，设计一个根据商品建议零售价与进货价之差（利润差额）对库存记录列表进行排序的函数。
+\end{exercise}
+
+\begin{exercise}{使用 filter 与 lambda 进行精准筛选}{287}
+使用 \code{filter} 与 \code{lambda} 分别设计：
+\begin{enumerate}
+  \item \code{eliminate-exp}：剔除所有进价高于给定阈值 \code{ua} 的库存商品；
+  \item \code{recall}：根据商品名称 \code{ty} 进行召回，从库存列表中移除所有名称为 \code{ty} 的记录；
+  \item \code{selection}：接收两个名字列表，筛选出第二个列表中所有同样出现在第一个列表中的名字。
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}{使用 build-list 与 lambda 构造复杂列表}{288}
+使用 \code{build-list} 与 \code{lambda} 分别定义函数：
+\begin{enumerate}
+  \item 生成列表 \code{(list 0 ... (- n 1))}；
+  \item 生成列表 \code{(list 1 ... n)}；
+  \item 生成列表 \code{(list 1 1/2 ... 1/n)}；
+  \item 生成前 $n$ 个正偶数的列表；
+  \item 生成 $n \times n$ 对角单位矩阵（参见练习 262）。
+\end{enumerate}
+最后，使用 \code{lambda} 重新实现制表函数 \code{tabulate}。
+\end{exercise}
+
+\begin{exercise}{量词判定：find-name}{289}
+使用 \code{ormap} 与 \code{lambda} 定义 \code{find-name}，判定列表中是否存在以目标字符串为前缀的名字。
+
+使用 \code{andmap} 检查列表中的所有名字是否都以字母 \code{"a"} 开头。在判断“列表中没有任何名字的长度超过给定宽度”时，你应当使用 \code{ormap} 还是 \code{andmap}？
+\end{exercise}
+
+\begin{exercise}{使用 foldr 与 lambda 的万能重构}{290}
+回顾拼接列表的基本等式：
+\begin{lstlisting}[language=BSL]
+(equal? (append (list 1 2 3) (list 4 5 6 7 8))
+        (list 1 2 3 4 5 6 7 8))
+\end{lstlisting}
+使用 \code{foldr} 与 \code{lambda} 定义 \code{append-from-fold}。如果将 \code{foldr} 替换为 \code{foldl} 会发生什么？
+
+接着使用折叠函数分别定义数字列表的求和与求积函数。最后，使用折叠函数横向拼接一排图像（提示：使用 \code{beside}），以及纵向堆叠一列图像（使用 \code{above}）。
+\end{exercise}
+
+\begin{exercise}{用 foldr 仿真 map}{291}
+折叠函数无所不能。请仅使用 \code{foldr} 与 \code{lambda}，实现完整模拟 \code{map} 功能的高阶函数 \code{map-via-fold}。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{用 lambda 编写规范与性质测试}
+\label{sec:17_4}
+
+图~\ref{fig:103} 展示了一个通用的排序函数 \code{sort-cmp}，它接收一个值列表以及针对该类型值的二元比较谓词：
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00398.png}
+  \caption{通用排序函数}
+  \label{fig:103}
+\end{figure}
+
+在练习 186 中，我们使用 DrRacket 的 \code{check-satisfied} 来检验排序结果是否满足 \code{sorted>?}。那么对于通用的 \code{sort-cmp}，我们如何优雅地为其构建高阶测试呢？
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00399.png}
+\end{center}
+
+这里，\code{(sorted string<?)} 与 \code{(sorted <)} 本身必须分别求值为一个专用的一元判定谓词！换言之，\code{sorted} 是一个\textbf{返回函数的函数}：
+
+\begin{lstlisting}[language=BSL]
+; [X X -> Boolean] -> [ [List-of X] -> Boolean ]
+; 产生一个函数，用于判定给定列表是否按照 cmp 保持有序
+(define (sorted cmp)
+  ...)
+\end{lstlisting}
+
+借助 \code{lambda}，编写这种函数制造工厂变得极其直截了当：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00400.png}
+\end{center}
+
+\begin{notebox}[柯里化与斯科恩芬克尔]
+像 \code{sorted} 这样不一次性接收两个参数，而是先接收一个参数并返回一个等待接收后续参数的新函数的技巧，在计算机科学中被称为\term{柯里化}（Currying），以逻辑学家哈斯凯尔·柯里（Haskell Curry）命名。这一思想的最早发明人其实是摩西·斯科恩芬克尔（Moses Schönfinkel）。
+\end{notebox}
+
+图~\ref{fig:104} 给出了 \code{sorted} 的完整设计：
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00402.png}
+  \caption{用于检查列表是否有序的柯里化判定谓词}
+  \label{fig:104}
+\end{figure}
+
+\begin{exercise}{设计基础判定谓词 sorted?}{292}
+为下列函数补全定义：
+\begin{lstlisting}[language=BSL]
+; [X X -> Boolean] [NEList-of X] -> Boolean
+; 判定非空列表 l 是否严格按照 cmp 排序
+(check-expect (sorted? < '(1 2 3)) #true)
+(check-expect (sorted? < '(2 1 3)) #false)
+(define (sorted? cmp l) #false)
+\end{lstlisting}
+\end{exercise}
+
+更进一步，仅仅检查结果是否有序是不够的——一个把任何输入列表都粗暴丢弃并返回 \code{'()} 的函数也是“有序”的！真正的排序算法必须保证：\textbf{输出不仅有序，而且必须是原输入的合法排列（二者包含完全相同的元素且重数一致）}。
+
+这就是计算机科学家所谓的\term{软件规范}（Specification）。通过 \code{lambda}，我们可以构造出一个完备的性质规范生成器 \code{sorted-variant-of.v2}：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00406.png}
+\end{center}
+
+这使得我们能够借助基于性质的随机测试，断言排序函数对\textbf{所有可能的输入}都绝对正确：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00407.png}
+\end{center}
+
+\begin{exercise}{搜索函数的规范断言 found?}{293}
+为 \code{find} 函数设计其形式化性质规范 \code{found?}：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00408.png}
+\end{center}
+
+并借助 \code{found?} 编写 \code{check-satisfied} 单元测试。
+\end{exercise}
+
+\begin{exercise}{索引查找函数的规范断言 is-index?}{294}
+为获取元素索引的函数 \code{index} 设计形式化规范断言 \code{is-index?}：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00409.png}
+\end{center}
+\end{exercise}
+
+\begin{exercise}{随机点生成函数的规范断言 n-inside-playground?}{295}
+为 \code{random-posns} 函数设计规范谓词生成器 \code{n-inside-playground?}，验证生成的列表长度为 $n$ 且其中的所有 Posn 均严格落在指定宽高的矩形游乐场内部：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00410.png}
+\end{center}
+
+然后构造一个故意投机取巧的错误函数 \code{random-posns/bad}，使其能够骗过该规范，并借此反思规范的完备性。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{用 lambda 表示数据}
+\label{sec:17_5}
+
+既然函数在 ISL+ 中是一等公民的值，那么我们完全可以把函数本身当作一种\textbf{数据形态}，直接用于表示现实世界的复杂信息！
+
+考虑这样一个经典问题：海军舰队指挥官需要对由战舰（矩形）与武器杀伤半径（圆形）构成的覆盖领域进行空间建模，并实时判断某个目标坐标点是否落在覆盖区域之内。
+
+在数学上，\textbf{任何几何图形在本质上都可以表示为一个特征谓词}——即一个接收笛卡尔坐标点并返回布尔值的函数：
+
+\begin{lstlisting}[language=BSL]
+; A Shape is a function:
+;   [Posn -> Boolean]
+; 解释：若 s 是一个图形而 p 是一个坐标点，
+; 则 (s p) 产生 #true 当且仅当 p 位于图形内部
+\end{lstlisting}
+
+有了这个数据定义，判断点是否在图形内的函数便简洁到了极致：
+\begin{lstlisting}[language=BSL]
+; Shape Posn -> Boolean
+(define (inside? s p)
+  (s p))
+\end{lstlisting}
+
+现在，如何构造图形数据呢？我们只需编写“构造函数”以返回相应的 \code{lambda} 闭包！
+
+点图形的构造器：
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00411.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00412.png}
+\end{center}
+
+圆形图形的构造器：根据平面几何欧几里得距离，点到圆心的距离不大于半径即在圆内：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00413.png}
+\end{center}
+
+\par 其中点 $(x_0, y_0)$ 与点 $(x_1, y_1)$ 之间的欧几里得距离公式为：
+\[
+  \sqrt{(x_0 - x_1)^2 + (y_0 - y_1)^2}
+\]
+即点 $(x_0 - x_1, y_0 - y_1)$ 到坐标原点的距离。
+
+矩形图形的构造器：只需判断横纵坐标是否分别落在对应的区间之内：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00415.png}
+\end{center}
+
+而最精彩的一幕发生在图形的并集组合运算上：将两个图形融合成一个复合图形，不过是一个简单的逻辑 \code{or} 组合！
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00416.png}
+\end{center}
+
+\begin{lstlisting}[language=BSL]
+; Shape Shape -> Shape
+(define (mk-combination s1 s2)
+  (lambda (p)
+    (or (inside? s1 p) (inside? s2 p))))
+\end{lstlisting}
+
+没有任何繁琐的几何图形相交多边形缝合算法，函数式数据表示让组合性达到了无与伦比的优雅！
+
+\begin{exercise}{几何测试验算}{296}
+使用圆规与直尺在坐标纸上画出测试用例中的几何图形，手动验算各项断言。
+\end{exercise}
+
+\begin{exercise}{设计距离测算函数 distance-between}{297}
+设计函数 \code{distance-between}，接收坐标 $(x, y)$ 与一个 Posn $p$，计算二者之间的直线欧式几何距离：
+$$\text{dist} = \sqrt{(x - \text{posn-x}(p))^2 + (y - \text{posn-y}(p))^2}$$
+\end{exercise}
+
+\begin{exercise}{函数式流数据与无限动画 my-animate}{298}
+回顾 \code{animate} 函数接收一个无限图像流。由于无限流在时间上没有穷尽，传统有限大小的数据结构无法表示它。而函数可以天然地表示无限数据流：
+
+\begin{lstlisting}[language=BSL]
+; An ImageStream is a function:
+;   [N -> Image]
+; 解释：流 s 代表一个无限的图像时间序列
+\end{lstlisting}
+
+\begin{center}
+  \includegraphics[width=0.65\textwidth]{images/00417.jpeg}
+\end{center}
+
+请设计 \code{my-animate}，以每秒 30 帧的速率依次展示 \code{(s 0)}、\code{(s 1)} 等连续图像。
+\end{exercise}
+
+\begin{exercise}{使用特征函数表示无限数学集合}{299}
+在集合论中，一个集合完全可以表示为其\term{特征函数}（characteristic function）：一个接收候选元素并返回布尔值（是否属于该集合）的谓词。
+
+请设计一套函数式数据表示，使你能够表示诸如“所有奇数集合”、“所有偶数集合”、“所有能被 10 整除的数字集合”等无限集合。并在此基础上设计：
+\begin{enumerate}
+  \item \code{add-element}：向集合中添加一个新元素；
+  \item \code{union}：求两个集合的并集；
+  \item \code{intersect}：求两个集合的交集。
+\end{enumerate}
+\end{exercise}
+
+% ==============================================================================
+% 第 18 章：小结 (Summary)
+% ==============================================================================
+
+\chapter{小结}
+\label{sec:ch18_summary}
+
+本书的第三部分全景式地探讨了\term{抽象}在系统化程序设计中的核心地位。抽象具有一体两面的特质：\textbf{抽象的创建}与\textbf{抽象的运用}。我们可以将全书第三部分凝聚为两堂最为核心的必修课：
+
+\begin{enumerate}
+  \item \textbf{重复的代码模式必须提炼为抽象}。进行抽象意味着提炼出代码中反复出现的共同逻辑，并将所有的具体差异转化为参数。通过精心设计恰当的抽象，程序员为系统构建了稳固的\term{单点控制原则}，从而为未来的演进与维护省去了无数无休止的修补与烦恼。一旦发现逻辑缺陷、性能瓶颈或架构调整，只需在抽象定义这一处进行修改，便可一劳永逸地全盘修正。相反，盲目复制代码意味着埋下定时炸弹，在排查问题时必须大海捞针般搜寻所有副本，极易顾此失彼。
+  \item \textbf{大多数现代编程语言都提供了丰富的内置抽象与高阶工具库}。优秀的程序员必须像工匠熟悉刻刀一样熟悉这些核心抽象（\code{map}、\code{filter}、\code{foldr}、\code{build-list} 等）。为了使他人能够高效复用抽象，抽象的作者必须提供详尽严格的设计配方契约——准确的类型签名、清晰的目的说明以及完备的功能用例；而抽象的调用者正是基于这些签名契约，借助局部定义（\code{local}）与匿名函数（\code{lambda}）行云流水地组合出高质量的复杂应用。
+\end{enumerate}
+
+除却抽象配方之外，第三部分还注入了一个颠覆传统认知的伟大理念：
+\begin{center}
+  \textbf{\large\color{NavyTheme}函数本身就是一等公民的值，且函数可以直接承载与表示信息。}
+\end{center}
+
+尽管这一思想对于 Lisp 语言家族（如 ISL+）以及现代编程语言理论学家而言由来已久，但在工业界，直到最近十余年，这一强大的范式才终于被绝大多数现代主流编程语言（包括 Python、JavaScript、Java、C\#、C++、Rust 等）彻底拥抱与普及。掌握了函数作为一等公民的高阶抽象思维，你便真正拿到了通往现代高级计算体系的金钥匙。

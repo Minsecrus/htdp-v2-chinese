@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_21"><a id="sec11-1" class="calibre16"></a>11.1 The <samp class="monospace-margin1">list</samp> Function</h2>
+<p class="tni">At this point, you should have tired of writing so many <samp class="mono">cons</samp>es just to create a list, especially for lists that contain a bunch of values. Fortunately, we have an additional teaching language for you that provides mechanisms for simplifying this part of a programmer’s life. BSL+ does so, too.</p>
+<p class="marginpar">You have graduated from BSL. It is time to use the “Language” menu and to select “Beginning Student with List Abbreviations” for your studies.</p>
+<p class="calibre8">The key innovation is <samp class="mono">list</samp>, which consumes an arbitrary number of values and creates a list. The simplest way to understand <samp class="mono">list</samp> is to think of it as an abbreviation. Specifically, every expression of the shape</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list exp-1</samp><samp class="mono"> <span>…</span> exp-n)</samp></p>
+</div>
+<p class="tni">stands for a series of <i class="calibre6">n</i> <samp class="mono">cons</samp> expressions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons exp-1</samp><samp class="mono"> (cons <span>…</span></samp><samp class="mono"> (cons exp-n</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">Keep in mind that <samp class="mono">'()</samp> is not an item of the list here, but actually the rest of the list. Here is a table with three examples:</p>
+<figure class="co"><img src="../images/00252.gif" alt="" class="calibre10"/></figure>
+<p class="tni">They introduce lists with one, two, and three items, respectively.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_315" title="315"></span>Of course, we can apply <samp class="mono">list</samp> not only to values but also to expressions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (list</samp><samp class="mono"> (+ 0</samp><samp class="mono"> 1) (+</samp><samp class="mono"> 1 1))</samp> <br class="calibre4"/><samp class="mono">(list 1</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">&gt; (list</samp><samp class="mono"> (/ 1</samp><samp class="mono"> 0) (+</samp><samp class="mono"> 1 1))</samp> <br class="calibre4"/><samp class="mono">/:division by</samp><samp class="mono"> zero</samp></p>
+</div>
+<p class="tni">Before the list is constructed, the expressions must be evaluated. If during the evaluation of an expression an error occurs, the list is never formed. In short, <samp class="mono">list</samp> behaves just like any other primitive operation that consumes an arbitrary number of arguments; its result just happens to be a list constructed with <samp class="mono">cons</samp>es.</p>
+<p class="calibre8">The use of <samp class="mono">list</samp> greatly simplifies the notation for lists with many items and lists that contain lists or structures. Here is an example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list 0</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8</samp><samp class="mono"> 9)</samp></p>
+</div>
+<p class="tni">This list contains 10 items and its formation with <samp class="mono">cons</samp> would require 10 uses of <samp class="mono">cons</samp> and one instance of <samp class="mono">'()</samp>. Similarly, the list</p>
+<figure class="co"><img src="../images/00253.gif" alt="" class="calibre10"/></figure>
+<p class="tni">requires 11 uses of <samp class="mono">list</samp>, which sharply contrasts with 40 <samp class="mono">cons</samp> and 11 additional uses of <samp class="mono">'()</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 181. Use <samp class="mono">list</samp> to construct the equivalent of these lists:</p>
+<p class="nlf">1. <samp class="mono">(cons "a" (cons "b" (cons "c" (cons "d" '()))))</samp></p>
+<p class="nlf">2. <samp class="mono">(cons (cons 1 (cons 2 '())) '())</samp></p>
+<p class="nlf">3. <samp class="mono">(cons "a" (cons (cons 1 '()) (cons #false '())))</samp></p>
+<p class="nll">4. <samp class="mono">(cons (cons "a" (cons 2 '())) (cons "hello" '()))</samp></p>
+<p class="tni"><span epub:type="pagebreak" id="pg_316" title="316"></span>Also try your hand at this one:</p>
+<figure class="co"><img src="../images/00254.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Start by determining how many items each list and each nested list contains. Use <samp class="mono">check-expect</samp> to express your answers; this ensures that your abbreviations are really the same as the long-hand. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 182. Use <samp class="mono">cons</samp> and <samp class="mono">'()</samp> to form the equivalent of these lists:</p>
+<p class="nlf">1. <samp class="mono">(list 0 1 2 3 4 5)</samp></p>
+<p class="nlf">2. <samp class="mono">(list (list "he" 0) (list "it" 1) (list "lui" 14))</samp></p>
+<p class="nll">3. <samp class="mono">(list 1 (list 1 2) (list 1 2 3))</samp></p>
+<p class="tni">Use <samp class="mono">check-expect</samp> to express your answers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 183. On some occasions lists are formed with <samp class="mono">cons</samp> and <samp class="mono">list</samp>.</p>
+<p class="nlf">1. <samp class="mono">(cons "a" (list 0 #false))</samp></p>
+<p class="nlf">2. <samp class="mono">(list (cons 1 (cons 13 '())))</samp></p>
+<p class="nlf">3. <samp class="mono">(cons (list 1 (list 13 '())) '())</samp></p>
+<p class="nlf">4. <samp class="mono">(list '() '() (cons 1 '()))</samp></p>
+<p class="nll">5. <samp class="mono">(cons "a" (cons (list 1) (list #false '())))</samp></p>
+<p class="tni">Reformulate each of the following expressions using only <samp class="mono">cons</samp> or only <samp class="mono">list</samp>. Use <samp class="mono">check-expect</samp> to check your answers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 184. Determine the values of the following expressions:</p>
+<p class="nlf">1. <samp class="mono">(list (string=? "a" "b") #false)</samp></p>
+<p class="nlf">2. <samp class="mono">(list (+ 10 20) (* 10 20) (/ 10 20))</samp></p>
+<p class="nll">3. <samp class="mono">(list "dana" "jane" "mary" "laura")</samp></p>
+<p class="tni">Use <samp class="mono">check-expect</samp> to express your answers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 185. You know about <samp class="mono">first</samp> and <samp class="mono">rest</samp> from BSL, but BSL+ comes with even more selectors than that. Determine the values of the following expressions:</p>
+<p class="nlf">1. <samp class="mono">(first (list 1 2 3))</samp></p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_317" title="317"></span>2. <samp class="mono">(rest (list 1 2 3))</samp></p>
+<p class="nll">3. <samp class="mono">(second (list 1 2 3))</samp></p>
+<p class="tni">Find out from the documentation whether <samp class="mono">third</samp> and <samp class="mono">fourth</samp> exist. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

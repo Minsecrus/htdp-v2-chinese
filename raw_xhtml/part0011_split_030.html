@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_31"><a id="sec23-7" class="calibre16"></a>23.7 Project: Database</h2>
+<p class="tni">Many software applications use a database to keep track of data. Roughly speaking, a database is a table that comes with an explicitly stated organization rule. The former is the <i class="calibre6">content</i>; the latter is called a <i class="calibre6">schema</i>. <a id="rfig137" href="part0011_split_030.html#fig137" class="calibre5">Figure 137</a> shows two examples. Each table consists of two parts: the schema above the line and the content below.</p>
+<div class="figure">
+<figure class="img"><a id="fig137" class="calibre5"></a><img src="../images/00539.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig137" class="calibre5">Figure 137</a>:</span> <span>Databases as tables</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">This section pulls together knowledge from all four parts of the book.</p>
+<p class="calibre8">Let’s focus on the table on the left. It has three columns and four rows. Each column comes with a two-part rule:</p>
+<p class="nlf">1. the rule in the left-most column says that the label of the column is “Name” and that every piece of data in this column is a String;</p>
+<p class="nlf">2. the middle column is labeled “Age” and contains Integers; and</p>
+<p class="nll">3. the label of the right-most one is “Present”; its values are Boolean.</p>
+<p class="tni">Stop! Explain the table on the right in the same way.</p>
+<p class="calibre8">Computer scientists think of these tables as <i class="calibre6">relations</i>. The schema introduces terminology to refer to columns of a relation and to individual cells in a row. Each row relates a fixed number of values; the collection of all rows makes up the entire relation. In this terminology, the first row of the left table in <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a> relates <samp class="mono">"Alice"</samp> to <samp class="mono">35</samp> and <samp class="mono">#true</samp>. Furthermore, the first cell of a row is called the “Name” cell, the second the “Age” cell, and the third one the “Present” cell.</p>
+<p class="calibre8">In this section, we represent databases via structures and lists:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_575" title="575"></span><samp class="mono">(define-struct db</samp><samp class="mono"> [schema content])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">DB</span><samp class="mono"> is a</samp><samp class="mono"> structure: (make-db</samp><samp class="mono"> </samp>Schema Content<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Schema</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of Spec<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Spec</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List Label Predicate<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Label</span><samp class="mono"> is a</samp><samp class="mono"> </samp>String <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Predicate</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>Any<samp class="mono"> -&gt; </samp>Boolean<samp class="mono">]</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> (piece of)</samp><samp class="mono"> </samp><span class="calibre6">Content</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of Row<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Row</span><samp class="mono"> is a</samp><samp class="mono"> [</samp>List-of Cell<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Cell</span><samp class="mono"> is </samp>Any <br class="calibre4"/><span class="calibre9">; constraint</span><samp class="mono"> cells do</samp><samp class="mono"> not contain</samp><samp class="mono"> functions</samp> <br class="calibre4"/><br class="calibre4"/><span class="calibre9">; integrity</span><span class="calibre9"> constraint</span><samp class="mono"> In</samp><samp class="mono"> (make-db sch</samp><samp class="mono"> con),</samp> <br class="calibre4"/><samp class="mono">; for</samp><samp class="mono"> every row</samp><samp class="mono"> in con,</samp> <br class="calibre4"/><samp class="mono">; (I1)</samp><samp class="mono"> its length</samp><samp class="mono"> is the</samp><samp class="mono"> same as</samp><samp class="mono"> sch's, and</samp> <br class="calibre4"/><samp class="mono">; (I2)</samp><samp class="mono"> its </samp><span class="calibre6">i</span><samp class="mono">th </samp>Cell<samp class="mono"> satisfies the</samp><samp class="mono"> </samp><span class="calibre6">i</span><samp class="mono">th </samp>Predicate<samp class="mono"> in sch</samp></p>
+</div>
+<p class="tni">Stop! Translate the databases from <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a> into the chosen data representation. Note that the content of the tables already uses ISL+ data.</p>
+<p class="calibre8"><a id="rfig138" href="part0011_split_030.html#fig138" class="calibre5">Figure 138</a> shows how to represent the two tables in DBs. Its left-hand side represents the schema, the content, and the database from the left-hand side table in <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a>; its right part corresponds to the right-hand side table. For succinctness, the examples use the <samp class="mono">quasiquote</samp> and <samp class="mono">unquote</samp> notation. Recall that it allows the inclusion of a value such as <samp class="mono">boolean?</samp> in an otherwise quoted list. If you feel uncomfortable with this notation, reformulate these examples with <samp class="mono">list</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig138" class="calibre5"></a><img src="../images/00540.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig138" class="calibre5">Figure 138</a>:</span> <span>Databases as ISL+ data</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 403. A Spec combines a Label and a Predicate into a list. While acceptable, this choice violates our guideline of using a structure type for a fixed number of pieces of information.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_576" title="576"></span>Here is an alternative data representation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct spec</samp><samp class="mono"> [label predicate])</samp> <br class="calibre4"/><samp class="mono">; Spec</samp><samp class="mono"> is a</samp><samp class="mono"> structure: (make-spec</samp><samp class="mono"> </samp>Label Predicate<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Use this alternative definition to represent the databases from <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Integrity Checking</b> The use of databases critically relies on their integrity. Here “integrity” refers to the constraints (I1) and (I2) from the data definition. Checking database integrity is clearly a task for a function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>DB<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; do</samp><samp class="mono"> all rows</samp><samp class="mono"> in db</samp><samp class="mono"> satisfy (I1)</samp><samp class="mono"> and (I2)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (integrity-check</samp><samp class="mono"> school-db) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (integrity-check</samp><samp class="mono"> presence-db) #true)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (integrity-check</samp><samp class="mono"> db)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="calibre8">The wording of the two constraints suggests that some function has to produce <samp class="mono">#true</samp> for every row in the content of the given database. Expressing this idea in code calls for a use of <samp class="mono">andmap</samp> on the content of <samp class="mono">db</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_577" title="577"></span><img src="../images/00541.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Following the design recipe for the use of existing abstractions, the template introduces the auxiliary function via a <samp class="mono">local</samp> definition.</p>
+<p class="calibre8">The design of <samp class="mono">row-integrity-check</samp> starts from this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Row<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; does</samp><samp class="mono"> row satisfy</samp><samp class="mono"> (I1) and</samp><samp class="mono"> (I2)</samp> <br class="calibre4"/><samp class="mono">(define (row-integrity-check</samp><samp class="mono"> row)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="tni">As always, the goal of formulating a purpose statement is to understand the problem. Here it says that the function checks <b class="calibre9">two</b> conditions. When two tasks are involved, our design guidelines call for functions and the combination of their results:</p>
+<figure class="co"><img src="../images/00542.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Add these functions to your wish list; their names convey their purpose.</p>
+<p class="calibre8">Before we design these functions, we must contemplate whether we can compose existing primitive operations to compute the desired value. For example, we know that <samp class="mono">(length row)</samp> counts how many cells are in <samp class="mono">row</samp>. Pushing a bit more in this direction, we clearly want</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(= (length</samp><samp class="mono"> row) (length</samp><samp class="mono"> (db-schema db)))</samp></p>
+</div>
+<p class="tni">This condition checks that the length of <samp class="mono">row</samp> is equal to that of <samp class="mono">db</samp>’s schema.</p>
+<p class="calibre8">Similarly, <samp class="mono">check-every-cell</samp> calls for checking that some function produces <samp class="mono">#true</samp> for every cell in the row. Once again, it looks like <samp class="mono">andmap</samp> might be called for:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(andmap cell-integrity-check</samp><samp class="mono"> row)</samp></p>
+</div>
+<p class="tni">The purpose of <samp class="mono">cell-integrity-check</samp> is obviously to check constraint (I2), that is,</p>
+<div class="ex">
+<p class="exf">whether “the <i class="calibre6">i</i>th Cell satisfies the <i class="calibre6">i</i>th Predicate in <samp class="mono">db</samp>’s schema.”</p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_578" title="578"></span>And now we are stuck because this purpose statement refers to the relative position of the given cell in <samp class="mono">row</samp>. The point of <samp class="mono">andmap</samp> is, however, to apply <samp class="mono">cell-integrity-check</samp> to every cell <b class="calibre9">uniformly</b>.</p>
+<p class="calibre8">When you are stuck, you must work through examples. For auxiliary or <samp class="mono">local</samp> functions, it’s best to derive these examples from the ones for the main function. The first example for <samp class="mono">integrity-check</samp> asserts that <samp class="mono">school-content</samp> satisfies the integrity constraints. Clearly all rows in <samp class="mono">school-content</samp> have the same length as <samp class="mono">school-schema</samp>. The question is why a row such as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "Alice"</samp><samp class="mono"> 35 #true)</samp></p>
+</div>
+<p class="tni">satisfies the predicates in the corresponding schema:</p>
+<figure class="co"><img src="../images/00543.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The answer is that all three applications of the three predicates to the respective cells yields true:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string?</samp><samp class="mono"> "Alice")</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (integer?</samp><samp class="mono"> 35)</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (boolean?</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">#true</samp></p>
+</div>
+<p class="tni">From here, it is just a short step to see that the function must process these two lists—<samp class="mono">db</samp>’s schema and the given row—in parallel.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 404. Design the function <samp class="mono">andmap2</samp>. It consumes a function <samp class="mono">f</samp> from two values to Boolean and two equally long lists. Its result is also a Boolean. Specifically, it applies <samp class="mono">f</samp> to pairs of corresponding values from the two lists, and if <samp class="mono">f</samp> always produces <samp class="mono">#true</samp>, <samp class="mono">andmap2</samp> produces <samp class="mono">#true</samp>, too. Otherwise, <samp class="mono">andmap2</samp> produces <samp class="mono">#false</samp>. In short, <samp class="mono">andmap2</samp> is like <samp class="mono">andmap</samp> but for two lists. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Stop! Solve exercise 404 before reading on.</p>
+<p class="calibre8">If we had <samp class="mono">andmap2</samp> in ISL+, checking the second condition on <samp class="mono">row</samp> would be straightforward:</p>
+<figure class="co"><img src="../images/00544.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_579" title="579"></span>The given function consumes a Spec <samp class="mono">s</samp> from <samp class="mono">db</samp>’s schema, extracts the predicate in the second position, and applies it to the given Cell <samp class="mono">c</samp>. Whatever the predicate returns is the result of the <samp class="mono">lambda</samp> function.</p>
+<p class="calibre8">Stop again! Explain <samp class="mono">[(second s) c]</samp>.</p>
+<p class="calibre8">As it turns out, <samp class="mono">andmap</samp> in ISL+ is already like <samp class="mono">andmap2</samp>:</p>
+<figure class="co"><img src="../images/00545.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop a last time! Develop a test for which <samp class="mono">integrity-check</samp> must fail.</p>
+<p class="calibre8"><b class="calibre9">Note on Expression Hoisting</b> Our definition of <samp class="mono">integrity-check</samp> suffers from several problems, some visible, some invisible. Clearly, the function extracts <samp class="mono">db</samp>’s schema twice. With the existing <samp class="mono">local</samp> definition it is possible to introduce a definition and avoid this duplication:</p>
+<figure class="co"><img src="../images/00546.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We know from chapter 16.2 that lifting such an expression may shorten the time needed to run the integrity check. Like the definition of <samp class="mono">inf</samp> in <a href="part0009_split_015.html#fig100" class="calibre5">figure 100</a>, the original version of <samp class="mono">integrity-check</samp> extracts the schema from <samp class="mono">db</samp> for every single row, even though it obviously stays the same.</p>
+<p class="calibre8"><b class="calibre9">Terminology</b> Computer scientists speak of “<i class="calibre6">hoisting</i> an expression.” In a similar vein, the <samp class="mono">row-integrity-check</samp> function determines the length of <samp class="mono">db</samp>’s schema every single time it is called. The result is always the same. <span epub:type="pagebreak" id="pg_580" title="580"></span>Hence, if we are interested in improving the performance of this function, we can use a <samp class="mono">local</samp> definition to name the <samp class="mono">width</samp> of the database content once and for all. <a id="rfig139" href="part0011_split_030.html#fig139" class="calibre5">Figure 139</a> displays the result of hoisting <samp class="mono">(length schema)</samp> out of the <samp class="mono">row-integrity-check</samp>. For readability, this final definition also names the <samp class="mono">content</samp> field of <samp class="mono">db</samp>. <b class="calibre9">End</b></p>
+<div class="figure">
+<figure class="img"><a id="fig139" class="calibre5"></a><img src="../images/00547.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig139" class="calibre5">Figure 139</a>:</span> <span>The result of systematic expression hoisting</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Projections and Selections</b> Programs need to extract data from databases. One kind of extraction is to <i class="calibre6">select</i> content, which is explained in chapter 12.2. The other kind of extraction produces a reduced database; it is dubbed <i class="calibre6">projection</i>. More specifically, a projection constructs a database by retaining only certain columns from a given database.</p>
+<p class="calibre8">The description of a projection suggests the following:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>DB<samp class="mono"> [</samp>List-of Label<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>DB <br class="calibre4"/><samp class="mono">; retains</samp><samp class="mono"> a column</samp><samp class="mono"> from db</samp><samp class="mono"> if its</samp><samp class="mono"> label is</samp><samp class="mono"> in labels</samp> <br class="calibre4"/><samp class="mono">(define (project</samp><samp class="mono"> db labels)</samp><samp class="mono"> (make-db '()</samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni">Given the complexity of a projection, it is best to work through an example first. Say we wish to eliminate the age column from the database on the left in <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a>. Here is what this transformation looks like in terms of tables:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_581" title="581"></span><img src="../images/00548.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">A natural way to articulate the example as a test reuses <a href="part0011_split_030.html#fig138" class="calibre5">figure 138</a>:</p>
+<figure class="co"><img src="../images/00549.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">If you run the above code in DrRacket, you get the error message</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">first argument</samp><samp class="mono"> of equality</samp><samp class="mono"> cannot be</samp><samp class="mono"> a function</samp></p>
+</div>
+<p class="tni">before DrRacket can even figure out whether the test succeeds. Recall from chapter 14.4 that functions are infinitely large objects and it is impossible to ensure that two functions always produce the same result when applied to the same arguments. We therefore weaken the test case:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (db-content</samp><samp class="mono"> (project school-db</samp><samp class="mono"> '("Name" "Present")))</samp> <br class="calibre4"/><samp class="mono">  projected-content)</samp></p>
+</div>
+<p class="calibre8">For the template, we again reuse existing abstractions; see <a id="rfig140" href="part0011_split_030.html#fig140" class="calibre5">figure 140</a>. The <samp class="mono">local</samp> expression defines two functions: one for use with <samp class="mono">filter</samp> for narrowing down the schema of the given database and the other for <span epub:type="pagebreak" id="pg_582" title="582"></span>use with <samp class="mono">map</samp> for thinning out the content. In addition, the function again extracts and names the schema and the content from the given database.</p>
+<div class="figure">
+<figure class="img"><a id="fig140" class="calibre5"></a><img src="../images/00550.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig140" class="calibre5">Figure 140</a>:</span> <span>A template for <samp class="mono">project</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Before we turn to the wish list, let’s step back and study the decision to go with two reuses of existing abstraction. The signature tells us that the function consumes a structure and produces an element of DB, so</p>
+<figure class="co"><img src="../images/00551.gif" alt="" class="calibre10"/></figure>
+<p class="tni">is clearly called for. It is also straightforward to see that the new schema is created from the old schema and the new content from the old content. Furthermore, the purpose statement of <samp class="mono">project</samp> calls for the retention of only those labels that are mentioned in the second argument. Hence, the <samp class="mono">filter</samp> function correctly narrows down the given <samp class="mono">schema</samp>. In contrast, the rows per se stay except that each of them loses some cells. Thus, <samp class="mono">map</samp> is the proper way of processing <samp class="mono">content</samp>.</p>
+<p class="calibre8">Now we can turn to the design of the two auxiliary functions. The design of <samp class="mono">keep?</samp> is straightforward. Here is the complete definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Spec<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; does</samp><samp class="mono"> this spec</samp><samp class="mono"> belong to</samp><samp class="mono"> the new</samp><samp class="mono"> schema</samp> <br class="calibre4"/><samp class="mono">(define (keep?</samp><samp class="mono"> c)</samp> <br class="calibre4"/><samp class="mono">  (member?</samp><samp class="mono"> (first c)</samp><samp class="mono"> labels))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_583" title="583"></span>The function is applied to a Spec, which combines a Label and a Predicate in a list. If the former belongs to <samp class="mono">labels</samp>, the given Spec is kept.</p>
+<p class="calibre8">For the design of <samp class="mono">row-project</samp>, the goal is to keep those Cells in each Row of <samp class="mono">content</samp> whose name is a member of the given <samp class="mono">labels</samp>. Let’s work through the above example. The four rows are:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "Alice"</samp><samp class="mono"> 35 #true)</samp> <br class="calibre4"/><samp class="mono">(list "Bob"</samp><samp class="mono">  </samp><samp class="mono"> 25 #false)</samp> <br class="calibre4"/><samp class="mono">(list "Carol"</samp><samp class="mono"> 30 #true)</samp> <br class="calibre4"/><samp class="mono">(list "Dave"</samp><samp class="mono">  32</samp><samp class="mono"> #false)</samp></p>
+</div>
+<p class="tni">Each of these rows is as long as <samp class="mono">school-schema</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list "Name"</samp><samp class="mono"> "Age" "Present")</samp></p>
+</div>
+<p class="tni">The names in the schema determine the names of the cells in the given rows. Hence, <samp class="mono">row-project</samp> must keep the first and third cell of each row because it is their names that are in the given <samp class="mono">labels</samp>.</p>
+<p class="calibre8">Since Row is defined recursively, this matching process between the content of the Cells and their names calls for a recursive helper function that <samp class="mono">row-project</samp> can apply to the content and the labels of the cells. Let’s specify it as a wish:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Row<samp class="mono"> [</samp>List-of Label<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>Row <br class="calibre4"/><samp class="mono">; retains</samp><samp class="mono"> those cells</samp><samp class="mono"> whose corresponding</samp><samp class="mono"> element</samp> <br class="calibre4"/><samp class="mono">; in</samp><samp class="mono"> names is</samp><samp class="mono"> also in</samp><samp class="mono"> labels</samp> <br class="calibre4"/><samp class="mono">(define (row-filter</samp><samp class="mono"> row names)</samp><samp class="mono"> '())</samp></p>
+</div>
+<p class="tni">Using this wish, <samp class="mono">row-project</samp> is a one-liner:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (row-project</samp><samp class="mono"> row)</samp> <br class="calibre4"/><samp class="mono">  (row-filter</samp><samp class="mono"> row (map</samp><samp class="mono"> first schema)))</samp></p>
+</div>
+<p class="tni">The <samp class="mono">map</samp> expression extracts the names of the cells, and those names are handed to <samp class="mono">row-filter</samp> to extract the matching cells.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 405. Design the function <samp class="mono">row-filter</samp>. Construct examples for <samp class="mono">row-filter</samp> from the examples for <samp class="mono">project</samp>.</p>
+<p class="calibre8"><b class="calibre9">Assumption</b> The given database passes an integrity check, meaning each row is as long as the schema and thus its list of names. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_584" title="584"></span><a id="rfig141" href="part0011_split_030.html#fig141" class="calibre5">Figure 141</a> puts all the pieces together. The function <samp class="mono">project</samp> has the suffix <samp class="mono">.v1</samp> because it calls for some improvement. The following exercises ask you to implement some of those.</p>
+<div class="figure">
+<figure class="img"><a id="fig141" class="calibre5"></a><img src="../images/00552.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig141" class="calibre5">Figure 141</a>:</span> <span>Database projection</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 406. The <samp class="mono">row-project</samp> function recomputes the labels for every row of the database’s content. Does the result differ from function call to function call? If not, hoist the expression. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 407. Redesign <samp class="mono">row-filter</samp> using <samp class="mono">foldr</samp>. Once you have done so, you may merge <samp class="mono">row-project</samp> and <samp class="mono">row-filter</samp> into a single function. <b class="calibre9">Hint</b> The <samp class="mono">foldr</samp> function in ISL+ may consume two lists and process them in parallel. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_585" title="585"></span>The final observation is that <samp class="mono">row-project</samp> checks the membership of a label in <samp class="mono">labels</samp> for every single cell. For the cells of the same column in different rows, the result is going to be the same. Hence it also makes sense to hoist this computation out of the function.</p>
+<p class="calibre8">This form of hoisting is somewhat more difficult than plain expression hoisting. We basically wish to pre-compute the result of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(member? label</samp><samp class="mono"> labels)</samp></p>
+</div>
+<p class="tni">for all rows and pass the results into the function instead of the list of labels. That is, we replace the list of labels with a list of Booleans that indicate whether the cell in the corresponding position is to be kept. Fortunately, computing those Booleans is just another application of <samp class="mono">keep?</samp> on the schema:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(map keep?</samp><samp class="mono"> schema)</samp></p>
+</div>
+<p class="tni">Instead of keeping some Specs from the given <samp class="mono">schema</samp> and throwing away the others, this expression just collects the decisions.</p>
+<p class="calibre8"><a id="rfig142" href="part0011_split_030.html#fig142" class="calibre5">Figure 142</a> shows the final version of <samp class="mono">project</samp> and integrates the solutions for the preceding exercises. It also uses <samp class="mono">local</samp> to extract and name <samp class="mono">schema</samp> and <samp class="mono">content</samp>, plus <samp class="mono">keep?</samp> for checking whether the label in some Spec is worth keeping. The remaining two definitions introduce <samp class="mono">mask</samp>, which stands for the list of Booleans discussed above, and the revised version of <samp class="mono">row-project</samp>. The latter uses <samp class="mono">foldr</samp> to process the given <samp class="mono">row</samp> and <samp class="mono">mask</samp> in parallel.</p>
+<div class="figure">
+<figure class="img"><a id="fig142" class="calibre5"></a><img src="../images/00553.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_030.html#rfig142" class="calibre5">Figure 142</a>:</span> <span>Database projection</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Compare this revised definition of <samp class="mono">project</samp> with <samp class="mono">project.v1</samp> in <a href="part0011_split_030.html#fig141" class="calibre5">figure 141</a>. The final definition is both simpler and faster than the original version. Systematic design combined with careful revisions pays off; test suites ensure that revisions don’t mess up the functionality of the program.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 408. Design the function <samp class="mono">select</samp>. It consumes a database, a list of labels, and a predicate on rows. The result is a list of rows that satisfy the given predicate, projected down to the given set of labels. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 409. Design <samp class="mono">reorder</samp>. The function consumes a database <samp class="mono">db</samp> and list <samp class="mono">lol</samp> of Labels. It produces a database like <samp class="mono">db</samp> but with its columns reordered according to <samp class="mono">lol</samp>. <b class="calibre9">Hint</b> Read up on <samp class="mono">ist-ref</samp>.</p>
+<p class="calibre8">At first assume that <samp class="mono">lol</samp> consists exactly of the labels of <samp class="mono">db</samp>’s columns. Once you have completed the design, study what has to be changed if <samp class="mono">lol</samp> contains fewer labels than there are columns and strings that are not labels of a column in <samp class="mono">db</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_586" title="586"></span><b class="calibre9">Exercise</b> 410. Design the function <samp class="mono">db-union</samp>, which consumes two databases with the exact same schema and produces a new database with this schema and the joint content of both. The function must eliminate rows with the exact same content.</p>
+<p class="stx">Assume that the schemas agree on the predicates for each column. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stx"><b class="calibre9">Exercise</b> 411. Design <samp class="mono">join</samp>, a function that consumes two databases: <samp class="mono">db-1</samp> and <samp class="mono">db-2</samp>. The schema of <samp class="mono">db-2</samp> starts with the exact same Spec that the schema of <samp class="mono">db-1</samp> ends in. The function creates a database from <samp class="mono">db-1</samp> by replacing the last cell in each row with the <i class="calibre6">translation</i> of the cell in <samp class="mono">db-2</samp>.</p>
+
+<p class="stx">Here is an example. Take the databases in <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a>. The two satisfy the assumption of these exercises, that is, the last Spec in the schema of the first is equal to the first Spec of the second. Hence it is possible to join them:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_587" title="587"></span><img src="../images/00554.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Its translation maps <samp class="mono">#true</samp> to <samp class="mono">"presence"</samp> and <samp class="mono">#false</samp> to <samp class="mono">"absence"</samp>.</p>
+<p class="calibre8"><b class="calibre9">Hints</b> (1) In general, the second database may “translate” a cell to a row of values, not just one value. Modify the example by adding additional terms to the row for <samp class="mono">"presence"</samp> and <samp class="mono">"absence"</samp>.</p>
+<p class="calibre8">(2) It may also “translate” a cell to several rows, in which case the process adds several rows to the new database. Here is a second example, a slightly different pair of databases from those in <a href="part0011_split_030.html#fig137" class="calibre5">figure 137</a>:</p>
+<figure class="co"><img src="../images/00555.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Joining the left database with the one on the right yields a database with eight rows:</p>
+<figure class="co"><img src="../images/00556.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">(3) Use iterative refinement to solve the problem. For the first iteration, assume that a “translation” finds only one row per cell. For the second one, drop the assumption.</p>
+<p class="calibre8"><b class="calibre9">Note on Assumptions</b> This exercise and the entire section mostly rely on informally stated assumptions about the given databases. Here, the design of <samp class="mono">join</samp> assumes that “the schema of <samp class="mono">db-2</samp> starts with the exact same <span epub:type="pagebreak" id="pg_588" title="588"></span>Spec that the schema of <samp class="mono">db-1</samp> ends in.” In reality, database functions must be checked functions in the spirit of chapter 6.3. Designing <samp class="mono">checked-join</samp> would be impossible for you, however. A comparison of the last Spec in the schema of <samp class="mono">db-1</samp> with the first one in <samp class="mono">db-2</samp> calls for a comparison of functions. For practical solutions, see a text on databases. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

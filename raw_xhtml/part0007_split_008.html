@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_9"><span epub:type="pagebreak" id="pg_254" title="254" class="calibre1"></span><a id="sec9-1" class="calibre16"></a>9.1 Finger Exercises: Lists</h2>
+<p class="tni"><b class="calibre9">Exercise</b> 137. Compare the template for <samp class="mono">contains-flatt?</samp> with the one for <samp class="mono">how-many</samp>. Ignoring the function name, they are the same. Explain the similarity. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 138. Here is a data definition for representing sequences of amounts of money:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A </samp><i class="calibre6">List-of-amounts</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>PositiveNumber List-of-amounts<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Create some examples to make sure you understand the data definition. Also add an arrow for the self-reference.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_255" title="255"></span>Design the <samp class="mono">sum</samp> function, which consumes a List-of-amounts and computes the sum of the amounts. Use DrRacket’s stepper to see how <samp class="mono">(sum l)</samp> works for a short list <samp class="mono">l</samp> in List-of-amounts. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 139. Now take a look at this data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A </samp><i class="calibre6">List-of-numbers</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>Number List-of-numbers<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Some elements of this class of data are appropriate inputs for <samp class="mono">sum</samp> from exercise 138 and some aren’t.</p>
+<p class="calibre8">Design the function <samp class="mono">pos?</samp>, which consumes a List-of-numbers and determines whether all numbers are positive numbers. In other words, if <samp class="mono">(pos? l)</samp> yields <samp class="mono">#true</samp>, then <samp class="mono">l</samp> is an element of List-of-amounts. Use DrRacket’s stepper to understand how <samp class="mono">pos?</samp> works for <samp class="mono">(cons 5 '())</samp> and <samp class="mono">(cons</samp> -1 <samp class="mono">'())</samp>.</p>
+<p class="calibre8">Also design <samp class="mono">checked-sum</samp>. The function consumes a List-of-numbers. It produces their sum if the input also belongs to List-of-amounts; otherwise it signals an error. <b class="calibre9">Hint</b> Recall to use check-error.</p>
+<p class="calibre8">What does <samp class="mono">sum</samp> compute for an element of List-of-numbers? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 140. Design the function <samp class="mono">all-true</samp>, which consumes a list of Boolean values and determines whether all of them are <samp class="mono">#true</samp>. In other words, if there is any <samp class="mono">#false</samp> on the list, the function produces <samp class="mono">#false</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_256" title="256"></span>Now design <samp class="mono">one-true</samp>, a function that consumes a list of Boolean values and determines whether at least one item on the list is <samp class="mono">#true</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Employ the table-based approach to coding. It may help with the base case. Use DrRacket’s stepper to see how these functions process the lists <samp class="mono">(cons #true '())</samp>, <samp class="mono">(cons #false '())</samp>, and <samp class="mono">(cons #true (cons #false '()))</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 141. If you are asked to design the function <samp class="mono">cat</samp>, which consumes a list of strings and appends them all into one long string, you are guaranteed to end up with this partial definition:</p>
+<figure class="co"><img src="../images/00193.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Fill in the table in <a id="rfig57" href="part0007_split_008.html#fig57" class="calibre5">figure 57</a>. Guess a function that can create the desired result from the values computed by the sub-expressions.</p>
+<div class="figure">
+<figure class="img"><a id="fig57" class="calibre5"></a><img src="../images/00194.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_008.html#rfig57" class="calibre5">Figure 57</a>:</span> <span>A table for <samp class="mono">cat</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Use DrRacket’s stepper to evaluate <samp class="mono">(cat (cons "a" '()))</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_257" title="257"></span><b class="calibre9">Exercise</b> 142. Design the <samp class="mono">ill-sized?</samp> function, which consumes a list of images <samp class="mono">loi</samp> and a positive number <samp class="mono">n</samp>. It produces the first image on <samp class="mono">loi</samp> that is not an <samp class="mono">n</samp> by <samp class="mono">n</samp> square; if it cannot find such an image, it produces <samp class="mono">#false</samp>.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Use</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; ImageOrFalse</samp><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> Image</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> #false</samp></p>
+</div>
+<p class="tni">for the result part of the signature. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

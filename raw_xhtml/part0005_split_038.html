@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_39"><a id="sec5-6" class="calibre16"></a>5.6 Programming with Structures</h2>
+<p class="tni">Proper programming calls for data definitions. With the introduction of structure type definitions, data definitions become interesting. Remember that a data definition provides a way of representing information into data and interpreting that data as information. For structure types, this calls for a description of what kind of data goes into which field. For some structure type definitions, formulating such descriptions is easy and obvious:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct posn</samp><samp class="mono"> [x y])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Posn</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-posn</samp><samp class="mono"> </samp>Number Number<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> a point</samp><samp class="mono"> x pixels</samp><samp class="mono"> from left,</samp><samp class="mono"> y from</samp><samp class="mono"> top</samp></p>
+</div>
+<p class="tni">It doesn’t make any sense to use other kinds of data to create a <samp class="mono">posn</samp>. Similarly, all fields of <samp class="mono">entry</samp>—our structure type definition for entries on a contact list—are clearly supposed to be strings, according to our usage in the preceding section:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_153" title="153"></span><samp class="mono">(define-struct entry</samp><samp class="mono"> [name phone</samp><samp class="mono"> email])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><samp class="monospace-italic">Entry</samp><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-entry </samp>String String String<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> a contact's</samp><samp class="mono"> name, phone#,</samp><samp class="mono"> and email</samp></p>
+</div>
+<p class="tni">For both <samp class="mono">posn</samp> and <samp class="mono">entry</samp>, a reader can easily interpret instances of these structures in the application domain.</p>
+<p class="calibre8">Contrast this simplicity with the structure type definition for <samp class="mono">ball</samp>, which obviously allows at least two distinct interpretations:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct ball</samp><samp class="mono"> [location velocity])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Ball-1d</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-ball </samp>Number Number<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><span class="calibre9"> 1</span><samp class="mono"> distance</samp><samp class="mono"> to top</samp><samp class="mono"> and velocity</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><span class="calibre9"> 2</span><samp class="mono"> distance</samp><samp class="mono"> to left</samp><samp class="mono"> and velocity</samp></p>
+</div>
+<p class="tni">Whichever one we use in a program, we must stick to it consistently. As chapter 5.4 shows, however, it is also possible to use <samp class="mono">ball</samp> structures in an entirely different manner:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Ball-2d</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; (make-ball</samp><samp class="mono"> </samp>Posn Vel<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> a 2-dimensional</samp><samp class="mono"> position and</samp><samp class="mono"> velocity</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define-struct vel</samp><samp class="mono"> [deltax deltay])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Vel</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; (make-vel</samp><samp class="mono"> </samp>Number Number<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> (make-vel dx</samp><samp class="mono"> dy) means</samp><samp class="mono"> a velocity</samp><samp class="mono"> of</samp> <br class="calibre4"/><samp class="mono">; dx</samp><samp class="mono"> pixels [per</samp><samp class="mono"> tick] along</samp><samp class="mono"> the horizontal</samp><samp class="mono"> and</samp> <br class="calibre4"/><samp class="mono">; dy</samp><samp class="mono"> pixels [per</samp><samp class="mono"> tick] along</samp><samp class="mono"> the vertical</samp><samp class="mono"> direction</samp></p>
+</div>
+<p class="calibre8">Here we name a second collection of data, Ball-2d, distinct from Ball-1d, to describe data representations for balls that move in straight lines across a world canvas. In short, it is possible to use <b class="calibre9">one and the same</b> structure type in <b class="calibre9">two different ways</b>. Of course, within one program, it is best to stick to one and only one use; otherwise you are setting yourself up for problems.</p>
+<p class="calibre8">Also, Ball-2d refers to another one of our data definitions, namely, the one for Vel. While all other data definitions have thus far referred to built-in data collections (Number, Boolean, String), it is perfectly acceptable, and indeed common, that one of your data definitions refers to another.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 72. Formulate a data definition for the above <samp class="mono">phone</samp> structure type definition that accommodates the given examples.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_154" title="154"></span>Next formulate a data definition for phone numbers using this structure type definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct phone#</samp><samp class="mono"> [area switch</samp><samp class="mono"> num])</samp></samp></p>
+</div>
+<p class="tni">Historically, the first three digits make up the area code, the next three the code for the phone switch (exchange) of your neighborhood, and the last four the phone with respect to the neighborhood. Describe the content of the three fields as precisely as possible with intervals. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">At this point, you might be wondering what data definitions really mean. This question, and its answer, is the topic of the next section. For now, we indicate how to use data definitions for program design.</p>
+<p class="calibre8">Here is a problem statement to set up some context:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Your team is designing an interactive game program that moves a red dot across a 100 × 100 canvas and allows players to use the mouse to reset the dot. Here is how far you got together:</p>
+<div class="ind">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">(define MTS</samp><samp class="mono"> (empty-scene 100</samp><samp class="mono"> 100))</samp> <br class="calibre4"/><samp class="mono">(define DOT</samp><samp class="mono"> (circle 3</samp><samp class="mono"> "solid" "red"))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp>Posn<samp class="mono"> represents the</samp><samp class="mono"> state of</samp><samp class="mono"> the world.</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Posn<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">(define (main</samp><samp class="mono"> p0)</samp> <br class="calibre4"/><samp class="mono">  (big-bang</samp><samp class="mono"> p0</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [on-tick</samp><samp class="mono"> x+]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [on-mouse</samp><samp class="mono"> reset-dot]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [to-draw</samp><samp class="mono"> scene+dot]))</samp></p>
+</div>
+</div>
+<p class="ex1">Your task is to design <samp class="mono">scene+dot</samp>, the function that adds a red dot to the empty canvas at the specified position.</p>
+</div>
+<p class="tni">The problem context dictates the signature of your function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Posn<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> a red</samp><samp class="mono"> spot to</samp><samp class="mono"> MTS at</samp><samp class="mono"> p</samp> <br class="calibre4"/><samp class="mono">(define (scene+dot</samp><samp class="mono"> p) MTS)</samp></p>
+</div>
+<p class="tni">Adding a purpose statement is straightforward. As chapter 3.1 mentions, it uses the function’s parameter to express what the function computes.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_155" title="155"></span>Now we work out a couple of examples and formulate them as tests:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (scene+dot</samp><samp class="mono"> (make-posn 10</samp><samp class="mono"> 20))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (place-image</samp><samp class="mono"> DOT 10</samp><samp class="mono"> 20 MTS))</samp> <br class="calibre4"/><samp class="mono">(check-expect (scene+dot</samp><samp class="mono"> (make-posn 88</samp><samp class="mono"> 73))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (place-image</samp><samp class="mono"> DOT 88</samp><samp class="mono"> 73 MTS))</samp></samp></p>
+</div>
+<p class="calibre8">Given that the function consumes a Posn, we know that the function can extract the values of the <samp class="mono">x</samp> and <samp class="mono">y</samp> fields:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (scene+dot</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (posn-x p)</samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> p) <span>…</span>))</samp></samp></p>
+</div>
+<p class="tni">Once we see these additional pieces in the body of the function, the rest of the definition is straightforward. Using <samp class="mono">place-image</samp>, the function puts <samp class="mono">DOT</samp> into <samp class="mono">MTS</samp> at the coordinates contained in <samp class="mono">p</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (scene+dot</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (place-image</samp><samp class="mono"> DOT (posn-x</samp><samp class="mono"> p) (posn-y</samp><samp class="mono"> p) MTS))</samp></samp></p>
+</div>
+<p class="calibre8">A function may produce structures. Let’s resume our sample problem from above because it includes just such a task:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> A colleague is asked to define <samp class="mono">x+</samp>, a function that consumes a Posn and increases the x-coordinate by <samp class="mono">3</samp>.</p>
+</div>
+<p class="tni">Recall that the <samp class="mono">x+</samp> function handles clock ticks.</p>
+<p class="calibre8">We can adapt the first few steps of the design of <samp class="mono">scene+dot</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Posn<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; increases</samp><samp class="mono"> the x-coordinate</samp><samp class="mono"> of p</samp><samp class="mono"> by 3</samp> <br class="calibre4"/><samp class="mono">(check-expect (x+</samp><samp class="mono"> (make-posn 10</samp><samp class="mono"> 0)) (make-posn</samp><samp class="mono"> 13 0))</samp> <br class="calibre4"/><samp class="mono">(define (x+</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (posn-x p)</samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> p) <span>…</span>))</samp></p>
+</div>
+<p class="tni">The signature, the purpose, and the example all come out of the problem statement. Instead of a header—a function with a default result—our sketch contains the two selector expressions for Posns. After all, the information for the result must come from the inputs, and the input is a structure that contains two values.</p>
+<p class="calibre8">Finishing the definition is easy now. Since the desired result is a Posn, the function uses <samp class="mono">make-posn</samp> to combine the pieces:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_156" title="156"></span><samp class="mono">(define (x+</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (make-posn</samp><samp class="mono"> (+ (posn-x</samp><samp class="mono"> p) 3)</samp><samp class="mono"> (posn-y p)))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 73. Design the function <samp class="mono">posn-up-x</samp>, which consumes a Posn <samp class="mono">p</samp> and a Number <samp class="mono">n</samp>. It produces a Posn like <samp class="mono">p</samp> with <samp class="mono">n</samp> in the <samp class="mono">x</samp> field.</p>
+<p class="calibre8">A neat observation is that we can define <samp class="mono">x+</samp> using <samp class="mono">posn-up-x</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (x+</samp><samp class="mono"> p)</samp> <br class="calibre4"/><samp class="mono">  (posn-up-x</samp><samp class="mono"> p (+</samp><samp class="mono"> (posn-x p)</samp><samp class="mono"> 3)))</samp></samp></p>
+</div>
+<p class="tni"><b class="calibre9">Note</b> Functions such as <samp class="mono">posn-up-x</samp> are often called <i class="calibre6">updaters</i> or <i class="calibre6">functional setters</i>. They are extremely useful when you write large programs. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">A function may also produce instances from atomic data. While <samp class="mono">make-posn</samp> is a built-in primitive that does so, our running problem provides another fitting illustration:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Another colleague is tasked to design <samp class="mono">reset-dot</samp>, a function that resets the dot when the mouse is clicked.</p>
+</div>
+<p class="tni">To tackle this problem, you need to recall from chapter 3.6 that mouse-event handlers consume four values: the current state of the world, the x- and y-coordinates of the mouse click, and a MouseEvt.</p>
+<p class="calibre8">By adding the knowledge from the sample problem to the program design recipe, we get a signature, a purpose statement, and a header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Posn Number Number MouseEvt<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; for</samp><samp class="mono"> mouse clicks,</samp><samp class="mono"> (make-posn x</samp><samp class="mono"> y); otherwise</samp><samp class="mono"> p</samp> <br class="calibre4"/><samp class="mono">(define (reset-dot</samp><samp class="mono"> p x</samp><samp class="mono"> y me)</samp><samp class="mono"> p)</samp></p>
+</div>
+<p class="calibre8">Examples for mouse-event handlers need a Posn, two numbers, and a MouseEvt, which is just a special kind of String. A mouse click, for example, is represented with one of two strings: <samp class="mono">"button-down"</samp> and <samp class="mono">"button-up"</samp>. The first one signals that a user clicked the mouse button, the latter signals its release. With this in mind, here are two examples, which you may wish to study and interpret:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (reset-dot</samp><samp class="mono"> (make-posn 10</samp><samp class="mono"> 20) 29</samp><samp class="mono"> 31 "button-down")</samp> <br class="calibre4"/><samp class="mono">  (make-posn</samp><samp class="mono"> 29 31))</samp> <br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (reset-dot</samp><samp class="mono"> (make-posn 10</samp><samp class="mono"> 20) 29</samp><samp class="mono"> 31 "button-up")</samp> <br class="calibre4"/><samp class="mono">  (make-posn</samp><samp class="mono"> 10 20))</samp></samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_157" title="157"></span>Although the function consumes only atomic forms of data, its purpose statement and the examples suggest that it differentiates between two kinds of MouseEvts: <samp class="mono">"button-down"</samp> and all others. Such a case split suggests a <samp class="mono">cond</samp> expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (reset-dot</samp><samp class="mono"> p x</samp><samp class="mono"> y me)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(mouse=?</samp><samp class="mono"> "button-down" me)</samp><samp class="mono"> (<span>…</span> p</samp><samp class="mono"> <span>…</span> x</samp><samp class="mono"> y <span>…</span>)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (<span>…</span> p</samp><samp class="mono"> <span>…</span> x</samp><samp class="mono"> y <span>…</span>)]))</samp></samp></p>
+</div>
+<p class="tni">Following the design recipe, this skeleton mentions the parameters to remind you of what data is available.</p>
+<p class="calibre8">The rest is straightforward again because the purpose statement itself dictates what the function computes in each of the two cases:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (reset-dot</samp><samp class="mono"> p x</samp><samp class="mono"> y me)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(mouse=?</samp><samp class="mono"> me "button-down")</samp><samp class="mono"> (make-posn x</samp><samp class="mono"> y)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> p]))</samp></samp></p>
+</div>
+<p class="tni">As above, we could have mentioned that <samp class="mono">make-posn</samp> creates instances of Posn, but you know this and we don’t need to remind you constantly.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 74. Copy all relevant constant and function definitions to DrRacket’s definitions area. Add the tests and make sure they pass. Then run the program and use the mouse to place the red dot. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Many programs deal with nested structures. We illustrate this point with another small excerpt from a world program:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Your team is designing a game program that keeps track of an object that moves across the canvas at changing speed. The chosen data representation requires two data definitions:</p>
+<div class="ind">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">(define-struct ufo</samp><samp class="mono"> [loc vel])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">UFO</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; (make-ufo</samp><samp class="mono"> </samp>Posn Vel<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <span><b class="calibre9">interpretation</b></span><samp class="mono"> (make-ufo p</samp><samp class="mono"> v) is</samp><samp class="mono"> at location</samp> <br class="calibre4"/><samp class="mono">; p</samp><samp class="mono"> moving at</samp><samp class="mono"> velocity v</samp></p>
+</div>
+</div>
+<p class="marginpar">Remember, it’s about physics.</p>
+<p class="ex1">It is your task to develop <samp class="mono">ufo-move-1</samp>. The function computes the location of a given UFO after one clock tick passes.</p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_158" title="158"></span>Let us start with some examples that explore the data definitions a bit:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define v1</samp><samp class="mono"> (make-vel 8</samp><samp class="mono"> -3))</samp> <br class="calibre4"/><samp class="mono">(define v2</samp><samp class="mono"> (make-vel -5</samp><samp class="mono"> -3))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define p1</samp><samp class="mono"> (make-posn 22</samp><samp class="mono"> 80))</samp> <br class="calibre4"/><samp class="mono">(define p2</samp><samp class="mono"> (make-posn 30</samp><samp class="mono"> 77))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define u1</samp><samp class="mono"> (make-ufo p1</samp><samp class="mono"> v1))</samp> <br class="calibre4"/><samp class="mono">(define u2</samp><samp class="mono"> (make-ufo p1</samp><samp class="mono"> v2))</samp> <br class="calibre4"/><samp class="mono">(define u3</samp><samp class="mono"> (make-ufo p2</samp><samp class="mono"> v1))</samp> <br class="calibre4"/><samp class="mono">(define u4</samp><samp class="mono"> (make-ufo p2</samp><samp class="mono"> v2))</samp></samp></p>
+</div>
+<p class="marginpar">The order of these definitions matters. See intermezzo 1.</p>
+<p class="tni">The first four are elements of Vel and Posn. The last four combine the first four in all possible combinations.</p>
+<p class="calibre8">Next we write down a signature, a purpose, some examples, and a function header:</p>
+<figure class="co"><img src="../images/00104.gif" alt="" class="calibre10"/></figure>
+<p class="tni">For the function examples, we use the data examples <b class="calibre9">and</b> our domain knowledge of positions and velocities. Specifically, we know that a vehicle that is moving north at 60 miles per hour and west at 10 miles per hour is going to end up 60 miles north from its starting point and 10 miles west after one hour of driving. After two hours, it will be 120 miles north from the starting point and 20 miles to its west.</p>
+<p class="calibre8">As always, a function that consumes a structure instance can (and probably must) extract information from the structure to compute its result. So once again we add selector expressions to the function definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (ufo-move-1</samp><samp class="mono"> u)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (ufo-loc u)</samp><samp class="mono"> <span>…</span> (ufo-vel</samp><samp class="mono"> u) <span>…</span>))</samp></samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_159" title="159"></span><b class="calibre9">Note</b> The selector expressions raise the question whether we need to refine this sketch even more. After all, the two expressions extract instances of Posn and Vel, respectively. These two are also structure instances, and we could extract values from them in turn. Here is what the resulting skeleton would look like:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>UFO<samp class="mono"> -&gt; </samp>UFO <br class="calibre4"/><samp class="mono">(define (ufo-move-1</samp><samp class="mono"> u)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (posn-x (ufo-loc</samp><samp class="mono"> u)) <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> (ufo-loc u))</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (vel-deltax</samp><samp class="mono"> (ufo-vel u))</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (vel-deltay</samp><samp class="mono"> (ufo-vel u))</samp><samp class="mono"> <span>…</span>))</samp></p>
+</div>
+<p class="tni">Doing so obviously makes the sketch look quite complex, however. For truly realistic programs, following this idea to its logical end would create incredibly complex program outlines. More generally,</p>
+<div class="ex">
+<p class="exf"><i class="calibre6">If a function deals with nested structures, develop one function per level of nesting.</i></p>
+</div>
+<p class="tni">In the second part of the book, this guideline becomes even more important and we refine it a bit. <b class="calibre9">End</b></p>
+<p class="calibre8">Here we focus on how to combine the given Posn and the given Vel in order to obtain the next location of the UFO—because that’s what our physics knowledge tells us. Specifically, it says to “add” the two together, where “adding” can’t mean the operation we usually apply to numbers. So let us imagine that we have a function for adding a Vel to a Posn:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Posn Vel<samp class="mono"> -&gt; </samp>Posn <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> v to</samp><samp class="mono"> p</samp> <br class="calibre4"/><samp class="mono">(define (posn+</samp><samp class="mono"> p v)</samp><samp class="mono"> p)</samp></p>
+</div>
+<p class="tni">Writing down the signature, purpose, and header like this is a legitimate way of programming. It is called “making a wish” and is a part of “making a wish list” as described in chapter 3.4.</p>
+<p class="calibre8">The key is to make wishes in such a way that we can complete the function that we are working on. In this manner, we can split difficult programming tasks into different tasks, a technique that helps us solve problems in reasonably small steps. For the sample problem, we get a complete definition for <samp class="mono">ufo-move-1</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_160" title="160"></span><img src="../images/00105.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Because <samp class="mono">ufo-move-1</samp> and <samp class="mono">posn+</samp> are complete definitions, we can even click <i class="calibre6">RUN</i>, which checks that DrRacket doesn’t complain about grammatical problems with our work so far. Naturally, the tests fail because <samp class="mono">posn+</samp> is just a wish, not the function we need.</p>
+<p class="calibre8">Now it is time to focus on <samp class="mono">posn+</samp>. We have completed the first two steps of the design (data definitions, signature/purpose/header), so we must create examples. One easy way to create functional examples for a “wish” is to use the examples for the original function and to turn them into examples for the new function:</p>
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (posn+</samp><samp class="mono"> p1 v1)</samp><samp class="mono"> p2)</samp> <br class="calibre4"/><samp class="mono">(check-expect (posn+</samp><samp class="mono"> p1 v2)</samp><samp class="mono"> (make-posn 17</samp><samp class="mono"> 77))</samp></samp></p>
+</div>
+
+<p class="marginpar">In geometry, the operation corresponding to <samp class="monospace-margin">posn+</samp> is called a <span class="no-italic">translation</span>.</p>
+
+
+<p class="tni">For this problem, we know that <samp class="mono">(ufo-move-1 (make-ufo p1 v1))</samp> is to produce <samp class="mono">p2</samp>. At the same time, we know that <samp class="mono">ufo-move-1</samp> applies <samp class="mono">posn+</samp> to <samp class="mono">p1</samp> and <samp class="mono">v1</samp>, implying that <samp class="mono">posn+</samp> must produce <samp class="mono">p2</samp> for these inputs. Stop! Check our manual calculations to ensure that you are following what we are doing.</p>
+<p class="calibre8">We are now able to add selector expressions to our design sketch:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (posn+</samp><samp class="mono"> p v)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (posn-x p)</samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> p) <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (vel-deltax</samp><samp class="mono"> v) <span>…</span></samp><samp class="mono"> (vel-deltay v)</samp><samp class="mono"> <span>…</span>))</samp></samp></p>
+</div>
+<p class="tni">Because <samp class="mono">posn+</samp> consumes instances of Posn and Vel and because each piece of data is an instance of a two-field structure, we get four expressions. In contrast to the nested selector expressions from above, these are simple applications of a selector to a parameter.</p>
+<p class="calibre8">If we remind ourselves what these four expressions represent, or if we recall how we computed the desired results from the two structures, our completion of the definition of <samp class="mono">posn+</samp> is straightforward:</p>
+<figure class="co"><img src="../images/00106.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first step is to add the velocity in the horizontal direction to the x-coordinate and the velocity in the vertical direction to the y-coordinate. <span epub:type="pagebreak" id="pg_161" title="161"></span>This yields two expressions, one per new coordinate. With <samp class="mono">make-posn</samp> we can combine them into a single Posn again.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 75. Enter these definitions and their test cases into the definitions area of DrRacket and make sure they work. This is the first time that you have dealt with a “wish,” and you need to make sure you understand how the two functions work together. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

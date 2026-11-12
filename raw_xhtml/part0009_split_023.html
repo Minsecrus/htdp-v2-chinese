@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_24"><span epub:type="pagebreak" id="pg_440" title="440" class="calibre1"></span><a id="sec17-1" class="calibre16"></a>17.1 Functions from <samp class="monospace-margin1">lambda</samp></h2>
+<p class="tni">The syntax of <samp class="mono">lambda</samp> is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(lambda (<i class="calibre6">variable-1</i></samp><samp class="mono"><i class="calibre6"> <span>…</span> variable-N)</i></samp><samp class="mono"><i class="calibre6"> expression)</i></samp></p>
+</div>
+<p class="tni">Its distinguishing characteristic is the keyword <samp class="mono">lambda</samp>. The keyword is followed by a sequence of variables, enclosed in a pair of parentheses. The last piece is an arbitrary expression, and it computes the result of the function when it is given values for its parameters.</p>
+<p class="calibre8">Here are three simple examples, all of which consume one argument:</p>
+<p class="nlf">1. <samp class="mono">(lambda (x) (expt 10 x))</samp>, which assumes that the argument is a number and computes the exponent of 10 to the number;</p>
+<p class="nlf">2. <samp class="mono">(lambda (n) (string-append "To " n ","))</samp>, which uses a given string to synthesize an address with <samp class="mono">string-append</samp>; and</p>
+<p class="nll">3. <samp class="mono">(lambda (ir) (&lt;= (ir-price ir) th))</samp>, which is a function on an <samp class="mono">IR</samp> structure that extracts the price and compares it with <samp class="mono">th</samp>.</p>
+<p class="calibre8">One way to understand how <samp class="mono">lambda</samp> works is to view it as an abbreviation for a <samp class="mono">local</samp> expression. For example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(lambda (x)</samp><samp class="mono"> (* 10</samp><samp class="mono"> x))</samp></p>
+</div>
+<p class="tni">is short for</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(local ((define</samp><samp class="mono"> some-name (lambda</samp><samp class="mono"> (x) (*</samp><samp class="mono"> 10 x))))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> some-name)</samp></p>
+</div>
+<p class="marginpar">This way of thinking about <samp class="monospace-margin">lambda</samp> shows one more time why the rule for computing with <samp class="monospace-margin">local</samp> is complicated.</p>
+<p class="tni">This “trick” works, in general, as long as <samp class="mono">some-name</samp> does not appear in the body of the function. What this means is that <samp class="mono">lambda</samp> creates a function with a name that nobody knows. If nobody knows the name, it might as well be nameless.</p>
+<p class="calibre8">To use a function created from a <samp class="mono">lambda</samp> expression, you apply it to the correct number of arguments. It works as expected:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; ((lambda</samp><samp class="mono"> (x) (expt</samp><samp class="mono"> 10 x))</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">100</samp> <br class="calibre4"/><samp class="mono">&gt; ((lambda</samp><samp class="mono"> (name rst)</samp><samp class="mono"> (string-append name</samp><samp class="mono"> ", "</samp><samp class="mono"> rst))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> "Robby"</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> "etc.")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">"Robby, etc."</samp> <br class="calibre4"/><samp class="mono">&gt; ((lambda</samp><samp class="mono"> (ir) (&lt;=</samp><samp class="mono"> (ir-price ir)</samp><samp class="mono"> th))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (make-ir "bear"</samp><samp class="mono"> 10))</samp> <br class="calibre4"/><samp class="mono">#true</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_441" title="441"></span>Note how the second sample function requires two arguments and that the last example assumes a definition for <samp class="mono">th</samp> in the definitions window such as this one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define th</samp><samp class="mono"> 20)</samp></p>
+</div>
+<p class="tni">The result of the last example is <samp class="mono">#true</samp> because the price field of the inventory record contains <samp class="mono">10</samp>, and <samp class="mono">10</samp> is less than <samp class="mono">20</samp>.</p>
+<p class="calibre8">The important point is that these nameless functions can be used wherever a function is required, including with the abstractions from <a href="part0009_split_014.html#fig95" class="calibre5">figure 95</a>:</p>
+<figure class="co"><img src="../images/00388.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Once again, the last example assumes a definition for <samp class="mono">th</samp>.</p>
+<p class="marginpar">The dots are <b class="calibre9">not</b> part of the output.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 279. Decide which of the following phrases are legal <samp class="mono">lambda</samp> expressions:</p>
+<p class="nlf">1. <samp class="mono">(lambda (x y) (x y y))</samp></p>
+<p class="nlf">2. <samp class="mono">(lambda () 10)</samp></p>
+<p class="nlf">3. <samp class="mono">(lambda (x) x)</samp></p>
+<p class="nlf">4. <samp class="mono">(lambda (x y) x)</samp></p>
+<p class="nll">5. <samp class="mono">(lambda x 10)</samp></p>
+<p class="tni"><span epub:type="pagebreak" id="pg_442" title="442"></span>Explain why they are legal or illegal. If in doubt, experiment in the interactions area of DrRacket. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 280. Calculate the result of the following expressions:</p>
+<figure class="co"><img src="../images/00389.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Check your results in DrRacket. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 281. Write down a <samp class="mono">lambda</samp> expression that</p>
+<p class="nlf">1. consumes a number and decides whether it is less than <samp class="mono">10</samp>;</p>
+<p class="nlf">2. multiplies two given numbers and turns the result into a string;</p>
+<p class="nlf">3. consumes a natural number and returns <samp class="mono">0</samp> for evens and <samp class="mono">1</samp> for odds;</p>
+<p class="nlf">4. consumes two inventory records and compares them by price; and</p>
+<p class="nll">5. adds a red dot at a given Posn to a given Image.</p>
+<p class="tni">Demonstrate how to use these functions in the interactions area. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

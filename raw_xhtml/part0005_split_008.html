@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_9"><a id="sec1-6" class="calibre16"></a>1.6 Mixing It Up with Booleans</h2>
+<p class="tni">One important use of Boolean values concerns calculations with different kinds of data. We know from the Prologue that BSL programs may name values via definitions. For example, we could start a program with</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> 2)</samp></p>
+</div>
+<p class="tni">and then compute its inverse:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define inverse-of-x</samp><samp class="mono"> (/ 1</samp><samp class="mono"> x))</samp></p>
+</div>
+<p class="tni">This works fine, as long as we don’t edit the program and change <samp class="mono">x</samp> to <samp class="mono">0</samp>.</p>
+<p class="calibre8">This is where Boolean values come in, in particular conditional calculations. First, the primitive function <samp class="mono">=</samp> determines whether two (or more) numbers are equal. If so, it produces <samp class="mono">#true</samp>, otherwise <samp class="mono">#false</samp>. Second, there is a kind of BSL expression that we haven’t mentioned so far: the <samp class="mono">if</samp> expression. It uses the word “if” as if it were a primitive function; it isn’t. The word “if” is followed by three expressions, separated by blank spaces (that includes tabs, line breaks, etc.). Naturally the entire expression is enclosed in parentheses. Here is an example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(if (=</samp><samp class="mono"> x 0)</samp><samp class="mono"> 0 (/</samp><samp class="mono"> 1 x))</samp></p>
+</div>
+<p class="tni">This <samp class="mono">if</samp> expression contains <samp class="mono">(= x 0)</samp>, <samp class="mono">0</samp>, and <samp class="mono">(/ 1 x)</samp>, three so-called <i class="calibre6">sub-expressions</i>. The evaluation of this expression proceeds in two steps:</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_46" title="46"></span>1. The first expression is always evaluated. Its result must be a Boolean.</p>
+<p class="nll">2. If the result of the first expression is <samp class="mono">#true</samp>, then the second expression is evaluated; otherwise the third one is. Whatever their results are, they are also the result of the entire <samp class="mono">if</samp> expression.</p>
+<div class="calibre4">
+<p class="marginpar">Right-click on the result and choose a different representation.</p>
+</div>
+<p class="calibre8">Given the definition of <samp class="mono">x</samp> above, you can experiment with <samp class="mono">if</samp> expressions in the interactions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (if</samp><samp class="mono"> (= x</samp><samp class="mono"> 0) 0</samp><samp class="mono"> (/ 1</samp><samp class="mono"> x))</samp> <br class="calibre4"/><samp class="mono">0.5</samp></p>
+</div>
+<p class="tni">Using the laws of arithmetic, you can figure out the result yourself:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(if (=</samp><samp class="mono"> x 0)</samp><samp class="mono"> 0 (/</samp><samp class="mono"> 1 x))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> because x</samp><samp class="mono"> stands for</samp><samp class="mono"> 2</samp> <br class="calibre4"/><samp class="mono">(if (=</samp><samp class="mono"> 2 0)</samp><samp class="mono"> 0 (/</samp><samp class="mono"> 1 2))</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> 2 is</samp><samp class="mono"> not equal</samp><samp class="mono"> to 0,</samp><samp class="mono"> (= 2</samp><samp class="mono"> 0) is</samp><samp class="mono"> #false</samp> <br class="calibre4"/><samp class="mono">(if #false</samp><samp class="mono"> 0 (/</samp><samp class="mono"> 1 x))</samp> <br class="calibre4"/><samp class="mono">(/ 1</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> normalize this</samp><samp class="mono"> to its</samp><samp class="mono"> decimal representation</samp> <br class="calibre4"/><samp class="mono">0.5</samp></p>
+</div>
+<p class="tni">In other words, DrRacket knows that <samp class="mono">x</samp> stands for <samp class="mono">2</samp> and that the latter is not equal to <samp class="mono">0</samp>. Hence, <samp class="mono">(= x 0)</samp> produces the result <samp class="mono">#false</samp>, meaning <samp class="mono">if</samp> picks its third sub-expression to be evaluated.</p>
+<p class="calibre8">Stop! Imagine you edit the definition so that it looks like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> 0)</samp></p>
+</div>
+<p class="tni">What do you think</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(if (=</samp><samp class="mono"> x 0)</samp><samp class="mono"> 0 (/</samp><samp class="mono"> 1 x))</samp></p>
+</div>
+<p class="tni">evaluates to in this context? Why? Show your calculation.</p>
+<p class="calibre8">In addition to <samp class="mono">=</samp>, BSL provides a host of other comparison primitives. Explain what the following four comparison primitives determine about numbers: <samp class="mono">&lt;</samp>, <samp class="mono">&lt;=</samp>, <samp class="mono">&gt;</samp>, <samp class="mono">&gt;=</samp>.</p>
+<p class="calibre8">Strings aren’t compared with <samp class="mono">=</samp> and its relatives. Instead, you must use <samp class="mono">string=?</samp> or <samp class="mono">string&lt;=?</samp> or <samp class="mono">string&gt;=?</samp> if you ever need to compare strings. While it is obvious that <samp class="mono">string=?</samp> checks whether the two given strings are equal, the other two primitives are open to interpretation. Look <span epub:type="pagebreak" id="pg_47" title="47"></span>up their documentation. Or, experiment, guess a general law, and then check in the documentation whether you guessed right.</p>
+<p class="calibre8">You may wonder why it is ever necessary to compare strings with each other. So imagine a program that deals with traffic lights. It may use the strings <samp class="mono">"green"</samp>, <samp class="mono">"yellow"</samp>, and <samp class="mono">"red"</samp>. This kind of program may contain a fragment such as this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define current-color</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<div class="verbatim"> </div>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define next-color</samp> <br class="calibre4"/><samp class="mono">  (if</samp><samp class="mono"> (string=? "green"</samp><samp class="mono"> current-color) "yellow"</samp><samp class="mono"> <span>…</span>))</samp></p>
+</div>
+<p class="tni">It should be easy to imagine that this fragment deals with the computation that determines which light bulb is to be turned on next and which one should be turned off.</p>
+<div class="calibre4">
+<p class="marginpar">The dots in the definition of <samp class="monospace-margin">current-color</samp> aren’t a part of the program, of course. Replace them with a string that refers to a color.</p>
+</div>
+<p class="calibre8">The next few chapters introduce better expressions than <samp class="mono">if</samp> to express conditional computations and, most importantly, systematic ways for designing them.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 8. Add the following line to the definitions area:</p>
+<figure class="co"><img src="../images/00043.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Create a conditional expression that computes whether the image is tall or wide. An image should be labeled <samp class="mono">"tall"</samp> if its height is larger than or equal to its width; otherwise it is <samp class="mono">"wide"</samp>. See exercise 1 for how to create such expressions in DrRacket; as you experiment, replace the cat with a rectangle of your choice to ensure that you know the expected answer.</p>
+<p class="calibre8">Now try the following modification. Create an expression that computes whether a picture is <samp class="mono">"tall"</samp>, <samp class="mono">"wide"</samp>, or <samp class="mono">"square"</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

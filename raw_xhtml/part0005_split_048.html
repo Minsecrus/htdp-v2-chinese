@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_49"><a id="sec6-4" class="calibre16"></a>6.4 Checking the World</h2>
+<p class="tni">In a world program, many things can go wrong. Although we just agreed to trust that our functions are always applied to the proper kind of data, in a world program we may juggle too many things at once to place that much trust in ourselves. When we design a world program that takes care of clock ticks, mouse clicks, keystrokes, and rendering, it is just too easy to get one of those interplays wrong. Of course, going wrong doesn’t mean that BSL recognizes the mistake immediately. For example, one of our functions may produce a result that isn’t quite an element of your data representation for world states. At the same time, <samp class="mono">big-bang</samp> accepts this piece of data and holds on to it, until the next event takes place. It is only when the following event handler receives this inappropriate piece of data that the program may fail. But it may get worse because even the second and third and fourth event-handling step may actually cope with inappropriate state values, and it all blows up much later in the process.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_197" title="197"></span>To help with this kind of problem, <samp class="mono">big-bang</samp> comes with an optional <samp class="mono">check-with</samp> clause that accepts a predicate for world states. If, for example, we chose to represent all world states with Number, we could express this fact easily like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (main</samp><samp class="mono"> s0)</samp> <br class="calibre4"/><samp class="mono">  (big-bang</samp><samp class="mono"> s0 <span>…</span></samp><samp class="mono"> [check-with number?]</samp><samp class="mono"> <span>…</span>))</samp></samp></p>
+</div>
+<p class="tni">As soon as any event-handling function produces something other than a number, the world stops with an appropriate error message.</p>
+<p class="calibre8">A <samp class="mono">check-with</samp> clause is even more useful when the data definition is not just a class of data with a built-in predicate like <samp class="mono">number?</samp> but something subtle such as this interval definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">UnitWorld</i><samp class="mono"> is a</samp><samp class="mono"> number</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  between</samp><samp class="mono"> 0 (inclusive)</samp><samp class="mono"> and 1</samp><samp class="mono"> (exclusive).</samp></samp></p>
+</div>
+<p class="tni">In that case you want to formulate a predicate for this interval:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">;</samp> <span>Any</span><samp class="mono"> -&gt;</samp> <span>Boolean</span> <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> x between</samp><samp class="mono"> 0 (inclusive)</samp><samp class="mono"> and 1</samp><samp class="mono"> (exclusive)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (between-0-and-1?</samp><samp class="mono"> "a") #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (between-0-and-1?</samp><samp class="mono"> 1.2) #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (between-0-and-1?</samp><samp class="mono"> 0.2) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (between-0-and-1?</samp><samp class="mono"> 0.0) #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (between-0-and-1?</samp><samp class="mono"> 1.0) #false)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (between-0-and-1?</samp><samp class="mono"> x)</samp> <br class="calibre4"/><samp class="mono">  (and</samp><samp class="mono"> (number? x)</samp><samp class="mono"> (&lt;= 0</samp><samp class="mono"> x) (&lt;</samp><samp class="mono"> x 1)))</samp></samp></p>
+</div>
+<p class="tni">With this predicate you can now monitor every single transition in your world program:</p>
+<figure class="co"><img src="../images/00132.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If any of the world-producing handlers creates a number outside of the interval, or worse, a non-numeric-value, our program discovers this mistake immediately and gives us a chance to fix the mistake.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_198" title="198"></span><b class="calibre9">Exercise</b> 114. Use the predicates from exercise 113 to check the space invader world program, the virtual pet program (exercise 106), and the editor program (chapter 5.10). <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

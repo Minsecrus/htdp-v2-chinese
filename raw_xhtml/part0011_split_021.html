@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_22"><a id="sec22-3" class="calibre16"></a>22.3 Domain-Specific Languages</h2>
+<p class="tni">Engineers routinely build large software systems that require a configuration for specific contexts before they can be run. This configuration task tends to fall to <i class="calibre6">systems administrators</i> who must deal with many different software systems. The word “configuration” refers to the data that the main function needs when the program is launched. In a sense a configuration is just an addition argument, though it is usually so complex that program designers prefer a different mechanism for handing it over.</p>
+<p class="calibre8">Since software engineers cannot assume that systems administrators know every programming language, they tend to devise simple, special-purpose configuration languages. These special languages are also known as <i class="calibre6">domain-specific languages</i> (DSL). Developing these DSLs around a common core, say the well-known XML syntax, simplifies life for systems administrators. They can write small XML “programs” and thus configure the systems they must launch.</p>
+<p class="marginpar">Because configurations abstract a program over various pieces of data, Paul Hudak argued in the 1990s that DSLs are the <b class="calibre9">ultimate abstractions</b>, that is, that they generalize the ideas of part III to perfection.</p>
+<p class="calibre8">While the construction of a DSL is often considered a task for an advanced programmer, you are actually in a position already to understand, appreciate, and implement a reasonably complex DSL. This section explains how it all works. It first reacquaints you with finite state machines (FSMs). Then it shows how to design, implement, and program a DSL for configuring a system that simulates arbitrary FSMs.</p>
+<p class="stni"><b class="calibre9">Finite State Machines Remembered</b> The theme of finite state machines is an important one in computing, and this book has presented it several times. Here we reuse the example from chapter 12.8 as the component for which we wish to design and implement a configuration DSL.</p>
+<p class="calibre8">For convenience, <a id="rfig129" href="part0011_split_021.html#fig129" class="calibre5">figure 129</a> presents the entire code again, though reformulated using just lists and using the full power of ISL+. The program <span epub:type="pagebreak" id="pg_548" title="548"></span>consists of two data definitions, one data example, and two function definitions: <samp class="mono">simulate</samp> and <samp class="mono">find</samp>. Unlike the related programs in preceding chapters, this one represents a transition as a list of two items: the current state and the next one.</p>
+<div class="figure">
+<figure class="img"><a id="fig129" class="calibre5"></a><img src="../images/00508.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_021.html#rfig129" class="calibre5">Figure 129</a>:</span> <span>Finite state machines, revisited</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The main function, <samp class="mono">simulate</samp>, consumes a transition table and an initial state; it then evaluates a <samp class="mono">big-bang</samp> expression, which reacts to each key event with a state transition. The states are displayed as colored squares. The <samp class="mono">to-draw</samp> and <samp class="mono">on-key</samp> clauses are specified with <samp class="mono">lambda</samp> expressions that consume the current state, plus the actual key event, and that produce an image or the next state, respectively.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_549" title="549"></span>As its signature shows, the auxiliary <samp class="mono">find</samp> function is completely independent of the FSM application. It consumes a list of two-item lists and an item, but the actual nature of the items is specified via parameters. In the context of this program, <samp class="mono">X</samp> and <samp class="mono">Y</samp> represent FSM-States, meaning <samp class="mono">find</samp> consumes a transition table together with a state and produces a state. The function body uses the built-in <samp class="mono">assoc</samp> function to perform most of the work. Look up the documentation for <samp class="mono">assoc</samp> so that you understand why the body of <samp class="mono">local</samp> uses an <samp class="mono">if</samp> expression.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 378. Modify the rendering function so that it overlays the name of the state onto the colored square. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 379. Formulate test cases for <samp class="mono">find</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 380. Reformulate the data definition for 1Transition so that it is possible to restrict transitions to certain keystrokes. Try to formulate the change so that <samp class="mono">find</samp> continues to work without change. What else do you need to change to get the complete program to work? Which part of the design recipe provides the answer(s)? See exercise 229 for the original exercise statement. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Configurations</b> The FSM simulation function uses two arguments, which jointly describe a machine. Rather than teach a potential “customer” how to open an ISL+ program in DrRacket and launch a function of two arguments, the “seller” of <samp class="mono">simulate</samp> may wish to supplement this product with a configuration component.</p>
+<p class="calibre8">A configuration component consists of two parts. The first one is a widely used simple language that customers use to formulate the initial arguments for a component’s main function(s). The second one is a function that translates what customers say into a function call for the main function. For the FSM simulator, we must agree on how we represent finite state machines in XML. By judicious planning, chapter 22.1 presents a series of machine examples that look just right for the task. Recall the final <samp class="mono">machine</samp> example in this section:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&lt;machine initial="red"&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="red"    next="green"</samp><samp class="mono"> /&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="green"  next="yellow"</samp><samp class="mono"> /&gt;</samp> <br class="calibre4"/><samp class="mono">  &lt;action</samp><samp class="mono"> state="yellow" next="red"</samp><samp class="mono"> /&gt;</samp> <br class="calibre4"/><samp class="mono">&lt;/machine&gt;</samp></p>
+</div>
+<p class="tni">Compare it to the transition table <samp class="mono">fsm-traffic</samp> from Xexpr representation of this example:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_550" title="550"></span><img src="../images/00509.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">What we are still lacking is a general data definition that describes all possible Xexpr representations of FSMs:</p>
+<figure class="co"><img src="../images/00510.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Like XEnum.v2, XMachine describes a subset of all Xexpr. Thus, when we design functions that process this new form of data, we may continue to use the generic Xexpr functions to access pieces.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 381. The definitions of XMachine and X1T use quote, which is highly inappropriate for novice program designers. Rewrite them first to use <samp class="mono">list</samp> and then <samp class="mono">cons</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 382. Formulate an XML configuration for the BW machine, which switches from white to black and back for every key event. Translate the XML configuration into an XMachine representation. See exercise 227 for an implementation of the machine as a program. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Before we dive into the translation part of the configuration problem, let’s spell it out:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a program that uses an XMachine configuration to run <samp class="mono">simulate</samp>.</p>
+</div>
+<p class="tni">While this problem is specific to our case, it is easy to imagine a generalization for similar systems, and we encourage you to do so.</p>
+<p class="calibre8">The problem statement suggests a complete outline:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>XMachine<samp class="mono"> -&gt; </samp>FSM-State<samp class="mono"> <br class="calibre4"/>; simulates</samp><samp class="mono"> an FSM</samp><samp class="mono"> via</samp> <samp class="mono">the given</samp><samp class="mono"> configuration <br class="calibre4"/>(define</samp><samp class="mono"> (simulate-xmachine xm)</samp> <br class="calibre4"/><samp class="mono">  (simulate</samp><samp class="mono"> <span>…</span> <span>…</span>))</samp></p>
+</div>
+<p class="tni">Following the problem statement, our function calls <samp class="mono">simulate</samp> with two to-be-determined arguments. What we need to complete the definition are two pieces: an initial state and a transition table. These two pieces are part of <samp class="mono">xm</samp>, and we are best off wishing for appropriate functions:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_551" title="551"></span>•  <samp class="mono">xm-state0</samp> extracts the initial state from the given XMachine:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(check-expect (xm-state0</samp><samp class="mono"> xm0) "red")</samp></samp></p>
+</div>
+<p class="blf">•  <samp class="mono">xm-&gt;transitions</samp> translates the embedded list of X1Ts into a list of 1Transitions:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(check-expect (xm-&gt;transitions</samp><samp class="mono"> xm0) fsm-traffic)</samp></samp></p>
+</div>
+<p class="calibre8">Since XMachine is a subset of <samp class="mono">Xexpr</samp>, defining <samp class="mono">xm-state0</samp> is straightforward. Given that the initial state is specified as an attribute, <samp class="mono">xm-state0</samp> extracts the list of attributes using <samp class="mono">xexpr-attr</samp> and then retrieves the value of the <samp class="mono">'initial</samp> attribute.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_552" title="552"></span>Let’s then turn to <samp class="mono">xm-&gt;transitions</samp>, which translates the transitions inside of an <samp class="mono">XMachine</samp> configuration into a transition table:</p>
+<div class="verbatim">
+<p class="code-new">; <span>XMachine</span><samp class="mono"> -&gt; </samp><span>[List-of</span><samp class="mono"> </samp><span>1Transition</span><samp class="mono">] <br class="calibre4"/>;</samp><samp class="mono"> extracts &amp;</samp><samp class="mono"> translates the</samp> <samp class="mono">transition table</samp><samp class="mono"> from xm</samp><samp class="mono"> <br class="calibre4"/>(define (xm-&gt;transitions</samp><samp class="mono"> xm)<br class="calibre4"/> '())</samp></p>
+</div>
+<p class="tni">The name of the function prescribes the signature and suggests a purpose statement. Our purpose statement describes a two-step process: (1) extract the <samp class="mono">Xexpr</samp> representation of the transitions and (2) translate them into an instance of [List-of 1Transition].</p>
+<p class="calibre8">While the extraction part obviously uses <samp class="mono">xexpr-content</samp> to get the list, the translation part calls for some more analysis. If you look back to the data definition of XMachine, you see that the content of the Xexpr is a list of X1Ts. The signature tells us that the transition table is a list of 1Transitions. Indeed, it is quite obvious that each item in the former list is translated into one item of the latter, which suggests a use of <samp class="mono">map</samp>:</p>
+<figure class="co"><img src="../images/00511.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As you can see, we follow the design ideas of chapter 16.5 and formulate the function as a <samp class="mono">local</samp> whose body uses <samp class="mono">map</samp>. Defining <samp class="mono">xaction-&gt;action</samp> is again just a matter of extracting the appropriate values from an Xexpr.</p>
+<p class="calibre8"><a id="rfig130" href="part0011_split_021.html#fig130" class="calibre5">Figure 130</a> displays the complete solution. Here the translation from the DSL to a proper function call is as large as the original component. This is not the case for real-world systems; the DSL component tends to be a small fraction of the overall product, which is why the approach is so popular.</p>
+<div class="figure">
+<figure class="img"><a id="fig130" class="calibre5"></a><img src="../images/00512.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_021.html#rfig130" class="calibre5">Figure 130</a>:</span> <span>Interpreting a DSL program</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 383. Run the code in <a href="part0011_split_021.html#fig130" class="calibre5">figure 130</a> with the BW Machine configuration from exercise 382. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

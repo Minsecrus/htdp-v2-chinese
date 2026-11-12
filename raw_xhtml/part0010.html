@@ -1,0 +1,328 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="9H5K0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<p class="sp1"> </p>
+<article epub:type="part" role="main">
+<hgroup>
+<h1 class="pn" id="pt3"><span epub:type="pagebreak" id="pg_464" title="464" class="calibre1"></span>I<small class="calibre7">NTERMEZZO</small> 3: S<small class="calibre7">COPE</small> <small class="calibre7">AND</small> A<small class="calibre7">BSTRACTION</small></h1>
+</hgroup>
+<p class="tni">While the preceding part gets away with explaining <samp class="mono">local</samp> and <samp class="mono">lambda</samp> in an informal manner, the introduction of such abstraction mechanisms really requires additional terminology to facilitate such discussions. In particular, these discussions need words to delineate regions within programs and to refer to specific uses of variables.</p>
+<p class="calibre8">This intermezzo starts with a section that defines the new terminology: scope, binding variables, and bound variables. It immediately uses this new capability to introduce two abstraction mechanisms often found in programming languages: <samp class="mono">for</samp> loops and pattern matching. The former is an alternative to functions such as <samp class="mono">map</samp>, <samp class="mono">build-list</samp>, <samp class="mono">andmap</samp>, and the like; the latter abstracts over the conditional in the functions of the first three parts of the book. Both require not only the definition of functions but also the creation of entirely new language constructs, meaning they are not something programmers can usually design and add to their vocabulary.</p>
+<p class="stni"><b class="calibre9">Scope</b></p>
+<p class="tni">Consider the following two definitions:</p>
+<figure class="co"><img src="../images/00418.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Clearly, the occurrences of <samp class="mono">x</samp> in <samp class="mono">f</samp> are completely unrelated to the occurrences of <samp class="mono">x</samp> in the definition of <samp class="mono">g</samp>. We could systematically replace the shaded occurrences with <samp class="mono">y</samp> and the function would still compute the exact same result. In short, the shaded occurrences of <samp class="mono">x</samp> have meaning only inside the definition of <samp class="mono">f</samp> and nowhere else.</p>
+<p class="calibre8">At the same time, the first occurrence of <samp class="mono">x</samp> in <samp class="mono">f</samp> is different from the others. When we evaluate <samp class="mono">(f n)</samp>, the occurrence of <samp class="mono">f</samp> completely disappears while those of <samp class="mono">x</samp> are replaced with <samp class="mono">n</samp>. To distinguish these two kinds of variable occurrences, we call the <samp class="mono">x</samp> in the function header a <i class="calibre6">binding occurrence</i> and those in the function’s body the <i class="calibre6">bound occurrences</i>. We also say <span epub:type="pagebreak" id="pg_465" title="465"></span>that the binding occurrence of <samp class="mono">x</samp> binds all occurrences of <samp class="mono">x</samp> in the body of <samp class="mono">f</samp>. Indeed, people who study programming languages even have a name for the region where a binding occurrence works, namely, its <i class="calibre6">lexical scope</i>.</p>
+<p class="calibre8">The definitions of <samp class="mono">f</samp> and <samp class="mono">g</samp> bind two more names: <samp class="mono">f</samp> and <samp class="mono">g</samp>. Their scope is called <i class="calibre6">top-level scope</i> because we think of scopes as nested (see below).</p>
+<p class="calibre8">The term <i class="calibre6">free occurrence</i> applies to a variable without any binding occurrence. It is a name without definition, that is, neither the language nor its libraries nor the program associates it with some value. For example, if you were to put the above program into a definitions area by itself and run it, entering <samp class="mono">f</samp>, <samp class="mono">g</samp>, and <samp class="mono">x</samp> at the prompt of the interactions would show that the first two are defined and the last one is not:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; f</samp> <br class="calibre4"/><samp class="mono">f</samp> <br class="calibre4"/><samp class="mono">&gt; g</samp> <br class="calibre4"/><samp class="mono">g</samp> <br class="calibre4"/><samp class="mono">&gt; x</samp> <br class="calibre4"/><samp class="mono">x:this variable</samp><samp class="mono"> is not</samp><samp class="mono"> defined</samp></p>
+</div>
+<p class="calibre8">The description of lexical scope suggests a pictorial representation of <samp class="mono">f</samp>’s definition:</p>
+<figure class="co"><img src="../images/00419.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">DrRacket’s “Check Syntax” functionality draws diagrams like these.</p>
+<p class="tni">Here is an arrow diagram for top-level scope:</p>
+<figure class="co"><img src="../images/00420.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Note that the scope of <samp class="mono">f</samp> includes all definitions above and below its definition. The bullet over the first occurrence indicates that it is a binding occurrence. The arrows from the binding occurrence to the bound occurrences suggest the flow of values. When the value of a binding occurrence becomes known, the bound occurrences receive their values from there.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_466" title="466"></span>Along similar lines, these diagrams also explain how renaming works. If you wish to rename a function parameter, you search for all bound occurrences in scope and replace them. For example, renaming <samp class="mono">f</samp>’s <samp class="mono">x</samp> to <samp class="mono">y</samp> in the program above means that</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> x) (+</samp><samp class="mono"> (* x</samp><samp class="mono"> x) 25))</samp> <br class="calibre4"/><samp class="mono">(define (g</samp><samp class="mono"> x) (+</samp><samp class="mono"> (f (+</samp><samp class="mono"> x 1))</samp><samp class="mono"> (f (-</samp><samp class="mono"> x 1))))</samp></p>
+</div>
+<p class="tni">changes only two occurrences of <samp class="mono">x</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> y) (+</samp><samp class="mono"> (* y</samp><samp class="mono"> y) 25))</samp> <br class="calibre4"/><samp class="mono">(define (g</samp><samp class="mono"> x) (+</samp><samp class="mono"> (f (+</samp><samp class="mono"> x 1))</samp><samp class="mono"> (f (-</samp><samp class="mono"> x 1))))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 300. Here is a simple ISL+ program:</p>
+<figure class="co"><img src="../images/00421.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Draw arrows from <samp class="mono">p1</samp>’s <samp class="mono">x</samp> parameter to all its bound occurrences. Draw arrows from <samp class="mono">p1</samp> to all bound occurrences of <samp class="mono">p1</samp>. Check the results with DrRacket’s <i class="calibre6">CHECK SYNTAX</i> functionality. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">In contrast to top-level function definitions, the scope of the definitions in a <samp class="mono">local</samp> is limited. Specifically, the scope of local definitions <i class="calibre6">is</i> the <samp class="mono">local</samp> expression. Consider the definition of an auxiliary function <samp class="mono">f</samp> in a <samp class="mono">local</samp> expression. It binds all occurrences within the <samp class="mono">local</samp> expression but none that occurs outside:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_467" title="467"></span><img src="../images/00422.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The two occurrences outside of <samp class="mono">local</samp> are not bound by the local definition of <samp class="mono">f</samp>. As always, the parameters of a function definition, local or not, are only bound in the function’s body.</p>
+<p class="calibre8">Since the scope of a function name or a function parameter is a textual region, people also draw box diagrams to indicate scope. More precisely, for parameters a box is drawn around the body of a function:</p>
+<figure class="co"><img src="../images/00423.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In the case of <samp class="mono">local</samp>, the box is drawn around the entire expression:</p>
+
+<figure class="co"><img src="../images/00424.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In this example, the box describes the scope of the definitions of <samp class="mono">f</samp> and <samp class="mono">g</samp>.</p>
+<p class="calibre8">Drawing a box around a scope, we can also easily understand what it means to reuse the name of a function inside a <samp class="mono">local</samp> expression:</p>
+
+<figure class="co"><img src="../images/00425.gif" alt="" class="calibre10"/></figure>
+
+<p class="tni">The gray box describes the scope of the inner definition of <samp class="mono">f</samp>; the white box is the scope of the outer definition of <samp class="mono">f</samp>. Accordingly, all occurrences of <samp class="mono">f</samp> <span epub:type="pagebreak" id="pg_468" title="468"></span>in the gray box refer to the inner <samp class="mono">local</samp>; all those in the white box, minus the gray one, refer to the definition in the outer <samp class="mono">local</samp>. In other words, the gray box is a <i class="calibre6">hole</i> in the scope of the outer definition of <samp class="mono">f</samp>.</p>
+<p class="calibre8">Holes can also occur in the scope of a parameter definition:</p>
+<figure class="co"><img src="../images/00426.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In this function, the parameter <samp class="mono">x</samp> is used twice: for <samp class="mono">f</samp> and <samp class="mono">g</samp>; the scope of the latter is thus a hole in the scope of the former.</p>
+<p class="calibre8">In general, if the same name occurs more than once in a function, the boxes that describe the corresponding scopes never overlap. In some cases the boxes are nested within each other, which gives rise to holes. Still, the picture is always that of a hierarchy of smaller and smaller nested boxes.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 301. Draw a box around the scope of each binding occurrence of <samp class="mono">sort</samp> and <samp class="mono">alon</samp> in <a id="rfig105" href="part0010.html#fig105" class="calibre5">figure 105</a>. Then draw arrows from each occurrence of <samp class="mono">sort</samp> to the appropriate binding occurrence. Now repeat the exercise for the variant in <a id="rfig106" href="part0010.html#fig106" class="calibre5">figure 106</a>. Do the two functions differ other than in name? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig105" class="calibre5"></a><img src="../images/00427.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig105" class="calibre5">Figure 105</a>:</span> <span>Drawing lexical scope contours for exercise 301</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig106" class="calibre5"></a><img src="../images/00428.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig106" class="calibre5">Figure 106</a>:</span> <span>Drawing lexical scope contours for exercise 301 (version 2)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_469" title="469"></span><b class="calibre9">Exercise</b> 302. Recall that each occurrence of a variable receives its value from its binding occurrence. Consider the following definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> (cons 1</samp><samp class="mono"> <span class="colorbox">x</span>))</samp></p>
+</div>
+<p class="tni">Where is the shaded occurrence of <samp class="mono">x</samp> bound? Since the definition is a constant definition and not a function definition, we need to evaluate the right-hand side immediately. What should be the value of the right-hand side according to our rules? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">As discussed in chapter 17.1, a <samp class="mono">lambda</samp> expression is just a short-hand for a <samp class="mono">local</samp> expression. That is, if <samp class="mono">a-new-name</samp> does not occur in <samp class="mono">exp</samp>,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(lambda (x-1</samp><samp class="mono"> <span>…</span> x-n)</samp><samp class="mono"> exp)</samp></p>
+</div>
+<p class="tni">is short for</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(local ((define</samp><samp class="mono"> (a-new-name x-1</samp><samp class="mono"> <span>…</span> x-n)</samp><samp class="mono"> exp))</samp> <br class="calibre4"/><samp class="mono">  a-new-name)</samp></p>
+</div>
+<p class="tni">The short-hand explanation suggests that</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(lambda (x-1</samp><samp class="mono"> <span>…</span> x-n)</samp><samp class="mono"> exp)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_470" title="470"></span>introduces <samp class="mono">x-1</samp>, <span>⋯</span>, <samp class="mono">x-n</samp> as binding occurrences and that the scope of parameters is <samp class="mono">exp</samp>, for example:</p>
+<figure class="co"><img src="../images/00429.gif" alt="" class="calibre10"/></figure>
+<p class="tni">O course, if <samp class="mono">exp</samp> contains further binding constructs (say, a nested <samp class="mono">local</samp> expression), then the scope of the variables may have a hole.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 303. Draw arrows from the shaded occurrences of <samp class="mono">x</samp> to their binding occurrences in each of the following three <samp class="mono">lambda</samp> expressions:</p>
+<figure class="co"><img src="../images/00430.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Also draw a box for the scope of each shaded <samp class="mono">x</samp> and holes in the scope as necessary. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">ISL for Loops</b></p>
+<p class="tni">Even though it never mentions the word, part III introduces loops. Abstractly, a <i class="calibre6">loop</i> traverses compound data, processing one piece at a time. In the process, loops also synthesize data. For example, <samp class="mono">map</samp> traverses a list, applies a function to each item, and collects the results in a list. Similarly, <samp class="mono">build-list</samp> enumerates the sequence of predecessors of a natural <span epub:type="pagebreak" id="pg_471" title="471"></span>number (from <samp class="mono">0</samp> to <samp class="mono">(</samp>- <samp class="mono">n 1)</samp>), maps each of these to some value, and also gathers the results in a list.</p>
+<p class="marginpar">Use the <i class="calibre6">2htdp/abstraction</i> library. Instructors who use it for the remainder of the book should explain how the principles of design apply to languages without <samp class="monospace-italic">for</samp> and <samp class="monospace-italic">match</samp>.</p>
+<p class="calibre8">The loops of ISL+ differ from those in conventional languages in two ways. First, a conventional loop does not directly create new data; in contrast, abstractions such as <samp class="mono">map</samp> and <samp class="mono">build-list</samp> are all about computing new data from traversals. Second, conventional languages often provide only a fixed number of loops; an ISL+ programmer defines new loops as needed. Put differently, conventional languages view loops as syntactic constructs akin to <samp class="mono">local</samp> or <samp class="mono">cond</samp>, and their introduction requires a detailed explanation of their vocabulary, grammar, scope, and meaning.</p>
+<p class="calibre8">Loops as syntactic constructs have two advantages over the functional loops of the preceding part. On the one hand, their shape tends to signal intentions more directly than a composition of functions. On the other hand, language implementations typically translate syntactic loops into faster commands for computers than functional loops. It is therefore common that even functional programming languages—with all their emphasis on functions and function compositions—provide syntactic loops.</p>
+<p class="calibre8">In this section, we introduce ISL+’s so-called <samp class="mono">for</samp> loops. The goal is to illustrate how to think about conventional loops as linguistic constructs and to indicate how programs built with abstractions may use loops instead. <a id="rfig107" href="part0010.html#fig107" class="calibre5">Figure 107</a> spells out the grammar of our selected <samp class="mono">for</samp> loops as an extension of BSL’s grammar from intermezzo 1. Every loop is an expression and, like all compound constructs, is marked with a keyword. The latter is followed by a parenthesized sequence of so-called <i class="calibre6">comprehension clauses</i> and a single expression. The clauses introduce so-called <i class="calibre6">loop variables</i>, and the expression at the end is the <i class="calibre6">loop body</i>.</p>
+<div class="figure">
+<figure class="img"><a id="fig107" class="calibre5"></a><img src="../images/00431.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig107" class="calibre5">Figure 107</a>:</span> <span>ISL+ extended with <samp class="mono">for</samp> loops</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Even a cursory look at the grammar shows that the dozen looping constructs come in six pairs: a <samp class="mono">for</samp> and <samp class="mono">for*</samp> variant for each of <samp class="mono">list</samp>, <samp class="mono">and</samp>, <samp class="mono">or</samp>, <samp class="mono">sum</samp>, <samp class="mono">product</samp>, and <samp class="mono">string</samp>. All <samp class="mono">for</samp> loops bind the variables of their clauses in the body; the <samp class="mono">for*</samp> variants also bind variables in the subsequent clauses. The following two near-identical code snippets illustrate the difference between these two scoping rules:</p>
+<figure class="co"><img src="../images/00432.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">Racket’s version of these loops comes with more functionality than those presented here, and the language has many more loops than this.</p>
+<p class="tni">The syntactic difference is that the left one uses <samp class="mono">for/list</samp> and the right one <span epub:type="pagebreak" id="pg_472" title="472"></span><samp class="mono">for*/list</samp>. In terms of scope, the two strongly differ as the arrows indicate. While both pieces introduce the loop variables <samp class="mono">width</samp> and <samp class="mono">height</samp>, the left one uses an externally defined variable for <samp class="mono">height</samp>’s initial value and the right one uses the first loop variable.</p>
+<p class="calibre8">Semantically, a <samp class="mono">for/list</samp> expression evaluates the expressions in its clauses to generate sequences of values. If a clause expression evaluates to</p>
+<p class="blf">•  a list, its items make up the sequence values;</p>
+<p class="blf">•  a natural number <samp class="mono">n</samp>, the sequence consists of <samp class="mono">0</samp>, <samp class="mono">1</samp>, <span>⋯</span>, <samp class="mono">(</samp>- <samp class="mono">n 1)</samp>; and</p>
+<p class="bll">•  a string, its one-character strings are the sequence items.</p>
+<p class="tni">Next, <samp class="mono">for/list</samp> evaluates the loop body with the loop variables successively bound to the values of the generated sequence(s). Finally, it collects the values of its body into a list. The evaluation of a <samp class="mono">for/list</samp> expression stops when the shortest sequence is exhausted.</p>
+<p class="calibre8"><b class="calibre9">Terminology</b> Each evaluation of a loop body is called an <i class="calibre6">iteration</i>. Similarly, a loop is said to <i class="calibre6">iterate</i> over the values of its loop variables.</p>
+<p class="calibre8">Based on this explanation, we can easily generate the list from <samp class="mono">0</samp> to <samp class="mono">9</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (for/list</samp><samp class="mono"> ([i 10])</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  i)</samp> <br class="calibre4"/><samp class="mono">(list 0</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8</samp><samp class="mono"> 9)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_473" title="473"></span>This is the equivalent of a <samp class="mono">build-list</samp> loop:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (build-list</samp><samp class="mono"> 10 (lambda</samp><samp class="mono"> (i) i))</samp> <br class="calibre4"/><samp class="mono">(list 0</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8</samp><samp class="mono"> 9)</samp></p>
+</div>
+<p class="tni">The second example “zips” together two sequences:</p>
+<figure class="co"><img src="../images/00433.gif" alt="" class="calibre10"/></figure>
+<p class="tni">For comparison again, here is the same expression using plain ISL+:</p>
+<figure class="co"><img src="../images/00434.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The final example emphasizes designing with <samp class="mono">for/list</samp>:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design <samp class="mono">enumerate</samp>. The function consumes a list and produces a list of the same items paired with their relative index.</p>
+</div>
+<p class="tni">Stop! Design this function systematically, using ISL+’s abstractions.</p>
+<p class="calibre8">With <samp class="mono">for/list</samp>, this problem has a straightforward solution:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> [</samp>List-of<samp class="mono"> [</samp>List<samp class="mono"> N X]]</samp> <br class="calibre4"/><samp class="mono">; pairs</samp><samp class="mono"> each item</samp><samp class="mono"> in lx</samp><samp class="mono"> with its</samp><samp class="mono"> index</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (enumerate</samp><samp class="mono"> '(a b</samp><samp class="mono"> c)) '((1</samp><samp class="mono"> a) (2</samp><samp class="mono"> b) (3</samp><samp class="mono"> c)))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (enumerate</samp><samp class="mono"> lx)</samp> <br class="calibre4"/><samp class="mono">  (for/list</samp><samp class="mono"> ([x lx]</samp><samp class="mono"> [ith (length</samp><samp class="mono"> lx)])</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> (+ ith</samp><samp class="mono"> 1) x)))</samp></p>
+</div>
+<p class="tni">The function’s body uses <samp class="mono">for/list</samp> to iterate over the given list and a list of numbers from <samp class="mono">0</samp> to <samp class="mono">(length lx)</samp> (minus <samp class="mono">1</samp>); the loop body combines the index (plus <samp class="mono">1</samp>) with the list item.</p>
+<p class="calibre8">In semantic terms, <samp class="mono">for*/list</samp> iterates over the sequences in a nested fashion while <samp class="mono">for/list</samp> traverses them in parallel. That is, a <samp class="mono">for*/list</samp> expression basically unfolds into a nest of loops:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_474" title="474"></span><samp class="mono">(for*/list ([i</samp><samp class="mono"> 2] [j</samp><samp class="mono"> '(a b)])</samp> <br class="calibre4"/><samp class="mono">  <span>…</span>)</samp></p>
+</div>
+<p class="tni">is short for</p>
+<figure class="co"><img src="../images/00435.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In addition, <samp class="mono">for*/list</samp> collects the nested lists into a <b class="calibre9">single</b> list by concatenating them with <samp class="mono">foldl</samp> and <samp class="mono">append</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 304. Evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(for/list ([i</samp><samp class="mono"> 2] [j</samp><samp class="mono"> '(a b)])</samp><samp class="mono"> (list i</samp><samp class="mono"> j))</samp></p>
+</div>
+<p class="tni">and</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(for*/list ([i</samp><samp class="mono"> 2] [j</samp><samp class="mono"> '(a b)])</samp><samp class="mono"> (list i</samp><samp class="mono"> j))</samp></p>
+</div>
+<p class="tni">in the interactions area of DrRacket. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Let’s continue the exploration by turning the difference in scoping between <samp class="mono">for/list</samp> and <samp class="mono">for*/list</samp> into a semantic difference:</p>
+<figure class="co"><img src="../images/00436.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To understand the first interaction, remember that <samp class="mono">for/list</samp> traverses the two sequences in parallel and stops when the shorter one is exhausted. Here, the two sequences are</p>
+<figure class="co"><img src="../images/00437.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first two rows show the values of the two loop variables, which change in tandem. The last row shows the result of each iteration, which explains the first result and the absence of a pair containing <samp class="mono">2</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_475" title="475"></span>Now contrast this situation with <samp class="mono">for*/list</samp>:</p>
+<figure class="co"><img src="../images/00438.gif" alt="" class="calibre10"/></figure>
+<p class="tni">While the first row is like the one for <samp class="mono">for/list</samp>, the second one now displays sequences of numbers in its cells. The implicit nesting of <samp class="mono">for*/list</samp> means that each iteration recomputes <samp class="mono">height</samp> for a specific value of <samp class="mono">width</samp> and thus creates a distinct <b class="calibre9">sequence</b> of <samp class="mono">height</samp> values. This explains why the first cell of <samp class="mono">height</samp> values is empty; after all, there are no natural numbers between <samp class="mono">0</samp> (inclusive) and <samp class="mono">0</samp> (exclusive). Finally, each nested <samp class="mono">for</samp> loop yields a sequences of pairs, which are collected into a single list of pairs.</p>
+<p class="calibre8">Here is a problem that illustrates this use of <samp class="mono">for*/list</samp> in context:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design <samp class="mono">cross</samp>. The function consumes two lists, <samp class="mono">l1</samp> and <samp class="mono">l2</samp>, and produces pairs of all items from these lists.</p>
+</div>
+<p class="tni">Stop! Take a moment to design the function, using existing abstractions.</p>
+<p class="calibre8">As you design <samp class="mono">cross</samp>, you work through a table such as:</p>
+<figure class="co"><img src="../images/00439.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first row displays <samp class="mono">l1</samp> as given, while the left-most column shows <samp class="mono">l2</samp>. Each cell in the table corresponds to one of the pairs to be generated.</p>
+<p class="calibre8">Since the purpose of <samp class="mono">for*/list</samp> is an enumeration of all such pairs, defining <samp class="mono">cross</samp> via <samp class="mono">for*/list</samp> is straightforward:</p>
+<figure class="co"><img src="../images/00440.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We use <samp class="mono">check-satisfied</samp> instead of <samp class="mono">check-expect</samp> because we do not wish to predict the exact order in which <samp class="mono">for*/list</samp> generates the pairs.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_476" title="476"></span><b class="calibre9">Note</b> <a id="rfig108" href="part0010.html#fig108" class="calibre5">Figure 108</a> shows another in-context use of <samp class="mono">for*/list</samp>. It displays a compact solution of the extended design problem of creating all possible rearrangements of the letters in a given list.</p>
+<div class="figure">
+<figure class="img"><a id="fig108" class="calibre5"></a><img src="../images/00441.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig108" class="calibre5">Figure 108</a>:</span> <span>A compact definition of <samp class="mono">arrangements</samp> with <samp class="mono">for*/list</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">While chapter 12.4 sketches the proper design of this complex program, <a href="part0010.html#fig108" class="calibre5">figure 108</a> uses the combined power of <samp class="mono">for*/list</samp> and an unusual form of recursion to define the same program as a single, five-line function definition. The figure merely exhibits the power of these abstractions; for the underlying design, see especially exercise 477. <b class="calibre9">End</b></p>
+<p class="marginpar">We thank Mark Engelberg for suggesting this exhibition of expressive power.</p>
+<p class="calibre8">The <samp class="mono"><span>…</span>/list</samp> suffix clearly signals that the loop expression creates a list. In addition, the library comes with <samp class="mono">for</samp> and <samp class="mono">for*</samp>x loops that have equally suggestive suffixes:</p>
+<p class="blf">•  <samp class="mono"><span>…</span>/and</samp> collects the values of all iterations with <samp class="mono">and</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (for/and</samp><samp class="mono"> ([i 10])</samp><samp class="mono"> (&gt; (-</samp><samp class="mono"> 9 i)</samp><samp class="mono"> 0))</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (for/and</samp><samp class="mono"> ([i 10])</samp><samp class="mono"> (if (&gt;=</samp><samp class="mono"> i 0)</samp><samp class="mono"> i #false))</samp> <br class="calibre4"/><samp class="mono">9</samp></samp></p>
+</div>
+<p class="myitemizeitem"><span epub:type="pagebreak" id="pg_477" title="477"></span>For pragmatics, the loop returns the last generated value or <samp class="mono">#false</samp>.</p>
+<p class="blf">•  <samp class="mono"><span>…</span>/or</samp> is like <samp class="mono"><span>…</span>/and</samp> but uses <samp class="mono">or</samp> instead of <samp class="mono">and</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (for/or</samp><samp class="mono"> ([i 10])</samp><samp class="mono"> (if (=</samp><samp class="mono"> (- 9</samp><samp class="mono"> i) 0)</samp><samp class="mono"> i #false))</samp> <br class="calibre4"/><samp class="mono">9</samp> <br class="calibre4"/><samp class="mono">&gt; (for/or</samp><samp class="mono"> ([i 10])</samp><samp class="mono"> (if (&lt;</samp><samp class="mono"> i 0)</samp><samp class="mono"> i #false))</samp> <br class="calibre4"/><samp class="mono">#false</samp></samp></p>
+</div>
+<p class="myitemizeitem">These loops return the first value that is not <samp class="mono">#false</samp>.</p>
+<p class="blf">•  <samp class="mono"><span>…</span>/sum</samp> adds up the numbers that the iterations generate:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (for/sum</samp><samp class="mono"> ([c "abc"])</samp><samp class="mono"> (string-&gt;int c))</samp> <br class="calibre4"/><samp class="mono">294</samp></samp></p>
+</div>
+<p class="blf">•  <samp class="mono"><span>…</span>/product</samp> multiplies the numbers that the iterations generate</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (for/product</samp><samp class="mono"> ([c "abc"])</samp><samp class="mono"> (+ (string-&gt;int</samp><samp class="mono"> c) 1))</samp> <br class="calibre4"/><samp class="mono">970200</samp></samp></p>
+</div>
+<p class="blf">•  <samp class="mono"><span>…</span>/string</samp> creates Strings from the 1String sequence:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (define</samp><samp class="mono"> a (string-&gt;int</samp><samp class="mono"> "a"))</samp> <br class="calibre4"/><samp class="mono">&gt; (for/string</samp><samp class="mono"> ([j 10])</samp><samp class="mono"> (int-&gt;string (+</samp><samp class="mono"> a j)))</samp> <br class="calibre4"/><samp class="mono">"abcdefghij"</samp></samp></p>
+</div>
+<p class="stni">Stop! Imagine how a <samp class="mono">for/fold</samp> loop would work.</p>
+<p class="calibre8">Stop again! It is an instructive exercise to reformulate all of the above examples using the existing abstractions in ISL+. Doing so also indicates how to design functions with <samp class="mono">for</samp> loops instead of abstract functions. <b class="calibre9">Hint</b> Design <samp class="mono">and-map</samp> and <samp class="mono">or-map</samp>, which work like <samp class="mono">andmap</samp> and <samp class="mono">ormap</samp>, respectively, but which return the appropriate non-<samp class="mono">#false</samp> values.</p>
+<p class="calibre8">Looping over numbers isn’t always a matter of enumerating <samp class="mono">0</samp> through <samp class="mono">(</samp>- <samp class="mono">n 1)</samp>. Often programs need to step through nonsequential sequences of numbers; other times, an unlimited supply of numbers is needed. To accommodate this form of programming, Racket comes with functions that generate sequences, and <a id="rfig109" href="part0010.html#fig109" class="calibre5">figure 109</a> lists two that are provided in the abstraction library for ISL+.</p>
+<div class="figure">
+<figure class="img"><a id="fig109" class="calibre5"></a><img src="../images/00442.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig109" class="calibre5">Figure 109</a>:</span> <span>Constructing sequences of natural numbers</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_478" title="478"></span>With the first one, we can simplify the <samp class="mono">enumerate</samp> function a bit:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (enumerate.v2</samp><samp class="mono"> lx)</samp> <br class="calibre4"/><samp class="mono">  (for/list</samp><samp class="mono"> ([item lx]</samp><samp class="mono"> [ith (in-naturals</samp><samp class="mono"> 1)])</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> ith item)))</samp></p>
+</div>
+<p class="tni">Here <samp class="mono">in-naturals</samp> is used to generate the infinite sequence of natural numbers starting at <samp class="mono">1</samp>; the <samp class="mono">for</samp> loop stops when <samp class="mono">l</samp> is exhausted.</p>
+<p class="calibre8">With the second one, it is, for example, possible to step through the even numbers among the first <samp class="mono">n</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> the even</samp><samp class="mono"> numbers between</samp><samp class="mono"> 0 and</samp><samp class="mono"> n (exclusive)</samp> <br class="calibre4"/><samp class="mono">(check-expect (sum-evens</samp><samp class="mono"> 2) 0)</samp> <br class="calibre4"/><samp class="mono">(check-expect (sum-evens</samp><samp class="mono"> 4) 2)</samp> <br class="calibre4"/><samp class="mono">(define (sum-evens</samp><samp class="mono"> n)</samp> <br class="calibre4"/><samp class="mono">  (for/sum</samp><samp class="mono"> ([i (in-range</samp><samp class="mono"> 0 n</samp><samp class="mono"> 2)]) i))</samp></p>
+</div>
+<p class="tni">Although this use may appear trivial, many problems originating in mathematics call for just such loops, which is precisely why concepts such as <samp class="mono">in-range</samp> are found in many programming languages.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 305. Use loops to define <samp class="mono">convert-euro</samp>. See exercise 267. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_479" title="479"></span><b class="calibre9">Exercise</b> 306. Use loops to define a function that</p>
+<p class="nlf">1. creates the list <samp class="mono">(list 0 <span>…</span> (</samp>- <samp class="mono">n 1))</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">2. creates the list <samp class="mono">(list 1 <span>…</span> n)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">3. creates the list <samp class="mono">(list 1 1/2 <span>…</span></samp> 1<i class="calibre6">/n</i><samp class="mono">)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">4. creates the list of the first <samp class="mono">n</samp> even numbers; and</p>
+<p class="nll">5. creates a diagonal square of <samp class="mono">0</samp>s and <samp class="mono">1</samp>s; see exercise 262.</p>
+<p class="tni">Finally, use loops to define <samp class="mono">tabulate</samp> from exercise 250. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 307. Define <samp class="mono">find-name</samp>. The function consumes a name and a list of names. It retrieves the first name on the latter that is equal to, or an extension of, the former.</p>
+<p class="calibre8">Define a function that ensures that no name on some list of names exceeds some given width. Compare with exercise 271. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Pattern Matching</b></p>
+<p class="tni">When we design a function for a data definition with six clauses, we use a six-pronged <samp class="mono">cond</samp> expression. When we formulate one of the <samp class="mono">cond</samp> clauses, we use a predicate to determine whether this clause should process the given value and, if so, selectors to deconstruct any compound values. The first three parts of this book explain this idea over and over again.</p>
+<p class="marginpar">The interested instructor may wish to study the facilities of the <i class="calibre6">2htdp/abstraction</i> library to define algebraic data types.</p>
+<p class="calibre8">Repetition calls for abstraction. While part III explains how programmers can create some of these abstractions, the predicate-selector pattern can be addressed only by a language designer. In particular, the designers of functional programming languages have recognized the need for abstracting these repetitive uses of predicates and selectors. These languages therefore provide <i class="calibre6">pattern matching</i> as a linguistic construct that combines and simplifies these <samp class="mono">cond</samp> clauses.</p>
+<p class="calibre8">This section presents a simplification of Racket’s pattern matcher. <a id="rfig110" href="part0010.html#fig110" class="calibre5">Figure 110</a>, which displays its grammar; match is clearly a syntactically complex construct. While its outline resembles that of <samp class="mono">cond</samp>, it features patterns instead of conditions, and they come with their own rules.</p>
+<div class="figure">
+<figure class="img"><a id="fig110" class="calibre5"></a><img src="../images/00443.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0010.html#rfig110" class="calibre5">Figure 110</a>:</span> <span>ISL+ match expressions</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Roughly speaking,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(match expr</samp> <br class="calibre4"/><samp class="mono">  [pattern1</samp><samp class="mono"> expr1]</samp> <br class="calibre4"/><samp class="mono">  [pattern2</samp><samp class="mono"> expr2]</samp> <br class="calibre4"/><samp class="mono">  <span>…</span>)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_480" title="480"></span>proceeds like a <samp class="mono">cond</samp> expression in that it evaluates <samp class="mono">expr</samp> and sequentially tries to match its result with <samp class="mono">pattern</samp><sub class="calibre17">1</sub>, <samp class="mono">pattern</samp><sub class="calibre17">2</sub>, <span>⋯</span> until it succeeds with <samp class="mono">pattern</samp><sub class="calibre17"><i class="calibre6">i</i></sub>. At that point, it determines the value of <samp class="mono">expr</samp><sub class="calibre17"><i class="calibre6">i</i></sub>, which is also the result of the entire <samp class="mono">match</samp> expression.</p>
+<p class="calibre8">The key difference is that <samp class="mono">match</samp>, unlike <samp class="mono">cond</samp>, introduces a new scope, which is best illustrated with a screen shot from DrRacket:</p>
+<figure class="co"><img src="../images/00444.gif" alt="" class="calibre10"/></figure>
+<p class="tni">As the image shows, each pattern clause of this function binds variables. Furthermore, the scope of a variable is the body of the clause, so even if two patterns introduce the same variable binding—as is the case in the above code snippet—their bindings cannot interfere with each other.</p>
+<p class="calibre8">Syntactically, a pattern resembles nested, structural data whose leafs are literal constants, variables, or predicate patterns of the shape</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(? predicate-name)</samp></p>
+</div>
+<p class="tni">In the latter, <samp class="mono">predicate-name</samp> must refer to a predicate function in scope, that is, a function that consumes one value and produces a Boolean.</p>
+<p class="calibre8">Semantically, a pattern is <samp class="mono">match</samp>ed to a value <samp class="mono">v</samp>. If the pattern is</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_481" title="481"></span>•  a <samp class="mono">literal-constant</samp>, it matches only that literal constant</p>
+<figure class="co"><img src="../images/00445.gif" alt="" class="calibre10"/></figure>
+<p class="blf">•  a <samp class="mono">variable</samp>, it matches any value, and it is associated with this value during the evaluation of the body of the corresponding <samp class="mono">match</samp> clause</p>
+<figure class="co"><img src="../images/00446.gif" alt="" class="calibre10"/></figure>
+<p class="myitemizeitem">Since <samp class="mono">2</samp> does not equal the first pattern, which is the literal constant <samp class="mono">3</samp>, <samp class="mono">match</samp> matches <samp class="mono">2</samp> with the second pattern, which is a plain variable and thus matches any value. Hence, <samp class="mono">match</samp> picks the second clause and evaluates its body, with <samp class="mono">x</samp> standing for <samp class="mono">2</samp>.</p>
+<p class="blf">•  <samp class="mono">(cons pattern</samp><sub class="calibre17">1</sub> <samp class="mono">pattern</samp><sub class="calibre17">2</sub><samp class="mono">)</samp>, it matches only an instance of <samp class="mono">cons</samp>, assuming its first field matches <samp class="mono">pattern</samp><sub class="calibre17">1</sub> and its rest matches <samp class="mono">pattern</samp><sub class="calibre17">2</sub></p>
+<figure class="co"><img src="../images/00447.gif" alt="" class="calibre10"/></figure>
+<p class="myitemizeitem">These interactions show how <samp class="mono">match</samp> first deconstructs <samp class="mono">cons</samp> and then uses literal constants and variables for the leafs of the given list.</p>
+<p class="blf">•  <samp class="mono">(structure-name pattern</samp><sub class="calibre17">1</sub> <samp class="mono"><span>…</span> pattern</samp><sub class="calibre17"><i class="calibre6">n</i></sub><samp class="mono">)</samp>, it matches only a <samp class="mono">structure-name</samp> structure, assuming its field values match <samp class="mono">pattern</samp><sub class="calibre17">1</sub>,<span>⋯</span>,<samp class="mono">pattern</samp><sub class="calibre17"><i class="calibre6">n</i></sub></p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><span epub:type="pagebreak" id="pg_482" title="482"></span><samp class="mono">&gt; (define</samp><samp class="mono"> p (make-posn</samp><samp class="mono"> 3 4))</samp> <br class="calibre4"/><samp class="mono">&gt; (match</samp><samp class="mono"> p</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(posn</samp><samp class="mono"> x y)</samp><samp class="mono"> (sqrt (+</samp><samp class="mono"> (sqr x)</samp><samp class="mono"> (sqr y)))])</samp> <br class="calibre4"/><samp class="mono">5</samp></samp></p>
+</div>
+<p class="myitemizeitem">Obviously, matching an instance of <samp class="mono">posn</samp> with a pattern is just like matching a <samp class="mono">cons</samp> pattern. Note, though, how the pattern uses <samp class="mono">posn</samp> for the pattern, not the name of the constructor.</p>
+<p class="myitemizeitem">Matching also works for our own structure type definitions:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (define-struct</samp><samp class="mono"> phone [area</samp><samp class="mono"> switch four])</samp> <br class="calibre4"/><samp class="mono">&gt; (match</samp><samp class="mono"> (make-phone 713</samp><samp class="mono"> 664 9993)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(phone</samp><samp class="mono"> x y</samp><samp class="mono"> z) (+</samp><samp class="mono"> x y</samp><samp class="mono"> z)])</samp> <br class="calibre4"/><samp class="mono">11370</samp></samp></p>
+</div>
+<p class="myitemizeitem">Again, the pattern uses the name of the structure, <samp class="mono">phone</samp>.</p>
+<p class="myitemizeitem">Finally, matching also works across several layers of constructions:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (match</samp><samp class="mono"> (cons (make-phone</samp><samp class="mono"> 713 664</samp><samp class="mono"> 9993) '())</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons</samp><samp class="mono"> (phone area-code</samp><samp class="mono"> 664 9993)</samp><samp class="mono"> tail)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> area-code])</samp> <br class="calibre4"/><samp class="mono">713</samp></samp></p>
+</div>
+<p class="myitemizeitem">This <samp class="mono">match</samp> expression extracts the area code from a phone number in a list if the <samp class="mono">switch</samp> code is <samp class="mono">664</samp> and the last four digits are <samp class="mono">9993</samp>.</p>
+<p class="blf">•  <samp class="mono">(? predicate-name)</samp>, it matches when <samp class="mono">(predicate-name v)</samp> produces <samp class="mono">#true</samp></p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (match</samp><samp class="mono"> (cons 1</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons</samp><samp class="mono"> (? symbol?)</samp><samp class="mono"> tail) tail]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons</samp><samp class="mono"> head tail)</samp><samp class="mono"> head])</samp> <br class="calibre4"/><samp class="mono">1</samp></samp></p>
+</div>
+<p class="myitemizeitem">This expression produces <samp class="mono">1</samp>, the result of the second clause, because <samp class="mono">1</samp> is not a symbol.</p>
+<p class="stni">Stop! Experiment with <samp class="mono">match</samp> before you read on.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_483" title="483"></span>At this point, it is time to demonstrate the usefulness of <samp class="mono">match</samp>:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the function <samp class="mono">last-item</samp>, which retrieves the last item on a non-empty list. Recall that non-empty lists are defined as follows:</p>
+</div>
+<div class="ind">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; A</samp><samp class="mono"> [</samp><span class="calibre6">Non-empty-list</span><samp class="mono"> X] is</samp><samp class="mono"> one of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons X</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons X</samp><samp class="mono"> [</samp><span>Non-empty-list</span><samp class="mono"> X])</samp></samp></p>
+</div>
+</div>
+<p class="tni">Stop! Part II deals with this problem. Look up the solution.</p>
+<p class="calibre8">With <samp class="mono">match</samp>, a designer can eliminate three selectors and two predicates from the solution using <samp class="mono">cond</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Non-empty-list<samp class="mono"> X] -&gt;</samp><samp class="mono"> X</samp> <br class="calibre4"/><samp class="mono">; retrieves</samp><samp class="mono"> the last</samp><samp class="mono"> item of</samp><samp class="mono"> ne-l</samp> <br class="calibre4"/><samp class="mono">(check-expect (last-item</samp><samp class="mono"> '(a b</samp><samp class="mono"> c)) 'c)</samp> <br class="calibre4"/><samp class="mono">(check-error (last-item</samp><samp class="mono"> '()))</samp> <br class="calibre4"/><samp class="mono">(define (last-item</samp><samp class="mono"> ne-l)</samp> <br class="calibre4"/><samp class="mono">  (match</samp><samp class="mono"> ne-l</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons</samp><samp class="mono"> lst '())</samp><samp class="mono"> lst]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons</samp><samp class="mono"> fst rst)</samp><samp class="mono"> (last-item rst)]))</samp></p>
+</div>
+<p class="tni">Instead of predicates and selectors, this solution uses patterns that are just like those found in the data definition. For each self-reference and occurrence of the set parameter in the data definition, the patterns use program-level variables. The bodies of the <samp class="mono">match</samp> clauses no longer extract the relevant parts from the list with selectors but simply refer to these names. As before, the function recurs on the <samp class="mono">rest</samp> field of the given <samp class="mono">cons</samp> because the data definition refers to itself in this position. In the base case, the answer is <samp class="mono">lst</samp>, the variable that stands for the last item on the list.</p>
+<p class="calibre8">Let’s take a look at a second problem from part II:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the function <samp class="mono">depth</samp>, which measures the number of layers surrounding a Russian doll. Here is the data definition again:</p>
+</div>
+<div class="ind">
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define-struct layer</samp><samp class="mono"> [color doll])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">RD.v2</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">Russian doll</span><samp class="mono">) is</samp><samp class="mono"> one of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> "doll"</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-layer </samp><span>String RD.v2</span><samp class="mono">)</samp></samp></p>
+</div>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_484" title="484"></span>Here is a definition of <samp class="mono">depth</samp> using <samp class="mono">match</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>RD.v2<samp class="mono"> -&gt; </samp>N <br class="calibre4"/><samp class="mono">; how</samp><samp class="mono"> many dolls</samp><samp class="mono"> are a</samp><samp class="mono"> part of</samp><samp class="mono"> an-rd</samp> <br class="calibre4"/><samp class="mono">(check-expect (depth</samp><samp class="mono"> (make-layer "red"</samp><samp class="mono"> "doll")) 1)</samp> <br class="calibre4"/><samp class="mono">(define (depth</samp><samp class="mono"> a-doll)</samp> <br class="calibre4"/><samp class="mono">  (match</samp><samp class="mono"> a-doll</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  ["doll"</samp><samp class="mono"> 0]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(layer</samp><samp class="mono"> c inside)</samp><samp class="mono"> (+ (depth</samp><samp class="mono"> inside) 1)]))</samp></p>
+</div>
+<p class="tni">While the pattern in the first <samp class="mono">match</samp> clause looks for <samp class="mono">"doll"</samp>, the second one matches any <samp class="mono">layer</samp> structure, associating <samp class="mono">c</samp> with the value in the <samp class="mono">color</samp> field and <samp class="mono">inside</samp> with the value in the <samp class="mono">doll</samp> field. In short, <samp class="mono">match</samp> again makes the function definition concise.</p>
+<p class="calibre8">The final problem is an excerpt from the generalized UFO game:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the <samp class="mono">move-right</samp> function. It consumes a list of Posns, which represent the positions of objects on a canvas, plus a number. The function adds the latter to each x-coordinate, which represents a rightward movement of these objects.</p>
+</div>
+<p class="tni">Here is our solution, using the full power of ISL+:</p>
+<figure class="co"><img src="../images/00448.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Did you notice that we use <samp class="mono">define</samp> to formulate the tests? If you give data examples good names with <samp class="mono">define</samp> and write down next to them what a function produces as the expected result, you can read the code later much more easily than if you had just written down the constants.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_485" title="485"></span>Stop! How does a solution with <samp class="mono">cond</samp> and selectors compare? Write it out and compare the two. Which one do you like better?</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 308. Design the function <samp class="mono">replace</samp>, which substitutes the area code <samp class="mono">713</samp> with <samp class="mono">281</samp> in a list of phone records. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 309. Design the function <samp class="mono">words-on-line</samp>, which determines the number of Strings per item in a list of list of strings. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</article>
+</div>
+</body></html>

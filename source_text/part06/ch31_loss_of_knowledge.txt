@@ -1,0 +1,337 @@
+# Chapter 31: The Loss of Knowledge / 第 31 章：知识的丢失
+
+<h1>
+31 The Loss of Knowledge
+</h1>
+
+<P>
+Both functions designed according to structural recipes and the generative one suffer from the loss of knowledge, though in different ways. This chapter explains with two examples—one from each category—how the lack of contextual knowledge affects the performance of functions. While the first section is about structural recursion, the second one addresses concerns in the generative realm.
+</P>
+
+<h2>
+31.1 A Problem with Structural Processing
+</h2>
+
+<P>
+Let’s start with a seemingly straightforward example:
+</P>
+
+<P>
+Sample Problem You are working for a geometer team that will measure the length of road segments. The team asked you to design a program that translates these relative distances between a series of road points into absolute distances from some starting point.
+</P>
+
+<P>
+For example, we might be given a line such as this:
+</P>
+
+<FIGURE src="images/00713.png">
+
+</FIGURE>
+
+<P>
+Each number specifies the distance between two dots. What we need is the following picture, where each dot is annotated with the distance to the left-most end:
+</P>
+
+<FIGURE src="images/00714.png">
+
+</FIGURE>
+
+<P>
+Designing a program that performs this calculation is a mere exercise in structural function design. Figure 177 contains the complete program. When the given list is not '(), the natural recursion computes the absolute distance of the remainder of the dots to the first one on (rest l). Because the first is not the actual origin and has a distance of (first l) to the origin, we must add (first l) to each number on the result of the natural recursion. This second step—adding a number to each item on a list of numbers—requires an auxiliary function.
+</P>
+
+<FIGURE src="images/00715.png">
+Figure 177: Converting relative distances to absolute distances
+</FIGURE>
+
+<P>
+While designing the program is relatively straightforward, using it on larger and larger lists reveals a problem. Consider the evaluation of the following expression:
+</P>
+
+<CODE>
+(relative->absolute (build-list size add1))
+</CODE>
+
+<P>
+As we increase size, the time needed grows even faster:
+</P>
+
+<FIGURE src="images/00716.png">
+
+</FIGURE>
+
+<P>
+Instead of doubling as we go from 1000 to 2000 items, the time quadruples. This is also the approximate relationship for going from 2000 to 4000, and so on. Using the terminology of intermezzo 5, we say that the function’s performance is O(n2) where n is the length of the given list.
+</P>
+
+<MARGIN_NOTE>
+The times will differ from computer to computer and year to year. These measurements were conducted in 2017 on a MacMini running OS X 10.11; the previous measurement took place in 1998, and the times were 100x larger.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 489. Reformulate add-to-each using map and lambda.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 490. Develop a formula that describes the abstract running time of relative->absolute. Hint Evaluate the expression
+</EXERCISE>
+
+<CODE>
+(relative->absolute (build-list size add1))
+</CODE>
+
+<P>
+by hand. Start by replacing size with 1, 2, and 3. How many recursions of relative->absolute and add-to-each are required each time?
+</P>
+
+<P>
+Considering the simplicity of the problem, the amount of work that the program performs is surprising. If we were to convert the same list by hand, we would tally up the total distance and just add it to the relative distances as we take steps along the line. Why can’t a program do so?
+</P>
+
+<P>
+Let’s attempt to design a version of the function that is close to our manual method. We still start from the list-processing template:
+</P>
+
+<FIGURE src="images/00717.png">
+
+</FIGURE>
+
+<P>
+Now let’s simulate a hand-evaluation:
+</P>
+
+<FIGURE src="images/00718.png">
+
+</FIGURE>
+
+<P>
+The first item of the result list should obviously be 3, and it is easy to construct this list. But, the second one should be (+ 3 2), yet the second instance of relative->absolute/a has no way of “knowing” that the first item of the original list is 3. The “knowledge” is lost.
+</P>
+
+<P>
+Again, the problem is that recursive functions are independent of their context. A function processes L in (cons N L) the same way as in (cons K L). Indeed, if given L by itself, it would also process the list in that way.
+</P>
+
+<P>
+To make up for the loss of “knowledge,” we equip the function with an additional parameter: accu-dist. The latter represents the accumulated distance, which is the tally that we keep when we convert a list of relative distances to a list of absolute distances. Its initial value must be 0. As the function traverses the list, it must add its numbers to the tally.
+</P>
+
+<P>
+Here is the revised definition:
+</P>
+
+<FIGURE src="images/00719.png">
+
+</FIGURE>
+
+<P>
+The recursive application consumes the rest of the list and the new absolute distance of the current point to the origin. Although both arguments are changing for every call, the change in the second one strictly depends on the first argument. The function is still a plain list-processing procedure.
+</P>
+
+<P>
+Now let’s evaluate our running example again:
+</P>
+
+<CODE>
+(relative->absolute/a (list 3 2 7)) == (relative->absolute/a (list 3 2 7) 0) == (cons 3 (relative->absolute/a (list 2 7) 3)) == (cons 3 (cons 5 (relative->absolute/a (list 7) 5))) == (cons 3 (cons 5 (cons 12 ???))) == (cons 3 (cons 5 (cons 12 '())))
+</CODE>
+
+<P>
+Stop! Fill in the question marks in line 4.
+</P>
+
+<P>
+The hand-evaluation shows just how much the use of an accumulator simplifies the conversion process. Each item in the list is processed once. When relative->absolute/a reaches the end of the argument list, the result is completely determined and no further work is needed. In general, the function performs on the order of N natural recursion steps for a list with N items.
+</P>
+
+<P>
+One problem is that, unlike relative->absolute, the new function consumes two arguments, not just one. Worse, someone might accidentally misuse relative->absolute/a by applying it to a list of numbers and a number that isn’t 0. We can solve both problems with a function definition that uses a local definition to encapsulate relative->absolute/a; figure 178 shows the result. Now, relative->absolute is indistinguishable from relative->absolute.v2 with respect to input-output.
+</P>
+
+<FIGURE src="images/00720.png">
+Figure 178: Converting relative distances with an accumulator
+</FIGURE>
+
+<P>
+Now let’s look at how this version of the program performs. To this end, we evaluate
+</P>
+
+<CODE>
+(relative->absolute.v2 (build-list size add1))
+</CODE>
+
+<P>
+and tabulate the results for several values of size:
+</P>
+
+<FIGURE src="images/00721.png">
+
+</FIGURE>
+
+<P>
+Amazingly, relative->absolute.v2 never takes more than one second to process such lists, even for a list of 7000 numbers. Comparing this performance to the one of relative->absolute, you may think that accumulators are a miracle cure for all slow-running programs. Unfortunately, this isn’t the case, but when a structurally recursive function has to re-process the result of the natural recursion you should definitely consider the use of accumulators. In this particular case, the performance improved from O(n2) to O(n)—with an additional large reduction in the constant.
+</P>
+
+<EXERCISE>
+Exercise 491. With a bit of design and a bit of tinkering, a friend of yours came up with the following solution for the sample problem:
+</EXERCISE>
+
+<FIGURE src="images/00722.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+Adrian German and Mardin Yadegar suggested this exercise.
+</MARGIN_NOTE>
+
+<P>
+This simple solution merely uses well-known ISL+ functions: reverse and foldr. Using lambda, as you know, is just a convenience. You may also recall from part III that foldr is designable with the design recipes presented in the first two parts of the book.
+</P>
+
+<P>
+Does your friend’s solution mean there is no need for our complicated design in this motivational section? For an answer, see chapter 32.1, but reflect on the question first. Hint Try to design reverse on your own.
+</P>
+
+<h2>
+31.2 A Problem with Generative Recursion
+</h2>
+
+<P>
+Let’s revisit the problem of “traveling” along a path in a graph:
+</P>
+
+<P>
+Sample Problem Design an algorithm that checks whether two nodes are connected in a simple graph. In such a graph, each node has exactly one, directional connection to another, and possibly itself.
+</P>
+
+<P>
+Chapter 29 covers the variant where the algorithm has to discover the path. This sample problem is simpler than that because this section focuses on the design of an accumulator version of the algorithm.
+</P>
+
+<P>
+Consider the sample graph in figure 179. There are six nodes, A through F, and six connections. A path from A to E must contain B and C. There is no path, though, from A to F or from any other node besides itself.
+</P>
+
+<FIGURE src="images/00723.png">
+Figure 179: A simple graph
+</FIGURE>
+
+<P>
+The right part of figure 179 shows how to represent this graph with nested lists. Each node is represented by a list of two symbols. The first symbol is the label of the node; the second one is the single node that is reachable from the first one. Here are the relevant data definitions:
+</P>
+
+<CODE>
+; A SimpleGraph is a [List-of Connection] ; A Connection is a list of two items: ;   (list Node Node) ; A Node is a Symbol.
+</CODE>
+
+<P>
+They are straightforward translations of our informal descriptions.
+</P>
+
+<P>
+We already know that the problem calls for generative recursion, and it is easy to create the header material:
+</P>
+
+<CODE>
+; Node Node SimpleGraph -> Boolean ; is there a path from origin to destination ; in the simple graph sg (check-expect (path-exists? 'A 'E a-sg) #true) (check-expect (path-exists? 'A 'F a-sg) #false) (define (path-exists? origin destination sg)   #false)
+</CODE>
+
+<P>
+What we need are answers to the four basic questions of the recipe for generative recursion:
+</P>
+
+<P>
+•  The problem is trivial if origin is the same as destination.
+</P>
+
+<P>
+•  The trivial solution is #true.
+</P>
+
+<P>
+•  If origin is not the same as destination, there is only one thing we can do: step to the immediate neighbor and search for destination from there.
+</P>
+
+<P>
+•  There is no need to do anything if we find the solution to the new problem. If origin’s neighbor is connected to destination, then so is origin. Otherwise there is no connection.
+</P>
+
+<P>
+From here we just need to express these answers in ISL+ to obtain a full-fledged program.
+</P>
+
+<P>
+Figure 180 contains the complete program, including the function for finding the neighbor of a node in a simple graph—a straightforward exercise in structural recursion—and test cases for both possible outcomes. Don’t run the program, however. If you do, be ready with your mouse to stop the run-away program. Indeed, even a casual look at the function suggests that we have a problem. Although the function is supposed to produce #false if there is no path from origin to destination, the program doesn’t contain #false anywhere. Conversely, we need to ask what the function actually does when there is no path between two nodes.
+</P>
+
+<FIGURE src="images/00724.png">
+Figure 180: Finding a path in a simple graph
+</FIGURE>
+
+<P>
+Take another look at figure 179. In this simple graph there is no path from C to D. The connection that leaves C passes right by D and instead goes to E. So let’s look at a hand-evaluation:
+</P>
+
+<CODE>
+(path-exists? 'C 'D '((A B) … (F F))) == (path-exists? 'E 'D '((A B) … (F F))) == (path-exists? 'B 'D '((A B) … (F F))) == (path-exists? 'C 'D '((A B) … (F F)))
+</CODE>
+
+<P>
+It confirms that as the function recurs, it calls itself with the exact same arguments again and again. In other words, the evaluation never stops.
+</P>
+
+<P>
+Our problem with path-exists? is again a loss of “knowledge,” similar to that of relative->absolute above. Like relative->absolute, the design of path-exists? uses a recipe and assumes that recursive calls are independent of their context. In the case of path-exists? this means, in particular, that the function doesn’t “know” whether a previous application in the current chain of recursions received the exact same arguments.
+</P>
+
+<P>
+The solution to this design problem follows the pattern of the preceding section. We add a parameter, which we call seen and which represents the accumulated list of starter nodes that the function has encountered, starting with the original application. Its initial value must be '(). As the function checks on a specific origin and moves to its neighbors, origin is added to seen.
+</P>
+
+<P>
+Here is a first revision of path-exists?, dubbed path-exists?/a:
+</P>
+
+<FIGURE src="images/00725.png">
+
+</FIGURE>
+
+<P>
+The addition of the new parameter alone does not solve our problem, but, as the hand-evaluation of
+</P>
+
+<CODE>
+(path-exists?/a 'C 'D '((A B) … (F F)) '())
+</CODE>
+
+<P>
+shows, it provides the foundation for one:
+</P>
+
+<CODE>
+== (path-exists?/a 'E 'D '((A B) … (F F)) '(C)) == (path-exists?/a 'B 'D '((A B) … (F F)) '(E C)) == (path-exists?/a 'C 'D '((A B) … (F F)) '(B E C))
+</CODE>
+
+<P>
+In contrast to the original function, the revised function no longer calls itself with the exact same arguments. While the three arguments proper are again the same for the third recursive application, the accumulator argument is different from that of the first application. Instead of '(), it is now '(B E C). The new value tells us that during the search of a path from 'C to 'D, the function has inspected 'B, 'E, and 'C as starting points.
+</P>
+
+<P>
+All we need to do now is to make the algorithm exploit the accumulated knowledge. Specifically, the algorithm can determine whether the given origin is already an item in seen. If so, the problem is also trivially solvable, yielding #false as the solution. Figure 181 contains the definition of path-exists.v2?, which is the revision of path-exists?. The definition refers to member?, an ISL+ function.
+</P>
+
+<FIGURE src="images/00726.png">
+Figure 181: Finding a path in a simple graph with an accumulator
+</FIGURE>
+
+<P>
+The definition of path-exists.v2? also eliminates the two minor problems with the first revision. By localizing the definition of the accumulating function, we can ensure that the first call always uses '() as the initial value for seen. And, path-exists.v2? satisfies the exact same signature and purpose statement as the path-exists? function.
+</P>
+
+<P>
+Still, there is a significant difference between path-exists.v2? and relative-to-absolute2. Whereas the latter was equivalent to the original function, path-exists.v2? improves on path-exists?. While the latter fails to find an answer for some inputs, path-exists.v2? finds a solution for any simple graph.
+</P>
+
+<EXERCISE>
+Exercise 492. Modify the definitions in figure 169 so that the program produces #false, even if it encounters the same origin twice.
+</EXERCISE>

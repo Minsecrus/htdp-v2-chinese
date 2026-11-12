@@ -1,0 +1,741 @@
+# Chapter 8: Lists / 第 8 章：列表
+
+<h1>
+8 Lists
+</h1>
+
+<P>
+You have probably not encountered self-referential definitions before. Your English teachers certainly stay away from these, and many mathematics courses are vague when it comes to such definitions. Programmers cannot afford to be vague. Their work requires precision. While a definition may in general contain several references to itself, this chapter presents useful examples that need just one, starting with the one for lists.
+</P>
+
+<P>
+The introduction of lists also spices up the kind of applications we can study. While this chapter carefully builds up your intuition with examples, it also motivates the revision of the design recipe in the next chapter, which explains how to systematically create functions that deal with self-referential data definitions.
+</P>
+
+<h2>
+8.1 Creating Lists
+</h2>
+
+<P>
+All of us make lists all the time. Before we go grocery shopping, we write down a list of items we wish to purchase. Some people write down a to-do list every morning. During December, many children prepare Christmas wish lists. To plan a party, we make a list of invitees. Arranging information in the form of lists is an ubiquitous part of our life.
+</P>
+
+<P>
+Given that information comes in the shape of lists, we must clearly learn how to represent such lists as BSL data. Indeed, because lists are so important, BSL comes with built-in support for creating and manipulating lists, similar to the support for Cartesian points (posn). In contrast to points, the data definition for lists is always left to you. But first things first. We start with the creation of lists.
+</P>
+
+<P>
+When we form a list, we always start out with the empty list. In BSL, we represent the empty list with
+</P>
+
+<CODE>
+'()
+</CODE>
+
+<P>
+which is pronounced “empty,” short for “empty list.” Like #true or 5, '() is just a constant. When we add something to a list, we construct another list; in BSL, the cons operation serves this purpose. For example,
+</P>
+
+<CODE>
+(cons "Mercury" '())
+</CODE>
+
+<P>
+constructs a list from the '() list and the string "Mercury". Figure 44 presents this list in the same pictorial manner we used for structures. The box for cons has two fields: first and rest. In this specific example the first field contains "Mercury" and the rest field contains '().
+</P>
+
+<FIGURE src="images/00164.png">
+Figure 44: Building a list
+</FIGURE>
+
+<P>
+Once we have a list with one item in it, we can construct lists with two items by using cons again. Here is one:
+</P>
+
+<CODE>
+(cons "Venus" (cons "Mercury" '()))
+</CODE>
+
+<P>
+And here is another:
+</P>
+
+<CODE>
+(cons "Earth" (cons "Mercury" '()))
+</CODE>
+
+<P>
+The middle row of figure 44 shows how you can imagine lists that contain two items. It is also a box of two fields, but this time the rest field contains a box. Indeed, it contains the box from the top row of the same figure.
+</P>
+
+<P>
+Finally, we construct a list with three items:
+</P>
+
+<CODE>
+(cons "Earth" (cons "Venus" (cons "Mercury" '())))
+</CODE>
+
+<P>
+The last row of figure 44 illustrates the list with three items. Its rest field contains a box that contains a box again. So, as we create lists we put boxes into boxes into boxes, and so on. While this may appear strange at first glance, it is just like a set of Chinese gift boxes or a set of nested drinking cups, which we sometimes get for birthdays. The only difference is that BSL programs can nest lists much deeper than any artist could nest physical boxes.
+</P>
+
+<P>
+Because even good artists would have problems with drawing deeply nested structures, computer scientists resort to box-and-arrow diagrams instead. Figure 45 illustrates how to rearrange the last row of figure 44. Each cons structure becomes a separate box. If the rest field is too complex to be drawn inside of the box, we draw a bullet instead and a line with an arrow to the box that it contains. Depending on how the boxes are arranged, you get two kinds of diagrams. The first, displayed in the top row of figure 45, lists the boxes in the order in which they are created. The second, displayed in the bottom row, lists the boxes in the order in which they are consed together. Hence the second diagram immediately tells you what first would have produced when applied to the list, no matter how long the list is. For this reason, programmers prefer the second arrangement.
+</P>
+
+<FIGURE src="images/00165.png">
+Figure 45: Drawing a list
+</FIGURE>
+
+<EXERCISE>
+Exercise 129. Create BSL lists that represent
+</EXERCISE>
+
+<P>
+1. a list of celestial bodies, say, at least all the planets in our solar system;
+</P>
+
+<P>
+2. a list of items for a meal, for example, steak, french fries, beans, bread, water, Brie cheese, and ice cream; and
+</P>
+
+<P>
+3. a list of colors.
+</P>
+
+<P>
+Sketch some box representations of these lists, similar to those in figures 44 and 45. Which of the sketches do you like better?
+</P>
+
+<P>
+You can also make lists of numbers. Here is a list with the 10 digits:
+</P>
+
+<FIGURE src="images/00166.png">
+
+</FIGURE>
+
+<P>
+To build this list requires 10 list constructions and one '(). For a list of three arbitrary numbers, for example,
+</P>
+
+<FIGURE src="images/00167.png">
+
+</FIGURE>
+
+<P>
+we need three conses.
+</P>
+
+<P>
+In general a list does not have to contain values of one kind, but may contain arbitrary values:
+</P>
+
+<FIGURE src="images/00168.png">
+
+</FIGURE>
+
+<P>
+The first item of this list is a string, the second one is a number, and the last one a Boolean. You may consider this list as the representation of a personnel record with three pieces of data: the name of the employee, the number of years spent at the company, and whether the employee has health insurance through the company. Or, you could think of it as representing a virtual player in some game. Without a data definition, you just can’t know what data is all about.
+</P>
+
+<MARGIN_NOTE>
+Then again, if this list is supposed to represent a record with a fixed number of pieces, use a structure type instead.
+</MARGIN_NOTE>
+
+<P>
+Here is a first data definition that involves cons:
+</P>
+
+<CODE>
+; A 3LON is a list of three numbers: ; (cons Number (cons Number (cons Number '()))) ; interpretation a point in 3-dimensional space
+</CODE>
+
+<P>
+Of course, this data definition uses cons like others use constructors for structure instances, and in a sense, cons is just a special constructor. What this data definition fails to demonstrate is how to form lists of arbitrary length: lists that contain nothing, one item, two items, ten items, or perhaps 1,438,901 items.
+</P>
+
+<P>
+So let’s try again:
+</P>
+
+<CODE>
+; A List-of-names is one of: ; -- '() ; -- (cons String List-of-names) ; interpretation a list of invitees, by last name
+</CODE>
+
+<P>
+Take a deep breath, read it again. This data definition is one of the most unusual definitions you have ever encountered—you have never before seen a definition that refers to itself. It isn’t even clear whether it makes sense. After all, if you had told your English teacher that “a table is a table” defines the word “table,” the most likely response would have been “Nonsense!” because a self-referential definition doesn’t explain what a word means.
+</P>
+
+<P>
+In computer science and in programming, though, self-referential definitions play a central role, and with some care, such definitions actually do make sense. Here “making sense” means that we can use the data definition for what it is intended for, namely, to generate examples of data that belong to the class that is being defined or to check whether some given piece of data belongs to the defined class of data. From this perspective, the definition of List-of-names makes complete sense. At a minimum, we can generate '() as one example, using the first clause in the itemization. Given '() as an element of List-of-names, it is easy to make a second one:
+</P>
+
+<CODE>
+(cons "Findler" '())
+</CODE>
+
+<P>
+Here we are using a String and the only list from List-of-names to generate a piece of data according to the second clause in the itemization. With the same rule, we can generate many more lists of this kind:
+</P>
+
+<CODE>
+(cons "Flatt" '()) (cons "Felleisen" '()) (cons "Krishnamurthi" '())
+</CODE>
+
+<P>
+And while these lists all contain one name (represented as a String), it is actually possible to use the second line of the data definition to create lists with more names in them:
+</P>
+
+<CODE>
+(cons "Felleisen" (cons "Findler" '()))
+</CODE>
+
+<P>
+This piece of data belongs to List-of-names because "Felleisen" is a String and (cons "Findler" '()) is a confirmed List-of-names.
+</P>
+
+<EXERCISE>
+Exercise 130. Create an element of List-of-names that contains five Strings. Sketch a box representation of the list similar to those found in figure 44.
+</EXERCISE>
+
+<P>
+Explain why
+</P>
+
+<CODE>
+(cons "1" (cons "2" '()))
+</CODE>
+
+<P>
+is an element of List-of-names and why (cons 2 '()) isn’t.
+</P>
+
+<EXERCISE>
+Exercise 131. Provide a data definition for representing lists of Boolean values. The class contains all arbitrarily long lists of Booleans.
+</EXERCISE>
+
+<h2>
+8.2 What Is '(), What Is cons
+</h2>
+
+<P>
+Let’s step back for a moment and take a close look at '() and cons. As mentioned, '() is just a constant. When compared to constants such as 5 or "this is a string", it looks more like a function name or a variable; but when compared with #true and #false, it should be easy to see that it really is just BSL’s representation for empty lists.
+</P>
+
+<P>
+As for our evaluation rules, '() is a new kind of atomic value, distinct from any other kind: numbers, Booleans, strings, and so on. It also isn’t a compound value, like Posns. Indeed, '() is so unique it belongs in a class of values all by itself. As such, this class of values comes with a predicate that recognizes only '() and nothing else:
+</P>
+
+<CODE>
+; Any -> Boolean ; is the given value '() (define (empty? x) …)
+</CODE>
+
+<P>
+Like all predicates, empty? can be applied to any value from the universe of BSL values. It produces #true precisely when it is applied to '():
+</P>
+
+<CODE>
+> (empty? '()) #true > (empty? 5) #false > (empty? "hello world") #false > (empty? (cons 1 '())) #false > (empty? (make-posn 0 0)) #false
+</CODE>
+
+<P>
+Next we turn to cons. Everything we have seen so far suggests that cons is a constructor just like those introduced by structure type definitions. More precisely, cons appears to be the constructor for a two-field structure: the first one for any kind of value and the second one for any list-like value. The following definitions translate this idea into BSL:
+</P>
+
+<CODE>
+(define-struct pair [left right]) ; A ConsPair is a structure: ;   (make-pair Any Any). ; Any Any -> ConsPair (define (our-cons a-value a-list)   (make-pair a-value a-list))
+</CODE>
+
+<P>
+The only catch is that our-cons accepts all possible BSL values for its second argument and cons doesn’t, as the following experiment validates:
+</P>
+
+<CODE>
+> (cons 1 2) cons:second argument must be a list, but received 1 and 2
+</CODE>
+
+<P>
+Put differently, cons is really a checked function, the kind discussed in chapter 6, which suggests the following refinement:
+</P>
+
+<CODE>
+; A ConsOrEmpty is one of: ; -- '() ; -- (make-pair Any ConsOrEmpty) ; interpretation ConsOrEmpty is the class of all lists ; Any Any -> ConsOrEmpty (define (our-cons a-value a-list)   (cond     [(empty? a-list) (make-pair a-value a-list)]     [(pair? a-list) (make-pair a-value a-list)]     [else (error "cons: second argument …")]))
+</CODE>
+
+<P>
+If cons is a checked constructor function, you may be wondering how to extract the pieces from the resulting structure. After all, Chapter 5 says that programming with structures requires selectors. Since a cons structure has two fields, there are two selectors: first and rest. They are also easily defined in terms of our pair structure:
+</P>
+
+<FIGURE src="images/00169.png">
+
+</FIGURE>
+
+<P>
+Stop! Define our-rest.
+</P>
+
+<P>
+If your program can access the structure type definition for pair, it is easy to create pairs that don’t contain '() or another pair in the right field. Whether such bad instances are created intentionally or accidentally, they tend to break functions and programs in strange ways. BSL therefore hides the actual structure type definition for cons to avoid these problems. Chapter 16.2 demonstrates one way that your programs can hide such definitions, too, but for now, you don’t need this power.
+</P>
+
+<P>
+Figure 46 summarizes this section. The key insight is that '() is a unique value and that cons is a checked constructor that produces list values. Furthermore, first, rest, and cons? are merely distinct names for the usual predicate and selectors. What this chapter teaches, then, is not a new way of creating data but a new way of formulating data definitions.
+</P>
+
+<FIGURE src="images/00170.png">
+Figure 46: List primitives
+</FIGURE>
+
+<h2>
+8.3 Programming with Lists
+</h2>
+
+<P>
+Say you’re keeping track of your friends with some list, and say the list has grown so large that you need a program to determine whether some name is on the list. To make this idea concrete, let’s state it as an exercise:
+</P>
+
+<MARGIN_NOTE>
+Here we use the word “friend” in the sense of social networks, not the real world.
+</MARGIN_NOTE>
+
+<P>
+Sample Problem You are working on the contact list for some new cell phone. The phone’s owner updates and consults this list on various occasions. For now, you are assigned the task of designing a function that consumes this list of contacts and determines whether it contains the name “Flatt.”
+</P>
+
+<P>
+Once we have a solution to this sample problem, we will generalize it to a function that finds any name on a list.
+</P>
+
+<P>
+The data definition for List-of-names from the preceding is appropriate for representing the list of names that the function is to search. Next we turn to the header material:
+</P>
+
+<CODE>
+; List-of-names -> Boolean ; determines whether "Flatt" is on a-list-of-names (define (contains-flatt? a-list-of-names)   #false)
+</CODE>
+
+<P>
+While a-list-of-names is a good name for the list of names that the function consumes, it is a mouthful and we therefore shorten it to alon.
+</P>
+
+<P>
+Following the general design recipe, we next make up some examples that illustrate the purpose of the function. First, we determine the output for the simplest input: '(). Since this list does not contain any strings, it certainly does not contain "Flatt":
+</P>
+
+<CODE>
+(check-expect (contains-flatt? '()) #false)
+</CODE>
+
+<P>
+Then we consider lists with a single item. Here are two examples:
+</P>
+
+<FIGURE src="images/00171.png">
+
+</FIGURE>
+
+<P>
+In the first case, the answer is #false because the single item on the list is not "Flatt"; in the second case, the single item is "Flatt", so the answer is #true. Finally, here is a more general example:
+</P>
+
+<FIGURE src="images/00172.png">
+
+</FIGURE>
+
+<P>
+Again, the answer case must be #true because the list contains "Flatt". Stop! Make a general example for which the answer must be #false.
+</P>
+
+<P>
+Take a breath. Run the program. The header is a “dummy” definition for the function; you have some examples; they have been turned into tests; and best of all, some of them actually succeed. They succeed for the wrong reason but succeed they do. If things make sense now, read on.
+</P>
+
+<P>
+The fourth step is to design a function template that matches the data definition. Since the data definition for lists of strings has two clauses, the function’s body must be a cond expression with two clauses. The two conditions determine which of the two kinds of lists the function received:
+</P>
+
+<CODE>
+(define (contains-flatt? alon)   (cond     [(empty? alon) …]     [(cons? alon) …]))
+</CODE>
+
+<P>
+Instead of (cons? alon), we could use else in the second clause.
+</P>
+
+<P>
+We can add one more hint to the template by studying each clause of the cond expression in turn. Specifically, recall that the design recipe suggests annotating each clause with selector expressions if the corresponding class of inputs consists of compounds. In our case, we know that '() does not have compounds, so there are no components. Otherwise the list is constructed from a string and another list of strings, and we remind ourselves of this fact by adding (first alon) and (rest alon) to the template:
+</P>
+
+<FIGURE src="images/00173.png">
+
+</FIGURE>
+
+<P>
+Now it is time to switch to the programming task proper, the fifth step of our design recipe. It starts from a template and deals with each cond clause separately. If (empty? alon) is true, the input is the empty list, in which case the function must produce the result #false. In the second case, (cons? alon) is true. The annotations in the template remind us that there is a first string and then the rest of the list. So let’s consider an example that falls into this category:
+</P>
+
+<CODE>
+(cons "A"   (cons …       … '()))
+</CODE>
+
+<P>
+The function, like a person, must compare the first item with "Flatt". In this example, the first one is "A" and not "Flatt", so the comparison yields #false. If we had considered some other example instead, say,
+</P>
+
+<CODE>
+(cons "Flatt"   (cons …       … '()))
+</CODE>
+
+<P>
+the function would determine that the first item on the input is "Flatt", and would therefore respond with #true. This implies that the second line in the cond expression should contain an expression that compares the first name on the list with "Flatt":
+</P>
+
+<FIGURE src="images/00174.png">
+
+</FIGURE>
+
+<P>
+Furthermore, if the comparison yields #true, the function must produce #true. If the comparison yields #false, we are left with another list of strings: (rest alon). Clearly, the function can’t know the final answer in this case, because the answer depends on what “⋯” represents. Put differently, if the first item is not "Flatt", we need some way to check whether the rest of the list contains "Flatt".
+</P>
+
+<P>
+Fortunately, we have contains-flatt? and it fits the bill. According to its purpose statement, it determines whether a list contains "Flatt". The statement implies that (contains-flatt? l) tells us whether the list of strings l contains "Flatt". And, in the same vein, (contains-flatt? (rest alon)) determines whether "Flatt" is a member of (rest alon), which is precisely what we need to know.
+</P>
+
+<P>
+In short, the last line should be (contains-flatt? (rest alon)):
+</P>
+
+<FIGURE src="images/00175.png">
+
+</FIGURE>
+
+<P>
+The trick is now to combine the values of the two expressions in the appropriate manner. As mentioned, if the first expression yields #true, there is no need to search the rest of the list; if it is #false, though, the second expression may still yield #true, meaning the name "Flatt" is on the rest of the list. All of this suggests that the result of (contains-flatt? alon) is #true if either the first expression in the last line or the second expression yields #true.
+</P>
+
+<P>
+Figure 47 then shows the complete definition. Overall it doesn’t look too different from the definitions in the first chapter of the book. It consists of a signature, a purpose statement, two examples, and a definition. The only way in which this function definition differs from anything you have seen before is the self-reference, that is, the reference to contains-flatt? in the body of the define. Then again, the data definition is self-referential, too, so in some sense the self-reference in the function shouldn’t be too surprising.
+</P>
+
+<FIGURE src="images/00176.png">
+Figure 47: Searching a list
+</FIGURE>
+
+<EXERCISE>
+Exercise 132. Use DrRacket to run contains-flatt? in this example:
+</EXERCISE>
+
+<FIGURE src="images/00177.png">
+
+</FIGURE>
+
+<P>
+What answer do you expect?
+</P>
+
+<EXERCISE>
+Exercise 133. Here is another way of formulating the second cond clause in contains-flatt?:
+</EXERCISE>
+
+<FIGURE src="images/00178.png">
+
+</FIGURE>
+
+<P>
+Explain why this expression produces the same answers as the or expression in the version of figure 47. Which version is better? Explain.
+</P>
+
+<EXERCISE>
+Exercise 134. Develop the contains? function, which determines whether some given string occurs on a given list of strings.
+</EXERCISE>
+
+<P>
+Note BSL actually comes with member?, a function that consumes two values and checks whether the first occurs in the second, a list:
+</P>
+
+<CODE>
+> (member? "Flatt" (cons "b" (cons "Flatt" '()))) #true
+</CODE>
+
+<P>
+Don’t use member? to define the contains? function.
+</P>
+
+<h2>
+8.4 Computing with Lists
+</h2>
+
+<P>
+Since we are still using BSL, the rules of algebra—see intermezzo 1—tell us how to determine the value of expressions such as
+</P>
+
+<CODE>
+(contains-flatt? (cons "Flatt" (cons "C" '())))
+</CODE>
+
+<P>
+without DrRacket. Programmers must have an intuitive understanding of how this kind of calculation works, so we step through the one for this simple example.
+</P>
+
+<P>
+Figure 48 displays the first step, which uses the usual substitution rule to determine the value of an application. The result is a conditional expression because, as an algebra teacher would say, the function is defined in a step-wise fashion.
+</P>
+
+<FIGURE src="images/00179.png">
+Figure 48: Computing with lists, step 1
+</FIGURE>
+
+<P>
+The calculation is continued in figure 49. To find the correct clause of the cond expression, we must determine the value of the conditions, one by one. Since a consed list isn’t empty, the first condition’s result is #false, and we therefore eliminate the first cond clause. Finally the condition in the second clause evaluates to #true because cons? of a consed list holds.
+</P>
+
+<FIGURE src="images/00180.png">
+Figure 49: Computing with lists, step 2
+</FIGURE>
+
+<P>
+From here, it is just three more steps of arithmetic to get the final result. Figure 50 displays the three steps. The first evaluates (first (cons "Flatt"…)) to "Flatt" due to the laws for first. The second discovers that "Flatt" is a string and equal to "Flatt". The third says (or #true X) is #true regardless of what X is.
+</P>
+
+<FIGURE src="images/00181.png">
+Figure 50: Computing with lists, step 3
+</FIGURE>
+
+<EXERCISE>
+Exercise 135. Use DrRacket’s stepper to check the calculation for
+</EXERCISE>
+
+<CODE>
+(contains-flatt? (cons "Flatt" (cons "C" '())))
+</CODE>
+
+<P>
+Also use the stepper to determine the value of
+</P>
+
+<CODE>
+(contains-flatt?   (cons "A" (cons "Flatt" (cons "C" '()))))
+</CODE>
+
+<P>
+What happens when "Flatt" is replaced with "B"?
+</P>
+
+<EXERCISE>
+Exercise 136. Validate with DrRacket’s stepper
+</EXERCISE>
+
+<CODE>
+(our-first (our-cons "a" '())) == "a" (our-rest (our-cons "a" '())) == '()
+</CODE>
+
+<P>
+See chapter 8.2 for the definitions of these functions.
+</P>
+
+<h1>
+9 Designing with Self-Referential Data Definitions
+</h1>
+
+<P>
+At first glance, self-referential data definitions seem to be far more complex than those for mixed data. But, as the example of contains-flatt? shows, the six steps of the design recipe still work. Nevertheless, in this section we generalize the design recipe so that it works even better for self-referential data definitions. The new parts concern the process of discovering when a self-referential data definition is needed, deriving a template, and defining the function body:
+</P>
+
+<P>
+1. If a problem statement is about information of arbitrary size, you need a self-referential data definition to represent it. At this point, you have seen only one such class, List-of-names. The left side of figure 51 shows how to define List-of-strings in the same way. Other lists of atomic data work the same way.
+</P>
+
+<FIGURE src="images/00182.png">
+Figure 51: Arrows for self-references in data definitions and templates
+</FIGURE>
+
+<MARGIN_NOTE>
+Numbers also seem to be arbitrarily large. For inexact numbers, this is an illusion. For precise integers, this is indeed the case. Dealing with integers is therefore a part of this chapter.
+</MARGIN_NOTE>
+
+<P>
+For a self-referential data definition to be valid, it must satisfy two conditions. First, it must contain at least two clauses. Second, at least one of the clauses must not refer back to the class of data that is being defined. It is good practice to identify the self-references explicitly with arrows from the references in the data definition back to the term being defined; see figure 51 for an example of such an annotation.
+</P>
+
+<P>
+You must check the validity of self-referential data definitions with the creation of data examples. Start with the clause that does not refer to the data definition; continue with the other one, using the first example where the clause refers to the definition itself. For the data definition in figure 51, you thus get lists like the following three:
+</P>
+
+<FIGURE src="images/00183.png">
+
+</FIGURE>
+
+<P>
+If it is impossible to generate examples from the data definition, it is invalid. If you can generate examples but you can’t see how to generate increasingly larger examples, the definition may not live up to its interpretation.
+</P>
+
+<P>
+2. Nothing changes about the header material: the signature, the purpose statement, and the dummy definition. When you do formulate the purpose statement, focus on what the function computes not how it goes about it, especially not how it goes through instances of the given data.
+</P>
+
+<P>
+Here is an example to make this design recipe concrete:
+</P>
+
+<CODE>
+; List-of-strings -> Number ; counts how many strings alos contains (define (how-many alos)   0)
+</CODE>
+
+<P>
+The purpose statement clearly states that the function just counts the strings on the given input; there is no need to think ahead about how you might formulate this idea as a BSL function.
+</P>
+
+<P>
+3. When it comes to functional examples, be sure to work through inputs that use the self-referential clause of the data definition several times. It is the best way to formulate tests that cover the entire function definition later.
+</P>
+
+<P>
+For our running example, the purpose statement almost generates functional examples by itself from the data examples:
+</P>
+
+<FIGURE src="images/00184.png">
+
+</FIGURE>
+
+<P>
+The first row is about the empty list, and we know that empty list contains nothing. The second row is a list of one string, so 1 is the desired answer. The last row is about a list of two strings.
+</P>
+
+<P>
+4. At the core, a self-referential data definition looks like a data definition for mixed data. The development of the template can therefore proceed according to the recipe in chapter 6. Specifically, we formulate a cond expression with as many cond clauses as there are clauses in the data definition, match each recognizing condition to the corresponding clause in the data definition, and write down appropriate selector expressions in all cond lines that process compound values.
+</P>
+
+<P>
+Figure 52 expresses this idea as a question-and-answer game. In the left column it states questions about the data definition for the argument, and in the right column it explains what the answer means for the construction of the template.
+</P>
+
+<FIGURE src="images/00185.png">
+Figure 52: How to translate a data definition into a template
+</FIGURE>
+
+<P>
+If you ignore the last row and apply the first three questions to any function that consumes a List-of-strings, you arrive at this shape:
+</P>
+
+<FIGURE src="images/00186.png">
+
+</FIGURE>
+
+<P>
+Recall, though, that the purpose of a template is to express the data definition as a function layout. That is, a template expresses as code what the data definition for the input expresses as a mix of English and BSL. Hence all important pieces of the data definition must find a counterpart in the template, and this guideline should also hold when a data definition is self-referential—contains an arrow from inside the definition to the term being defined. In particular, when a data definition is self-referential in the ith clause and the kth field of the structure mentioned there, the template should be self-referential in the ith cond clause and the selector expression for the kth field. For each such selector expression, add an arrow back to the function parameter. At the end, your template must have as many arrows as we have in the data definition.
+</P>
+
+<P>
+Figure 51 illustrates this idea with the template for functions that consume List-of-strings shown side by side with the data definition. Both contain one arrow that originates in the second clause—the rest field and selector, respectively—and points back to the top of the respective definitions.
+</P>
+
+<P>
+Since BSL and most programming languages are text-oriented, you must use an alternative to the arrow, namely, a self-application of the function to the appropriate selector expression:
+</P>
+
+<FIGURE src="images/00187.png">
+
+</FIGURE>
+
+<P>
+We refer to a self-use of a function as recursion and in the first four parts of the book as natural recursion.
+</P>
+
+<MARGIN_NOTE>
+For the curious among our readers, the design recipe for arbitrarily large data corresponds to so-called “proofs by induction” in mathematics, and the “leap of faith” represents the use of the induction hypothesis for the inductive step of such a proof. Logic proves the validity of this proof technique with an Induction Theorem.
+</MARGIN_NOTE>
+
+<P>
+5. For the function body we start with those cond lines without recursive function calls, known as base cases.The corresponding answers are typically easy to formulate or already given as examples.
+</P>
+
+<P>
+Then we deal with the self-referential cases. We start by reminding ourselves what each of the expressions in the template line computes. For the natural recursion we assume that the function already works as specified in our purpose statement. This last step is a leap of faith, but as you will see, it always works.
+</P>
+
+<P>
+The rest is then a matter of combining the various values.
+</P>
+
+<P>
+Figure 53 formulates the first four questions and answers for this step. Let’s use this game to complete the definition of how-many. Renaming the fun-for-los template to how-many gives us this much:
+</P>
+
+<FIGURE src="images/00188.png">
+
+</FIGURE>
+
+<FIGURE src="images/00189.png">
+Figure 53: How to turn a template into a function definition
+</FIGURE>
+
+<P>
+As the functional examples already suggest, the answer for the base case is 0. The two expressions in the second clause compute the first item and the number of strings in (rest alos). To compute how many strings there are on all of alos, the function just needs to add 1 to the value of the latter expression:
+</P>
+
+<CODE>
+(define (how-many alos)   (cond     [(empty? alos) 0]     [else (+ (how-many (rest alos)) 1)])
+</CODE>
+
+<MARGIN_NOTE>
+Felix Klock suggested this table-based approach to guessing the combinator.
+</MARGIN_NOTE>
+
+<P>
+Finding the correct way to combine the values into the desired answer isn’t always as easy. Novice programmers often get stuck with this step. As figure 54 suggests, it is a good idea to arrange the functional examples into a table that also spells out the values of the expressions in the template. Figure 55 shows what this table looks like for our how-many example. The left-most column lists the sample inputs, while the right-most column contains the desired answers for these inputs. The three columns in between show the values of the template expressions: (first alos), (rest alos), and (how-many (rest alos)), which is the natural recursion. If you stare at this table long enough, you recognize that the result column is always one more than the values in the natural recursion column. You may thus guess that
+</P>
+
+<CODE>
+(+ (how-many (rest alos)) 1)
+</CODE>
+
+<P>
+is the expression that computes the desired result. Since DrRacket is fast at checking these kinds of guesses, plug it in and click RUN. If the examples-turned-into-tests pass, think through the expression to convince yourself it works for all lists; otherwise add more example rows to the table until you have a different idea.
+</P>
+
+<FIGURE src="images/00190.png">
+Figure 54: Turning a template into a function, the table method
+</FIGURE>
+
+<FIGURE src="images/00191.png">
+Figure 55: Tabulating arguments, intermediate values, and results
+</FIGURE>
+
+<P>
+The table also points out that some selector expressions in the template are possibly irrelevant for the actual definition. Here (first alos) is not needed to compute the final answer—which is quite a contrast to contains-flatt?, which uses both expressions from the template.
+</P>
+
+<P>
+As you work your way through the rest of this book, keep in mind that, in many cases, the combination step can be expressed with BSL’s primitives, say, +, and, or cons. In some cases, though, you may have to make a wish, that is, design an auxiliary function. Finally, in yet other cases, you may need nested conditions.
+</P>
+
+<P>
+6. Finally, make sure to turn all examples into tests, that these tests pass, and that running them covers all the pieces of the function.
+</P>
+
+<P>
+Here are our examples for how-many turned into tests:
+</P>
+
+<CODE>
+(check-expect (how-many '()) 0) (check-expect (how-many (cons "a" '())) 1) (check-expect   (how-many (cons "b" (cons "a" '()))) 2)
+</CODE>
+
+<P>
+Remember, it is best to formulate examples directly as tests, and BSL allows this. Doing so also helps if you need to resort to the table-based guessing approach of the preceding step.
+</P>
+
+<P>
+Figure 56 summarizes the design recipe of this section in a tabular format. The first column names the steps of the design recipe, and the second the expected results of each step. In the third column, we describe the activities that get you there. The figure is tailored to the kind of self-referential list definitions we use in this chapter. As always, practice helps you master the process, so we strongly recommend that you tackle the following exercises, which ask you to apply the recipe to several kinds of examples.
+</P>
+
+<FIGURE src="images/00192.png">
+Figure 56: Designing a function for self-referential data
+</FIGURE>
+
+<MARGIN_NOTE>
+You may want to copy figure 56 onto one side of an index card and write down your favorite versions of the questions and answers for this design recipe onto the back of it. Then carry it with you for future reference.
+</MARGIN_NOTE>

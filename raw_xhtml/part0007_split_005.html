@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_6"><a id="sec8-3" class="calibre16"></a>8.3 Programming with Lists</h2>
+<p class="tni">Say you’re keeping track of your friends with some list, and say the list has grown so large that you need a program to determine whether some name is on the list. To make this idea concrete, let’s state it as an exercise:</p>
+<p class="marginpar">Here we use the word “friend” in the sense of social networks, not the real world.</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> You are working on the contact list for some new cell phone. The phone’s owner updates and consults this <span epub:type="pagebreak" id="pg_240" title="240"></span>list on various occasions. For now, you are assigned the task of designing a function that consumes this list of contacts and determines whether it contains the name “Flatt.”</p>
+</div>
+<p class="tni">Once we have a solution to this sample problem, we will generalize it to a function that finds any name on a list.</p>
+<p class="calibre8">The data definition for List-of-names from the preceding is appropriate for representing the list of names that the function is to search. Next we turn to the header material:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-names<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> whether "Flatt"</samp><samp class="mono"> is on</samp><samp class="mono"> a-list-of-names</samp> <br class="calibre4"/><samp class="mono">(define (contains-flatt?</samp><samp class="mono"> a-list-of-names)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="tni">While <samp class="mono">a-list-of-names</samp> is a good name for the list of names that the function consumes, it is a mouthful and we therefore shorten it to <samp class="mono">alon</samp>.</p>
+<p class="calibre8">Following the general design recipe, we next make up some examples that illustrate the purpose of the function. First, we determine the output for the simplest input: <samp class="mono">'()</samp>. Since this list does not contain any strings, it certainly does not contain <samp class="mono">"Flatt"</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (contains-flatt?</samp><samp class="mono"> '()) #false)</samp></p>
+</div>
+<p class="tni">Then we consider lists with a single item. Here are two examples:</p>
+<figure class="co"><img src="../images/00171.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In the first case, the answer is <samp class="mono">#false</samp> because the single item on the list is not <samp class="mono">"Flatt"</samp>; in the second case, the single item is <samp class="mono">"Flatt"</samp>, so the answer is <samp class="mono">#true</samp>. Finally, here is a more general example:</p>
+<figure class="co"><img src="../images/00172.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Again, the answer case must be <samp class="mono">#true</samp> because the list contains <samp class="mono">"Flatt"</samp>. Stop! Make a general example for which the answer must be <samp class="mono">#false</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_241" title="241"></span>Take a breath. Run the program. The header is a “dummy” definition for the function; you have some examples; they have been turned into tests; and best of all, some of them actually succeed. They succeed for the wrong reason but succeed they do. If things make sense now, read on.</p>
+<p class="calibre8">The fourth step is to design a function template that matches the data definition. Since the data definition for lists of strings has two clauses, the function’s body must be a <samp class="mono">cond</samp> expression with two clauses. The two conditions determine which of the two kinds of lists the function received:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (contains-flatt?</samp><samp class="mono"> alon)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(empty?</samp><samp class="mono"> alon) <span>…</span>]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(cons?</samp><samp class="mono"> alon) <span>…</span>]))</samp></p>
+</div>
+<p class="tni">Instead of <samp class="mono">(cons? alon)</samp>, we could use <samp class="mono">else</samp> in the second clause.</p>
+<p class="calibre8">We can add one more hint to the template by studying each clause of the <samp class="mono">cond</samp> expression in turn. Specifically, recall that the design recipe suggests annotating each clause with selector expressions if the corresponding class of inputs consists of compounds. In our case, we know that <samp class="mono">'()</samp> does not have compounds, so there are no components. Otherwise the list is constructed from a string and another list of strings, and we remind ourselves of this fact by adding <samp class="mono">(first alon)</samp> and <samp class="mono">(rest alon)</samp> to the template:</p>
+<figure class="co"><img src="../images/00173.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Now it is time to switch to the programming task proper, the fifth step of our design recipe. It starts from a template and deals with each <samp class="mono">cond</samp> clause separately. If <samp class="mono">(empty? alon)</samp> is true, the input is the empty list, in which case the function must produce the result <samp class="mono">#false</samp>. In the second case, <samp class="mono">(cons? alon)</samp> is true. The annotations in the template remind us that there is a first string and then the rest of the list. So let’s consider an example that falls into this category:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "A"</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  <span>…</span></samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_242" title="242"></span>The function, like a person, must compare the first item with <samp class="mono">"Flatt"</samp>. In this example, the first one is <samp class="mono">"A"</samp> and not <samp class="mono">"Flatt"</samp>, so the comparison yields <samp class="mono">#false</samp>. If we had considered some other example instead, say,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons "Flatt"</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  <span>…</span></samp><samp class="mono"> '()))</samp></p>
+</div>
+<p class="tni">the function would determine that the first item on the input is <samp class="mono">"Flatt"</samp>, and would therefore respond with <samp class="mono">#true</samp>. This implies that the second line in the <samp class="mono">cond</samp> expression should contain an expression that compares the first name on the list with <samp class="mono">"Flatt"</samp>:</p>
+<figure class="co"><img src="../images/00174.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Furthermore, if the comparison yields <samp class="mono">#true</samp>, the function must produce <samp class="mono">#true</samp>. If the comparison yields <samp class="mono">#false</samp>, we are left with another list of strings: <samp class="mono">(rest alon)</samp>. Clearly, the function can’t know the final answer in this case, because the answer depends on what “<span>⋯</span>” represents. Put differently, if the first item is not <samp class="mono">"Flatt"</samp>, we need some way to check whether the rest of the list contains <samp class="mono">"Flatt"</samp>.</p>
+<p class="calibre8">Fortunately, we have <samp class="mono">contains-flatt?</samp> and it fits the bill. According to its purpose statement, it determines whether a list contains <samp class="mono">"Flatt"</samp>. The statement implies that <samp class="mono">(contains-flatt? l)</samp> tells us whether the list of strings <samp class="mono">l</samp> contains <samp class="mono">"Flatt"</samp>. And, in the same vein, <samp class="mono">(contains-flatt? (rest alon))</samp> determines whether <samp class="mono">"Flatt"</samp> is a member of <samp class="mono">(rest alon)</samp>, which is precisely what we need to know.</p>
+<p class="calibre8">In short, the last line should be <samp class="mono">(contains-flatt? (rest alon))</samp>:</p>
+<figure class="co"><img src="../images/00175.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_243" title="243"></span>The trick is now to combine the values of the two expressions in the appropriate manner. As mentioned, if the first expression yields <samp class="mono">#true</samp>, there is no need to search the rest of the list; if it is <samp class="mono">#false</samp>, though, the second expression may still yield <samp class="mono">#true</samp>, meaning the name <samp class="mono">"Flatt"</samp> is on the rest of the list. All of this suggests that the result of <samp class="mono">(contains-flatt? alon)</samp> is <samp class="mono">#true</samp> if <b class="calibre9">either</b> the first expression in the last line <b class="calibre9">or</b> the second expression yields <samp class="mono">#true</samp>.</p>
+<p class="calibre8"><a id="rfig47" href="part0007_split_005.html#fig47" class="calibre5">Figure 47</a> then shows the complete definition. Overall it doesn’t look too different from the definitions in the first chapter of the book. It consists of a signature, a purpose statement, two examples, and a definition. The only way in which this function definition differs from anything you have seen before is the self-reference, that is, the reference to <samp class="mono">contains-flatt?</samp> in the body of the <samp class="mono">define</samp>. Then again, the data definition is self-referential, too, so in some sense the self-reference in the function shouldn’t be too surprising.</p>
+<div class="figure">
+<figure class="img"><a id="fig47" class="calibre5"></a><img src="../images/00176.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_005.html#rfig47" class="calibre5">Figure 47</a>:</span> <span>Searching a list</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 132. Use DrRacket to run <samp class="mono">contains-flatt?</samp> in this example:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_244" title="244"></span><img src="../images/00177.gif" alt="" class="calibre10"/></figure>
+<p class="tni">What answer do you expect? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 133. Here is another way of formulating the second <samp class="mono">cond</samp> clause in <samp class="mono">contains-flatt?</samp>:</p>
+<figure class="co"><img src="../images/00178.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Explain why this expression produces the same answers as the <samp class="mono">or</samp> expression in the version of <a href="part0007_split_005.html#fig47" class="calibre5">figure 47</a>. Which version is better? Explain. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 134. Develop the <samp class="mono">contains?</samp> function, which determines whether some given string occurs on a given list of strings.</p>
+<p class="calibre8"><b class="calibre9">Note</b> BSL actually comes with <samp class="mono">member?</samp>, a function that consumes two values and checks whether the first occurs in the second, a list:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (member?</samp><samp class="mono"> "Flatt" (cons</samp><samp class="mono"> "b" (cons</samp><samp class="mono"> "Flatt" '())))</samp> <br class="calibre4"/><samp class="mono">#true</samp></p>
+</div>
+<p class="tni">Don’t use <samp class="mono">member?</samp> to define the <samp class="mono">contains?</samp> function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

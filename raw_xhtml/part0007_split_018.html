@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_19"><a id="sec10-4" class="calibre16"></a>10.4 A Graphical Editor, Revisited</h2>
+<p class="tni">Chapter 5.10 is about the design of an interactive graphical one-line editor. It suggests two different ways to represent the state of the editor and urges <span epub:type="pagebreak" id="pg_302" title="302"></span>you to explore both: a structure that contains a pair of strings or a structure that combines a string with an index to a current position (see exercise 87).</p>
+<p class="calibre8">A third alternative is to use structures that combine two lists of 1Strings:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct editor</samp><samp class="mono"> [pre post])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">Editor</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">;   (make-editor</samp><samp class="mono"> </samp>Lo1S Lo1S<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">Lo1S</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (cons </samp>1String Lo1S<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Before you wonder why, let’s make up two data examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define good</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "g" (cons</samp><samp class="mono"> "o" (cons</samp><samp class="mono"> "o" (cons</samp><samp class="mono"> "d" '())))))</samp> <br class="calibre4"/><samp class="mono">(define all</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "a" (cons</samp><samp class="mono"> "l" (cons</samp><samp class="mono"> "l" '()))))</samp> <br class="calibre4"/><samp class="mono">(define lla</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "l" (cons</samp><samp class="mono"> "l" (cons</samp><samp class="mono"> "a" '()))))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; data</samp><samp class="mono"> example 1:</samp> <br class="calibre4"/><samp class="mono">(make-editor all</samp><samp class="mono"> good)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; data</samp><samp class="mono"> example 2:</samp> <br class="calibre4"/><samp class="mono">(make-editor lla</samp><samp class="mono"> good)</samp></p>
+</div>
+<p class="tni">The two examples demonstrate how important it is to write down an interpretation. While the two fields of an editor clearly represent the letters to the left and right of the cursor, the two examples demonstrate that there are at least two ways to interpret the structure types:</p>
+<p class="nlf">1. <samp class="mono">(make-editor pre post)</samp> could mean the letters in <samp class="mono">pre</samp> precede the cursor and those in <samp class="mono">post</samp> succeed it and that the combined text is</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">(string-append (implode</samp><samp class="mono"> pre) (implode</samp><samp class="mono"> post))</samp></p>
+</div>
+<p class="nltni">Recall that <samp class="mono">implode</samp> turns a list of 1Strings into a String.</p>
+<p class="nlf">2. <samp class="mono">(make-editor pre post)</samp> could equally well mean that the letters in <samp class="mono">pre</samp> precede the cursor in <b class="calibre9">reverse</b> order. If so, we obtain the text in the displayed editor like this:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_303" title="303"></span><img src="../images/00236.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">The function <samp class="mono">rev</samp> must consume a list of 1Strings and reverse it.</p>
+<p class="stni">Even without a complete definition for <samp class="mono">rev</samp>, you can imagine how it works. Use this understanding to make sure you understand that translating the first data example into information according to the first interpretation and treating the second data example according to the second interpretation yields the same editor display:</p>
+<figure class="co"><img src="../images/00237.gif" alt="" class="calibre26"/></figure>
+<p class="calibre8">Both interpretations are fine choices, but it turns out that using the second one greatly simplifies the design of the program. The rest of this section demonstrates this point, illustrating the use of lists inside of structures at the same time. To appreciate the lesson properly, you should have solved the exercises in chapter 5.10.</p>
+<p class="calibre8">Let’s start with <samp class="mono">rev</samp> because we clearly need this function to make sense out of the data definition. Its header material is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Lo1s<samp class="mono"> -&gt; </samp>Lo1s <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a reverse</samp><samp class="mono"> version of</samp><samp class="mono"> the given</samp><samp class="mono"> list</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (rev</samp><samp class="mono"> (cons "a"</samp><samp class="mono"> (cons "b"</samp><samp class="mono"> (cons "c"</samp><samp class="mono"> '()))))</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "c" (cons</samp><samp class="mono"> "b" (cons</samp><samp class="mono"> "a" '()))))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (rev</samp><samp class="mono"> l) l)</samp></p>
+</div>
+<p class="tni">For good measure, we have added one “obvious” example as a test case. You may want to add some extra examples just to make sure you understand what is needed.</p>
+<p class="calibre8">The template for <samp class="mono">rev</samp> is the usual list template:</p>
+<figure class="co"><img src="../images/00238.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_304" title="304"></span>There are two cases, and the second case comes with several selector expressions and a self-referential one.</p>
+<p class="calibre8">Filling in the template is easy for the first clause: the reverse version of the empty list is the empty list. For the second clause, we once again use the coding questions:</p>
+<p class="blf">•  <samp class="mono">(first l)</samp> is the first item on the list of 1Strings;</p>
+<p class="blf">•  <samp class="mono">(rest l)</samp> is the rest of the list; and</p>
+<p class="bll">•  <samp class="mono">(rev (rest l))</samp> is the reverse of the rest of the list.</p>
+<p class="tni">Stop! Try to finish the design of <samp class="mono">rev</samp> with these hints.</p>
+
+
+
+<p class="calibre8">If these hints leave you stuck, remember to create a table from the examples. <a id="rfig71" href="part0007_split_018.html#fig71" class="calibre5">Figure 71</a> shows the table for two examples: <samp class="mono">(cons "a" '())</samp> and <samp class="mono">(cons "a" (cons "b" (cons "c" '())))</samp>. The second example is particularly illustrative. A look at the next to last column shows that <samp class="mono">(rev (rest l))</samp> accomplishes most of the work by producing <samp class="mono">(cons "c" (cons "b" '()))</samp>. Since the desired result is <samp class="mono">(cons "c" (cons "b" (cons "a" '())))</samp>, <samp class="mono">rev</samp> must somehow add <samp class="mono">"a"</samp> to the end of the result of the recursion. Indeed, because <samp class="mono">(rev (rest l))</samp> is always the reverse of the rest of the list, it clearly suffices to add <samp class="mono">(first l)</samp> to its end. While we don’t have a function that adds items to the end of a list, we can wish for it and use it to complete the function definition:</p>
+
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (rev</samp><samp class="mono"> l)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(empty?</samp><samp class="mono"> l) '()]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (add-at-end (rev</samp><samp class="mono"> (rest l))</samp><samp class="mono"> (first l))]))</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig71" class="calibre5"></a><img src="../images/00239.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_018.html#rfig71" class="calibre5">Figure 71</a>:</span> <span>Tabulating for <samp class="mono">rev</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_305" title="305"></span>Here is the extended wish-list entry for <samp class="mono">add-at-end</samp>:</p>
+<figure class="co"><img src="../images/00240.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It is “extended” because it comes with an example formulated as a test case. The example is derived from the example for <samp class="mono">rev</samp>, and indeed, it is precisely the example that motivates the wish-list entry. Make up an example where <samp class="mono">add-at-end</samp> consumes an empty list before you read on.</p>
+<p class="calibre8">Since <samp class="mono">add-at-end</samp> is also a list-processing function, the template is just a renaming of the one you know so well now:</p>
+<figure class="co"><img src="../images/00241.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To complete it into a function definition, we proceed according to the recipe questions for step 5. Our first question is to formulate an answer for the “basic” case, that is, the first case here. If you worked through the suggested exercise, you know that the result of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(add-at-end '()</samp><samp class="mono"> s)</samp></p>
+</div>
+<p class="tni">is always <samp class="mono">(cons s '())</samp>. After all, the result must be a list and the list must contain the given <samp class="mono">1String</samp>.</p>
+<p class="calibre8">The next two questions concern the “complex” or “self-referential” case. We know what the expressions in the second <samp class="mono">cond</samp> line compute: the first expression extracts the first 1String from the given list and the second expression “creates a new list by adding <samp class="mono">s</samp> to the end of <samp class="mono">(rest l)</samp>.” That is, the purpose statement dictates what the function must produce here. From here, it is clear that the function must add <samp class="mono">(first l)</samp> back to the result of the recursion:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_306" title="306"></span><img src="../images/00242.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Run the tests-as-examples to reassure yourself that this function works and that therefore <samp class="mono">rev</samp> works, too. Of course, you shouldn’t be surprised to find out that BSL already provides a function that reverses any given list, including lists of 1Strings. And naturally, it is called <samp class="mono">reverse</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 177. Design the function <samp class="mono">create-editor</samp>. The function consumes two strings and produces an Editor. The first string is the text to the left of the cursor and the second string is the text to the right of the cursor. The rest of the section relies on this function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">At this point, you should have a complete understanding of our data representation for the graphical one-line editor. Following the design strategy for interactive programs from chapter 3.6, you should define physical constants—the width and height of the editor, for example—and graphical constants—for example, the cursor. Here are ours:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define HEIGHT</samp><samp class="mono"> 20) ;</samp><samp class="mono"> the height</samp><samp class="mono"> of the</samp><samp class="mono"> editor</samp> <br class="calibre4"/><samp class="mono">(define WIDTH</samp><samp class="mono"> 200) ;</samp><samp class="mono"> its width</samp> <br class="calibre4"/><samp class="mono">(define FONT-SIZE</samp><samp class="mono"> 16) ;</samp><samp class="mono"> the font</samp><samp class="mono"> size</samp> <br class="calibre4"/><samp class="mono">(define FONT-COLOR</samp><samp class="mono"> "black") ;</samp><samp class="mono"> the font</samp><samp class="mono"> color</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define MT</samp><samp class="mono"> (empty-scene WIDTH</samp><samp class="mono"> HEIGHT))</samp> <br class="calibre4"/><samp class="mono">(define CURSOR</samp><samp class="mono"> (rectangle 1</samp><samp class="mono"> HEIGHT "solid"</samp><samp class="mono"> "red"))</samp></p>
+</div>
+<p class="tni">The important point, however, is to write down the wish list for your event handler(s) and your function that draws the state of the editor. Recall that the <i class="calibre6">2htdp/universe</i> library dictates the header material for these functions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Editor<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> an editor</samp><samp class="mono"> as an</samp><samp class="mono"> image of</samp><samp class="mono"> the two</samp><samp class="mono"> texts</samp> <br class="calibre4"/><samp class="mono">; separated</samp><samp class="mono"> by the</samp><samp class="mono"> cursor</samp> <br class="calibre4"/><samp class="mono">(define (editor-render</samp><samp class="mono"> e) MT)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Editor KeyEvent<samp class="mono"> -&gt; </samp>Editor <br class="calibre4"/><samp class="mono">; deals</samp><samp class="mono"> with a</samp><samp class="mono"> key event,</samp><samp class="mono"> given some</samp><samp class="mono"> editor</samp> <br class="calibre4"/><samp class="mono">(define (editor-kh</samp><samp class="mono"> ed ke)</samp><samp class="mono"> ed)(index "editor-kh")</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_307" title="307"></span>In addition, chapter 3.6 demands that you write down a main function for your program:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; main</samp><samp class="mono"> : </samp>String<samp class="mono"> -&gt; </samp>Editor <br class="calibre4"/><samp class="mono">; launches</samp><samp class="mono"> the editor</samp><samp class="mono"> given some</samp><samp class="mono"> initial string</samp> <br class="calibre4"/><samp class="mono">(define (main</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (big-bang (create-editor</samp><samp class="mono"> s "")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [on-key editor-kh]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> [to-draw editor-render]))</samp></p>
+</div>
+<p class="tni">Reread exercise 177 to determine the initial editor for this program.</p>
+<p class="calibre8">While it does not matter which wish you tackle next, we choose to design <samp class="mono">editor-kh</samp> first and <samp class="mono">editor-render</samp> second. Since we have the header material, let’s explain the functioning of the key-event handler with two examples:</p>
+<figure class="co"><img src="../images/00243.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Both of these examples demonstrate what happens when you press the letter “e” on your keyboard. The computer runs the function <samp class="mono">editor-kh</samp> on the current state of the editor and <samp class="mono">"e"</samp>. In the first example, the editor is empty, which means that the result is an editor with just the letter <samp class="mono">"e"</samp> in it followed by the cursor. In the second example, the cursor is between the strings <samp class="mono">"cd"</samp> and <samp class="mono">"fgh"</samp>, and therefore the result is an editor with the cursor between <samp class="mono">"cde"</samp> and <samp class="mono">"fgh"</samp>. In short, the function always inserts any normal letter at the cursor position.</p>
+<p class="calibre8">Before you read on, you should make up examples that illustrate how <samp class="mono">editor-kh</samp> works when you press the backspace (<samp class="mono">"\b"</samp>) key to delete some letter, the <samp class="mono">"left"</samp> and <samp class="mono">"right"</samp> arrow keys to move the cursor, or some other arrow keys. In all cases, consider what should happen when the editor is empty, when the cursor is at the left end or right end of the non-empty string in the editor, and when it is in the middle. Even though you are not working with intervals here, it is still a good idea to develop examples for the “extreme” cases.</p>
+<p class="calibre8">Once you have test cases, it is time to develop the template. In the case of <samp class="mono">editor-kh</samp> you are working with a function that consumes two complex forms of data: one is a structure containing lists, the other one is a <span epub:type="pagebreak" id="pg_308" title="308"></span>large enumeration of strings. Generally speaking, this design case calls for an improved design recipe; but in cases like these, it is also clear that you should deal with one of the inputs first, namely, the keystroke.</p>
+<p class="calibre8">Having said that, the template is just a large <samp class="mono">cond</samp> expression for checking which KeyEvent the function received:</p>
+<figure class="co"><img src="../images/00244.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The <samp class="mono">cond</samp> expression doesn’t quite match the data definition for KeyEvent because some KeyEvents need special attention (<samp class="mono">"left"</samp>, <samp class="mono">"\b"</samp>, and so on), some need to be ignored because they are special (<samp class="mono">"\t"</samp> and <samp class="mono">"\r"</samp>), and some should be classified into one large group (ordinary keys).</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 178. Explain why the template for <samp class="mono">editor-kh</samp> deals with <samp class="mono">"\t"</samp> and <samp class="mono">"\r"</samp> before it checks for strings of length <samp class="mono">1</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">For the fifth step—the definition of the function—we tackle each clause in the conditional separately. The first clause demands a result that moves the cursor and leaves the string content of the editor alone. So does the second clause. The third clause, however, demands the deletion of a letter from the editor’s content—if there is a letter. Last, the sixth <samp class="mono">cond</samp> clause concerns the addition of letters at the cursor position. Following the first basic guideline, we make extensive use of a wish-list and imagine one function per task:</p>
+<figure class="co"><img src="../images/00245.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_309" title="309"></span>As you can tell from the definition of <samp class="mono">editor-kh</samp>, three of the four wish-list functions have the same signature:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Editor<samp class="mono"> -&gt; </samp>Editor</p>
+</div>
+<p class="tni">The last one takes two arguments instead of one:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Editor 1String<samp class="mono"> -&gt; </samp>Editor</p>
+</div>
+<p class="tni">We leave the proper formulation of wishes for the first three functions to you and focus on the fourth one.</p>
+<p class="calibre8">Let’s start with a purpose statement and a function header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; insert</samp><samp class="mono"> the </samp>1String<samp class="mono"> k between</samp><samp class="mono"> pre and</samp><samp class="mono"> post</samp> <br class="calibre4"/><samp class="mono">(define (editor-ins</samp><samp class="mono"> ed k)</samp> <br class="calibre4"/><samp class="mono">  ed)</samp></p>
+</div>
+<p class="tni">The purpose is straight out of the problem statement. For the construction of a function header, we need an instance of Editor. Since <samp class="mono">pre</samp> and <samp class="mono">post</samp> are the pieces of the current one, we just put them back together.</p>
+<p class="calibre8">Next we derive examples for <samp class="mono">editor-ins</samp> from those for <samp class="mono">editor-kh</samp>:</p>
+<figure class="co"><img src="../images/00246.gif" alt="" class="calibre10"/></figure>
+<p class="tni">You should work through these examples using the interpretation of Editor. That is, make sure you understand what the given editor means in terms of information and what the function call is supposed to achieve in those terms. In this particular case, it is best to draw the visual representation of the editor because it represents the information well.</p>
+<p class="calibre8">The fourth step demands the development of the template. The first argument is guaranteed to be a structure, and the second one is a string, an atomic piece of data. In other words, the template just pulls out the pieces from the given editor representation:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_310" title="310"></span><samp class="mono">(define (editor-ins</samp><samp class="mono"> ed k)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> ed <span>…</span></samp><samp class="mono"> k <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (editor-pre</samp><samp class="mono"> ed) <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (editor-post</samp><samp class="mono"> ed) <span>…</span>))</samp></p>
+</div>
+<p class="tni">Remember a template lists parameters because they are available, too.</p>
+<p class="calibre8">From the template and the examples, it is relatively easy to conclude that <samp class="mono">editor-ins</samp> is supposed to create an editor from the given editor’s <samp class="mono">pre</samp> and <samp class="mono">post</samp> fields with <samp class="mono">k</samp> added to the front of the former:</p>
+<figure class="co"><img src="../images/00247.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Even though both <samp class="mono">(editor-pre ed)</samp> and <samp class="mono">(editor-post ed)</samp> are lists of 1Strings, there is no need to design auxiliary functions. To get the desired result, it suffices to use <samp class="mono">cons</samp>, which creates lists.</p>
+<p class="calibre8">At this point, you should do two things. First, run the tests for this function. Second, use the interpretation of <samp class="mono">Editor</samp> and explain abstractly why this function performs the insertion. And as if this isn’t enough, you may wish to compare this simple definition with the one from exercise 84 and figure out why the other one needs an auxiliary function while our definition here doesn’t.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 179. Design the functions</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Editor<samp class="mono"> -&gt; </samp>Editor <br class="calibre4"/><samp class="mono">; moves</samp><samp class="mono"> the cursor</samp><samp class="mono"> position one</samp><samp class="mono"> </samp>1String<samp class="mono"> left,</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> possible</samp> <br class="calibre4"/><samp class="mono">(define (editor-lft</samp><samp class="mono"> ed) ed)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Editor<samp class="mono"> -&gt; </samp>Editor <br class="calibre4"/><samp class="mono">; moves</samp><samp class="mono"> the cursor</samp><samp class="mono"> position one</samp><samp class="mono"> </samp>1String<samp class="mono"> right,</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> possible</samp> <br class="calibre4"/><samp class="mono">(define (editor-rgt</samp><samp class="mono"> ed) ed)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Editor<samp class="mono"> -&gt; </samp>Editor <br class="calibre4"/><samp class="mono">; deletes</samp><samp class="mono"> a </samp>1String<samp class="mono"> to the</samp><samp class="mono"> left of</samp><samp class="mono"> the cursor,</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> possible</samp> <br class="calibre4"/><samp class="mono">(define (editor-del</samp><samp class="mono"> ed) ed)</samp></p>
+</div>
+<p class="tni">Again, it is critical that you work through a good range of examples. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_311" title="311"></span>Designing the rendering function for Editors poses some new but small challenges. The first one is to develop a sufficiently large number of test cases. On the one hand, it demands coverage of the possible combinations: an empty string to the left of the cursor, an empty one on the right, and both strings empty. On the other hand, it also requires some experimenting with the functions that the image library provides. Specifically, it needs a way to compose the two pieces of strings rendered as text images, and it needs a way of placing the text image into the empty image frame (<samp class="mono">MT</samp>). Here is what we do to create an image for the result of <samp class="mono">(create-editor "pre" "post")</samp>:</p>
+<figure class="co"><img src="../images/00248.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If you compare this with the editor image above, you notice some differences, which is fine because the exact layout isn’t essential to the purpose of this exercise, and because the revised layout doesn’t trivialize the problem. In any case, do experiment in the interactions area of DrRacket to find your favorite editor display.</p>
+<p class="calibre8">You are now ready to develop the template, and you should come up with this much:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (editor-render</samp><samp class="mono"> e)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (editor-pre e)</samp><samp class="mono"> <span>…</span> (editor-post</samp><samp class="mono"> e)))</samp></p>
+</div>
+<p class="tni">The given argument is just a structure type with two fields. Their values, however, are lists of 1Strings, and you might be tempted to refine the template even more. Don’t! Instead, keep in mind that when one data definition refers to another complex data definition, you are better off using the wish list.</p>
+<p class="calibre8">If you have worked through a sufficient number of examples, you also know what you want on your wish list: one function that turns a string into a text of the right size and color. Let’s call this function <samp class="mono">editor-text</samp>. Then the definition of <samp class="mono">editor-render</samp> just uses <samp class="mono">editor-text</samp> twice and then composes the result with <samp class="mono">beside</samp> and <samp class="mono">place-image</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_312" title="312"></span><img src="../images/00249.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Although this definition nests expressions three levels deep, the use of the imaginary <samp class="mono">editor-text</samp> function renders it quite readable.</p>
+<p class="calibre8">What remains is to design <samp class="mono">editor-text</samp>. From the design of <samp class="mono">editor-render</samp>, we know that <samp class="mono">editor-text</samp> consumes a list of 1Strings and produces a text image:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Lo1s<samp class="mono"> -&gt; </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> a list</samp><samp class="mono"> of </samp>1Strings<samp class="mono"> as a</samp><samp class="mono"> text image</samp> <br class="calibre4"/><samp class="mono">(define (editor-text</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (text</samp><samp class="mono"> "" FONT-SIZE</samp><samp class="mono"> FONT-COLOR))</samp></p>
+</div>
+<p class="tni">This dummy definition produces an empty text image.</p>
+<p class="calibre8">To demonstrate what <samp class="mono">editor-text</samp> is supposed to compute, we work through an example. The example input is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(create-editor "pre"</samp><samp class="mono"> "post")</samp></p>
+</div>
+<p class="tni">which was also used to explain <samp class="mono">editor-render</samp> and is equivalent to</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-editor</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "e" (cons</samp><samp class="mono"> "r" (cons</samp><samp class="mono"> "p" '())))</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "p" (cons</samp><samp class="mono"> "o" (cons</samp><samp class="mono"> "s" (cons</samp><samp class="mono"> "t" '())))))</samp></p>
+</div>
+<p class="tni">We pick the second list as our sample input for <samp class="mono">editor-text</samp>, and we know the expected result from the example for <samp class="mono">editor-render</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (editor-text</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (cons "p"</samp><samp class="mono"> (cons "o"</samp><samp class="mono"> (cons "s"</samp><samp class="mono"> (cons "t"</samp><samp class="mono"> '())))))</samp> <br class="calibre4"/><samp class="mono">  (text</samp><samp class="mono"> "post" FONT-SIZE</samp><samp class="mono"> FONT-COLOR))</samp></p>
+</div>
+<p class="tni">You may wish to make up a second example before reading on.</p>
+<p class="calibre8">Given that <samp class="mono">editor-text</samp> consumes a list of 1Strings, we can write down the template without much ado:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_313" title="313"></span><img src="../images/00250.gif" alt="" class="calibre10"/></figure>
+<p class="tni">After all, the template is dictated by the data definition that describes the function input. But you don’t need the template if you understand and keep in mind the interpretation for Editor. It uses <samp class="mono">explode</samp> to turn a string into a list of 1Strings. Naturally, there is a function <samp class="mono">implode</samp> that performs the inverse computation, that is,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (implode</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (cons "p"</samp><samp class="mono"> (cons "o"</samp><samp class="mono"> (cons "s"</samp><samp class="mono"> (cons "t"</samp><samp class="mono"> '())))))</samp> <br class="calibre4"/><samp class="mono">"post"</samp></p>
+</div>
+<p class="tni">Using this function, the definition of <samp class="mono">editor-text</samp> is just a small step from the example to the function body:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (editor-text</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (text</samp><samp class="mono"> (implode s)</samp><samp class="mono"> FONT-SIZE FONT-COLOR))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 180. Design <samp class="mono">editor-text</samp> without using <samp class="mono">implode</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The true surprise comes when you test the two functions. While our test for <samp class="mono">editor-text</samp> succeeds, the test for <samp class="mono">editor-render</samp> fails. An inspection of the failure shows that the string to the left of the cursor—<samp class="mono">"pre"</samp>—is typeset backward. We forgot that this part of the editor’s state is represented in reverse. Fortunately, the unit tests for the two functions pinpoint which function is wrong and even tell us what is wrong with the function and suggest how to fix the problem:</p>
+<figure class="co"><img src="../images/00251.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This definition uses the <samp class="mono">reverse</samp> function on the <samp class="mono">pre</samp> field of <samp class="mono">ed</samp>.</p>
+<p class="calibre8"><b class="calibre9">Note</b> Modern applications allow users to position the cursor with the mouse (or other gesture-based devices). While it is in principle possible to add this capability to your editor, we wait with doing so until chapter 32.4.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

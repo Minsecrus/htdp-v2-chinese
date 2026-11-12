@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_26"><a id="sec17-3" class="calibre16"></a>17.3 Abstracting with <samp class="monospace-margin1">lambda</samp></h2>
+<p class="tni">Although it may take you a while to get used to <samp class="mono">lambda</samp> notation, you’ll soon notice that <samp class="mono">lambda</samp> makes short functions much more readable than <span epub:type="pagebreak" id="pg_446" title="446"></span><samp class="mono">local</samp> definitions. Indeed, you will find that you can adapt step 4 of the design recipe from chapter 16.6 to use <samp class="mono">lambda</samp> instead of <samp class="mono">local</samp>. Consider the running example from that section. Its template based on <samp class="mono">local</samp> is this:</p>
+<figure class="co"><img src="../images/00393.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If you spell out the parameters so that their names include signatures, you can easily pack all the information from <samp class="mono">local</samp> into a single <samp class="mono">lambda</samp>:</p>
+<figure class="co"><img src="../images/00394.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From here, you should be able to complete the definition as well as you did from the original template:</p>
+<figure class="co"><img src="../images/00395.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Let’s illustrate <samp class="mono">lambda</samp> with some more examples from chapter 16.5:</p>
+<p class="blf">•  the purpose of the first function is to add <samp class="mono">3</samp> to each x-coordinate on a given list of Posns:</p>
+<figure class="co"><img src="../images/00396.gif" alt="" class="calibre10"/></figure>
+<p class="myitemizeitem">Because <samp class="mono">map</samp> expects a function of one argument, we clearly want <samp class="mono">(lambda (p)<span>…</span>)</samp>. The function then deconstructs <samp class="mono">p</samp>, adds <samp class="mono">3</samp> to the x-coordinate, and repackages the data into a Posn.</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_447" title="447"></span>•  the second one eliminates Posns whose y-coordinate is above <samp class="mono">100</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; [</samp><span>List-of Posn</span><samp class="mono">] -&gt;</samp><samp class="mono"> [</samp><span>List-of Posn</span><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">(define (keep-good</samp><samp class="mono"> lop)</samp> <br class="calibre4"/><samp class="mono">  (filter</samp><samp class="mono"> (lambda (p)</samp><samp class="mono"> (&lt;= (posn-y</samp><samp class="mono"> p) 100))</samp><samp class="mono"> lop))</samp></samp></p>
+</div>
+<p class="myitemizeitem">Here we know that <samp class="mono">filter</samp> needs a function of one argument that produces a Boolean. First, the <samp class="mono">lambda</samp> function extracts the y-coordinate from the Posn to which <samp class="mono">filter</samp> applies the function. Second, it checks whether it is less than or equal to <samp class="mono">100</samp>, the desired limit.</p>
+<p class="blf">•  and the third one determines whether any Posn on <samp class="mono">lop</samp> is close to some given point:</p>
+<figure class="co"><img src="../images/00397.gif" alt="" class="calibre10"/></figure>
+<p class="myitemizeitem">Like the preceding two examples, <samp class="mono">ormap</samp> is a function that expects a function of one argument and applies this functional argument to every item on the given list. If any result is <samp class="mono">#true</samp>, <samp class="mono">ormap</samp> returns <samp class="mono">#true</samp>, too; if all results are <samp class="mono">#false</samp>, <samp class="mono">ormap</samp> produces <samp class="mono">#false</samp>.</p>
+<p class="stni">It is best to compare the definitions from chapter 16.5 and the definitions above side by side. When you do so, you should notice how easy the transition from <samp class="mono">local</samp> to <samp class="mono">lambda</samp> is and how concise the <samp class="mono">lambda</samp> version is in comparison to the <samp class="mono">local</samp> version. Thus, if you are ever in doubt, design with <samp class="mono">local</samp> first and then convert this tested version into one that uses <samp class="mono">lambda</samp>. Keep in mind, however, that <samp class="mono">lambda</samp> is not a cure-all. The locally defined function comes with a name that explains its purpose, and, if it is long, the use of an abstraction with a named function is much easier to understand than one with a large <samp class="mono">lambda</samp>.</p>
+<p class="calibre8">The following exercises request that you solve the problems from chapter 16.7 with <samp class="mono">lambda</samp> in ISL+.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 285. Use <samp class="mono">map</samp> to define the function <samp class="mono">convert-euro</samp>, which converts a list of US$ amounts into a list of € amounts based on an exchange rate of US$1<i class="calibre6">.</i>06 per €.</p>
+<p class="calibre8">Also use <samp class="mono">map</samp> to define <samp class="mono">convertFC</samp>, which converts a list of Fahrenheit measurements to a list of Celsius measurements.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_448" title="448"></span>Finally, try your hand at <samp class="mono">translate</samp>, a function that translates a list of Posns into a list of lists of pairs of numbers. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 286. An inventory record specifies the name of an inventory item, a description, the acquisition price, and the recommended sales price.</p>
+<p class="calibre8">Define a function that sorts a list of inventory records by the difference between the two prices. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 287. Use <samp class="mono">filter</samp> to define <samp class="mono">eliminate-exp</samp>. The function consumes a number, <samp class="mono">ua</samp>, and a list of inventory records (containing name and price), and it produces a list of all those structures whose acquisition price is below <samp class="mono">ua</samp>.</p>
+<p class="calibre8">Then use <samp class="mono">filter</samp> to define <samp class="mono">recall</samp>, which consumes the name of an inventory item, called <samp class="mono">ty</samp>, and a list of inventory records and which produces a list of inventory records that do not use the name <samp class="mono">ty</samp>.</p>
+<p class="calibre8">In addition, define <samp class="mono">selection</samp>, which consumes two lists of names and selects all those from the second one that are also on the first. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 288. Use <samp class="mono">build-list</samp> and <samp class="mono">lambda</samp> to define a function that</p>
+<p class="nlf">1. creates the list <samp class="mono">(list 0 <span>…</span> (</samp>- <samp class="mono">n 1))</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">2. creates the list <samp class="mono">(list 1 <span>…</span> n)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">3. creates the list <samp class="mono">(list 1 1/2 <span>…</span></samp> 1<i class="calibre6">/n</i><samp class="mono">)</samp> for any natural number <samp class="mono">n</samp>;</p>
+<p class="nlf">4. creates the list of the first <samp class="mono">n</samp> even numbers; and</p>
+<p class="nll">5. creates a diagonal square of <samp class="mono">0</samp>s and <samp class="mono">1</samp>s; see exercise 262.</p>
+<p class="tni">Also define <samp class="mono">tabulate</samp> with <samp class="mono">lambda</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 289. Use <samp class="mono">ormap</samp> to define <samp class="mono">find-name</samp>. The function consumes a name and a list of names. It determines whether any of the names on the latter are equal to or an extension of the former.</p>
+<p class="calibre8">With <samp class="mono">andmap</samp> you can define a function that checks all names on a list of names that start with the letter <samp class="mono">"a"</samp>.</p>
+<p class="calibre8">Should you use <samp class="mono">ormap</samp> or <samp class="mono">andmap</samp> to define a function that ensures that no name on some list exceeds some given width? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 290. Recall that the <samp class="mono">append</samp> function in ISL concatenates the items of two lists or, equivalently, replaces <samp class="mono">'()</samp> at the end of the first list with the second list:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(equal? (append</samp><samp class="mono"> (list 1</samp><samp class="mono"> 2 3)</samp><samp class="mono"> (list 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_449" title="449"></span>Use <samp class="mono">foldr</samp> to define <samp class="mono">append-from-fold</samp>. What happens if you replace <samp class="mono">foldr</samp> with <samp class="mono">foldl</samp>?</p>
+<p class="calibre8">Now use one of the fold functions to define functions that compute the sum and the product, respectively, of a list of numbers.</p>
+<p class="calibre8">With one of the fold functions, you can define a function that horizontally composes a list of Images. <b class="calibre9">Hints</b> (1) Look up <samp class="mono">beside</samp> and <samp class="mono">empty-image</samp>. Can you use the other fold function? Also define a function that stacks a list of images vertically. (2) Check for <samp class="mono">above</samp> in the libraries. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 291. The fold functions are so powerful that you can define almost any list-processing functions with them. Use <samp class="mono">fold</samp> to define <samp class="mono">map-via-fold</samp>, which simulates <samp class="mono">map</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

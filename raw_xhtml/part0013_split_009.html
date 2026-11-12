@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_10"><a id="sec26-4" class="calibre16"></a>26.4 Making Choices</h2>
+<p class="tni">When you interact with a function <samp class="mono">f</samp> that sorts lists of numbers, it is impossible for you to know whether <samp class="mono">f</samp> is <samp class="mono">sort&lt;</samp> or <samp class="mono">quick-sort&lt;</samp>. The two functions behave in an observably equivalent way. This raises the question of which of the two a programming language should provide. More generally, when we can design a function using structural recursion and generative recursion, we must figure out which one to pick.</p>
+<p class="marginpar"><i class="calibre6">Observable equivalence</i> is a central concept from the study of programming languages.</p>
+<p class="calibre8">To illustrate the consequences of this choice, we discuss a classical example from mathematics: the problem of finding the greatest common divisor (<i class="calibre6">gcd</i>) of two positive natural numbers. All such numbers have 1 as divisor in common. On occasion—say, 2 and 3—this is also the only common divisor. Both 6 and 25 are numbers with several divisors:</p>
+<p class="marginpar">John Stone suggested the greatest common divisor as a suitable example.</p>
+<p class="blf">•  6 is evenly divisible by 1, 2, 3, and 6;</p>
+<p class="bll">•  25 is evenly divisible by 1, 5, and 25.</p>
+<p class="tni">And yet, their greatest common divisor is 1. In contrast, 18 and 24 have many common divisors and their greatest common divisor is 6:</p>
+<p class="blf">•  18 is evenly divisible by 1, 2, 3, 6, 9, and 18;</p>
+<p class="bll">•  24 is evenly divisible by 1, 2, 3, 4, 6, 8, 12, and 24.</p>
+<p class="calibre8">Completing the first three steps of the design recipe is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N<samp class="mono">[&gt;= 1]</samp><samp class="mono"> </samp>N<samp class="mono">[&gt;= 1]</samp><samp class="mono"> -&gt; </samp>N <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the greatest</samp><samp class="mono"> common divisor</samp><samp class="mono"> of n</samp><samp class="mono"> and m</samp> <br class="calibre4"/><samp class="mono">(check-expect (gcd</samp><samp class="mono"> 6 25)</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">(check-expect (gcd</samp><samp class="mono"> 18 24)</samp><samp class="mono"> 6)</samp> <br class="calibre4"/><samp class="mono">(define (gcd</samp><samp class="mono"> n m)</samp><samp class="mono"> 42)</samp></p>
+</div>
+<p class="tni">The signature specifies the inputs as natural numbers greater than or equal to <samp class="mono">1</samp>.</p>
+<p class="calibre8">From here we design both a structural and a generative recursive solution. Since this part of the book is about generative recursion, we merely present a structural solution in <a id="rfig154" href="part0013_split_009.html#fig154" class="calibre5">figure 154</a> and leave the design ideas to <span epub:type="pagebreak" id="pg_623" title="623"></span>exercises. Just note that <samp class="mono">(= (remainder n i) (remainder m i) 0)</samp> encodes the idea that both <samp class="mono">n</samp> and <samp class="mono">m</samp> are “evenly divisible” by <samp class="mono">i</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig154" class="calibre5"></a><img src="../images/00597.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_009.html#rfig154" class="calibre5">Figure 154</a>:</span> <span>Finding the greatest common divisor via structural recursion</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 438. In your words: how does <samp class="mono">greatest-divisor-&lt;=</samp> work? Use the design recipe to find the right words. Why does the locally defined <samp class="mono">greatest-divisor-&lt;=</samp> recur on <samp class="mono">(min n m</samp><samp class="mono">)</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Although the design of <samp class="mono">gcd-structural</samp> is rather straightforward, it is also naive. It simply tests for every number between the smaller of <samp class="mono">n</samp> and <samp class="mono">m</samp> and <samp class="mono">1</samp> whether it divides both <samp class="mono">n</samp> and <samp class="mono">m</samp> evenly and returns the first such number. For small <samp class="mono">n</samp> and <samp class="mono">m</samp>, this works just fine. Consider the following example, however:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(gcd-structural 101135853</samp><samp class="mono"> 45014640)</samp></p>
+</div>
+<p class="tni">The result is <samp class="mono">177</samp>. To get there, <samp class="mono">gcd-structural</samp> checks the “evenly divisible” condition for 45014640, that is, it checks 45014640 <i class="calibre6">-</i> 177 remainders. Checking that many <samp class="mono">remainder</samp>s—twice!—is a large effort, and even reasonably fast computers need time to complete this task.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 439. Copy <samp class="mono">gcd-structural</samp> into DrRacket and evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(time (gcd-structural</samp><samp class="mono"> 101135853 45014640))</samp></p>
+</div>
+<p class="tni">in the interactions area. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Since mathematicians recognized the inefficiency of this structural function a long time ago, they studied the problem of finding divisors in depth. The essential insight is that</p>
+<div class="ex">
+<p class="exf"><span epub:type="pagebreak" id="pg_624" title="624"></span>for two natural numbers, <samp class="mono">L</samp> for <b class="calibre9">large</b> and <samp class="mono">S</samp> for <b class="calibre9">small</b>, the greatest common divisor is equal to the greatest common divisor of <samp class="mono">S</samp> and the remainder of <samp class="mono">L</samp> divided by <samp class="mono">S</samp>.</p>
+</div>
+<p class="tni">Here is how we can articulate this insight as an equation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(gcd L</samp><samp class="mono"> S) ==</samp><samp class="mono"> (gcd S</samp><samp class="mono"> (remainder L</samp><samp class="mono"> S))</samp></p>
+</div>
+<p class="tni">Since <samp class="mono">(remainder L S)</samp> is smaller than both <samp class="mono">L</samp> and <samp class="mono">S</samp>, the right-hand side use of <samp class="mono">gcd</samp> consumes <samp class="mono">S</samp> first.</p>
+<p class="calibre8">Here is how this insight applies to our small example:</p>
+<p class="blf">•  The given numbers are <samp class="mono">18</samp> and <samp class="mono">24</samp>.</p>
+<p class="blf">•  According to the insight, they have the same gcd as <samp class="mono">18</samp> and <samp class="mono">6</samp>.</p>
+<p class="bll">•  And these two have the same greatest common divisor as <samp class="mono">6</samp> and <samp class="mono">0</samp>.</p>
+<p class="tni">Now we seem stuck because <samp class="mono">0</samp> is unexpected. But, <samp class="mono">0</samp> can be evenly divided by every number, meaning we have found our answer: <samp class="mono">6</samp>.</p>
+<p class="calibre8">Working through the example not only validates the basic insight but also suggests how to turn the insight into an algorithm:</p>
+<p class="blf">•  when the smaller of the numbers is <samp class="mono">0</samp>, we face a trivial case;</p>
+<p class="blf">•  the larger of the two numbers is the solution in the trivial case;</p>
+<p class="blf">•  generating a new problem requires one <samp class="mono">remainder</samp> operation; and</p>
+<p class="bll">•  the above equation tells us that the answer to the newly generated problem is also the answer to the originally given problem.</p>
+<p class="tni">In short, the answers for the four design-recipe questions fall out.</p>
+<p class="calibre8"><a id="rfig155" href="part0013_split_009.html#fig155" class="calibre5">Figure 155</a> presents the definition of the algorithm. The <samp class="mono">local</samp> definition introduces the workhorse of the function: <samp class="mono">clever-gcd</samp>. Its first <samp class="mono">cond</samp> line discovers the trivial case by comparing <samp class="mono">smaller</samp> to <samp class="mono">0</samp> and produces the matching solution. The generative step uses <samp class="mono">smaller</samp> as the new first argument and <samp class="mono">(remainder large small)</samp> as the new second argument to <samp class="mono">clever-gcd</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig155" class="calibre5"></a><img src="../images/00598.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_009.html#rfig155" class="calibre5">Figure 155</a>:</span> <span>Finding the greatest common divisor via generative recursion</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">If we now use <samp class="mono">gcd-generative</samp> with our above example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(gcd-generative 101135853</samp><samp class="mono"> 45014640)</samp></p>
+</div>
+<p class="tni">we see that the response is nearly instantaneous. A hand-evaluation shows that <samp class="mono">clever-gcd</samp> recurs only nine times before it produces the solution:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_625" title="625"></span><samp class="mono"><span>…</span></samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 101135853 45014640)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 45014640 11106573)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 11106573 588348)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 588348 516309)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 516309 72039)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 72039 12036)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 12036 11859)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 11859 177)</samp> <br class="calibre4"/><samp class="mono">== (clever-gcd</samp><samp class="mono"> 177 0)</samp></p>
+</div>
+<p class="tni">This also means that it checks only nine <samp class="mono">remainder</samp> conditions, clearly a much smaller effort than <samp class="mono">gcd-structural</samp> expends.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 440. Copy <samp class="mono">gcd-generative</samp> into the definitions area of DrRacket and evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(time (gcd-generative</samp><samp class="mono"> 101135853 45014640))</samp></p>
+</div>
+<p class="tni">in the interactions area. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">You may now think that generative recursion design has discovered a much faster solution to the <samp class="mono">gcd</samp> problem, and you may conclude that generative recursion is always the right way to go. This judgment is too rash for three reasons. First, even a well-designed algorithm isn’t always faster than an equivalent structurally recursive function. For example, <samp class="mono">quick-sort&lt;</samp> wins only for large lists; for small ones, the standard <samp class="mono">sort&lt;</samp> function is faster. Worse, a badly designed algorithm can wreak havoc on the <span epub:type="pagebreak" id="pg_626" title="626"></span>performance of a program. Second, it is typically easier to design a function using the recipe for structural recursion. Conversely, designing an algorithm requires an idea of how to generate new problems, a step that often requires some deep insight. Finally, programmers who read functions can easily understand structurally recursive functions, even without much documentation. The generative step of an algorithm, though, is based on a “eureka!” and, without a good explanation, is difficult to understand for future readers—and that includes older versions of yourself.</p>
+<p class="calibre8">Experience shows that most functions in a program employ structural design; only a few exploit generative recursion. When we encounter a situation where a design could use the recipe for either structural or generative recursion, the best approach is to start with a structural version. If the result turns out to be too slow for the task at hand—and only then—it is time to explore the use of generative recursion.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 441. Evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(quick-sort&lt; (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8</samp><samp class="mono"> 9 10</samp><samp class="mono"> 11 12</samp><samp class="mono"> 13 14))</samp></p>
+</div>
+<p class="tni">by hand. Show only those lines that introduce a new recursive call to <samp class="mono">quick-sort&lt;</samp>. How many recursive applications of <samp class="mono">quick-sort&lt;</samp> are required? How many recursive applications of the <samp class="mono">append</samp> function? Suggest a general rule for a list of length <samp class="mono">n</samp>.</p>
+<p class="calibre8">Evaluate</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(quick-sort&lt; (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7 8</samp><samp class="mono"> 9 10</samp><samp class="mono"> 11 12</samp><samp class="mono"> 13 14))</samp></p>
+</div>
+<p class="tni">by hand. How many recursive applications of <samp class="mono">quick-sort&lt;</samp> are required? How many recursive applications of <samp class="mono">append</samp>? Does this contradict the first part of the exercise? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 442. Add <samp class="mono">sort&lt;</samp> and <samp class="mono">quick-sort&lt;</samp> to the definitions area. Run tests on the functions to ensure that they work on basic examples. Also develop <samp class="mono">create-tests</samp>, a function that creates large test cases randomly. Then explore how fast each works on various lists.</p>
+<p class="calibre8">Does the experiment confirm the claim that the plain <samp class="mono">sort&lt;</samp> function often wins over <samp class="mono">quick-sort&lt;</samp> for short lists and vice versa?</p>
+<p class="calibre8">Determine the cross-over point. Use it to build a <samp class="mono">clever-sort</samp> function that behaves like <samp class="mono">quick-sort&lt;</samp> for large lists and like <samp class="mono">sort&lt;</samp> for lists below this cross-over point. Compare with exercise 427. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 443. Given the header material for <samp class="mono">gcd-structural</samp>, a naive use of the design recipe might use the following template or some variant:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_627" title="627"></span><img src="../images/00599.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Why is it impossible to find a divisor with this strategy? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 444. Exercise 443 means that the design for <samp class="mono">gcd-structural</samp> calls for some planning and a design-by-composition approach.</p>
+<p class="marginpar">Ideally, you should use sets not lists.</p>
+<p class="calibre8">The very explanation of “greatest common denominator” suggests a two-stage approach. First design a function that can compute the list of divisors of a natural number. Second, design a function that picks the largest common number in the list of divisors of <samp class="mono">n</samp> and the list of divisors of <samp class="mono">m</samp>. The overall function would look like this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (gcd-structural</samp><samp class="mono"> S L)</samp> <br class="calibre4"/><samp class="mono">  (largest-common</samp><samp class="mono"> (divisors S</samp><samp class="mono"> S) (divisors</samp><samp class="mono"> S L)))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>N<samp class="mono">[&gt;= 1]</samp><samp class="mono"> </samp>N<samp class="mono">[&gt;= 1]</samp><samp class="mono"> -&gt; [</samp>List-of N<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the divisors</samp><samp class="mono"> of l</samp><samp class="mono"> smaller or</samp><samp class="mono"> equal to</samp><samp class="mono"> k</samp> <br class="calibre4"/><samp class="mono">(define (divisors</samp><samp class="mono"> k l)</samp> <br class="calibre4"/><samp class="mono">  '())</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; [</samp>List-of N<samp class="mono">] [</samp>List-of N<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>N <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> the largest</samp><samp class="mono"> number common</samp><samp class="mono"> to both</samp><samp class="mono"> k and</samp><samp class="mono"> l</samp> <br class="calibre4"/><samp class="mono">(define (largest-common</samp><samp class="mono"> k l)</samp> <br class="calibre4"/><samp class="mono">  1)</samp></p>
+</div>
+<p class="tni">Why do you think <samp class="mono">divisors</samp> consumes two numbers? Why does it consume <samp class="mono">S</samp> as the first argument in both uses? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

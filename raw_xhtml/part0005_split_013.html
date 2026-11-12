@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_14"><a id="sec2-3" class="calibre16"></a>2.3 Composing Functions</h2>
+<p class="tni">A program rarely consists of a single function definition. Typically, programs consist of a <i class="calibre6">main</i> definition and several other functions and turns the result of one function application into the input for another. In analogy to algebra, we call this way of defining functions <i class="calibre6">composition</i>, and we call these additional functions <i class="calibre6">auxiliary functions</i> or <i class="calibre6">helper functions</i>.</p>
+<p class="calibre8">Consider the program of <a id="rfig12" href="part0005_split_013.html#fig12" class="calibre5">figure 12</a> for filling in letter templates. It consists of four functions. The first one is the main function, which produces a complete letter from the first and last name of the addressee plus a signature. The main function refers to three auxiliary functions to produce the three pieces of the letter—the opening, body, and signature—and composes the results in the correct order with <samp class="mono">string-append</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig12" class="calibre5"></a><img src="../images/00047.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_013.html#rfig12" class="calibre5">Figure 12</a>:</span> <span>A batch program</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Stop! Enter these definitions into DrRacket’s definitions area, click <i class="calibre6">RUN</i>, and evaluate these expressions in the interactions area:</p>
+<div class="verbatim">
+<p class="code-new">&gt; (letter "Matthew" "Fisler" "Felleisen")<br class="calibre4"/>"Dear Matthew,\n\n We have discovered that <span>…</span>\n"<br class="calibre4"/>&gt; (letter "Kathi" "Felleisen" "Findler")<br class="calibre4"/>"Dear Kathi,\n\nWe have discovered that <span>…</span>\n"</p>
+</div>
+<p class="calibre8"><b class="calibre9">Aside</b> The result is a long string that contains <samp class="mono">"\n"</samp>, which represents a new line when the string is <b class="calibre9">printed</b>. Now Add <samp class="mono">(require 2htdp/batch-io)</samp> to your program, which adds the function <samp class="mono">write-file</samp> to its repertoire; it allows you to <b class="calibre9">print</b> this string to the console:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (write-file</samp><samp class="mono"> 'stdout (letter</samp><samp class="mono"> "Matt" "Fiss"</samp><samp class="mono"> "Fell"))</samp> <br class="calibre4"/><samp class="mono">Dear Matt,</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">We have</samp><samp class="mono"> discovered that</samp><samp class="mono"> all people</samp><samp class="mono"> with the</samp> <br class="calibre4"/><span epub:type="pagebreak" id="pg_59" title="59"></span><samp class="mono">last name</samp><samp class="mono"> Fiss have</samp><samp class="mono"> won our</samp><samp class="mono"> lottery. So,</samp> <br class="calibre4"/><samp class="mono">Matt, hurry</samp><samp class="mono"> and pick</samp><samp class="mono"> up your</samp><samp class="mono"> prize.</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">Sincerely,</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">Fell</samp> <br class="calibre4"/><samp class="mono">'stdout</samp></p>
+</div>
+<p class="marginpar">Think of <samp class="monospace-margin">'stdout</samp> as a String for now.</p>
+<p class="tni">Chapter 2.5 explains such batch programs in some depth. <b class="calibre9">End</b></p>
+<p class="calibre8">In general, when a problem refers to distinct tasks of computation, a program should consist of one function per task and a main function that puts it all together. We formulate this idea as a simple slogan:</p>
+<div class="ex">
+<p class="exf"><i class="calibre6">Define one function per task.</i></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_60" title="60"></span>The advantage of following this slogan is that you get reasonably small functions, each of which is easy to comprehend and whose composition is easy to understand. Once you learn to design functions, you will recognize that getting small functions to work correctly is much easier than doing so with large ones. Better yet, if you ever need to change a part of the program due to some change to the problem statement, it tends to be much easier to find the relevant parts when it is organized as a collection of small functions as opposed to a large, monolithic block.</p>
+<p class="calibre8">Here is a small illustration of this point with a sample problem:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> The owner of a monopolistic movie theater in a small town has complete freedom in setting ticket prices. The more he charges, the fewer people can afford tickets. The less he charges, the more it costs to run a show because attendance goes up. In a recent experiment the owner determined a relationship between the price of a ticket and average attendance.</p>
+<p class="ex1">At a price of $5.00 per ticket, 120 people attend a performance. For each 10-cent change in the ticket price, the average attendance changes by 15 people. That is, if the owner charges $5.10, some 105 people attend on the average; if the price goes down to $4.90, average attendance increases to 135. Let’s translate this idea into a mathematical formula:</p>
+<figure class="co"><img src="../images/00048.gif" alt="" class="calibre10"/></figure>
+<p class="ex1">Stop! Explain the minus sign before you proceed.</p>
+<p class="ex1">Unfortunately, the increased attendance also comes at an increased cost. Every performance comes at a fixed cost of $180 to the owner plus a variable cost of $0.04 per attendee.</p>
+<p class="ex1">The owner would like to know the exact relationship between profit and ticket price in order to maximize the profit.</p>
+</div>
+<p class="tni">While the task is clear, how to go about it is not. All we can say at this point is that several quantities depend on each other.</p>
+<p class="calibre8">When we are confronted with such a situation, it is best to tease out the various dependencies, one by one:</p>
+<p class="nlf">1. The problem statement specifies how the number of attendees depends on the ticket price. Computing this number is clearly a separate task and thus deserves its own function definition:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><span epub:type="pagebreak" id="pg_61" title="61"></span><samp class="mono">(define (attendees</samp><samp class="mono"> ticket-price)</samp> <br class="calibre4"/><samp class="mono">  (-</samp><samp class="mono"> 120 (*</samp><samp class="mono"> (- ticket-price</samp><samp class="mono"> 5.0) (/</samp><samp class="mono"> 15 0.1))))</samp></samp></p>
+</div>
+<p class="nlf">2. The <i class="calibre6">revenue</i> is exclusively generated by the sale of tickets, meaning it is exactly the product of ticket price and number of attendees:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define (revenue</samp><samp class="mono"> ticket-price)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> ticket-price (attendees</samp><samp class="mono"> ticket-price)))</samp></samp></p>
+</div>
+<p class="nlf">3. The <i class="calibre6">cost</i> consists of two parts: a fixed part ($180) and a variable part that depends on the number of attendees. Given that the number of attendees is a function of the ticket price, a function for computing the cost of a show must also consume the ticket price so that it can reuse the <samp class="mono">attendees</samp> function:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define (cost</samp><samp class="mono"> ticket-price)</samp> <br class="calibre4"/><samp class="mono">  (+</samp><samp class="mono"> 180 (*</samp><samp class="mono"> 0.04 (attendees</samp><samp class="mono"> ticket-price))))</samp></samp></p>
+</div>
+<p class="nlf">4. Finally, <i class="calibre6">profit</i> is the difference between revenue and costs for some given ticket price:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define (profit</samp><samp class="mono"> ticket-price)</samp> <br class="calibre4"/><samp class="mono">  (-</samp><samp class="mono"> (revenue ticket-price)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (cost ticket-price)))</samp></samp></p>
+</div>
+<p class="nltni">The BSL definition of <samp class="mono">profit</samp> directly follows the suggestion of the informal problem description.</p>
+<p class="stni">These four functions are all there is to the computation of the profit, and we can now use the profit function to determine a good ticket price.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 27. Our solution to the sample problem contains several constants in the middle of functions. As “One Program, Many Definitions” already points out, it is best to give names to such constants so that future readers understand where these numbers come from. Collect all definitions in DrRacket’s definitions area and change them so that all magic numbers are refactored into constant definitions. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 28. Determine the potential profit for these ticket prices: $1, $2, $3, $4, and $5. Which price maximizes the profit of the movie theater? Determine the best ticket price to a dime. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Here is an alternative version of the same program, given as a single function definition:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_62" title="62"></span><img src="../images/00049.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Enter this definition into DrRacket and ensure that it produces the same results as the original version for $1, $2, $3, $4, and $5. A single look should suffice to show how much more difficult it is to comprehend this one function compared to the above four.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 29. After studying the costs of a show, the owner discovered several ways of lowering the cost. As a result of these improvements, there is no longer a fixed cost; a variable cost of $1.50 per attendee remains.</p>
+<p class="calibre8">Modify both programs to reflect this change. When the programs are modified, test them again with ticket prices of $3, $4, and $5 and compare the results. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

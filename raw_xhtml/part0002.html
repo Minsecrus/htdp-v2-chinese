@@ -1,0 +1,413 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="frontmatter" id="1T140-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<p class="sp"> </p>
+<section epub:type="toc">
+<hgroup>
+<h1 class="fmh" id="calibre_pb_0"><span epub:type="pagebreak" id="pg_v" title="v" class="calibre1"></span>Contents</h1>
+</hgroup>
+<p class="cfmh"><a href="part0003.html#2RHM0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Preface</a></p>
+<p class="cfmh1"><a href="part0003.html#sec-1" class="calibre5">Systematic Program Design</a></p>
+<p class="cfmh1"><a href="part0003.html#sec-2" class="calibre5">DrRacket and the Teaching Languages</a></p>
+<p class="cfmh1"><a href="part0003.html#sec-3" class="calibre5">Skills that Transfer</a></p>
+<p class="cfmh1"><a href="part0003.html#sec-4" class="calibre5">This Book and Its Parts</a></p>
+<p class="cfmh1"><a href="part0003.html#sec-5" class="calibre5">The Differences</a></p>
+<p class="cfmh"><a href="part0004_split_001.html#pro" class="calibre5">Prologue: How to Program</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-6" class="calibre5">Arithmetic and Arithmetic</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-7" class="calibre5">Inputs and Output</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-8" class="calibre5">Many Ways to Compute</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-9" class="calibre5">One Program, Many Definitions</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-10" class="calibre5">One More Definition</a></p>
+<p class="cfmh1"><a href="part0004_split_001.html#sec-11" class="calibre5">You Are a Programmer Now</a></p>
+<p class="cfmh1"><a href="part0004_split_002.html#sec-12" class="calibre5">Not!</a></p>
+<p class="cct"><a href="part0005_split_001.html#ch1" class="calibre5">I   Fixed-Size Data</a></p>
+<p class="ch"><a href="part0005_split_002.html#sec1" class="calibre5">1    Arithmetic</a></p>
+<p class="ch1"><a href="part0005_split_003.html#sec1-1" class="calibre5">1.1    The Arithmetic of Numbers</a></p>
+<p class="ch1"><a href="part0005_split_004.html#sec1-2" class="calibre5">1.2    The Arithmetic of Strings</a></p>
+<p class="ch1"><a href="part0005_split_005.html#sec1-3" class="calibre5">1.3    Mixing It Up</a></p>
+<p class="ch1"><a href="part0005_split_006.html#sec1-4" class="calibre5">1.4    The Arithmetic of Images</a></p>
+<p class="ch1"><a href="part0005_split_007.html#sec1-5" class="calibre5">1.5    The Arithmetic of Booleans</a></p>
+<p class="ch1"><a href="part0005_split_008.html#sec1-6" class="calibre5">1.6    Mixing It Up with Booleans</a></p>
+<p class="ch1"><a href="part0005_split_009.html#sec1-7" class="calibre5">1.7    Predicates: Know Thy Data</a></p>
+<p class="ch"><a href="part0005_split_010.html#sec2" class="calibre5">2    Functions and Programs</a></p>
+<p class="ch1"><a href="part0005_split_011.html#sec2-1" class="calibre5">2.1    Functions</a></p>
+<p class="ch1"><a href="part0005_split_012.html#sec2-2" class="calibre5">2.2    Computing</a></p>
+<p class="ch1"><a href="part0005_split_013.html#sec2-3" class="calibre5">2.3    Composing Functions</a></p>
+<p class="ch1"><a href="part0005_split_014.html#sec2-4" class="calibre5">2.4    Global Constants</a></p>
+<p class="ch1"><a href="part0005_split_015.html#sec2-5" class="calibre5">2.5    Programs</a></p>
+<p class="ch"><span epub:type="pagebreak" id="pg_vi" title="vi"></span><a href="part0005_split_016.html#sec3" class="calibre5">3    How to Design Programs</a></p>
+<p class="ch1"><a href="part0005_split_017.html#sec3-1" class="calibre5">3.1    Designing Functions</a></p>
+<p class="ch1"><a href="part0005_split_018.html#sec3-2" class="calibre5">3.2    Finger Exercises: Functions</a></p>
+<p class="ch1"><a href="part0005_split_019.html#sec3-3" class="calibre5">3.3    Domain Knowledge</a></p>
+<p class="ch1"><a href="part0005_split_020.html#sec3-4" class="calibre5">3.4    From Functions to Programs</a></p>
+<p class="ch1"><a href="part0005_split_021.html#sec3-5" class="calibre5">3.5    On Testing</a></p>
+<p class="ch1"><a href="part0005_split_022.html#sec3-6" class="calibre5">3.6    Designing World Programs</a></p>
+<p class="ch1"><a href="part0005_split_023.html#sec3-7" class="calibre5">3.7    Virtual Pet Worlds</a></p>
+<p class="ch"><a href="part0005_split_024.html#sec4" class="calibre5">4    Intervals, Enumerations, and Itemizations</a></p>
+<p class="ch1"><a href="part0005_split_025.html#sec4-1" class="calibre5">4.1    Programming with Conditionals</a></p>
+<p class="ch1"><a href="part0005_split_026.html#sec4-2" class="calibre5">4.2    Computing Conditionally</a></p>
+<p class="ch1"><a href="part0005_split_027.html#sec4-3" class="calibre5">4.3    Enumerations</a></p>
+<p class="ch1"><a href="part0005_split_028.html#sec4-4" class="calibre5">4.4    Intervals</a></p>
+<p class="ch1"><a href="part0005_split_029.html#sec4-5" class="calibre5">4.5    Itemizations</a></p>
+<p class="ch1"><a href="part0005_split_030.html#sec4-6" class="calibre5">4.6    Designing with Itemizations</a></p>
+<p class="ch1"><a href="part0005_split_031.html#sec4-7" class="calibre5">4.7    Finite State Worlds</a></p>
+<p class="ch"><a href="part0005_split_032.html#sec5" class="calibre5">5    Adding Structure</a></p>
+<p class="ch1"><a href="part0005_split_033.html#sec5-1" class="calibre5">5.1    From Positions to <samp class="mono">posn</samp> Structures</a></p>
+<p class="ch1"><a href="part0005_split_034.html#sec5-2" class="calibre5">5.2    Computing with <samp class="mono">posn</samp>s</a></p>
+<p class="ch1"><a href="part0005_split_035.html#sec5-3" class="calibre5">5.3    Programming with <samp class="mono">posn</samp></a></p>
+<p class="ch1"><a href="part0005_split_036.html#sec5-4" class="calibre5">5.4    Defining Structure Types</a></p>
+<p class="ch1"><a href="part0005_split_037.html#sec5-5" class="calibre5">5.5    Computing with Structures</a></p>
+<p class="ch1"><a href="part0005_split_038.html#sec5-6" class="calibre5">5.6    Programming with Structures</a></p>
+<p class="ch1"><a href="part0005_split_039.html#sec5-7" class="calibre5">5.7    The Universe of Data</a></p>
+<p class="ch1"><a href="part0005_split_040.html#sec5-8" class="calibre5">5.8    Designing with Structures</a></p>
+<p class="ch1"><a href="part0005_split_041.html#sec5-9" class="calibre5">5.9    Structure in the World</a></p>
+<p class="ch1"><a href="part0005_split_042.html#sec5-10" class="calibre5">5.10  A Graphical Editor</a></p>
+<p class="ch1"><a href="part0005_split_043.html#sec5-11" class="calibre5">5.11  More Virtual Pets</a></p>
+<p class="ch"><a href="part0005_split_044.html#sec6" class="calibre5">6    Itemizations and Structures</a></p>
+<p class="ch1"><a href="part0005_split_045.html#sec6-1" class="calibre5">6.1    Designing with Itemizations, Again</a></p>
+<p class="ch1"><a href="part0005_split_046.html#sec6-2" class="calibre5">6.2    Mixing Up Worlds</a></p>
+<p class="ch1"><a href="part0005_split_047.html#sec6-3" class="calibre5">6.3    Input Errors</a></p>
+<p class="ch1"><a href="part0005_split_048.html#sec6-4" class="calibre5">6.4    Checking the World</a></p>
+<p class="ch1"><a href="part0005_split_049.html#sec6-5" class="calibre5">6.5    Equality Predicates</a></p>
+<p class="ch"><a href="part0005_split_050.html#sec7" class="calibre5">7    Summary</a></p>
+<p class="cpt"><span epub:type="pagebreak" id="pg_vii" title="vii"></span><a href="part0006_split_000.html#5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Intermezzo 1: Beginning Student Language</a></p>
+<p class="cct"><a href="part0007_split_001.html#ch2" class="calibre5">II   Arbitrarily Large Data</a></p>
+<p class="ch"><a href="part0007_split_002.html#sec8" class="calibre5">8    Lists</a></p>
+<p class="ch1"><a href="part0007_split_003.html#sec8-1" class="calibre5">8.1    Creating Lists</a></p>
+<p class="ch1"><a href="part0007_split_004.html#sec8-2" class="calibre5">8.2    What Is <samp class="mono">'()</samp>, What Is <samp class="mono">cons</samp></a></p>
+<p class="ch1"><a href="part0007_split_005.html#sec8-3" class="calibre5">8.3    Programming with Lists</a></p>
+<p class="ch1"><a href="part0007_split_006.html#sec8-4" class="calibre5">8.4    Computing with Lists</a></p>
+<p class="ch"><a href="part0007_split_007.html#sec9" class="calibre5">9    Designing with Self-Referential Data Definitions</a></p>
+<p class="ch1"><a href="part0007_split_008.html#sec9-1" class="calibre5">9.1    Finger Exercises: Lists</a></p>
+<p class="ch1"><a href="part0007_split_009.html#sec9-2" class="calibre5">9.2    Non-empty Lists</a></p>
+<p class="ch1"><a href="part0007_split_010.html#sec9-3" class="calibre5">9.3    Natural Numbers</a></p>
+<p class="ch1"><a href="part0007_split_011.html#sec9-4" class="calibre5">9.4    Russian Dolls</a></p>
+<p class="ch1"><a href="part0007_split_012.html#sec9-5" class="calibre5">9.5    Lists and World</a></p>
+<p class="ch1"><a href="part0007_split_013.html#sec9-6" class="calibre5">9.6    A Note on Lists and Sets</a></p>
+<p class="ch"><a href="part0007_split_014.html#sec10" class="calibre5">10  More on Lists</a></p>
+<p class="ch1"><a href="part0007_split_015.html#sec10-1" class="calibre5">10.1  Functions that Produce Lists</a></p>
+<p class="ch1"><a href="part0007_split_016.html#sec10-2" class="calibre5">10.2  Structures in Lists</a></p>
+<p class="ch1"><a href="part0007_split_017.html#sec10-3" class="calibre5">10.3  Lists in Lists, Files</a></p>
+<p class="ch1"><a href="part0007_split_018.html#sec10-4" class="calibre5">10.4  A Graphical Editor, Revisited</a></p>
+<p class="ch"><a href="part0007_split_019.html#sec11" class="calibre5">11  Design by Composition</a></p>
+<p class="ch1"><a href="part0007_split_020.html#sec11-1" class="calibre5">11.1  The <samp class="mono">list</samp> Function</a></p>
+<p class="ch1"><a href="part0007_split_021.html#sec11-2" class="calibre5">11.2  Composing Functions</a></p>
+<p class="ch1"><a href="part0007_split_022.html#sec11-3" class="calibre5">11.3  Auxiliary Functions that Recur</a></p>
+<p class="ch1"><a href="part0007_split_023.html#sec11-4" class="calibre5">11.4  Auxiliary Functions that Generalize</a></p>
+<p class="ch"><a href="part0007_split_024.html#sec12" class="calibre5">12  Projects: Lists</a></p>
+<p class="ch1"><a href="part0007_split_025.html#sec12-1" class="calibre5">12.1  Real-World Data: Dictionaries</a></p>
+<p class="ch1"><a href="part0007_split_026.html#sec12-2" class="calibre5">12.2  Real-World Data: iTunes</a></p>
+<p class="ch1"><a href="part0007_split_027.html#sec12-3" class="calibre5">12.3  Word Games, Composition Illustrated</a></p>
+<p class="ch1"><a href="part0007_split_028.html#sec12-4" class="calibre5">12.4  Word Games, the Heart of the Problem</a></p>
+<p class="ch1"><a href="part0007_split_029.html#sec12-5" class="calibre5">12.5  Feeding Worms</a></p>
+<p class="ch1"><a href="part0007_split_030.html#sec12-6" class="calibre5">12.6  Simple Tetris</a></p>
+<p class="ch1"><a href="part0007_split_031.html#sec12-7" class="calibre5">12.7  Full Space War</a></p>
+<p class="ch1"><a href="part0007_split_032.html#sec12-8" class="calibre5">12.8  Finite State Machines</a></p>
+<p class="ch"><span epub:type="pagebreak" id="pg_viii" title="viii"></span><a href="part0007_split_033.html#sec13" class="calibre5">13  Summary</a></p>
+<p class="cpt"><a href="part0008.html#7K4G0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Intermezzo 2: Quote, Unquote</a></p>
+<p class="cct"><a href="part0009_split_001.html#ch3" class="calibre5">III   Abstraction</a></p>
+<p class="ch"><a href="part0009_split_002.html#sec14" class="calibre5">14  Similarities Everywhere</a></p>
+<p class="ch1"><a href="part0009_split_003.html#sec14-1" class="calibre5">14.1  Similarities in Functions</a></p>
+<p class="ch1"><a href="part0009_split_004.html#sec14-2" class="calibre5">14.2  Different Similarities</a></p>
+<p class="ch1"><a href="part0009_split_005.html#sec14-3" class="calibre5">14.3  Similarities in Data Definitions</a></p>
+<p class="ch1"><a href="part0009_split_006.html#sec14-4" class="calibre5">14.4  Functions Are Values</a></p>
+<p class="ch1"><a href="part0009_split_007.html#sec14-5" class="calibre5">14.5  Computing with Functions</a></p>
+<p class="ch"><a href="part0009_split_008.html#sec15" class="calibre5">15  Designing Abstractions</a></p>
+<p class="ch1"><a href="part0009_split_009.html#sec15-1" class="calibre5">15.1  Abstractions from Examples</a></p>
+<p class="ch1"><a href="part0009_split_010.html#sec15-2" class="calibre5">15.2  Similarities in Signatures</a></p>
+<p class="ch1"><a href="part0009_split_011.html#sec15-3" class="calibre5">15.3  Single Point of Control</a></p>
+<p class="ch1"><a href="part0009_split_012.html#sec15-4" class="calibre5">15.4  Abstractions from Templates</a></p>
+<p class="ch"><a href="part0009_split_013.html#sec16" class="calibre5">16  Using Abstractions</a></p>
+<p class="ch1"><a href="part0009_split_014.html#sec16-1" class="calibre5">16.1  Existing Abstractions</a></p>
+<p class="ch1"><a href="part0009_split_015.html#sec16-2" class="calibre5">16.2  Local Definitions</a></p>
+<p class="ch1"><a href="part0009_split_016.html#sec16-3" class="calibre5">16.3  Local Definitions Add Expressive Power</a></p>
+<p class="ch1"><a href="part0009_split_017.html#sec16-4" class="calibre5">16.4  Computing with <samp class="mono">local</samp></a></p>
+<p class="ch1"><a href="part0009_split_018.html#sec16-5" class="calibre5">16.5  Using Abstractions, by Example</a></p>
+<p class="ch1"><a href="part0009_split_019.html#sec16-6" class="calibre5">16.6  Designing with Abstractions</a></p>
+<p class="ch1"><a href="part0009_split_020.html#sec16-7" class="calibre5">16.7  Finger Exercises: Abstraction</a></p>
+<p class="ch1"><a href="part0009_split_021.html#sec16-8" class="calibre5">16.8  Projects: Abstraction</a></p>
+<p class="ch"><a href="part0009_split_022.html#sec17" class="calibre5">17  Nameless Functions</a></p>
+<p class="ch1"><a href="part0009_split_023.html#sec17-1" class="calibre5">17.1  Functions from <samp class="mono">lambda</samp></a></p>
+<p class="ch1"><a href="part0009_split_024.html#sec17-2" class="calibre5">17.2  Computing with <samp class="mono">lambda</samp></a></p>
+<p class="ch1"><a href="part0009_split_025.html#sec17-3" class="calibre5">17.3  Abstracting with <samp class="mono">lambda</samp></a></p>
+<p class="ch1"><a href="part0009_split_026.html#sec17-4" class="calibre5">17.4  Specifying with <samp class="mono">lambda</samp></a></p>
+<p class="ch1"><a href="part0009_split_027.html#sec17-5" class="calibre5">17.5  Representing with <samp class="mono">lambda</samp></a></p>
+<p class="ch"><a href="part0009_split_028.html#sec18" class="calibre5">18  Summary</a></p>
+<p class="cpt"><span epub:type="pagebreak" id="pg_ix" title="ix"></span><a href="part0010.html#9H5K0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Intermezzo 3: Scope and Abstraction</a></p>
+<p class="cct"><a href="part0011_split_001.html#ch4" class="calibre5">IV   Intertwined Data</a></p>
+<p class="ch"><a href="part0011_split_002.html#sec19" class="calibre5">19  The Poetry of S-expressions</a></p>
+<p class="ch1"><a href="part0011_split_003.html#sec19-1" class="calibre5">19.1  Trees</a></p>
+<p class="ch1"><a href="part0011_split_004.html#sec19-2" class="calibre5">19.2  Forests</a></p>
+<p class="ch1"><a href="part0011_split_005.html#sec19-3" class="calibre5">19.3  S-expressions</a></p>
+<p class="ch1"><a href="part0011_split_006.html#sec19-4" class="calibre5">19.4  Designing with Intertwined Data</a></p>
+<p class="ch1"><a href="part0011_split_007.html#sec19-5" class="calibre5">19.5  Project: BSTs</a></p>
+<p class="ch1"><a href="part0011_split_008.html#sec19-6" class="calibre5">19.6  Simplifying Functions</a></p>
+<p class="ch"><a href="part0011_split_009.html#sec20" class="calibre5">20  Iterative Refinement</a></p>
+<p class="ch1"><a href="part0011_split_010.html#sec20-1" class="calibre5">20.1  Data Analysis</a></p>
+<p class="ch1"><a href="part0011_split_011.html#sec20-2" class="calibre5">20.2  Refining Data Definitions</a></p>
+<p class="ch1"><a href="part0011_split_012.html#sec20-3" class="calibre5">20.3  Refining Functions</a></p>
+<p class="ch"><a href="part0011_split_013.html#sec21" class="calibre5">21  Refining Interpreters</a></p>
+<p class="ch1"><a href="part0011_split_014.html#sec21-1" class="calibre5">21.1  Interpreting Expressions</a></p>
+<p class="ch1"><a href="part0011_split_015.html#sec21-2" class="calibre5">21.2  Interpreting Variables</a></p>
+<p class="ch1"><a href="part0011_split_016.html#sec21-3" class="calibre5">21.3  Interpreting Functions</a></p>
+<p class="ch1"><a href="part0011_split_017.html#sec21-4" class="calibre5">21.4  Interpreting Everything</a></p>
+<p class="ch"><a href="part0011_split_018.html#sec22" class="calibre5">22  Project: The Commerce of XML</a></p>
+<p class="ch1"><a href="part0011_split_019.html#sec22-1" class="calibre5">22.1  XML as S-expressions</a></p>
+<p class="ch1"><a href="part0011_split_020.html#sec22-2" class="calibre5">22.2  Rendering XML Enumerations</a></p>
+<p class="ch1"><a href="part0011_split_021.html#sec22-3" class="calibre5">22.3  Domain-Specific Languages</a></p>
+<p class="ch1"><a href="part0011_split_022.html#sec22-4" class="calibre5">22.4  Reading XML</a></p>
+<p class="ch"><a href="part0011_split_023.html#sec23" class="calibre5">23  Simultaneous Processing</a></p>
+<p class="ch1"><a href="part0011_split_024.html#sec23-1" class="calibre5">23.1  Processing Two Lists Simultaneously: Case 1</a></p>
+<p class="ch1"><a href="part0011_split_025.html#sec23-2" class="calibre5">23.2  Processing Two Lists Simultaneously: Case 2</a></p>
+<p class="ch1"><a href="part0011_split_026.html#sec23-3" class="calibre5">23.3  Processing Two Lists Simultaneously: Case 3</a></p>
+<p class="ch1"><a href="part0011_split_027.html#sec23-4" class="calibre5">23.4  Function Simplification</a></p>
+<p class="ch1"><a href="part0011_split_028.html#sec23-5" class="calibre5">23.5  Designing Functions that Consume Two Complex Inputs</a></p>
+<p class="ch1"><a href="part0011_split_029.html#sec23-6" class="calibre5">23.6  Finger Exercises: Two Inputs</a></p>
+<p class="ch1"><a href="part0011_split_030.html#sec23-7" class="calibre5">23.7  Project: Database</a></p>
+<p class="ch"><a href="part0011_split_031.html#sec24" class="calibre5">24  Summary</a></p>
+<p class="cpt"><span epub:type="pagebreak" id="pg_x" title="x"></span><a href="part0012.html#BE6O0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Intermezzo 4: The Nature of Numbers</a></p>
+<p class="cct"><a href="part0013_split_001.html#ch5" class="calibre5">V   Generative Recursion</a></p>
+<p class="ch"><a href="part0013_split_002.html#sec25" class="calibre5">25  Non-standard Recursion</a></p>
+<p class="ch1"><a href="part0013_split_003.html#sec25-1" class="calibre5">25.1  Recursion without Structure</a></p>
+<p class="ch1"><a href="part0013_split_004.html#sec25-2" class="calibre5">25.2  Recursion that Ignores Structure</a></p>
+<p class="ch"><a href="part0013_split_005.html#sec26" class="calibre5">26  Designing Algorithms</a></p>
+<p class="ch1"><a href="part0013_split_006.html#sec26-1" class="calibre5">26.1  Adapting the Design Recipe</a></p>
+<p class="ch1"><a href="part0013_split_007.html#sec26-2" class="calibre5">26.2  Termination</a></p>
+<p class="ch1"><a href="part0013_split_008.html#sec26-3" class="calibre5">26.3  Structural versus Generative Recursion</a></p>
+<p class="ch1"><a href="part0013_split_009.html#sec26-4" class="calibre5">26.4  Making Choices</a></p>
+<p class="ch"><a href="part0013_split_010.html#sec27" class="calibre5">27  Variations on the Theme</a></p>
+<p class="ch1"><a href="part0013_split_011.html#sec27-1" class="calibre5">27.1  Fractals, a First Taste</a></p>
+<p class="ch1"><a href="part0013_split_012.html#sec27-2" class="calibre5">27.2  Binary Search</a></p>
+<p class="ch1"><a href="part0013_split_013.html#sec27-3" class="calibre5">27.3  A Glimpse at Parsing</a></p>
+<p class="ch"><a href="part0013_split_014.html#sec28" class="calibre5">28  Mathematical Examples</a></p>
+<p class="ch1"><a href="part0013_split_015.html#sec28-1" class="calibre5">28.1  Newton’s Method</a></p>
+<p class="ch1"><a href="part0013_split_016.html#sec28-2" class="calibre5">28.2  Numeric Integration</a></p>
+<p class="ch1"><a href="part0013_split_017.html#sec28-3" class="calibre5">28.3  Project: Gaussian Elimination</a></p>
+<p class="ch"><a href="part0013_split_018.html#sec29" class="calibre5">29  Algorithms that Backtrack</a></p>
+<p class="ch1"><a href="part0013_split_019.html#sec29-1" class="calibre5">29.1  Traversing Graphs</a></p>
+<p class="ch1"><a href="part0013_split_020.html#sec29-2" class="calibre5">29.2  Project: Backtracking</a></p>
+<p class="ch"><a href="part0013_split_021.html#sec30" class="calibre5">30  Summary</a></p>
+<p class="cpt"><a href="part0014.html#DB7S0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre5">Intermezzo 5: The Cost of Computation</a></p>
+<p class="cct"><a href="part0015_split_001.html#ch6" class="calibre5">VI   Accumulators</a></p>
+<p class="ch"><a href="part0015_split_002.html#sec31" class="calibre5">31  The Loss of Knowledge</a></p>
+<p class="ch1"><a href="part0015_split_003.html#sec31-1" class="calibre5">31.1  A Problem with Structural Processing</a></p>
+<p class="ch1"><a href="part0015_split_004.html#sec31-2" class="calibre5">31.2  A Problem with Generative Recursion</a></p>
+<p class="ch"><span epub:type="pagebreak" id="pg_xi" title="xi"></span><a href="part0015_split_005.html#sec32" class="calibre5">32  Designing Accumulator-Style Functions</a></p>
+<p class="ch1"><a href="part0015_split_006.html#sec32-1" class="calibre5">32.1  Recognizing the Need for an Accumulator</a></p>
+<p class="ch1"><a href="part0015_split_007.html#sec32-2" class="calibre5">32.2  Adding Accumulators</a></p>
+<p class="ch1"><a href="part0015_split_008.html#sec32-3" class="calibre5">32.3  Transforming Functions into Accumulator Style</a></p>
+<p class="ch1"><a href="part0015_split_009.html#sec32-4" class="calibre5">32.4  A Graphical Editor, with Mouse</a></p>
+<p class="ch"><a href="part0015_split_010.html#sec33" class="calibre5">33  More Uses of Accumulation</a></p>
+<p class="ch1"><a href="part0015_split_011.html#sec33-1" class="calibre5">33.1  Accumulators and Trees</a></p>
+<p class="ch1"><a href="part0015_split_012.html#sec33-2" class="calibre5">33.2  Data Representations with Accumulators</a></p>
+<p class="ch1"><a href="part0015_split_013.html#sec33-3" class="calibre5">33.3  Accumulators as Results</a></p>
+<p class="ch"><a href="part0015_split_014.html#sec34" class="calibre5">34  Summary</a></p>
+<p class="cfmh"><a href="part0016_split_001.html#epi" class="calibre5">Epilogue: Moving On</a></p>
+<p class="cfmh1"><a href="part0016_split_001.html#sec-13" class="calibre5">Computing</a></p>
+<p class="cfmh1"><a href="part0016_split_001.html#sec-14" class="calibre5">Program Design</a></p>
+<p class="cfmh1"><a href="part0016_split_001.html#sec-15" class="calibre5">Onward, Developers and Computer Scientists</a></p>
+<p class="cfmh1"><a href="part0016_split_001.html#sec-16" class="calibre5">Onward, Accountants, Journalists, Surgeons, and Everyone Else</a></p>
+<p class="cbmh"><a href="part0017_split_001.html#ind" class="calibre5">Index</a></p>
+<p class="cfmh">List of Figures</p>
+<p class="toc-fig"><a href="part0003.html#fig1" class="calibre5">Figure 1</a>: The basic steps of a function design recipe</p>
+<p class="toc-fig"><a href="part0003.html#fig2" class="calibre5">Figure 2</a>: The dependencies among parts and intermezzos</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig3" class="calibre5">Figure 3</a>: Meet DrRacket</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig4" class="calibre5">Figure 4</a>: Landing a rocket (version 1)</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig5" class="calibre5">Figure 5</a>: Landing a rocket (version 2)</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig6" class="calibre5">Figure 6</a>: Landing a rocket (version 3)</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig7" class="calibre5">Figure 7</a>: Landing a rocket (version 4)</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig8" class="calibre5">Figure 8</a>: Landing a rocket (version 5)</p>
+<p class="toc-fig"><a href="part0004_split_001.html#fig9" class="calibre5">Figure 9</a>: Landing a rocket (version 6)</p>
+<p class="toc-fig"><a href="part0005_split_006.html#fig10" class="calibre5">Figure 10</a>: Laws of image creation</p>
+<p class="toc-fig"><a href="part0005_split_012.html#fig11" class="calibre5">Figure 11</a>: The DrRacket stepper</p>
+<p class="toc-fig"><a href="part0005_split_013.html#fig12" class="calibre5">Figure 12</a>: A batch program</p>
+<p class="toc-fig"><a href="part0005_split_015.html#fig13" class="calibre5">Figure 13</a>: How <samp class="mono">big-bang</samp> works</p>
+<p class="toc-fig"><a href="part0005_split_015.html#fig14" class="calibre5">Figure 14</a>: A first interactive program</p>
+<p class="toc-fig"><a href="part0005_split_017.html#fig15" class="calibre5">Figure 15</a>: From information to data, and back</p>
+<p class="toc-fig"><a href="part0005_split_017.html#fig16" class="calibre5">Figure 16</a>: The completion of design step 5</p>
+<p class="toc-fig"><a href="part0005_split_021.html#fig17" class="calibre5">Figure 17</a>: Testing in BSL</p>
+<p class="toc-fig"><a href="part0005_split_022.html#fig18" class="calibre5">Figure 18</a>: The wish list for designing world programs</p>
+<p class="toc-fig"><a href="part0005_split_022.html#fig19" class="calibre5">Figure 19</a>: Examples for a moving car program</p>
+<p class="toc-fig"><a href="part0005_split_026.html#fig20" class="calibre5">Figure 20</a>: Recall from “One Program, Many Definitions”</p>
+<p class="toc-fig"><a href="part0005_split_027.html#fig21" class="calibre5">Figure 21</a>: Conditional functions and special enumerations</p>
+<p class="toc-fig"><a href="part0005_split_028.html#fig22" class="calibre5">Figure 22</a>: UFO, descending</p>
+<p class="toc-fig"><a href="part0005_split_028.html#fig23" class="calibre5">Figure 23</a>: Rendering with a status line</p>
+<p class="toc-fig"><a href="part0005_split_028.html#fig24" class="calibre5">Figure 24</a>: Rendering with a status line, revised</p>
+<p class="toc-fig"><a href="part0005_split_029.html#fig25" class="calibre5">Figure 25</a>: Launching a countdown and a liftoff</p>
+<p class="toc-fig"><a href="part0005_split_031.html#fig26" class="calibre5">Figure 26</a>: How a traffic light functions</p>
+<p class="toc-fig"><a href="part0005_split_031.html#fig27" class="calibre5">Figure 27</a>: A symbolic traffic light</p>
+<p class="toc-fig"><a href="part0005_split_031.html#fig28" class="calibre5">Figure 28</a>: A transition diagram for a door with an automatic closer</p>
+<p class="toc-fig"><a href="part0005_split_034.html#fig29" class="calibre5">Figure 29</a>: A Cartesian point</p>
+<p class="toc-fig"><a href="part0005_split_039.html#fig30" class="calibre5">Figure 30</a>: The universe of data</p>
+<p class="toc-fig"><a href="part0005_split_039.html#fig31" class="calibre5">Figure 31</a>: Adding structure to a universe</p>
+<p class="toc-fig"><a href="part0005_split_045.html#fig32" class="calibre5">Figure 32</a>: Rendering space invader game states, by example</p>
+<p class="toc-fig"><a href="part0005_split_045.html#fig33" class="calibre5">Figure 33</a>: The complete rendering function</p>
+<p class="toc-fig"><a href="part0005_split_045.html#fig34" class="calibre5">Figure 34</a>: Rendering game states again</p>
+<p class="toc-fig"><a href="part0005_split_045.html#fig35" class="calibre5">Figure 35</a>: Rendering the space invader games, with tanks</p>
+<p class="toc-fig"><a href="part0005_split_046.html#fig36" class="calibre5">Figure 36</a>: Two ways of writing a data definition for FSMs</p>
+<p class="toc-fig"><a href="part0005_split_046.html#fig37" class="calibre5">Figure 37</a>: A finite state machine as a diagram</p>
+<p class="toc-fig"><a href="part0005_split_047.html#fig38" class="calibre5">Figure 38</a>: The universe of BSL data</p>
+<p class="toc-fig"><a href="part0006_split_001.html#fig39" class="calibre5">Figure 39</a>: BSL core vocabulary</p>
+<p class="toc-fig"><a href="part0006_split_002.html#fig40" class="calibre5">Figure 40</a>: BSL core grammar</p>
+<p class="toc-fig"><a href="part0006_split_002.html#fig41" class="calibre5">Figure 41</a>: Syntactic naming conventions</p>
+<p class="toc-fig"><a href="part0006_split_003.html#fig42" class="calibre5">Figure 42</a>: Replacing equals by equals</p>
+<p class="toc-fig"><a href="part0006_split_009.html#fig43" class="calibre5">Figure 43</a>: BSL, full grammar</p>
+<p class="toc-fig"><a href="part0007_split_003.html#fig44" class="calibre5">Figure 44</a>: Building a list</p>
+<p class="toc-fig"><a href="part0007_split_003.html#fig45" class="calibre5">Figure 45</a>: Drawing a list</p>
+<p class="toc-fig"><a href="part0007_split_004.html#fig46" class="calibre5">Figure 46</a>: List primitives</p>
+<p class="toc-fig"><a href="part0007_split_005.html#fig47" class="calibre5">Figure 47</a>: Searching a list</p>
+<p class="toc-fig"><a href="part0007_split_006.html#fig48" class="calibre5">Figure 48</a>: Computing with lists, step 1</p>
+<p class="toc-fig"><a href="part0007_split_006.html#fig49" class="calibre5">Figure 49</a>: Computing with lists, step 2</p>
+<p class="toc-fig"><a href="part0007_split_006.html#fig50" class="calibre5">Figure 50</a>: Computing with lists, step 3</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig51" class="calibre5">Figure 51</a>: Arrows for self-references in data definitions and templates</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig52" class="calibre5">Figure 52</a>: How to translate a data definition into a template</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig53" class="calibre5">Figure 53</a>: How to turn a template into a function definition</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig54" class="calibre5">Figure 54</a>: Turning a template into a function, the table method</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig55" class="calibre5">Figure 55</a>: Tabulating arguments, intermediate values, and results</p>
+<p class="toc-fig"><a href="part0007_split_007.html#fig56" class="calibre5">Figure 56</a>: Designing a function for self-referential data</p>
+<p class="toc-fig"><a href="part0007_split_008.html#fig57" class="calibre5">Figure 57</a>: A table for <samp class="mono">cat</samp></p>
+<p class="toc-fig"><a href="part0007_split_009.html#fig58" class="calibre5">Figure 58</a>: A table for <samp class="mono">sorted&gt;?</samp></p>
+<p class="toc-fig"><a href="part0007_split_010.html#fig59" class="calibre5">Figure 59</a>: Creating a list of copies</p>
+<p class="toc-fig"><a href="part0007_split_010.html#fig60" class="calibre5">Figure 60</a>: Random attacks</p>
+<p class="toc-fig"><a href="part0007_split_012.html#fig61" class="calibre5">Figure 61</a>: A list-based world program</p>
+<p class="toc-fig"><a href="part0007_split_013.html#fig62" class="calibre5">Figure 62</a>: Two data representations for sets</p>
+<p class="toc-fig"><a href="part0007_split_013.html#fig63" class="calibre5">Figure 63</a>: Functions for the two data representations of sets</p>
+<p class="toc-fig"><a href="part0007_split_015.html#fig64" class="calibre5">Figure 64</a>: Computing the wages of all employees</p>
+<p class="toc-fig"><a href="part0007_split_016.html#fig65" class="calibre5">Figure 65</a>: Computing the wages from work records</p>
+<p class="toc-fig"><a href="part0007_split_017.html#fig66" class="calibre5">Figure 66</a>: Things take time</p>
+<p class="toc-fig"><a href="part0007_split_017.html#fig67" class="calibre5">Figure 67</a>: Reading files</p>
+<p class="toc-fig"><a href="part0007_split_017.html#fig68" class="calibre5">Figure 68</a>: Counting the words on a line</p>
+<p class="toc-fig"><a href="part0007_split_017.html#fig69" class="calibre5">Figure 69</a>: Encoding strings</p>
+<p class="toc-fig"><a href="part0007_split_017.html#fig70" class="calibre5">Figure 70</a>: Transpose a matrix</p>
+<p class="toc-fig"><a href="part0007_split_018.html#fig71" class="calibre5">Figure 71</a>: Tabulating for <samp class="mono">rev</samp></p>
+<p class="toc-fig"><a href="part0007_split_022.html#fig72" class="calibre5">Figure 72</a>: Sorting lists of numbers</p>
+<p class="toc-fig"><a href="part0007_split_023.html#fig73" class="calibre5">Figure 73</a>: Drawing a polygon</p>
+<p class="toc-fig"><a href="part0007_split_025.html#fig74" class="calibre5">Figure 74</a>: Reading a dictionary</p>
+<p class="toc-fig"><a href="part0007_split_026.html#fig75" class="calibre5">Figure 75</a>: Representing iTunes tracks as structures (the structures)</p>
+<p class="toc-fig"><a href="part0007_split_026.html#fig76" class="calibre5">Figure 76</a>: Representing iTunes tracks as structures (the functions)</p>
+<p class="toc-fig"><a href="part0007_split_026.html#fig77" class="calibre5">Figure 77</a>: Representing iTunes tracks as lists</p>
+<p class="toc-fig"><a href="part0007_split_027.html#fig78" class="calibre5">Figure 78</a>: Finding alternative words</p>
+<p class="toc-fig"><a href="part0007_split_029.html#fig79" class="calibre5">Figure 79</a>: Playing Worm</p>
+<p class="toc-fig"><a href="part0007_split_029.html#fig80" class="calibre5">Figure 80</a>: Random placement of food</p>
+<p class="toc-fig"><a href="part0007_split_030.html#fig81" class="calibre5">Figure 81</a>: Simple Tetris</p>
+<p class="toc-fig"><a href="part0007_split_032.html#fig82" class="calibre5">Figure 82</a>: Representing and interpreting finite state machines in general</p>
+<p class="toc-fig"><a href="part0008.html#fig83" class="calibre5">Figure 83</a>: A simplistic HTML generator</p>
+<p class="toc-fig"><a href="part0008.html#fig84" class="calibre5">Figure 84</a>: A data representation based on nested lists</p>
+<p class="toc-fig"><a href="part0008.html#fig85" class="calibre5">Figure 85</a>: A web page generated with BSL+</p>
+<p class="toc-fig"><a href="part0009_split_003.html#fig86" class="calibre5">Figure 86</a>: Two similar functions</p>
+<p class="toc-fig"><a href="part0009_split_003.html#fig87" class="calibre5">Figure 87</a>: Two similar functions, revisited</p>
+<p class="toc-fig"><a href="part0009_split_004.html#fig88" class="calibre5">Figure 88</a>: Two more similar functions</p>
+<p class="toc-fig"><a href="part0009_split_004.html#fig89" class="calibre5">Figure 89</a>: Finding the <samp class="mono">inf</samp> and <samp class="mono">sup</samp> in a list of numbers</p>
+<p class="toc-fig"><a href="part0009_split_009.html#fig90" class="calibre5">Figure 90</a>: A pair of similar functions</p>
+<p class="toc-fig"><a href="part0009_split_009.html#fig91" class="calibre5">Figure 91</a>: The same two similar functions, abstracted</p>
+<p class="toc-fig"><a href="part0009_split_009.html#fig92" class="calibre5">Figure 92</a>: The similar functions for exercise 250</p>
+<p class="toc-fig"><a href="part0009_split_009.html#fig93" class="calibre5">Figure 93</a>: The similar functions for exercise 251</p>
+<p class="toc-fig"><a href="part0009_split_009.html#fig94" class="calibre5">Figure 94</a>: The similar functions for exercise 252</p>
+<p class="toc-fig"><a href="part0009_split_014.html#fig95" class="calibre5">Figure 95</a>: ISL’s abstract functions for list processing (1)</p>
+<p class="toc-fig"><a href="part0009_split_014.html#fig96" class="calibre5">Figure 96</a>: ISL’s abstract functions for list processing (2)</p>
+<p class="toc-fig"><a href="part0009_split_014.html#fig97" class="calibre5">Figure 97</a>: Creating a program with abstractions</p>
+<p class="toc-fig"><a href="part0009_split_015.html#fig98" class="calibre5">Figure 98</a>: Organizing a function with <samp class="mono">local</samp></p>
+<p class="toc-fig"><a href="part0009_split_015.html#fig99" class="calibre5">Figure 99</a>: Organizing interconnected function definitions with <samp class="mono">local</samp></p>
+<p class="toc-fig"><a href="part0009_split_015.html#fig100" class="calibre5">Figure 100</a>: Using <samp class="mono">local</samp> may improve performance</p>
+<p class="toc-fig"><a href="part0009_split_015.html#fig101" class="calibre5">Figure 101</a>: A function on inventories, see exercise 261</p>
+<p class="toc-fig"><a href="part0009_split_016.html#fig102" class="calibre5">Figure 102</a>: Power from local function definitions</p>
+<p class="toc-fig"><a href="part0009_split_026.html#fig103" class="calibre5">Figure 103</a>: A general sorting function</p>
+<p class="toc-fig"><a href="part0009_split_026.html#fig104" class="calibre5">Figure 104</a>: A curried predicate for checking the ordering of a list</p>
+<p class="toc-fig"><a href="part0010.html#fig105" class="calibre5">Figure 105</a>: Drawing lexical scope contours for exercise 301</p>
+<p class="toc-fig"><a href="part0010.html#fig106" class="calibre5">Figure 106</a>: Drawing lexical scope contours for exercise 301 (version 2)</p>
+<p class="toc-fig"><a href="part0010.html#fig107" class="calibre5">Figure 107</a>: ISL+ extended with <samp class="mono">for</samp> loops</p>
+<p class="toc-fig"><a href="part0010.html#fig108" class="calibre5">Figure 108</a>: A compact definition of <samp class="mono">arrangements</samp> with <samp class="mono">for*/list</samp></p>
+<p class="toc-fig"><a href="part0010.html#fig109" class="calibre5">Figure 109</a>: Constructing sequences of natural numbers</p>
+<p class="toc-fig"><a href="part0010.html#fig110" class="calibre5">Figure 110</a>: ISL+ match expressions</p>
+<p class="toc-fig"><a href="part0011_split_003.html#fig111" class="calibre5">Figure 111</a>: A family tree</p>
+<p class="toc-fig"><a href="part0011_split_003.html#fig112" class="calibre5">Figure 112</a>: A data representation of the sample family tree</p>
+<p class="toc-fig"><a href="part0011_split_003.html#fig113" class="calibre5">Figure 113</a>: Finding a blue-eyed child in an ancestor tree</p>
+<p class="toc-fig"><a href="part0011_split_003.html#fig114" class="calibre5">Figure 114</a>: Calculating with trees</p>
+<p class="toc-fig"><a href="part0011_split_004.html#fig115" class="calibre5">Figure 115</a>: Finding a blue-eyed child in a family forest</p>
+<p class="toc-fig"><a href="part0011_split_005.html#fig116" class="calibre5">Figure 116</a>: A template for S-expressions</p>
+<p class="toc-fig"><a href="part0011_split_005.html#fig117" class="calibre5">Figure 117</a>: A program for S-expressions</p>
+<p class="toc-fig"><a href="part0011_split_006.html#fig118" class="calibre5">Figure 118</a>: Arrows for nests of data definitions and templates</p>
+<p class="toc-fig"><a href="part0011_split_007.html#fig119" class="calibre5">Figure 119</a>: A binary search tree and a binary tree</p>
+<p class="toc-fig"><a href="part0011_split_008.html#fig120" class="calibre5">Figure 120</a>: A program to be simplified</p>
+<p class="toc-fig"><a href="part0011_split_008.html#fig121" class="calibre5">Figure 121</a>: Program simplification, step 1</p>
+<p class="toc-fig"><a href="part0011_split_008.html#fig122" class="calibre5">Figure 122</a>: Program simplification, steps 2 and 3</p>
+<p class="toc-fig"><a href="part0011_split_010.html#fig123" class="calibre5">Figure 123</a>: A sample directory tree</p>
+<p class="toc-fig"><a href="part0011_split_014.html#fig124" class="calibre5">Figure 124</a>: Representing BSL expressions in BSL</p>
+<p class="toc-fig"><a href="part0011_split_014.html#fig125" class="calibre5">Figure 125</a>: From S-expr to BSL-expr</p>
+<p class="toc-fig"><a href="part0011_split_019.html#fig126" class="calibre5">Figure 126</a>: The complete definition of <samp class="mono">xexpr-attr</samp></p>
+<p class="toc-fig"><a href="part0011_split_020.html#fig127" class="calibre5">Figure 127</a>: A realistic data representation of XML enumerations</p>
+<p class="toc-fig"><a href="part0011_split_020.html#fig128" class="calibre5">Figure 128</a>: Refining functions to match refinements of data definitions</p>
+<p class="toc-fig"><a href="part0011_split_021.html#fig129" class="calibre5">Figure 129</a>: Finite state machines, revisited</p>
+<p class="toc-fig"><a href="part0011_split_021.html#fig130" class="calibre5">Figure 130</a>: Interpreting a DSL program</p>
+<p class="toc-fig"><a href="part0011_split_022.html#fig131" class="calibre5">Figure 131</a>: A file with a machine configuration</p>
+<p class="toc-fig"><a href="part0011_split_022.html#fig132" class="calibre5">Figure 132</a>: Reading X-expressions</p>
+<p class="toc-fig"><a href="part0011_split_022.html#fig133" class="calibre5">Figure 133</a>: Web data as an event</p>
+<p class="toc-fig"><a href="part0011_split_027.html#fig134" class="calibre5">Figure 134</a>: Indexing into a list</p>
+<p class="toc-fig"><a href="part0011_split_027.html#fig135" class="calibre5">Figure 135</a>: Indexing into a list, simplified</p>
+<p class="toc-fig"><a href="part0011_split_029.html#fig136" class="calibre5">Figure 136</a>: A simple hangman game</p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig137" class="calibre5">Figure 137</a>: Databases as tables</p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig138" class="calibre5">Figure 138</a>: Databases as ISL+ data</p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig139" class="calibre5">Figure 139</a>: The result of systematic expression hoisting</p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig140" class="calibre5">Figure 140</a>: A template for <samp class="mono">project</samp></p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig141" class="calibre5">Figure 141</a>: Database projection</p>
+<p class="toc-fig"><a href="part0011_split_030.html#fig142" class="calibre5">Figure 142</a>: Database projection</p>
+<p class="toc-fig"><a href="part0012.html#fig143" class="calibre5">Figure 143</a>: Functions for inexact representations</p>
+<p class="toc-fig"><a href="part0012.html#fig144" class="calibre5">Figure 144</a>: A Janus-faced series of inexact numbers</p>
+<p class="toc-fig"><a href="part0012.html#fig145" class="calibre5">Figure 145</a>: The graph of <samp class="mono">oscillate</samp></p>
+<p class="toc-fig"><a href="part0013_split_003.html#fig146" class="calibre5">Figure 146</a>: Useless templates for breaking up strings into chunks</p>
+<p class="toc-fig"><a href="part0013_split_003.html#fig147" class="calibre5">Figure 147</a>: Generative recursion</p>
+<p class="toc-fig"><a href="part0013_split_004.html#fig148" class="calibre5">Figure 148</a>: A graphical illustration of the quick-sort algorithm</p>
+<p class="toc-fig"><a href="part0013_split_004.html#fig149" class="calibre5">Figure 149</a>: The quick-sort algorithm</p>
+<p class="toc-fig"><a href="part0013_split_006.html#fig150" class="calibre5">Figure 150</a>: The table-based guessing approach for combining solutions</p>
+<p class="toc-fig"><a href="part0013_split_007.html#fig151" class="calibre5">Figure 151</a>: Designing algorithms (part 1)</p>
+<p class="toc-fig"><a href="part0013_split_007.html#fig152" class="calibre5">Figure 152</a>: Designing algorithms (part 2)</p>
+<p class="toc-fig"><a href="part0013_split_008.html#fig153" class="calibre5">Figure 153</a>: From generative to structural recursion</p>
+<p class="toc-fig"><a href="part0013_split_009.html#fig154" class="calibre5">Figure 154</a>: Finding the greatest common divisor via structural recursion</p>
+<p class="toc-fig"><a href="part0013_split_009.html#fig155" class="calibre5">Figure 155</a>: Finding the greatest common divisor via generative recursion</p>
+<p class="toc-fig"><a href="part0013_split_011.html#fig156" class="calibre5">Figure 156</a>: The Sierpinski triangle</p>
+<p class="toc-fig"><a href="part0013_split_011.html#fig157" class="calibre5">Figure 157</a>: The Sierpinski algorithm</p>
+<p class="toc-fig"><a href="part0013_split_012.html#fig158" class="calibre5">Figure 158</a>: A numeric function <i class="calibre6">f</i> with root in interval [<i class="calibre6">a,b</i>] (stage)</p>
+<p class="toc-fig"><a href="part0013_split_012.html#fig159" class="calibre5">Figure 159</a>: The <i class="calibre6">find-root</i> algorithm</p>
+<p class="toc-fig"><a href="part0013_split_013.html#fig160" class="calibre5">Figure 160</a>: Translating a file into a list of lines</p>
+<p class="toc-fig"><a href="part0013_split_015.html#fig161" class="calibre5">Figure 161</a>: The Newton process</p>
+<p class="toc-fig"><a href="part0013_split_015.html#fig162" class="calibre5">Figure 162</a>: The graph of <samp class="mono">poly</samp> on the interval [-1<i class="calibre6">,</i><samp class="mono">5</samp>]</p>
+<p class="toc-fig"><a href="part0013_split_016.html#fig163" class="calibre5">Figure 163</a>: Distance traveled with constant vs accelerating speed</p>
+<p class="toc-fig"><a href="part0013_split_016.html#fig164" class="calibre5">Figure 164</a>: Integrating a function <i class="calibre6">f</i> between <i class="calibre6">a</i> and <i class="calibre6">b</i></p>
+<p class="toc-fig"><a href="part0013_split_016.html#fig165" class="calibre5">Figure 165</a>: A generic integration function</p>
+<p class="toc-fig"><a href="part0013_split_016.html#fig166" class="calibre5">Figure 166</a>: A candidate for adaptive integration</p>
+<p class="toc-fig"><a href="part0013_split_017.html#fig167" class="calibre5">Figure 167</a>: A data representation for systems of equations</p>
+<p class="toc-fig"><a href="part0013_split_019.html#fig168" class="calibre5">Figure 168</a>: A directed graph</p>
+<p class="toc-fig"><a href="part0013_split_019.html#fig169" class="calibre5">Figure 169</a>: Finding a path in a graph</p>
+<p class="toc-fig"><a href="part0013_split_019.html#fig170" class="calibre5">Figure 170</a>: A directed graph with cycle</p>
+<p class="toc-fig"><a href="part0013_split_019.html#fig171" class="calibre5">Figure 171</a>: A definition of <samp class="mono">arrangements</samp> using generative recursion</p>
+<p class="toc-fig"><a href="part0013_split_020.html#fig172" class="calibre5">Figure 172</a>: A chess board with a single queen and the positions it threatens</p>
+<p class="toc-fig"><a href="part0013_split_020.html#fig173" class="calibre5">Figure 173</a>: Three queen configurations for a 3 by 3 chess board</p>
+<p class="toc-fig"><a href="part0013_split_020.html#fig174" class="calibre5">Figure 174</a>: Solutions for the <i class="calibre6">n</i> queens puzzle for 4 by 4 and 5 by 5 boards</p>
+<p class="toc-fig"><a href="part0013_split_020.html#fig175" class="calibre5">Figure 175</a>: Solutions for the 4 queens puzzle</p>
+<p class="toc-fig"><a href="part0014.html#fig176" class="calibre5">Figure 176</a>: A comparison of two running time expressions</p>
+<p class="toc-fig"><a href="part0015_split_003.html#fig177" class="calibre5">Figure 177</a>: Converting relative distances to absolute distances</p>
+<p class="toc-fig"><a href="part0015_split_003.html#fig178" class="calibre5">Figure 178</a>: Converting relative distances with an accumulator</p>
+<p class="toc-fig"><a href="part0015_split_004.html#fig179" class="calibre5">Figure 179</a>: A simple graph</p>
+<p class="toc-fig"><a href="part0015_split_004.html#fig180" class="calibre5">Figure 180</a>: Finding a path in a simple graph</p>
+<p class="toc-fig"><a href="part0015_split_004.html#fig181" class="calibre5">Figure 181</a>: Finding a path in a simple graph with an accumulator</p>
+<p class="toc-fig"><a href="part0015_split_006.html#fig182" class="calibre5">Figure 182</a>: Design with accumulators, a structural example</p>
+<p class="toc-fig"><a href="part0015_split_008.html#fig183" class="calibre5">Figure 183</a>: Calculating with accumulator-style templates</p>
+<p class="toc-fig"><a href="part0015_split_008.html#fig184" class="calibre5">Figure 184</a>: Some stripped-down binary trees</p>
+<p class="toc-fig"><a href="part0015_split_008.html#fig185" class="calibre5">Figure 185</a>: The accumulator-style version of <i class="calibre6">height</i></p>
+<p class="toc-fig"><a href="part0015_split_011.html#fig186" class="calibre5">Figure 186</a>: Lam terms as trees</p>
+<p class="toc-fig"><a href="part0015_split_011.html#fig187" class="calibre5">Figure 187</a>: Finding undeclared variables</p>
+<p class="toc-fig"><a href="part0015_split_011.html#fig188" class="calibre5">Figure 188</a>: Static distances</p>
+<p class="toc-fig"><a href="part0015_split_012.html#fig189" class="calibre5">Figure 189</a>: An implementation of lists in BSL</p>
+<p class="toc-fig"><a href="part0015_split_012.html#fig190" class="calibre5">Figure 190</a>: Creating a game tree</p>
+<p class="toc-fig"><a href="part0015_split_013.html#fig191" class="calibre5">Figure 191</a>: Accumulators as results of generative recursions, a skeleton</p>
+<p class="toc-fig"><a href="part0015_split_013.html#fig192" class="calibre5">Figure 192</a>: Accumulators as results of generative recursion, the function</p>
+</section>
+</div>
+</body></html>

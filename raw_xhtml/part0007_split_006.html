@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><a id="sec8-4" class="calibre16"></a>8.4 Computing with Lists</h2>
+<p class="tni">Since we are still using BSL, the rules of algebra—see intermezzo 1—tell us how to determine the value of expressions such as</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_245" title="245"></span><samp class="mono">(contains-flatt? (cons</samp><samp class="mono"> "Flatt" (cons</samp><samp class="mono"> "C" '())))</samp></p>
+</div>
+<p class="tni">without DrRacket. Programmers must have an intuitive understanding of how this kind of calculation works, so we step through the one for this simple example.</p>
+<p class="calibre8"><a id="rfig48" href="part0007_split_006.html#fig48" class="calibre5">Figure 48</a> displays the first step, which uses the usual substitution rule to determine the value of an application. The result is a conditional expression because, as an algebra teacher would say, the function is defined in a step-wise fashion.</p>
+<div class="figure">
+<figure class="img"><a id="fig48" class="calibre5"></a><img src="../images/00179.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_006.html#rfig48" class="calibre5">Figure 48</a>:</span> <span>Computing with lists, step 1</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The calculation is continued in <a id="rfig49" href="part0007_split_006.html#fig49" class="calibre5">figure 49</a>. To find the correct clause of the <samp class="mono">cond</samp> expression, we must determine the value of the conditions, one by one. Since a <samp class="mono">cons</samp>ed list isn’t empty, the first condition’s result is <samp class="mono">#false</samp>, and we therefore eliminate the first <samp class="mono">cond</samp> clause. Finally the condition in the second clause evaluates to <samp class="mono">#true</samp> because <samp class="mono">cons?</samp> of a <samp class="mono">cons</samp>ed list holds.</p>
+<div class="figure">
+<figure class="img"><a id="fig49" class="calibre5"></a><img src="../images/00180.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_006.html#rfig49" class="calibre5">Figure 49</a>:</span> <span>Computing with lists, step 2</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_246" title="246"></span>From here, it is just three more steps of arithmetic to get the final result. <a id="rfig50" href="part0007_split_006.html#fig50" class="calibre5">Figure 50</a> displays the three steps. The first evaluates <samp class="mono">(first (cons "Flatt"<span>…</span>))</samp> to <samp class="mono">"Flatt"</samp> due to the laws for <samp class="mono">first</samp>. The second discovers that <samp class="mono">"Flatt"</samp> is a string and equal to <samp class="mono">"Flatt"</samp>. The third says <samp class="mono">(or #true X)</samp> is <samp class="mono">#true</samp> regardless of what <samp class="mono">X</samp> is.</p>
+<div class="figure">
+<figure class="img"><a id="fig50" class="calibre5"></a><img src="../images/00181.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_006.html#rfig50" class="calibre5">Figure 50</a>:</span> <span>Computing with lists, step 3</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 135. Use DrRacket’s stepper to check the calculation for</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(contains-flatt? (cons</samp><samp class="mono"> "Flatt" (cons</samp><samp class="mono"> "C" '())))</samp></p>
+</div>
+<p class="tni">Also use the stepper to determine the value of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(contains-flatt?</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> "A" (cons</samp><samp class="mono"> "Flatt" (cons</samp><samp class="mono"> "C" '()))))</samp></p>
+</div>
+<p class="tni">What happens when <samp class="mono">"Flatt"</samp> is replaced with <samp class="mono">"B"</samp>? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 136. Validate with DrRacket’s stepper</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(our-first (our-cons</samp><samp class="mono"> "a" '()))</samp><samp class="mono"> == "a"</samp> <br class="calibre4"/><samp class="mono">(our-rest (our-cons</samp><samp class="mono"> "a" '()))</samp><samp class="mono"> == '()</samp></p>
+</div>
+<p class="tni">See chapter 8.2 for the definitions of these functions. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

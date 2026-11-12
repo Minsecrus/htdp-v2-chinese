@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_6"><span epub:type="pagebreak" id="pg_39" title="39" class="calibre1"></span><a id="sec1-3" class="calibre16"></a>1.3 Mixing It Up</h2>
+<p class="tni">All other operations (in BSL) concerning strings consume or produce data other than strings. Here are some examples:</p>
+<p class="blf">•  <samp class="mono">string-length</samp> consumes a string and produces a number;</p>
+<p class="blf">•  <samp class="mono">string-ith</samp> consumes a string <samp class="mono">s</samp> together with a number <samp class="mono">i</samp> and extracts the 1String located at the <samp class="mono">i</samp>th position (counting from 0); and</p>
+<p class="bll">•  <samp class="mono">number-&gt;string</samp> consumes a number and produces a string.</p>
+<p class="tni">Also look up <samp class="mono">substring</samp> and find out what it does.</p>
+<p class="calibre8">If the documentation in HelpDesk appears confusing, experiment with the functions in the interactions area. Give them appropriate arguments, and find out what they compute. Also use <b class="calibre9">inappropriate</b> arguments for some operations just to find out how BSL reacts:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string-length</samp><samp class="mono"> 42)</samp> <br class="calibre4"/><samp class="mono">string-length:expects a</samp><samp class="mono"> string, given</samp><samp class="mono"> 42</samp></p>
+</div>
+<p class="tni">As you can see, BSL reports an error. The first part “string-length” informs you about the operation that is misapplied; the second half states what is wrong with the arguments. In this specific example, <samp class="mono">string-length</samp> is supposed to be applied to a string but is given a number, specifically <samp class="mono">42</samp>.</p>
+<p class="calibre8">Naturally, it is possible to nest operations that consume and produce different kinds of data <b class="calibre9">as long as you keep track of what is proper and what is not</b>. Consider this expression from the the Prologue:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (string-length</samp><samp class="mono"> "hello world")</samp><samp class="mono"> 20)</samp></p>
+</div>
+<p class="tni">The inner expression applies <samp class="mono">string-length</samp> to <samp class="mono">"hello world"</samp>, our favorite string. The outer expression has <samp class="mono">+</samp> consume the result of the inner expression and <samp class="mono">20</samp>.</p>
+<p class="calibre8">Let’s determine the result of this expression in a step-by-step fashion:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (string-length</samp><samp class="mono"> "hello world")</samp><samp class="mono"> 20)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ 11</samp><samp class="mono"> 20)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">31</samp></p>
+</div>
+<p class="tni">Not surprisingly, computing with such nested expressions that deal with a mix of data is no different from computing with numeric expressions. Here is another example:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_40" title="40"></span><samp class="mono">(+ (string-length</samp><samp class="mono"> (number-&gt;string 42))</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ (string-length</samp><samp class="mono"> "42") 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(+ 2</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">4</samp></p>
+</div>
+<p class="tni">Before you go on, construct some nested expressions that mix data in the <b class="calibre9">wrong</b> way, say,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (string-length</samp><samp class="mono"> 42) 1)</samp></p>
+</div>
+<p class="tni">Run them in DrRacket. Study the red error message but also watch what DrRacket highlights in the definitions area.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 3. Add the following two lines to the definitions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define str</samp><samp class="mono"> "helloworld")</samp> <br class="calibre4"/><samp class="mono">(define i</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="tni">Then create an expression using string primitives that adds <samp class="mono">"_"</samp> at position <samp class="mono">i</samp>. In general this means the resulting string is longer than the original one; here the expected result is <samp class="mono">"hello_world"</samp>.</p>
+<p class="calibre8"><i class="calibre6">Position</i> means <i class="calibre6">i</i> characters from the left of the string, but programmers start counting at <samp class="mono">0</samp>. Thus, the 5<i class="calibre6">th</i> letter in this example is <samp class="mono">"w"</samp>, because the <samp class="mono">0</samp>th letter is <samp class="mono">"h"</samp>. <b class="calibre9">Hint</b> When you encounter such “counting problems” you may wish to add a string of digits below <samp class="mono">str</samp> to help with counting:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define str</samp><samp class="mono"> "helloworld")</samp> <br class="calibre4"/><samp class="mono">(define ind</samp><samp class="mono"> "0123456789")</samp> <br class="calibre4"/><samp class="mono">(define i</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="calibre8">See exercise 1 for how to create expressions in DrRacket. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 4. Use the same setup as in exercise 3 to create an expression that deletes the <i class="calibre6">i</i>th position from <samp class="mono">str</samp>. Clearly this expression creates a shorter string than the given one. Which values for <samp class="mono">i</samp> are legitimate? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

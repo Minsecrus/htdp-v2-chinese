@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_16"><span epub:type="pagebreak" id="pg_283" title="283" class="calibre1"></span><a id="sec10-1" class="calibre16"></a>10.1 Functions that Produce Lists</h2>
+<p class="tni">Here is a function for determining the wage of an hourly employee:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the wage</samp><samp class="mono"> for h</samp><samp class="mono"> hours of</samp><samp class="mono"> work</samp> <br class="calibre4"/><samp class="mono">(define (wage</samp><samp class="mono"> h)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> 12 h))</samp></p>
+</div>
+<p class="tni">It consumes the number of hours worked and produces the wage. A company that wishes to use payroll software isn’t interested in this function, however. It wants one that computes the wages for all its employees.</p>
+<p class="calibre8">Call this new function <samp class="mono">wage*</samp>. Its task is to process all employee work hours and to determine the wages due to each of them. For simplicity, let’s assume that the input is a list of numbers, each representing the number of hours that one employee worked, and that the expected result is a list of the weekly wages earned, also represented with a list of numbers.</p>
+<p class="calibre8">Since we already have a data definition for the inputs and outputs, we can immediately move to the second design step:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-numbers<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the weekly</samp><samp class="mono"> wages for</samp><samp class="mono"> the weekly</samp><samp class="mono"> hours</samp> <br class="calibre4"/><samp class="mono">(define (wage*</samp><samp class="mono"> whrs)</samp> <br class="calibre4"/><samp class="mono">  '())</samp></p>
+</div>
+<p class="calibre8">Next you need some examples of inputs and the corresponding outputs. So you make up some short lists of numbers that represent weekly hours:</p>
+<figure class="co"><img src="../images/00213.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In order to compute the output, you determine the weekly wage for each number on the given input list. For the first example, there are no numbers on the input list so the output is <samp class="mono">'()</samp>. Make sure you understand why the second and third expected outputs are what you want.</p>
+<p class="calibre8">Given that <samp class="mono">wage*</samp> consumes the same kind of data as several other functions from chapter 8 and given that a template depends only on the shape of the data definition, you can reuse this template:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_284" title="284"></span><img src="../images/00214.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In case you want to practice the development of templates, use the questions from <a href="part0007_split_007.html#fig52" class="calibre5">figure 52</a>.</p>
+<p class="calibre8">It is now time for the most creative design step. Following the design recipe, we consider each <samp class="mono">cond</samp> line of the template in isolation. For the non-recursive case, <samp class="mono">(empty? whrs)</samp> is true, meaning the input is <samp class="mono">'()</samp>. The examples from above specify the desired answer, <samp class="mono">'()</samp>, and so we are done.</p>
+<p class="calibre8">In the second case, the design questions tell us to state what each expression of the template computes:</p>
+<p class="blf">•  <samp class="mono">(first whrs)</samp> yields the first number on <samp class="mono">whrs</samp>, which is the first number of hours worked;</p>
+<p class="blf">•  <samp class="mono">(rest whrs)</samp> is the rest of the given list; and</p>
+<p class="bll">•  <samp class="mono">(wage* (rest whrs))</samp> says that the rest is processed by the very function we are defining. As always, we use its signature and its purpose statement to figure out the result of this expression. The signature tells us that it is a list of numbers, and the purpose statement explains that this list represents the list of wages for its input, which is the rest of the list of hours.</p>
+<p class="tni">The key is to rely on these facts when you formulate the expression that computes the result in this case, even if the function is not yet defined.</p>
+<p class="calibre8">Since we already have the list of wages for all but the first item of <samp class="mono">whrs</samp>, the function must perform two computations to produce the expected output for the <b class="calibre9">entire</b> <samp class="mono">whrs</samp>: compute the weekly wage for <samp class="mono">(first whrs)</samp> and construct the list that represents all weekly wages for <samp class="mono">whrs</samp>. For the first part, we reuse <samp class="mono">wage</samp>. For the second, we <samp class="mono">cons</samp> the two pieces of information together into one list:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons (wage</samp><samp class="mono"> (first whrs))</samp><samp class="mono"> (wage* (rest</samp><samp class="mono"> whrs)))</samp></p>
+</div>
+<p class="tni">And with that, the definition is complete: see <a id="rfig64" href="part0007_split_015.html#fig64" class="calibre5">figure 64</a>.</p>
+<div class="figure">
+<figure class="img"><a id="fig64" class="calibre5"></a><img src="../images/00215.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_015.html#rfig64" class="calibre5">Figure 64</a>:</span> <span>Computing the wages of all employees</span></p></figcaption>
+</figure>
+</div>
+<p class="exer"><b class="calibre9">Exercise</b> 161. Translate the examples into tests and make sure they all succeed. Then change the function in <a href="part0007_split_015.html#fig64" class="calibre5">figure 64</a> so that everyone gets $14 <span epub:type="pagebreak" id="pg_285" title="285"></span>per hour. Now revise the entire program so that changing the wage for everyone is a single change to the <b class="calibre9">entire</b> program and not several. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="exer"><b class="calibre9">Exercise</b> 162. No employee could possibly work more than 100 hours per week. To protect the company against fraud, the function should check that no item of the input list of <samp class="mono">wage*</samp> exceeds 100. If one of them does, the function should immediately signal an error. How do we have to change the function in <a href="part0007_split_015.html#fig64" class="calibre5">figure 64</a> if we want to perform this basic reality check? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="calibre4">
+<p class="marginpar">Show the products of the various steps in the design recipe. If you are stuck, show someone how far you got according to the design recipe. The recipe isn’t just a design tool for you to use; it is also a diagnosis system so that others can help you help yourself.</p>
+</div>
+<p class="exer"><b class="calibre9">Exercise</b> 163. Design <samp class="mono">convertFC</samp>. The function converts a list of measurements in Fahrenheit to a list of Celsius measurements. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="exer"><b class="calibre9">Exercise</b> 164. Design the function <samp class="mono">convert-euro</samp>, which converts a list of US$ amounts into a list of € amounts. Look up the current exchange rate on the web.</p>
+<p class="exer">Generalize <samp class="mono">convert-euro</samp> to the function <samp class="mono">convert-euro*</samp>, which consumes an exchange rate and a list of US$ amounts and converts the latter into a list of € amounts. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="exer"><b class="calibre9">Exercise</b> 165. Design the function <samp class="mono">subst-robot</samp>, which consumes a list of toy descriptions (one-word strings) and replaces all occurrences of <samp class="mono">"robot"</samp> with <samp class="mono">"r2d2"</samp>; all other descriptions remain the same.</p>
+<p class="exer">Generalize <samp class="mono">subst-robot</samp> to <samp class="mono">substitute</samp>. The latter consumes two strings, called <samp class="mono">new</samp> and <samp class="mono">old</samp>, and a list of strings. It produces a new list of strings by substituting all occurrences of <samp class="mono">old</samp> with <samp class="mono">new</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_21"><a id="sec29-2" class="calibre16"></a>29.2 Project: Backtracking</h2>
+<p class="tni">The <i class="calibre6">n</i> queens puzzle is a famous problem from the world of chess that also illustrates the applicability of backtracking in a natural way. For our <span epub:type="pagebreak" id="pg_672" title="672"></span>purposes, a chess board is a grid of <i class="calibre6">n</i> by <i class="calibre6">n</i> squares. The queen is a game piece that can move in a horizontal, vertical, or diagonal direction arbitrarily far without “jumping” over another piece. We say that a queen <i class="calibre6">threatens</i> a square if it is on the square or can move to it. <a id="rfig172" href="part0013_split_020.html#fig172" class="calibre5">Figure 172</a> illustrates the notion in a graphical manner. The queen is in the second column and sixth row. The solid lines radiating out from the queen go through all those squares that are threatened by the queen.</p>
+<div class="figure">
+<figure class="img"><a id="fig172" class="calibre5"></a><img src="../images/00678.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_020.html#rfig172" class="calibre5">Figure 172</a>:</span> <span>A chess board with a single queen and the positions it threatens</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">We thank Mark Engelberg for his reformulation of this section.</p>
+<p class="calibre8">The classical queens problem is to place 8 queens on an 8 by 8 chess board such that the queens on the board don’t threaten each other. Computer scientists generalize the problem and ask whether it is possible to place <i class="calibre6">n</i> queens on a <i class="calibre6">n</i> by <i class="calibre6">n</i>, chess board such that the queens don’t pose a threat to each other.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_673" title="673"></span>For <i class="calibre6">n =</i> 2, the complete puzzle obviously has no solution. A queen placed on any of the four squares threatens all remaining squares.</p>
+<p class="calibre8">There is also no solution for <i class="calibre6">n</i> = 3. <a id="rfig173" href="part0013_split_020.html#fig173" class="calibre5">Figure 173</a> presents all different placements of two queens, that is, solutions for <i class="calibre6">k</i> = 3 and <i class="calibre6">n</i> = 2. In each case, the left queen occupies a square in the left column while a second queen is placed in one of two squares that the first one does not threaten. The placement of a second queen threatens all remaining, unoccupied squares, meaning it is impossible to place a third queen.</p>
+<div class="figure">
+<figure class="img"><a id="fig173" class="calibre5"></a><img src="../images/00679.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_020.html#rfig173" class="calibre5">Figure 173</a>:</span> <span>Three queen configurations for a 3 by 3 chess board</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 478. You can also place the first queen in all squares of the top-most row, the right-most column, and the bottom-most row. Explain why all of these solutions are just like the three scenarios depicted in <a href="part0013_split_020.html#fig173" class="calibre5">figure 173</a>.</p>
+<p class="calibre8">This leaves the central square. Is it possible to place even a second queen after you place one on the central square of a 3 by 3 board? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_674" title="674"></span><a id="rfig174" href="part0013_split_020.html#fig174" class="calibre5">Figure 174</a> displays two solutions for the <i class="calibre6">n</i> queens puzzle: the left one is for <i class="calibre6">n</i> = 4, the right one for <i class="calibre6">n</i> = 5. The figure shows how in each case a solution has one queen in each row and column, which makes sense because a queen threatens the entire row and column that radiate out from its square.</p>
+<div class="figure">
+<figure class="img"><a id="fig174" class="calibre5"></a><img src="../images/00680.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_020.html#rfig174" class="calibre5">Figure 174</a>:</span> <span>Solutions for the <i class="calibre6">n</i> queens puzzle for 4 by 4 and 5 by 5 boards</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Now that we have conducted a sufficiently detailed analysis, we can proceed to the solution phase. The analysis suggests several ideas:</p>
+<p class="nlf">1. The problem is about placing one queen at a time. When we place a queen on a board, we can mark the corresponding rows, columns, and diagonals as unusable for other queens.</p>
+<p class="nlf">2. For another queen, we consider only nonthreatened spots.</p>
+<p class="nlf">3. Just in case this first choice of a spot leads to problems later, we remember what other squares are feasible for placing this queen.</p>
+<p class="nll">4. If we are supposed to place a queen on a board but no safe squares are left, we backtrack to a previous point in the process where we chose one square over another and try one of the remaining squares.</p>
+<p class="tni">In short, this solution process is like the “find a path” algorithm.</p>
+<p class="calibre8">Moving from the process description to a designed algorithm clearly calls for two data representations: one for the chess boards and one for positions on the board. Let’s start with the latter:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define QUEENS</samp><samp class="mono"> 8)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><samp class="monospace-italic">QP</samp><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-posn</samp><samp class="mono"> </samp>CI CI<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">CI</span><samp class="mono"> is an</samp> N <samp class="mono">in</samp><samp class="mono"> [0,QUEENS).</samp> <br class="calibre4"/><samp class="mono">; </samp><span class="calibre9">interpretation</span><samp class="mono"> (make-posn r</samp><samp class="mono"> c) denotes</samp><samp class="mono"> the square</samp><samp class="mono"> at</samp> <br class="calibre4"/><samp class="mono">; the</samp><samp class="mono"> r-th row</samp><samp class="mono"> and c-th</samp><samp class="mono"> column</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_675" title="675"></span>After all, the chess board basically dictates the choice.</p>
+<p class="calibre8">The definition for CI could use [<samp class="mono">1</samp>,<samp class="mono">QUEENS</samp>] instead of [<samp class="mono">0</samp>, <samp class="mono">QUEENS</samp>), but the two definitions are basically equivalent and counting up from <samp class="mono">0</samp> is what programmers do. Similarly, the so-called algebraic notation for chess positions uses the letters <samp class="mono">'a</samp> through <samp class="mono">'h</samp> for one of the board’s dimensions, meaning QP could have used CIs and such letters. Again, the two are roughly equivalent and with natural numbers it is easier in ISL+ to create many positions than with letters.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 479. Design the <samp class="mono">threatening?</samp> function. It consumes two QPs and determines whether queens placed on the two respective squares would threaten each other.</p>
+<p class="calibre8"><b class="calibre9">Domain Knowledge</b> (1) Study <a href="part0013_split_020.html#fig172" class="calibre5">figure 172</a>. The queen in this figure threatens all squares on the horizontal, the vertical, and the diagonal lines. Conversely, a queen on any square on these lines threatens the queen.</p>
+<p class="calibre8">(2) Translate your insights into mathematical conditions that relate the squares’ coordinates to each other. For example, all squares on a horizontal have the same y-coordinate. Similarly, all squares on one diagonal have coordinates whose sums are the same. Which diagonal is that? For the other diagonal, the differences between the two coordinates remain the same. Which diagonal does this idea describe?</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Once you have figured out the domain knowledge, formulate a test suite that covers horizontals, verticals, and diagonals. Don’t forget to include arguments for which <samp class="mono">threatening?</samp> must produce <samp class="mono">#false</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 480. Design <samp class="mono">render-queens</samp>. The function consumes a natural number <samp class="mono">n</samp>, a list of QPs, and an Image. It produces an image of an <samp class="mono">n</samp> by <samp class="mono">n</samp> chess board with the given image placed according to the given QPs.</p>
+<p class="calibre8">You may wish to look for an image for a chess queen on-line or create a simplistic one with the available image functions. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">As for a data representation for <i class="calibre6">Board</i>s, we postpone this step until we know how the algorithm implements the process. Doing so is another exercise in data abstraction. Indeed, a data definition for Board isn’t even necessary to state the signature for the algorithm proper:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_676" title="676"></span><img src="../images/00681.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The complete puzzle is about finding a placement for <i class="calibre6">n</i> queens on an <i class="calibre6">n</i> by <i class="calibre6">n</i> chess board. So clearly, the algorithm consumes nothing else but a natural number, and it produces a representation for the <i class="calibre6">n</i> queen placements—if a solution exists. The latter can be represented with a list of QPs, which is why we choose</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of QP<samp class="mono">] or</samp><samp class="mono"> #false</samp></p>
+</div>
+<p class="tni">as the result. Naturally, <samp class="mono">#false</samp> represents the failure to find a solution.</p>
+<p class="calibre8">The next step is to develop examples and to formulate them as tests. We know that <samp class="mono">n-queens</samp> must fail when given <samp class="mono">2</samp> or <samp class="mono">3</samp>. For <samp class="mono">4</samp>, there are two solutions with real boards and four identical queens. <a href="part0013_split_020.html#fig174" class="calibre5">Figure 174</a> shows one of them, on the left, and the other one is this:</p>
+<figure class="co"><img src="../images/00682.jpeg" alt="" class="calibre18"/></figure>
+<p class="tni">In terms of data representations, however, there are many different ways to represent these two images. <a id="rfig175" href="part0013_split_020.html#fig175" class="calibre5">Figure 175</a> sketches some. Fill in the rest.</p>
+<div class="figure">
+<figure class="img"><a id="fig175" class="calibre5"></a><img src="../images/00683.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_020.html#rfig175" class="calibre5">Figure 175</a>:</span> <span>Solutions for the 4 queens puzzle</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 481. The tests in <a href="part0013_split_020.html#fig175" class="calibre5">figure 175</a> are awful. No real-world programmer ever spells out all these possible outcomes.</p>
+<p class="calibre8">One solution is to use property testing again. Design the <samp class="mono">n-queens-solution?</samp> function, which consumes a natural number <samp class="mono">n</samp> and produces a predicate on queen placements that determines whether a given placement is a solution to an <samp class="mono">n</samp> queens puzzle:</p>
+<p class="blf">•  A solution for an <samp class="mono">n</samp> queens puzzle must have length <samp class="mono">n</samp>.</p>
+<p class="bll">•  A QP on such a list may not threaten any other, distinct QP.</p>
+<p class="tni"><span epub:type="pagebreak" id="pg_677" title="677"></span>Once you have tested this predicate, use it and <samp class="mono">check-satisfied</samp> to formulate the tests for <samp class="mono">n-queens</samp>.</p>
+<p class="calibre8">An alternative solution is to understand the lists of QPs as sets. If two lists contain the same QPs in different order, they are equivalent as the figure suggests. Hence you could formulate the test for <samp class="mono">n-queens</samp> as</p>
+<figure class="co"><img src="../images/00684.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Design the function <samp class="mono">set=?</samp>. It consumes two lists and determines whether they contain the same items—regardless of order. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 482. The key idea to is to design a function that places <i class="calibre6">n</i> queens on a chess board that may already contain some queens:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_678" title="678"></span><samp class="mono">; </samp>Board N<samp class="mono"> -&gt; [</samp>Maybe<samp class="mono"> [</samp>List-of QP<samp class="mono">]]</samp> <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> n queens</samp><samp class="mono"> on board;</samp><samp class="mono"> otherwise, returns</samp><samp class="mono"> #false</samp> <br class="calibre4"/><samp class="mono">(define (place-queens</samp><samp class="mono"> a-board n)</samp> <br class="calibre4"/><samp class="mono">  #false)</samp></p>
+</div>
+<p class="tni"><a href="part0013_split_020.html#fig175" class="calibre5">Figure 175</a> already refers to this function in the definition of <samp class="mono">n-queens</samp>.</p>
+<p class="calibre8">Design the <samp class="mono">place-queens</samp> algorithm. Assume you have the following functions to deal with Boards:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>N<samp class="mono"> -&gt; </samp>Board <br class="calibre4"/><samp class="mono">; creates</samp><samp class="mono"> the initial</samp><samp class="mono"> n by</samp><samp class="mono"> n board</samp> <br class="calibre4"/><samp class="mono">(define (board0</samp><samp class="mono"> n) <span>…</span>)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Board QP<samp class="mono"> -&gt; </samp>Board <br class="calibre4"/><samp class="mono">; places</samp><samp class="mono"> a queen</samp><samp class="mono"> at qp</samp><samp class="mono"> on a-board</samp> <br class="calibre4"/><samp class="mono">(define (add-queen</samp><samp class="mono"> a-board qp)</samp> <br class="calibre4"/><samp class="mono">  a-board)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Board<samp class="mono"> -&gt; [</samp>List-of QP<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; finds</samp><samp class="mono"> spots where</samp><samp class="mono"> it is</samp><samp class="mono"> still safe</samp><samp class="mono"> to place</samp><samp class="mono"> a queen</samp> <br class="calibre4"/><samp class="mono">(define (find-open-spots</samp><samp class="mono"> a-board)</samp> <br class="calibre4"/><samp class="mono">  '())</samp></p>
+</div>
+<p class="tni">The first function is used in <a href="part0013_split_020.html#fig175" class="calibre5">figure 175</a> to create the initial board representation for <samp class="mono">place-queens</samp>. You will need the other two to describe the generative steps for the algorithm. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">You cannot confirm yet that your solution to the preceding exercise works because it relies on an extensive wish list. It calls for a data representation of Boards that supports the three functions on the wish list. This, then, is your remaining problem.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 483. Develop a data definition for Board and design the three functions specified in exercise 482. Consider the following ideas:</p>
+<p class="blf">•  a Board collects those positions where a queen can still be placed;</p>
+<p class="blf">•  a Board contains the list of positions where a queen has been placed;</p>
+<p class="bll">•  a Board is a grid of <samp class="mono">n</samp> by <samp class="mono">n</samp> squares, each possibly occupied by a queen. Use a structure with three fields to represent a square: one for <samp class="mono">x</samp>, one for <samp class="mono">y</samp>, and a third one saying whether the square is threatened.</p>
+<p class="tni">Use one of the above ideas to solve this exercise.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_679" title="679"></span><b class="calibre9">Challenge</b> Use all three ideas to come up with three different data representations of Board. Abstract your solution to exercise 482 and confirm that it works with any of your data representations of Board. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

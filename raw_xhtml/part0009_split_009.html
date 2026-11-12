@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_10"><a id="sec15-1" class="calibre16"></a>15.1 Abstractions from Examples</h2>
+<p class="noindent">When you first learned to add, you worked with concrete examples. Your parents probably taught you to use your fingers to add two small numbers. Later on, you studied how to add two arbitrary numbers; you were introduced to your first kind of abstraction. Much later still, you learned to formulate expressions that convert temperatures from Celsius to Fahrenheit or calculate the distance that a car travels at a given speed and amount of time. In short, you went from very concrete examples to abstract relations.</p>
+<p class="calibre8">This section introduces a design recipe for creating abstractions from examples. As the preceding section shows, creating abstractions is easy. We leave the difficult part to the next section where we show you how to find and use existing abstractions.</p>
+<p class="calibre8">Recall the essence of chapter 14. We start from two concrete definitions; we compare them; we mark the differences; and then we abstract. And that is mostly all there is to creating abstractions:</p>
+<p class="nlf">1. Step 1 is <b class="calibre9">to compare</b> two items for similarities.</p>
+<p class="nltni">When you find two function definitions that are almost the same except for their names and some <i class="calibre6">values</i> at <i class="calibre6">analogous</i> places, compare them and mark the differences. If the two definitions differ in more than one place, connect the corresponding differences with a line.</p>
+<p class="marginpar">The recipe requires a substantial modification for abstracting over non-values.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_398" title="398"></span><a id="rfig90" href="part0009_split_009.html#fig90" class="calibre5">Figure 90</a> shows a pair of similar function definitions. The two functions apply a function to each item in a list. They differ only as to which function they apply to each item. The two highlights emphasize this essential difference. They also differ in two inessential ways: the names of the functions and the names of the parameters.</p>
+<div class="figure">
+<figure class="img"><a id="fig90" class="calibre5"></a><img src="../images/00338.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_009.html#rfig90" class="calibre5">Figure 90</a>:</span> <span>A pair of similar functions</span></p></figcaption>
+</figure>
+</div>
+<p class="nlf">2. Next we abstract. To <i class="calibre6">abstract</i> means to replace the contents of corresponding code highlights with new names and add these names to the parameter list. For our running example, we obtain the following pair of functions after replacing the differences with <samp class="mono">g</samp>; see <a id="rfig91" href="part0009_split_009.html#fig91" class="calibre5">figure 91</a>. This first change eliminates the essential difference. Now each function traverses a list and applies some given function to each item.</p>
+<div class="figure">
+<figure class="img"><a id="fig91" class="calibre5"></a><img src="../images/00339.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_009.html#rfig91" class="calibre5">Figure 91</a>:</span> <span>The same two similar functions, abstracted</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni">The inessential differences—the names of the functions and occasionally the names of some parameters—are easy to eliminate. Indeed, if you have explored DrRacket, you know that check syntax allows you to do this systematically and easily; see bottom of <a href="part0009_split_009.html#fig91" class="calibre5">figure 91</a>. We choose to use <samp class="mono">map1</samp> for the name of the function and <samp class="mono">k</samp> for the name <span epub:type="pagebreak" id="pg_399" title="399"></span>of the list parameter. No matter which names you choose, the result is two identical function definitions.</p>
+<p class="nltni">Our example is simple. In many cases, you will find that there is more than just one pair of differences. The key is to find pairs of differences. When you mark up the differences with paper and pencil, connect related boxes with a line. Then introduce one additional parameter per line. And don’t forget to change all recursive uses of the function so that the additional parameters go along for the ride.</p>
+<p class="nlf">3. Now we must validate that the new function is a correct abstraction of the original pair of functions. To validate means <b class="calibre9">to test</b>, which here means to define the two original functions in terms of the abstraction.</p>
+<p class="nltni">Thus suppose that one original function is called <samp class="mono">f-original</samp> and consumes one argument and that the abstract function is called <samp class="mono">abstract</samp>. If <samp class="mono">f-original</samp> differs from the other concrete function in the use of one value, say, <samp class="mono">val</samp>, the following function definition</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define (f-from-abstract</samp><samp class="mono"> x)</samp> <br class="calibre4"/><samp class="mono">  (abstract</samp><samp class="mono"> x val))</samp></samp></p>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_400" title="400"></span>introduces the function <samp class="mono">f-from-abstract</samp>, which should be equivalent to <samp class="mono">f-original</samp>. That is, <samp class="mono">(f-from-abstract V)</samp> should produce the same answer as <samp class="mono">(f-original V)</samp> for every proper value <samp class="mono">V</samp>. In particular, it must hold for all values that your tests for <samp class="mono">f-original</samp> use. So reformulate and rerun those tests for <samp class="mono">f-from-abstract</samp> and make sure they succeed.</p>
+<p class="nltni">Let’s return to our running example:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp><span>List-of-numbers</span><samp class="mono"> -&gt; </samp><span>List-of-numbers</span> <br class="calibre4"/><samp class="mono">(define (cf*-from-map1</samp><samp class="mono"> l) (map1</samp><samp class="mono"> l C2F))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp><span>Inventory</span><samp class="mono"> -&gt; </samp><span>List-of-strings</span> <br class="calibre4"/><samp class="mono">(define (names-from-map1</samp><samp class="mono"> i) (map1</samp><samp class="mono"> i IR-name))</samp></samp></p>
+</div>
+<p class="nltni">A complete example would include some tests, and thus we can assume that both <samp class="mono">cf*</samp> and <samp class="mono">names</samp> come with some tests:</p>
+<figure class="co"><img src="../images/00340.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">To ensure that the functions defined in terms of <samp class="mono">map1</samp> work properly, you can copy the tests and change the function names appropriately:</p>
+<figure class="co"><img src="../images/00341.gif" alt="" class="calibre10"/></figure>
+<p class="nlf"><span epub:type="pagebreak" id="pg_401" title="401"></span>4. A new abstraction needs <b class="calibre9">a signature</b>, because, as chapter 16 explains, the reuse of abstractions starts with their signatures. Finding useful signatures is a serious problem. For now we use the running example to illustrate the difficulty; chapter 15.2 resolves the issue.</p>
+<p class="nltni">Consider the problem of <samp class="mono">map1</samp>’s signature. On the one hand, if you view <samp class="mono">map1</samp> as an abstraction of <samp class="mono">cf*</samp>, you might think it is</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp><span>List-of-numbers</span><samp class="mono"> [</samp><span>Number</span><samp class="mono"> -&gt; </samp><span>Number</span><samp class="mono">] -&gt;</samp><samp class="mono"> </samp><span>List-of-numbers</span></samp></p>
+</div>
+<p class="nltni">that is, the original signature extended with one part for functions:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; [</samp><span>Number</span><samp class="mono"> -&gt; </samp><span>Number</span><samp class="mono">]</samp></samp></p>
+</div>
+<p class="nltni">Since the additional parameter for <samp class="mono">map1</samp> is a function, the use of a function signature to describe it should not surprise you. This function signature is also quite simple; it is a “name” for all the functions from numbers to numbers. Here <samp class="mono">C2F</samp> is such a function, and so are <samp class="mono">add1</samp>, <samp class="mono">sin</samp>, and <samp class="mono">imag-part</samp>.</p>
+<p class="nltni">On the other hand, if you view <samp class="mono">map1</samp> as an abstraction of <samp class="mono">names</samp>, the signature is quite different:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp><span>Inventory</span><samp class="mono"> [</samp><span>IR</span><samp class="mono"> -&gt; </samp><span>String</span><samp class="mono">] -&gt;</samp><samp class="mono"> </samp><span>List-of-strings</span></samp></p>
+</div>
+<p class="nltni">This time the additional parameter is <samp class="mono">IR-name</samp>, which is a selector function that consumes IRs and produces Strings. But clearly this second signature would be useless in the first case, and vice versa. To accommodate both cases, the signature for <samp class="mono">map1</samp> must express that Number, IR, and String are coincidental.</p>
+<p class="nltni">Also concerning signatures, you are probably eager to use List-of by now. It is clearly easier to write [List-of IR] than spelling out a data definition for Inventory. So yes, as of now, we use List-of when it is all about lists, and you should too.</p>
+<p class="stx">Once you have abstracted two functions, you should check whether there are other uses for the abstract function. If so, the abstraction is truly useful. Consider <samp class="mono">map1</samp>, for example. It is easy to see how to use it to add <samp class="mono">1</samp> to each number on a list of numbers:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-numbers<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">(define (add1-to-each</samp><samp class="mono"> l)</samp> <br class="calibre4"/><samp class="mono">  (map1</samp><samp class="mono"> l add1))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_402" title="402"></span>Similarly, <samp class="mono">map1</samp> can also be used to extract the price of each item in an inventory. When you can imagine many such uses for a new abstraction, add it to a library of useful functions to have around. Of course, it is quite likely that someone else has thought of it and the function is already a part of the language. For a function like <samp class="mono">map1</samp>, see chapter 16.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_403" title="403"></span><b class="calibre9">Exercise</b> 250. Design <samp class="mono">tabulate</samp>, which is the abstraction of the two functions in <a id="rfig92" href="part0009_split_009.html#fig92" class="calibre5">figure 92</a>. When <samp class="mono">tabulate</samp> is properly designed, use it to define a tabulation function for <samp class="mono">sqr</samp> and <samp class="mono">tan</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig92" class="calibre5"></a><img src="../images/00342.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_009.html#rfig92" class="calibre5">Figure 92</a>:</span> <span>The similar functions for exercise 250</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 251. Design <samp class="mono">fold1</samp>, which is the abstraction of the two functions in <a id="rfig93" href="part0009_split_009.html#fig93" class="calibre5">figure 93</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig93" class="calibre5"></a><img src="../images/00343.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_009.html#rfig93" class="calibre5">Figure 93</a>:</span> <span>The similar functions for exercise 251</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 252. Design <samp class="mono">fold2</samp>, which is the abstraction of the two functions in <a id="rfig94" href="part0009_split_009.html#fig94" class="calibre5">figure 94</a>. Compare this exercise with exercise 251. Even though both involve the <samp class="mono">product</samp> function, this exercise poses an additional challenge because the second function, <samp class="mono">image*</samp>, consumes a list of Posns and produces an Image. Still, the solution is within reach of the material in this section, and it is especially worth comparing the solution with the one to the preceding exercise. The comparison yields interesting insights into abstract signatures. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<div class="figure">
+<figure class="img"><a id="fig94" class="calibre5"></a><img src="../images/00344.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0009_split_009.html#rfig94" class="calibre5">Figure 94</a>:</span> <span>The similar functions for exercise 252</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Lastly, when you are dealing with data definitions, the abstraction process proceeds in an analogous manner. The extra parameters to data definitions stand for collections of values, and testing means spelling out a data definition for some concrete examples. All in all, abstracting over data definitions tends to be easier than abstracting over functions, and so we leave it to you to adapt the design recipe appropriately.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

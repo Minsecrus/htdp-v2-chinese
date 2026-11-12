@@ -1,0 +1,388 @@
+% ==============================================================================
+% 第 16 章：运用抽象 (Using Abstractions)
+% ==============================================================================
+
+\chapter{运用抽象}
+\label{sec:ch16_using_abstractions}
+
+一旦掌握了抽象，你就应当在一切可能的地方积极运用它们。抽象确立了\textbf{单点控制原则}，并且是极佳的省力工具。更确切地说，使用抽象能够极大帮助阅读代码的人理解你的意图。如果某个抽象广为人知、内置于语言核心或者来自标准库，那么相比于手写定制代码，它能够更加鲜明、清晰地传达该函数的核心职责。
+
+本章全力聚焦于如何复用 ISL 中已有的丰富抽象。首先，我们将系统介绍 ISL 内置的经典抽象函数；接下来的各节则深入探讨复用这些抽象的具体技巧。其中的关键武器是一个全新的语法构造——\code{local}，它允许在函数内部就地定义局部变量、辅助函数甚至结构体类型。另一项辅助武器是第 17 章将正式引入的用于创建匿名函数的 \code{lambda} 构造。
+
+% ------------------------------------------------------------------------------
+\section{现有抽象}
+\label{sec:16_1}
+
+为了方便列表处理，ISL 内置提供了大量的经典抽象函数。图~\ref{fig:95} 和图~\ref{fig:96} 列出了其中最常用的若干核心函数及其权威签名：
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{images/00353.png}
+  \caption{ISL 列表处理抽象函数 (1)}
+  \label{fig:95}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{images/00354.png}
+  \caption{ISL 列表处理抽象函数 (2)}
+  \label{fig:96}
+\end{figure}
+
+这些函数具有以下明确的行为约定：
+\begin{itemize}
+  \item \code{map}：将转换函数逐一应用到列表的每个元素上，收集并返回变换后的新列表；
+  \item \code{filter}：提取列表中所有满足判定谓词的元素，剔除不满足条件的元素；
+  \item \code{foldr}（右折叠）：从列表末尾开始，使用二元组合函数由右向左折叠列表，等价于结构型递归；
+  \item \code{foldl}（左折叠）：从列表头部开始，使用二元组合函数由左向右依次累加处理；
+  \item \code{build-list}：给定自然数 $n$ 与索引映射函数 $f$，构造列表 \code{(list (f 0) (f 1) ... (f (- n 1)))}；
+  \item \code{andmap}：当且仅当列表中的\textbf{所有}元素都满足谓词时返回 \code{\#true}；
+  \item \code{ormap}：只要列表中存在\textbf{至少一个}元素满足谓词便返回 \code{\#true}。
+\end{itemize}
+
+请注意标准库与我们在前文自定义抽象在参数顺序上的微妙区别：在标准库中，作为控制逻辑的函数参数通常放在首位（例如 \code{(map f l)} 而非 \code{(map1 l f)}），这使得高阶函数的意图一目了然。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00355.png}
+  \caption{借助抽象构建程序}
+  \label{fig:97}
+\end{figure}
+
+\begin{exercise}{解读复杂的抽象函数}{256}
+详细解释以下抽象函数的用途与运行机制：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00356.png}
+\end{center}
+
+它的签名是什么？它可以用于解决哪些实际问题？
+\end{exercise}
+
+\begin{exercise}{手动设计 build-list 与 foldl}{257}
+你可以凭借已学的设计配方手动设计 \code{build-list} 和 \code{foldl}，但它们与 ISL 的原生实现有所不同。例如，自行设计 \code{foldl} 函数通常需要借助列表反转函数 \code{reverse}。
+
+请设计函数 \code{build-l*st}，其功能与 \code{build-list} 完全一致。（提示：回顾练习 193 中的 \code{add-at-end} 函数。注：第六部分将深入讲解从零开始设计这些函数所需的高级累加器概念）。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{局部定义}
+\label{sec:16_2}
+
+在许多情况下，传递给 \code{map}、\code{filter} 或 \code{foldr} 的辅助函数仅仅在某个特定函数的内部有意义。将这些辅助函数全部暴露在顶级全局命名空间中，不仅会污染命名空间，还会使代码的从属关系变得模糊混乱。
+
+为此，ISL 提供了 \code{local} 表达式，其语法形式如下：
+
+\begin{lstlisting}[language=BSL]
+(local [definition ...] expression)
+\end{lstlisting}
+
+方括号内可以包含若干局部常量定义、结构体定义甚至函数定义；紧随其后的表达式则是 \code{local} 的主体，其求值结果即为整个 \code{local} 表达式的值。局部定义的名称仅在当前 \code{local} 表达式的范围（作用域）内可见。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00357.png}
+  \caption{利用 local 组织函数定义}
+  \label{fig:98}
+\end{figure}
+
+图~\ref{fig:98} 展示了如何使用 \code{local} 将辅助函数私有化封装在主函数内部。图~\ref{fig:99} 则进一步展示了组织多个相互关联的函数定义。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00359.png}
+  \caption{利用 local 组织相互关联的函数定义}
+  \label{fig:99}
+\end{figure}
+
+更重要的是，\code{local} 不仅提升了模块化与可读性，还能带来戏剧性的\textbf{计算性能提升}！
+
+回顾第 14.2 节的练习 238，那里的 \code{inf} 和 \code{sup} 函数在处理长列表时性能极差，其根源在于：在条件分支中，递归调用被重复执行了两次。图~\ref{fig:100} 展示了如何使用 \code{local} 将递归结果绑定到一个局部变量中，从而避免指数级的冗余计算，将算法的时间复杂度从 $O(2^n)$ 骤降为线性时间 $O(n)$！
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00360.png}
+  \caption{使用 local 显著提升计算性能}
+  \label{fig:100}
+\end{figure}
+
+\begin{exercise}{重构多边形绘制函数}{258}
+使用 \code{local} 表达式重构第 11.3 节（图~\ref{fig:drawing_polygon}）中用于绘制多边形的函数集。如果某个全局函数在很多不同场景下都普遍有用，请保留为全局定义；仅将专用的辅助函数局部化。
+\end{exercise}
+
+\begin{exercise}{重构单词重排程序}{259}
+使用 \code{local} 表达式整理第 12.4 节中用于重排单词字母的函数。
+\end{exercise}
+
+\begin{exercise}{验证 inf.v2 的性能飞跃}{260}
+通过重复练习 238 中的性能对比实验，在 DrRacket 中亲手验证图~\ref{fig:100} 中 \code{inf.v2} 的运行速度提升。
+\end{exercise}
+
+\begin{exercise}{库存函数性能优化}{261}
+请观察图~\ref{fig:101} 中的库存处理函数。在嵌套的 \code{cond} 表达式中，两个分支都重复计算了 \code{(extract1 (rest an-inv))}。使用 \code{local} 为该公共表达式命名。这种优化是否能显著提升程序的运行速度？为什么？
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00361.png}
+  \captionof{figure}{在库存记录中查找（参见练习 261）}\label{fig:101}
+\end{center}
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{局部定义增强表达力}
+\label{sec:16_3}
+
+\code{local} 最震撼人心的能力，在于它极大地增强了语言的\term{表达力}（expressive power）。
+
+在 \code{local} 内部定义的函数，不仅可以访问自己的形参，还可以自由访问\textbf{外层外围函数的所有参数和常量}。这正是计算机科学中著名的\term{闭包}（closure）概念的雏形！
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00362.png}
+  \caption{局部函数定义赋予的强大表达力}
+  \label{fig:102}
+\end{figure}
+
+在图~\ref{fig:102} 中，局部辅助函数无需显式通过参数传递外层的上下文数据，它直接“捕获”了外层作用域中的变量。这使得配合 \code{map}、\code{filter}、\code{foldr} 等高阶函数使用时，辅助函数能够保持极其紧凑的单参数或双参数形式，完美适配抽象签名的调用契约！
+
+\begin{exercise}{生成单位矩阵 identityM}{262}
+设计函数 \code{identityM}，给定正整数 $n$，生成一个由 0 和 1 构成的 $n \times n$ 对角单位矩阵（表示为数字列表的列表）：
+\begin{lstlisting}[language=BSL]
+(check-expect (identityM 1) (list (list 1)))
+(check-expect (identityM 3)
+              (list (list 1 0 0)
+                    (list 0 1 0)
+                    (list 0 0 1)))
+\end{lstlisting}
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{使用 local 进行求值计算}
+\label{sec:16_4}
+
+引入 \code{local} 之后，代数代换规则如何处理局部定义？
+
+ISL 的求值模型采用了一种直观而严谨的语义机制：\term{变量提升与重命名}（lifting and renaming，又称 $\alpha$-转换）。
+\begin{enumerate}
+  \item 为 \code{local} 中的每个局部名称生成全程序唯一的全新名字（例如将局部变量 \code{x} 重命名为 \code{x\_0}、\code{x\_1} 等），以防止与现有的全局变量发生命名冲突；
+  \item 将带有新名字的定义直接“提升”到全局定义区；
+  \item 将 \code{local} 表达式本身替换为其主体表达式。
+\end{enumerate}
+
+图~\ref{fig:100} 及随后的几张求值图演示了这一精妙过程：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00363.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00364.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00365.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00366.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00367.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00368.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00369.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00370.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00371.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00372.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00373.png}
+\end{center}
+
+\begin{exercise}{单步求值器推导 local 单步计算}{263}
+使用 DrRacket 的单步求值器，细致观察并验证上述计算中的每一个代换步骤。
+\end{exercise}
+
+\begin{exercise}{单步求值器跟踪局部函数提升}{264}
+使用 DrRacket 单步求值器跟踪求值一个包含局部函数定义的函数，观察单步求值器如何自动重命名并提升该局部函数。
+\end{exercise}
+
+\begin{exercise}{填补代换推导空白}{265}
+使用 DrRacket 单步求值器填补上述推导过程中的全部省略细节。
+\end{exercise}
+
+\begin{exercise}{ISL 复杂求值跟踪}{266}
+在单步求值器中观察多层嵌套 \code{local} 表达式的求值顺序与变量遮蔽现象。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{实例演示：运用抽象}
+\label{sec:16_5}
+
+让我们通过具体的真实问题，演练如何精准挑选并组合现有的抽象函数：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00374.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00375.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00376.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00377.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00378.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00379.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00380.png}
+\end{center}
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00381.png}
+\end{center}
+
+无论是判断列表中是否存在满足条件的点（使用 \code{ormap}），还是对图形元素进行空间距离测算，借助抽象与局部定义的搭配，都能在寥寥数行内优雅搞定。
+
+% ------------------------------------------------------------------------------
+\section{基于抽象的设计}
+\label{sec:16_6}
+
+前一节的三个示例足以让我们总结出一套通用的\textbf{基于抽象的设计配方}：
+
+\begin{recipebox}{基于抽象的设计配方}
+\begin{enumerate}
+  \item \textbf{步骤 1：确立签名、目的说明、示例与桩函数}。
+    像常规函数设计一样，先完成前三步。明确函数输入与输出的精确类型，写出测试用例。
+  \item \textbf{步骤 2：比对签名，匹配最佳抽象}。
+    利用签名和目的说明，在已有的抽象库（\code{map}、\code{filter}、\code{foldr}、\code{foldl}、\code{build-list}、\code{andmap}、\code{ormap} 等）中挑选匹配的抽象。
+    \begin{itemize}
+      \item 若输出是相同大小的变换列表，优先考虑 \code{map}；
+      \item 若输出是原列表的子集，优先考虑 \code{filter}；
+      \item 若输出是将列表归约为单个汇总值或折叠为新结构，优先考虑 \code{foldr} 或 \code{foldl}；
+      \item 若输出是真假判定，优先考虑 \code{andmap} 或 \code{ormap}。
+    \end{itemize}
+  \item \textbf{步骤 3：编写带有 local 的模板}。
+    在函数体内使用 \code{local}：在主体表达式中调用选定的抽象函数；在局部定义区写出辅助函数的桩函数（签名、目的及函数头）。签名的比对会自动揭示出该辅助函数所要求的输入与输出类型。
+  \item \textbf{步骤 4：设计局部辅助函数并完成组装}。
+    在 \code{local} 内部完成辅助函数的定义。辅助函数不仅可以使用自身形参，还可以自由闭包访问外围主函数的入参和全局常量！
+\end{enumerate}
+\end{recipebox}
+
+以在一个 $200 \times 200$ 的画布上为给定 Posn 列表绘制小红圈为例：
+
+步骤 1 给出的桩函数如下：
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00382.png}
+\end{center}
+
+步骤 2 对比输出类型。目标输出是一幅 Image，而能产生折叠结果的抽象正是 \code{foldr}：
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00383.png}
+\end{center}
+
+步骤 3 构建带有 \code{local} 的模板：
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00384.png}
+\end{center}
+
+步骤 4 最终完成辅助函数定义，组装出清爽健壮的程序：
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00385.png}
+\end{center}
+
+% ------------------------------------------------------------------------------
+\section{练手习题：抽象}
+\label{sec:16_7}
+
+\begin{exercise}{货币转换 convert-euro}{267}
+使用 \code{map} 定义函数 \code{convert-euro}，它根据 1.06 美元兑换 1 欧元的汇率，将一个美元金额列表转换为欧元金额列表。
+\end{exercise}
+
+\begin{exercise}{库存记录定义}{268}
+库存记录（inventory record）指定了一件商品的名称、描述、进货价格以及建议零售价。请给出相应的结构体类型与数据定义。
+\end{exercise}
+
+\begin{exercise}{剔除高价商品 eliminate-expensive}{269}
+使用 \code{filter} 定义函数 \code{eliminate-expensive}。该函数接收一个价格上限阈值 \code{ua} 和一个库存记录列表，返回所有零售价低于 \code{ua} 的记录列表。
+\end{exercise}
+
+\begin{exercise}{使用 build-list 构造列表}{270}
+使用 \code{build-list} 分别定义完成以下任务的函数：
+\begin{enumerate}
+  \item 生成前 $n$ 个偶数的列表；
+  \item 生成前 $n$ 个完全平方数的列表；
+  \item 生成形如 $\left(1, \frac{1}{10}, \frac{1}{100}, \dots\right)$ 的倒数列表；
+  \item 生成前 $n$ 个偶数的倒数列表；
+  \item 重新实现练习 262 中的单位对角矩阵 \code{identityM}。
+\end{enumerate}
+最后，使用 \code{build-list} 重新定义练习 250 中的制表函数 \code{tabulate}。
+\end{exercise}
+
+\begin{exercise}{名字检索 find-name}{271}
+使用 \code{ormap} 定义函数 \code{find-name}。该函数接收一个目标名字和一个名字列表，判断列表中是否存在与目标名字完全相同或者以前者为前缀的名字。
+\end{exercise}
+
+\begin{exercise}{使用 foldr 实现 append}{272}
+回顾 ISL 中的 \code{append} 函数用于拼接两个列表，在本质上它相当于用第二个列表替换第一个列表末尾的 \code{'()}：
+
+\begin{center}
+  \includegraphics[width=0.85\textwidth]{images/00386.png}
+\end{center}
+
+请使用 \code{foldr} 重新定义 \code{append} 函数。
+\end{exercise}
+
+\begin{exercise}{折叠万能论：用 foldr 定义 map}{273}
+\code{foldr} 的能力极其强大，几乎所有的列表处理函数都可以用它来定义。请使用 \code{foldr} 来定义 \code{map}。
+\end{exercise}
+
+\begin{exercise}{重构前缀与后缀提取函数}{274}
+使用现有的列表抽象函数，重新实现练习 190 中的 \code{prefixes} 和 \code{suffixes} 函数，并确保它们通过全部既有测试。
+\end{exercise}
+
+% ------------------------------------------------------------------------------
+\section{综合项目：抽象}
+\label{sec:16_8}
+
+\begin{exercise}{词典分析项目重构}{275}
+第 12.1 节涉及处理英文词典的任务。请使用现有的抽象函数重构其中的两个核心函数：统计词典中以各字母开头的单词数，以及寻找词典中出现频率最高的首字母。
+\end{exercise}
+
+\begin{exercise}{iTunes XML 音乐库分析重构}{276}
+第 12.2 节讲解了如何解析与分析 iTunes 音乐库的 XML 数据。请使用 \code{map}、\code{filter} 和 \code{foldr} 等抽象函数，重构对播放列表总时长、特定艺术家曲目筛选以及专辑分类的统计分析功能。
+\end{exercise}
+
+\begin{exercise}{太空防御战：导弹碰撞检测}{277}
+第 12.7 节实现了一个太空防御游戏：UFO 缓缓降落，玩家操控坦克进行防御。如果 UFO 装备了炸弹并向坦克投掷，请使用 \code{ormap} 与 \code{filter} 重新设计检测是否有炸弹落在坦克附近并判定摧毁的逻辑。
+\end{exercise}
+
+\begin{exercise}{贪吃蛇游戏重构}{278}
+第 12.5 节实现了一个经典的贪吃蛇游戏。蛇在画布上以恒定速度沿玩家控制的方向移动。当它碰到食物时吃下食物并增长身体；当它撞到墙壁或撞到自身身体时游戏结束。请使用本章学到的抽象函数重构碰撞检测与身体移动更新逻辑。
+\end{exercise}

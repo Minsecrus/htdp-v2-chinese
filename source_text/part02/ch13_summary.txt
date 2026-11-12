@@ -1,0 +1,345 @@
+# Chapter 13: Summary / 第 13 章：小结
+
+<h2>
+12.8 Finite State Machines
+</h2>
+
+<P>
+Finite state machines (FSMs) and regular expressions are ubiquitous elements of programming. As chapter 4.7 explains, state machines are one way to think about world programs. Conversely, exercise 109 shows how to design world programs that implement an FSM and check whether a player presses a specific series of keystrokes.
+</P>
+
+<P>
+As you may also recall, a finite state machine is equivalent to a regular expression. Hence, computer scientists tend to say that an FSM accepts the keystrokes that match a particular regular expression, like this one
+</P>
+
+<FIGURE src="images/00293.png">
+
+</FIGURE>
+
+<P>
+from exercise 109. If you wanted a program that recognizes a different pattern, say,
+</P>
+
+<FIGURE src="images/00294.png">
+
+</FIGURE>
+
+<P>
+you would just modify the existing program appropriately. The two programs would resemble each other, and if you were to repeat this exercise for several different regular expressions, you would end up with a whole bunch of similar-looking programs.
+</P>
+
+<P>
+A natural idea is to look for a general solution, that is, a world program that consumes a data representation of an FSM and recognizes whether a player presses a matching sequence of keys. This section presents the design of just such a world program, though a greatly simplified one. In particular, the FSMs come without initial or final states, and the matching ignores the actual keystrokes; instead the transition from one state to another takes place whenever any key is pressed. Furthermore, we require that the states are color strings. That way, the FSM-interpreting program can simply display the current state as a color.
+</P>
+
+<P>
+Note on Design Choices Here is another attempt to generalize:
+</P>
+
+<P>
+Sample Problem Design a program that interprets a given FSM on a specific list of KeyEvents. That is, the program consumes a data representation of an FSM and a string. Its result is #true if the string matches the regular expression that corresponds to the FSM; otherwise it is #false.
+</P>
+
+<P>
+As it turns out, however, you cannot design this program with the principles of the first two parts. Indeed, solving this problem has to wait until chapter 30; see exercise 476. End
+</P>
+
+<P>
+The simplified problem statement dictates a number of points, including the need for a data definition for the representation of FSMs, the nature of its states, and their appearance as an image. Figure 82 collects this information. It starts with a data definition for FSMs. As you can see, an FSM is just a list of Transitions. We must use a list because we want our world program to work with any FSM and that means a finite, but arbitrarily large, number of states. Each Transition combines two states in a structure: the current state and the next state, that is, the one that the machine transitions to when the player presses a key. The final part of the data definition says that a state is just the name of a color.
+</P>
+
+<FIGURE src="images/00295.png">
+Figure 82: Representing and interpreting finite state machines in general
+</FIGURE>
+
+<EXERCISE>
+Exercise 226. Design state=?, an equality predicate for states.
+</EXERCISE>
+
+<P>
+Since this definition is complex, we follow the design recipe and create an example:
+</P>
+
+<FIGURE src="images/00296.png">
+
+</FIGURE>
+
+<P>
+You probably guessed that this transition table describes a traffic light. Its first transition tells us that the traffic light jumps from "red" to "green", the second one represents the transition from "green" to "yellow", and the last one is for "yellow" to "red".
+</P>
+
+<EXERCISE>
+Exercise 227. The BW Machine is an FSM that flips from black to white and back to black for every key event. Formulate a data representation for the BW Machine.
+</EXERCISE>
+
+<P>
+Clearly, the solution to our problem is a world program:
+</P>
+
+<FIGURE src="images/00297.png">
+
+</FIGURE>
+
+<P>
+It is supposed to consume a FSM, but we have no clue what the program is to produce. We call the program simulate because it acts like the given FSM in response to a player’s keystrokes.
+</P>
+
+<P>
+Let’s follow the design recipe for world programs anyway to see how far it takes us. It tells us to differentiate between those things in the “real world” that change and those that remain the same. While the simulate function consumes an instance of FSM, we also know that this FSM does not change. What changes is the current state of the machine.
+</P>
+
+<P>
+This analysis suggests the following data definition
+</P>
+
+<CODE>
+; A SimulationState.v1 is an FSM-State.
+</CODE>
+
+<MARGIN_NOTE>
+The empty-image constant represents an “invisible” image. It is a good default value for writing down the headers of rendering functions.
+</MARGIN_NOTE>
+
+<P>
+According to the design recipe for world programs, this data definition completes the main function:
+</P>
+
+<FIGURE src="images/00298.png">
+
+</FIGURE>
+
+<P>
+and implies a wish list with two entries:
+</P>
+
+<CODE>
+; SimulationState.v1 -> Image ; renders a world state as an image (define (render-state.v1 s)   empty-image) ; SimulationState.v1 KeyEvent -> SimulationState.v1 ; finds the next state from ke and cs (define (find-next-state.v1 cs ke)    cs)
+</CODE>
+
+<P>
+The sketch raises two questions. First, there is the issue of how the very first SimulationState.v1 is determined. Currently, the chosen state, initial-state, is marked in grey to warn you about the issue. Second, the second entry on the wish list must cause some consternation:
+</P>
+
+<P>
+How can find-next-state possibly find the next state when all it is given is the current state and a keystroke?
+</P>
+
+<P>
+This question rings especially true because, according to the simplified problem statement, the exact nature of the keystroke is irrelevant; the FSM transitions to the next state regardless of which key is pressed.
+</P>
+
+<P>
+What this second issue exposes is a fundamental limitation of BSL+. To appreciate this limitation, we start with a work-around. Basically, the analysis demands that the find-next-state function receives not only the current state but also the FSM so that it can search the list of transitions and pick the next state. In other words, the state of the world must include both the current state of the FSM and the FSM itself:
+</P>
+
+<CODE>
+(define-struct fs [fsm current]) ; A SimulationState.v2 is a structure: ;   (make-fs FSM FSM-State)
+</CODE>
+
+<MARGIN_NOTE>
+Alonzo Church and Alan Turing, the first two computer scientists, proved in the 1930s that all programming languages can compute certain functions on numbers. Hence, they argued that all programming languages were equal. The first author of this book disagrees. He distinguishes languages according to how they allow programmers to express solutions.
+</MARGIN_NOTE>
+
+<P>
+According to the world design recipe, this change also means that the key-event handler must return this combination:
+</P>
+
+<CODE>
+; SimulationState.v2 -> Image ; renders a world state as an image (define (render-state.v2 s)   empty-image) ; SimulationState.v2 KeyEvent -> SimulationState.v2 ; finds the next state from ke and cs (define (find-next-state.v2 cs ke)   cs)
+</CODE>
+
+<P>
+Finally, the main function must now consume two arguments: the FSM and its first state. After all, the various FSMs that simulate consumes come with all kinds of states; we cannot assume that all of them have the same initial state. Here is the revised function header:
+</P>
+
+<CODE>
+; FSM FSM-State -> SimulationState.v2 ; match the keys pressed with the given FSM (define (simulate.v2 an-fsm s0)   (big-bang (make-fs an-fsm s0)     [to-draw state-as-colored-square]     [on-key find-next-state]))
+</CODE>
+
+<P>
+Let’s return to the example of the traffic-light FSM. For this machine, it would be best to apply simulate to the machine and "red":
+</P>
+
+<CODE>
+(simulate.v2 fsm-traffic "red")
+</CODE>
+
+<P>
+Stop! Why do you think "red" is good for traffic lights?
+</P>
+
+<MARGIN_NOTE>
+Engineers call "red" the safe state.
+</MARGIN_NOTE>
+
+<P>
+Note on Expressive Power Given the work-around, we can now explain the limitation of BSL. Even though the given FSM does not change during the course of the simulation, its description must become a part of the world’s state. Ideally, the program should express that the description of the FSM remains constant, but instead the program must treat the FSM as part of the ever-changing state. The reader of a program cannot deduce this fact from the first piece of big-bang alone.
+</P>
+
+<P>
+The next part of the book resolves this conundrum with the introduction of a new programming language and a specific linguistic construct: ISL and local definitions. For details, see chapter 16.3. End
+</P>
+
+<P>
+At this point, we can turn to the wish list and work through its entries, one at a time. The first one, the design of state-as-colored-square, is so straightforward that we simply provide the complete definition:
+</P>
+
+<FIGURE src="images/00299.png">
+
+</FIGURE>
+
+<P>
+In contrast, the design of the key-event handler deserves some discussion. Recall the header material:
+</P>
+
+<CODE>
+; SimulationState.v2 KeyEvent -> SimulationState.v2 ; finds the next state from ke and cs (define (find-next-state an-fsm current)   an-fsm)
+</CODE>
+
+<P>
+According to the design recipe, the handler must consume a state of the world and a KeyEvent, and it must produce the next state of the world. This articulation of the signature in plain words also guides the design of examples. Here are the first two:
+</P>
+
+<CODE>
+(check-expect   (find-next-state (make-fs fsm-traffic "red") "n")   (make-fs fsm-traffic "green")) (check-expect   (find-next-state (make-fs fsm-traffic "red") "a")   (make-fs fsm-traffic "green"))
+</CODE>
+
+<P>
+The examples say that when the current state combines the fsm-traffic machine and its "red" state, the result combines the same FSM with "green", regardless of whether the player hit "n" or "a" on the keyboard. Here is one more example:
+</P>
+
+<CODE>
+(check-expect   (find-next-state (make-fs fsm-traffic "green") "q")   (make-fs fsm-traffic "yellow"))
+</CODE>
+
+<P>
+Interpret the example before reading on. Can you think of another one?
+</P>
+
+<P>
+Since the function consumes a structure, we write down a template for structures processing:
+</P>
+
+<CODE>
+(define (find-next-state an-fsm ke)   (… (fs-fsm an-fsm) .. (fs-current an-fsm) …))
+</CODE>
+
+<P>
+Furthermore, because the desired result is a SimulationState.v2, we can refine the template with the addition of an appropriate constructor:
+</P>
+
+<CODE>
+(define (find-next-state an-fsm ke)   (make-fs    … (fs-fsm an-fsm) … (fs-current an-fsm) …))
+</CODE>
+
+<P>
+The examples suggest that the extracted FSM becomes the first component of the new SimulationState.v2 and that the function really just needs to compute the next state from the current one and the list of Transitions that make up the given FSM. Because the latter is arbitrarily long, we make up a wish—a find function that traverses the list to look for a Transition whose current state is (fs-current an-fsm)—and finish the definition:
+</P>
+
+<CODE>
+(define (find-next-state an-fsm ke)   (make-fs     (fs-fsm an-fsm)     (find (fs-fsm an-fsm) (fs-current an-fsm))))
+</CODE>
+
+<P>
+Here is the formulation of the new wish:
+</P>
+
+<FIGURE src="images/00300.png">
+
+</FIGURE>
+
+<P>
+The examples are derived from the examples for find-next-state.
+</P>
+
+<P>
+Stop! Develop some additional examples, then tackle the exercises.
+</P>
+
+<EXERCISE>
+Exercise 228. Complete the design of find.
+</EXERCISE>
+
+<P>
+Once the auxiliary functions are tested, use simulate to play with fsm-traffic and the BW Machine from exercise 227.
+</P>
+
+<P>
+Our simulation program is intentionally quite restrictive. In particular, you cannot use it to represent FSMs that transition from one state to another depending on which key a player presses. Given the systematic design, though, you can extend the program with such capabilities.
+</P>
+
+<EXERCISE>
+Exercise 229. Here is a revised data definition for Transition:
+</EXERCISE>
+
+<CODE>
+(define-struct ktransition [current key next]) ; A Transition.v2 is a structure: ;   (make-ktransition FSM-State KeyEvent FSM-State)
+</CODE>
+
+<P>
+Represent the FSM from Transition.v2s; ignore errors and final states.
+</P>
+
+<P>
+Modify the design of simulate so that it deals with keystrokes in the appropriate manner now. Follow the design recipe, starting with the adaptation of the data examples.
+</P>
+
+<P>
+Use the revised program to simulate a run of the FSM from exercise 109 on the following sequence of keystrokes: "a", "b", "b", "c", and "d".
+</P>
+
+<P>
+Finite state machines do come with initial and final states. When a program that “runs” an FSM reaches a final state, it should stop. The final exercise revises the data representation of FSMs one more time to introduce these ideas.
+</P>
+
+<EXERCISE>
+Exercise 230. Consider the following data representation for FSMs:
+</EXERCISE>
+
+<CODE>
+(define-struct fsm [initial transitions final]) (define-struct transition [current key next]) ; An FSM.v2 is a structure: ;   (make-fsm FSM-State LOT FSM-State) ; A LOT is one of: ; -- '() ; -- (cons Transition.v3 LOT) ; A Transition.v3 is a structure: ;   (make-transition FSM-State KeyEvent FSM-State)
+</CODE>
+
+<P>
+Represent the FSM from exercise 109 in this context.
+</P>
+
+<P>
+Design the function fsm-simulate, which accepts an FSM.v2 and runs it on a player’s keystrokes. If the sequence of keystrokes forces the FSM.v2 to reach a final state, fsm-simulate stops. Hint The function uses the initial field of the given fsm structure to track the current state.
+</P>
+
+<P>
+Note on Iterative Refinement These last two projects introduce the notion of “design by iterative refinement.” The basic idea is that the first program implements only a fraction of the desired behavior, the next one a bit more, and so on. Eventually you end up with a program that exhibits all of the desired behavior, or at least enough of it to satisfy a customer. For more details, see chapter 20. End
+</P>
+
+<h1>
+13 Summary
+</h1>
+
+<P>
+This second part of the book is about the design of programs that deal with arbitrarily large data. As you can easily imagine, software is particularly useful when it is used on information that comes without prespecified size limits, meaning “arbitrarily large data” is a critical step on your way to becoming a real programmer. In this spirit, we suggest that you take away three lessons:
+</P>
+
+<P>
+1. This part refines the design recipe to deal with self-references and cross-references in data definitions. The occurrence of the former calls for the design of recursive functions, and the occurrence of the latter calls for auxiliary functions.
+</P>
+
+<P>
+2. Complex problems call for a decomposition into separate problems. When you decompose a problem, you need two pieces: functions that solve the separate problems and data definitions that compose these separate solutions into a single one. To ensure that the composition works after you have spent time on the separate programs, you need to formulate your “wishes” together with the required data definitions.
+</P>
+
+<P>
+A decomposition-composition design is especially useful when the problem statement implicitly or explicitly mentions auxiliary tasks, when the coding step for a function calls for a traversal of an(other) arbitrarily large piece of data, and—perhaps surprisingly—when a general problem is somewhat easier to solve than the specific one described in the problem statement.
+</P>
+
+<P>
+3. Pragmatics matter. If you wish to design big-bang programs, you need to understand its various clauses and what they accomplish. Or, if your task is to design programs that solve mathematical problems, you had better make sure you know which mathematical operations the chosen language and its libraries offer.
+</P>
+
+<P>
+While this part mostly focuses on lists as a good example of arbitrarily large data—because they are practically useful in languages such as Haskell, Lisp, ML, Racket, and Scheme—the ideas apply to all kinds of such data: files, file folders, databases, and the like.
+</P>
+
+<P>
+Part IV continues the exploration of “large” structured data and demonstrates how the design recipe scales to the most complex kind of data. In the meantime, the next part takes care of an important worry you should have at this point, namely, that a programmer’s work is all about creating the same kind of programs over and over and over again.
+</P>

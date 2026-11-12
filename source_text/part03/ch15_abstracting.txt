@@ -1,0 +1,649 @@
+# Chapter 15: Designing Abstractions / 第 15 章：设计抽象
+
+<h2>
+14.5 Computing with Functions
+</h2>
+
+<P>
+The switch from BSL+ to ISL allows the use of functions as arguments and the use of names in the first position of an application. DrRacket deals with names in these positions like anywhere else, but naturally, it expects a function as a result. Surprisingly, a simple adaptation of the laws of algebra suffices to evaluate programs in ISL.
+</P>
+
+<P>
+Let’s see how this works for extract from chapter 14.2. Obviously,
+</P>
+
+<CODE>
+(extract < '() 5) == '()
+</CODE>
+
+<P>
+holds. We can use the law of substitution from intermezzo 1 and continue computing with the body of the function. Like so many times, the parameters, R, l, and t, are replaced by their arguments, <, '(), and 5, respectively. From here, it is plain arithmetic, starting with the conditionals:
+</P>
+
+<FIGURE src="images/00331.png">
+
+</FIGURE>
+
+<P>
+Next we look at a one-item list:
+</P>
+
+<CODE>
+(extract < (cons 4 '()) 5)
+</CODE>
+
+<P>
+The result should be (cons 4 '()) because the only item of this list is 4 and (< 4 5) is true. Here is the first step of the evaluation:
+</P>
+
+<FIGURE src="images/00332.png">
+
+</FIGURE>
+
+<P>
+Again, all occurrences of R are replaced by <, l by (cons 4 '()), and t by 5. The rest is straightforward:
+</P>
+
+<FIGURE src="images/00333.png">
+
+</FIGURE>
+
+<P>
+This is the key step, with < used after being substituted into this position. And it continues with arithmetic:
+</P>
+
+<FIGURE src="images/00334.png">
+
+</FIGURE>
+
+<P>
+The last step is the equation from above, meaning we can apply the law of substituting equals for equals.
+</P>
+
+<P>
+Our final example is an application of extract to a list of two items:
+</P>
+
+<FIGURE src="images/00335.png">
+
+</FIGURE>
+
+<P>
+Step 1 is new. It deals with the case that extract eliminates the first item on the list if it is not below the threshold.
+</P>
+
+<EXERCISE>
+Exercise 246. Check step 1 of the last calculation
+</EXERCISE>
+
+<FIGURE src="images/00336.png">
+
+</FIGURE>
+
+<P>
+using DrRacket’s stepper.
+</P>
+
+<EXERCISE>
+Exercise 247. Evaluate (extract < (cons 8 (cons 4 '())) 5) with DrRacket’s stepper.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 248. Evaluate (squared>? 3 10) and (squared>? 4 10) in DrRacket’s stepper.
+</EXERCISE>
+
+<P>
+Consider this interaction:
+</P>
+
+<CODE>
+> (extract squared>? (list 3 4 5) 10) (list 4 5)
+</CODE>
+
+<P>
+Here are some steps as the stepper would show them:
+</P>
+
+<FIGURE src="images/00337.png">
+
+</FIGURE>
+
+<P>
+Use the stepper to confirm the step from lines (1) to (2). Continue the stepping to fill in the gaps between steps (2) and (3). Explain each step as the use of a law.
+</P>
+
+<EXERCISE>
+Exercise 249. Functions are values: arguments, results, items in lists. Place the following definitions and expressions into DrRacket’s definitions window and use the stepper to find out how running this program works:
+</EXERCISE>
+
+<CODE>
+(define (f x) x) (cons f '()) (f f) (cons f (cons 10 (cons (f 10) '())))
+</CODE>
+
+<P>
+The stepper displays functions as lambda expressions; see chapter 17.
+</P>
+
+<h1>
+15 Designing Abstractions
+</h1>
+
+<P>
+In essence, to abstract is to turn something concrete into a parameter. We have this several times in the preceding section. To abstract similar function definitions, you add parameters that replace concrete values in the definition. To abstract similar data definitions, you create parametric data definitions. When you encounter other programming languages, you will see that their abstraction mechanisms also require the introduction of parameters, though they may not be function parameters.
+</P>
+
+<h2>
+15.1 Abstractions from Examples
+</h2>
+
+<P>
+When you first learned to add, you worked with concrete examples. Your parents probably taught you to use your fingers to add two small numbers. Later on, you studied how to add two arbitrary numbers; you were introduced to your first kind of abstraction. Much later still, you learned to formulate expressions that convert temperatures from Celsius to Fahrenheit or calculate the distance that a car travels at a given speed and amount of time. In short, you went from very concrete examples to abstract relations.
+</P>
+
+<P>
+This section introduces a design recipe for creating abstractions from examples. As the preceding section shows, creating abstractions is easy. We leave the difficult part to the next section where we show you how to find and use existing abstractions.
+</P>
+
+<P>
+Recall the essence of chapter 14. We start from two concrete definitions; we compare them; we mark the differences; and then we abstract. And that is mostly all there is to creating abstractions:
+</P>
+
+<P>
+1. Step 1 is to compare two items for similarities.
+</P>
+
+<P>
+When you find two function definitions that are almost the same except for their names and some values at analogous places, compare them and mark the differences. If the two definitions differ in more than one place, connect the corresponding differences with a line.
+</P>
+
+<MARGIN_NOTE>
+The recipe requires a substantial modification for abstracting over non-values.
+</MARGIN_NOTE>
+
+<P>
+Figure 90 shows a pair of similar function definitions. The two functions apply a function to each item in a list. They differ only as to which function they apply to each item. The two highlights emphasize this essential difference. They also differ in two inessential ways: the names of the functions and the names of the parameters.
+</P>
+
+<FIGURE src="images/00338.png">
+Figure 90: A pair of similar functions
+</FIGURE>
+
+<P>
+2. Next we abstract. To abstract means to replace the contents of corresponding code highlights with new names and add these names to the parameter list. For our running example, we obtain the following pair of functions after replacing the differences with g; see figure 91. This first change eliminates the essential difference. Now each function traverses a list and applies some given function to each item.
+</P>
+
+<FIGURE src="images/00339.png">
+Figure 91: The same two similar functions, abstracted
+</FIGURE>
+
+<P>
+The inessential differences—the names of the functions and occasionally the names of some parameters—are easy to eliminate. Indeed, if you have explored DrRacket, you know that check syntax allows you to do this systematically and easily; see bottom of figure 91. We choose to use map1 for the name of the function and k for the name of the list parameter. No matter which names you choose, the result is two identical function definitions.
+</P>
+
+<P>
+Our example is simple. In many cases, you will find that there is more than just one pair of differences. The key is to find pairs of differences. When you mark up the differences with paper and pencil, connect related boxes with a line. Then introduce one additional parameter per line. And don’t forget to change all recursive uses of the function so that the additional parameters go along for the ride.
+</P>
+
+<P>
+3. Now we must validate that the new function is a correct abstraction of the original pair of functions. To validate means to test, which here means to define the two original functions in terms of the abstraction.
+</P>
+
+<P>
+Thus suppose that one original function is called f-original and consumes one argument and that the abstract function is called abstract. If f-original differs from the other concrete function in the use of one value, say, val, the following function definition
+</P>
+
+<P>
+(define (f-from-abstract x)   (abstract x val))
+</P>
+
+<P>
+introduces the function f-from-abstract, which should be equivalent to f-original. That is, (f-from-abstract V) should produce the same answer as (f-original V) for every proper value V. In particular, it must hold for all values that your tests for f-original use. So reformulate and rerun those tests for f-from-abstract and make sure they succeed.
+</P>
+
+<P>
+Let’s return to our running example:
+</P>
+
+<P>
+; List-of-numbers -> List-of-numbers (define (cf*-from-map1 l) (map1 l C2F)) ; Inventory -> List-of-strings (define (names-from-map1 i) (map1 i IR-name))
+</P>
+
+<P>
+A complete example would include some tests, and thus we can assume that both cf* and names come with some tests:
+</P>
+
+<FIGURE src="images/00340.png">
+
+</FIGURE>
+
+<P>
+To ensure that the functions defined in terms of map1 work properly, you can copy the tests and change the function names appropriately:
+</P>
+
+<FIGURE src="images/00341.png">
+
+</FIGURE>
+
+<P>
+4. A new abstraction needs a signature, because, as chapter 16 explains, the reuse of abstractions starts with their signatures. Finding useful signatures is a serious problem. For now we use the running example to illustrate the difficulty; chapter 15.2 resolves the issue.
+</P>
+
+<P>
+Consider the problem of map1’s signature. On the one hand, if you view map1 as an abstraction of cf*, you might think it is
+</P>
+
+<P>
+; List-of-numbers [Number -> Number] -> List-of-numbers
+</P>
+
+<P>
+that is, the original signature extended with one part for functions:
+</P>
+
+<P>
+; [Number -> Number]
+</P>
+
+<P>
+Since the additional parameter for map1 is a function, the use of a function signature to describe it should not surprise you. This function signature is also quite simple; it is a “name” for all the functions from numbers to numbers. Here C2F is such a function, and so are add1, sin, and imag-part.
+</P>
+
+<P>
+On the other hand, if you view map1 as an abstraction of names, the signature is quite different:
+</P>
+
+<P>
+; Inventory [IR -> String] -> List-of-strings
+</P>
+
+<P>
+This time the additional parameter is IR-name, which is a selector function that consumes IRs and produces Strings. But clearly this second signature would be useless in the first case, and vice versa. To accommodate both cases, the signature for map1 must express that Number, IR, and String are coincidental.
+</P>
+
+<P>
+Also concerning signatures, you are probably eager to use List-of by now. It is clearly easier to write [List-of IR] than spelling out a data definition for Inventory. So yes, as of now, we use List-of when it is all about lists, and you should too.
+</P>
+
+<P>
+Once you have abstracted two functions, you should check whether there are other uses for the abstract function. If so, the abstraction is truly useful. Consider map1, for example. It is easy to see how to use it to add 1 to each number on a list of numbers:
+</P>
+
+<CODE>
+; List-of-numbers -> List-of-numbers (define (add1-to-each l)   (map1 l add1))
+</CODE>
+
+<P>
+Similarly, map1 can also be used to extract the price of each item in an inventory. When you can imagine many such uses for a new abstraction, add it to a library of useful functions to have around. Of course, it is quite likely that someone else has thought of it and the function is already a part of the language. For a function like map1, see chapter 16.
+</P>
+
+<EXERCISE>
+Exercise 250. Design tabulate, which is the abstraction of the two functions in figure 92. When tabulate is properly designed, use it to define a tabulation function for sqr and tan.
+</EXERCISE>
+
+<FIGURE src="images/00342.png">
+Figure 92: The similar functions for exercise 250
+</FIGURE>
+
+<EXERCISE>
+Exercise 251. Design fold1, which is the abstraction of the two functions in figure 93.
+</EXERCISE>
+
+<FIGURE src="images/00343.png">
+Figure 93: The similar functions for exercise 251
+</FIGURE>
+
+<EXERCISE>
+Exercise 252. Design fold2, which is the abstraction of the two functions in figure 94. Compare this exercise with exercise 251. Even though both involve the product function, this exercise poses an additional challenge because the second function, image*, consumes a list of Posns and produces an Image. Still, the solution is within reach of the material in this section, and it is especially worth comparing the solution with the one to the preceding exercise. The comparison yields interesting insights into abstract signatures.
+</EXERCISE>
+
+<FIGURE src="images/00344.png">
+Figure 94: The similar functions for exercise 252
+</FIGURE>
+
+<P>
+Lastly, when you are dealing with data definitions, the abstraction process proceeds in an analogous manner. The extra parameters to data definitions stand for collections of values, and testing means spelling out a data definition for some concrete examples. All in all, abstracting over data definitions tends to be easier than abstracting over functions, and so we leave it to you to adapt the design recipe appropriately.
+</P>
+
+<h2>
+15.2 Similarities in Signatures
+</h2>
+
+<P>
+As it turns out, a function’s signature is key to its reuse. Hence, you must learn to formulate signatures that describe abstracts in their most general terms possible. To understand how this works, we start with a second look at signatures and from the simple—though possibly startling—insight that signatures are basically data definitions.
+</P>
+
+<P>
+Both signatures and data definitions specify a class of data; the difference is that data definitions also name the class of data while signatures don’t. Nevertheless, when you write down
+</P>
+
+<CODE>
+; Number Boolean -> String (define (f n b) "hello world")
+</CODE>
+
+<P>
+your first line describes an entire class of data, and your second one states that f belongs to that class. To be precise, the signature describes the class of all functions that consume a Number and a Boolean and yield a String.
+</P>
+
+<P>
+In general, the arrow notation of signatures is like the List-of notation from chapter 14.3. The latter consumes (the name of) one class of data, say X, and describes all lists of X items—without assigning it a name. The arrow notation consumes an arbitrary number of classes of data and describes collections of functions.
+</P>
+
+<P>
+What this means is that the abstraction design recipe applies to signatures, too. You compare similar signatures; you highlight the differences; and then you replace those with parameters. But the process of abstracting signatures feels more complicated than the one for functions, partly because signatures are already abstract pieces of the design recipe and partly because the arrow-based notation is much more complex than anything else we have encountered.
+</P>
+
+<P>
+Let’s start with the signatures of cf* and names:
+</P>
+
+<FIGURE src="images/00345.png">
+
+</FIGURE>
+
+<P>
+The diagram is the result of the compare-and-contrast step. Comparing the two signatures shows that they differ in two places: to the left of the arrow, we see Number versus IR, and to its right, it is Number versus String.
+</P>
+
+<P>
+If we replace the two differences with some kind of parameters, say X and Y, we get the same signature:
+</P>
+
+<CODE>
+; [X Y] [List-of X] -> [List-of Y]
+</CODE>
+
+<P>
+The new signature starts with a sequence of variables, drawing an analogy to function definitions and the data definitions above. Roughly speaking, these variables are the parameters of the signature, like those of functions and data definitions. To make the latter concrete, the variable sequence is like ITEM in the definition of List-of or the X and Y in the definition of CP from chapter 14.3. And just like those, X and Y range over classes of values.
+</P>
+
+<P>
+An instantiation of this parameter list is the rest of the signature with the parameters replaced by the data collections: either their names or other parameters or abbreviations such as List-of from above. Thus, if you replace both X and Y with Number, you get back the signature for cf*:
+</P>
+
+<CODE>
+; [List-of Number] -> [List-of Number]
+</CODE>
+
+<P>
+If you choose IR and String, you get back the signature for names:
+</P>
+
+<CODE>
+; [List-of IR] -> [List-of String]
+</CODE>
+
+<P>
+And that explains why we may consider this parametrized signature as an abstraction of the original signatures for cf* and names.
+</P>
+
+<P>
+Once we add the extra function parameter to these two functions, we get map1, and the signatures are as follows:
+</P>
+
+<FIGURE src="images/00346.png">
+
+</FIGURE>
+
+<P>
+Again, the signatures are in pictorial form and with arrows connecting the corresponding differences. These markups suggest that the differences in the second argument—a function—are related to the differences in the original signatures. Specifically, Number and IR on the left of the new arrow refer to items on the first argument—a list—and the Number and String on the right refer to the items on the result—also a list.
+</P>
+
+<P>
+Since listing the parameters of a signature is extra work, for our purposes, we simply say that from now on all variables in signatures are parameters. Other programming languages, however, insist on explicitly listing the parameters of signatures, but in return you can articulate additional constraints in such signatures and the signatures are checked before you run the program.
+</P>
+
+<P>
+Now let’s apply the same trick to get a signature for map1:
+</P>
+
+<CODE>
+; [X Y] [List-of X] [X -> Y] -> [List-of Y]
+</CODE>
+
+<P>
+Concretely, map1 consumes a list of items, all of which belong to some (yet to be determined) collection of data called X. It also consumes a function that consumes elements of X and produces elements of a second unknown collection, called Y. The result of map1 is lists that contain items from Y.
+</P>
+
+<P>
+Abstracting over signatures takes practice. Here is a second pair:
+</P>
+
+<CODE>
+; [List-of Number] -> Number ; [List-of Posn] -> Image
+</CODE>
+
+<P>
+They are the signatures for product and image* in exercise 252. While the two signatures have some common organization, the differences are distinct. Let us first spell out the common organization in detail:
+</P>
+
+<P>
+•  both signatures describe one-argument functions; and
+</P>
+
+<P>
+•  both argument descriptions employ the List-of construction.
+</P>
+
+<P>
+In contrast to the first example, here one signature refers to Number twice while the second one refers to Posns and Images in analogous positions. A structural comparison shows that the first occurrence of Number corresponds to Posn and the second one to Image:
+</P>
+
+<FIGURE src="images/00347.png">
+
+</FIGURE>
+
+<P>
+To make progress on a signature for the abstraction of the two functions in exercise 252, let’s take the first two steps of the design recipe:
+</P>
+
+<FIGURE src="images/00348.png">
+
+</FIGURE>
+
+<P>
+Since the two functions differ in two pairs of values, the revised versions consume two additional values: one is an atomic value, to be used in the base case, and the other one is a function that joins together the result of the natural recursion with the first item on the given list.
+</P>
+
+<P>
+The key is to translate this insight into two signatures for the two new functions. When you do so for pr*, you get
+</P>
+
+<CODE>
+; [List-of Number] Number [Number Number -> Number] ; -> Number
+</CODE>
+
+<P>
+because the result in the base case is a number and because the function for the second cond line is +. Similarly, the signature for im* is
+</P>
+
+<CODE>
+; [List-of Posn] Image [Posn Image -> Image] ; -> Image
+</CODE>
+
+<P>
+As you can see from the function definition for im*, the base case returns an image, and the combination function is place-dot, which combines a Posn and an Image into an Image.
+</P>
+
+<P>
+Now we take the diagram from above and extend it to the signatures with the additional inputs:
+</P>
+
+<FIGURE src="images/00349.png">
+
+</FIGURE>
+
+<P>
+From this diagram, you can easily see that the two revised signatures share even more organization than the original two. Furthermore, the pieces that describe the base cases correspond to each other and so do the pieces of the sub-signature that describe the combination function. All in all there are six pairs of differences, but they boil down to just two:
+</P>
+
+<P>
+1. some occurrences of Number correspond to Posn, and
+</P>
+
+<P>
+2. other occurrences of Number correspond to Image.
+</P>
+
+<P>
+So to abstract we need two variables, one per kind of correspondence.
+</P>
+
+<P>
+Here then is the signature for fold2, the abstraction from exercise 252:
+</P>
+
+<CODE>
+; [X Y] [List-of X] Y [X Y -> Y] -> Y
+</CODE>
+
+<P>
+Stop! Make sure that replacing both parameters of the signature, X and Y, with Number yields the signature for pr* and that replacing the same variables with Posn and Image, respectively, yields the signature for im*.
+</P>
+
+<P>
+The two examples illustrate how to find general signatures. In principle the process is just like the one for abstracting functions. Due to the informal nature of signatures, however, it cannot be checked with running examples the way code is checked. Here is a step-by-step formulation:
+</P>
+
+<P>
+1. Given two similar function definitions, f and g, compare their signatures for similarities and differences. The goal is to discover the organization of the signature and to mark the places where one signature differs from the other. Connect the differences as pairs just like you do when you analyze function bodies.
+</P>
+
+<P>
+2. Abstract f and g into f-abs and g-abs. That is, add parameters that eliminate the differences between f and g. Create signatures for f-abs and g-abs. Keep in mind what the new parameters originally stood for; this helps you figure out the new pieces of the signatures.
+</P>
+
+<P>
+3. Check whether the analysis of step 1 extends to the signatures of f-abs and g-abs. If so, replace the differences with variables that range over classes of data. Once the two signatures are the same, you have a signature for the abstracted function.
+</P>
+
+<P>
+4. Test the abstract signature. First, ensure that suitable substitutions of the variables in the abstract signature yield the signatures of f-abs and g-abs. Second, check that the generalized signature is in sync with the code. For example, if p is a new parameter and its signature is
+</P>
+
+<P>
+; … [A B -> C] …
+</P>
+
+<P>
+then p must always be applied to two arguments, the first one from A and the second one from B. And the result of an application of p is going to be a C and should be used where elements of C are expected.
+</P>
+
+<P>
+As with abstracting functions, the key is to compare the concrete signatures of the examples and to determine the similarities and differences. With enough practice and intuition, you will soon be able to abstract signatures without much guidance.
+</P>
+
+<EXERCISE>
+Exercise 253. Each of these signatures describes a class of functions:
+</EXERCISE>
+
+<CODE>
+; [Number -> Boolean] ; [Boolean String -> Boolean] ; [Number Number Number -> Number] ; [Number -> [List-of Number]] ; [[List-of Number] -> Boolean]
+</CODE>
+
+<P>
+Describe these collections with at least one example from ISL.
+</P>
+
+<EXERCISE>
+Exercise 254. Formulate signatures for the following functions:
+</EXERCISE>
+
+<P>
+•  sort-n, which consumes a list of numbers and a function that consumes two numbers (from the list) and produces a Boolean; sort-n produces a sorted list of numbers.
+</P>
+
+<P>
+•  sort-s, which consumes a list of strings and a function that consumes two strings (from the list) and produces a Boolean; sort-s produces a sorted list of strings.
+</P>
+
+<P>
+Then abstract over the two signatures, following the above steps. Also show that the generalized signature can be instantiated to describe the signature of a sort function for lists of IRs.
+</P>
+
+<EXERCISE>
+Exercise 255. Formulate signatures for the following functions:
+</EXERCISE>
+
+<P>
+•  map-n, which consumes a list of numbers and a function from numbers to numbers to produce a list of numbers.
+</P>
+
+<P>
+•  map-s, which consumes a list of strings and a function from strings to strings and produces a list of strings.
+</P>
+
+<P>
+Then abstract over the two signatures, following the above steps. Also show that the generalized signature can be instantiated to describe the signature of the map1 function above.
+</P>
+
+<h2>
+15.3 Single Point of Control
+</h2>
+
+<P>
+In general, programs are like drafts of papers. Editing drafts is important to correct typos, to fix grammatical mistakes, to make the document consistent, and to eliminate repetitions. Nobody wants to read papers that repeat themselves a lot, and nobody wants to read such programs either.
+</P>
+
+<P>
+The elimination of similarities in favor of abstractions has many advantages. Creating an abstraction simplifies definitions. It may also uncover problems with existing functions, especially when similarities aren’t quite right. But, the single most important advantage is the creation of single points of control for some common functionality.
+</P>
+
+<P>
+Putting the definition for some functionality in one place makes it easy to maintain a program. When you discover a mistake, you have to go to just one place to fix it. When you discover that the code should deal with another form of data, you can add the code to just one place. When you figure out an improvement, one change improves all uses of the functionality. If you had made copies of the functions or code in general, you would have to find all copies and fix them; otherwise the mistake might live on or only one of the functions would run faster.
+</P>
+
+<P>
+We therefore formulate this guideline:
+</P>
+
+<P>
+Form an abstraction instead of copying and modifying any code.
+</P>
+
+<P>
+Our design recipe for abstracting functions is the most basic tool to create abstractions. To use it requires practice. As you practice, you expand your capabilities to read, organize, and maintain programs. The best programmers are those who actively edit their programs to build new abstractions so that they collect things related to a task at a single point. Here we use functional abstraction to study this practice; in other courses on programming, you will encounter other forms of abstraction, most importantly inheritance in class-based object-oriented languages.
+</P>
+
+<h2>
+15.4 Abstractions from Templates
+</h2>
+
+<P>
+The first two chapters of this part present many functions based on the same template. After all, the design recipe says to organize functions around the organization of the (major) input data definition. It is therefore not surprising that many function definitions look similar to each other.
+</P>
+
+<P>
+Indeed, you should abstract from the templates directly, and you should do so automatically; some experimental programming languages do so. Even though this topic is still a subject of research, you are now in a position to understand the basic idea. Consider the template for lists:
+</P>
+
+<FIGURE src="images/00350.png">
+
+</FIGURE>
+
+<P>
+It contains two gaps, one in each clause. When you use this template to define a list-processing function, you usually fill these gaps with a value in the first cond clause and with a function combine in the second clause. The combine function consumes the first item of the list and the result of the natural recursion and creates the result from these two pieces of data.
+</P>
+
+<P>
+Now that you know how to create abstractions, you can complete the definition of the abstraction from this informal description:
+</P>
+
+<FIGURE src="images/00351.png">
+
+</FIGURE>
+
+<P>
+It consumes two extra arguments: base, which is the value for the base case, and combine, which is the function that performs the value combination for the second clause.
+</P>
+
+<P>
+Using reduce you can define many plain list-processing functions as “one liners.” Here are definitions for sum and product, two functions used several times in the first few sections of this chapter:
+</P>
+
+<FIGURE src="images/00352.png">
+
+</FIGURE>
+
+<P>
+For sum, the base case always produces 0; adding the first item and the result of the natural recursion combines the values of the second clause. Analogous reasoning explains product. Other list-processing functions can be defined in a similar manner using reduce.
+</P>

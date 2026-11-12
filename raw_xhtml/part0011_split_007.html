@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_8"><a id="sec19-5" class="calibre16"></a>19.5 Project: BSTs</h2>
+<p class="tni">Programmers often work with tree representations of data to improve the performance of their functions. A particularly well-known form of tree is the <b class="calibre9">binary search tree</b> because it is a good way to store and retrieve information quickly.</p>
+<p class="calibre8">To be concrete, let’s discuss binary trees that manage information about people. Instead of the <samp class="mono">child</samp> structures in family trees, a binary tree contains <samp class="mono">node</samp>s:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct no-info</samp><samp class="mono"> []) <br class="calibre4"/>(define</samp><samp class="mono"> NONE (make-no-info))</samp><br class="calibre4"/><br class="calibre4"/><samp class="mono">(define-struct node</samp><samp class="mono"> [ssn name</samp><samp class="mono"> left right])</samp><samp class="mono"> <br class="calibre4"/>; A</samp><samp class="mono"> </samp><span class="calibre6">BT</span><samp class="mono"> (short</samp> <samp class="mono">for </samp><span class="calibre6">BinaryTree</span><samp class="mono">) is</samp><samp class="mono"> one of:</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> NONE <br class="calibre4"/>;</samp><samp class="mono"> -- (make-node</samp> Number Symbol BT BT<samp class="mono">)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_509" title="509"></span>The corresponding data definition is like the one for family trees with <samp class="mono">NONE</samp> indicating a lack of information and each <samp class="mono">node</samp> recording a social security number, a name, and two other binary trees. The latter are like the parents of family trees, though the relationship between a <samp class="mono">node</samp> and its <samp class="mono">left</samp> and <samp class="mono">right</samp> trees is not based on family relationships.</p>
+<p class="calibre8">Here are two binary trees:</p>
+<figure class="co"><img src="../images/00473.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><a id="rfig119" href="part0011_split_007.html#fig119" class="calibre5">Figure 119</a> shows how we should think about such trees as drawings. The trees are drawn upside down, with the root at the top and the crown of the tree at the bottom. Each circle corresponds to a node, labeled with the <samp class="mono">ssn</samp> field of a corresponding <samp class="mono">node</samp> structure. The drawings omit <samp class="mono">NONE</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig119" class="calibre5"></a><img src="../images/00474.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_007.html#rfig119" class="calibre5">Figure 119</a>:</span> <span>A binary search tree and a binary tree</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 322. Draw the above two trees in the manner of <a href="part0011_split_007.html#fig119" class="calibre5">figure 119</a>. Then design <samp class="mono">contains-bt?</samp>, which determines whether a given number occurs in some given <samp class="mono">BT</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 323. Design <samp class="mono">search-bt</samp>. The function consumes a number <samp class="mono">n</samp> and a <samp class="mono">BT</samp>. If the tree contains a <samp class="mono">node</samp> structure whose <samp class="mono">ssn</samp> field is <samp class="mono">n</samp>, the function produces the value of the <samp class="mono">name</samp> field in that node. Otherwise, the function produces <samp class="mono">#false</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_510" title="510"></span><b class="calibre9">Hint</b> Consider using <samp class="mono">contains-bt?</samp> to check the entire tree first or <samp class="mono">boolean?</samp> to check the result of the natural recursion at each stage. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">If we read the numbers in the two trees in <a href="part0011_split_007.html#fig119" class="calibre5">figure 119</a> from left to right, we obtain two different sequences:</p>
+<figure class="co"><img src="../images/00475.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The sequence for tree A is sorted in ascending order the one for B is not. A binary tree of the first kind is a <b class="calibre9">binary search tree</b>. Every binary search tree is a binary tree, but not every binary tree is a binary search tree. More concretely, we formulate a condition—or data invariant—that distinguishes a binary search tree from a binary tree:</p>
+<div class="ex">
+<p class="exf__"><i class="calibre6">The BST Invariant</i></p>
+<p class="ex1">A <i class="calibre6">BST</i> (short for <i class="calibre6">binary search tree</i>) is a BT according to the following conditions:</p>
+</div>
+<div class="ind">
+<p class="blf">•  <samp class="mono">NONE</samp> is always a BST.</p>
+<p class="blf">•  <samp class="mono">(make-node ssn0 name0 L R)</samp> is a BST if</p>
+<p class="bl-sub"><b class="calibre9">–</b> <samp class="mono">L</samp> is a BST,</p>
+<p class="bl-sub"><b class="calibre9">–</b> <samp class="mono">R</samp> is a BST,</p>
+<p class="bl-sub"><b class="calibre9">–</b> all <samp class="mono">ssn</samp> fields in <samp class="mono">L</samp> are smaller than <samp class="mono">ssn0</samp>,</p>
+<p class="bl-sub"><b class="calibre9">–</b> all <samp class="mono">ssn</samp> fields in <samp class="mono">R</samp> are larger than <samp class="mono">ssn0</samp>.</p>
+</div>
+<p class="stni">In other words, to check whether a BT also belongs to BST, we must inspect all numbers in all subtrees and ensure that they are smaller or larger than some given number. This places an additional burden on the construction of data, but, as the following exercises show, it is well worth it.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 324. Design the function <samp class="mono">inorder</samp>. It consumes a binary tree and produces the sequence of all the <samp class="mono">ssn</samp> numbers in the tree as they show up from left to right when looking at a tree drawing.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Use <samp class="mono">append</samp>, which concatenates lists like thus:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"> (append (list</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3) (list</samp><samp class="mono"> 4) (list</samp><samp class="mono"> 5 6</samp><samp class="mono"> 7)) <br class="calibre4"/>==</samp><br class="calibre4"/><samp class="mono"> (list 1</samp><samp class="mono"> 2 3</samp><samp class="mono"> 4 5</samp><samp class="mono"> 6</samp> <samp class="mono">7)</samp></p>
+</div>
+<p class="tni">What does <samp class="mono">inorder</samp> produce for a binary search tree? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_511" title="511"></span>Looking for a <samp class="mono">node</samp> with a given <samp class="mono">ssn</samp> in a <samp class="mono">BST</samp> may exploit the BST invariant. To find out whether a <samp class="mono">BT</samp> contains a node with a specific <samp class="mono">ssn</samp>, a function may have to look at every <samp class="mono">node</samp> of the tree. In contrast, to find out whether a binary <b class="calibre9">search</b> tree contains the same <samp class="mono">ssn</samp>, a function may eliminate one of two subtrees for every node it inspects.</p>
+<p class="calibre8">Let’s illustrate the idea with this sample <samp class="mono">BST</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-node 66</samp><samp class="mono"> 'a L</samp><samp class="mono"> R)</samp></p>
+</div>
+<p class="tni">If we are looking for <samp class="mono">66</samp>, we have found the node we are looking for. Now, if we are looking for a smaller number, say <samp class="mono">63</samp>, we can focus the search on <samp class="mono">L</samp> because <b class="calibre9">all</b> <samp class="mono">node</samp>s with <samp class="mono">ssn</samp> fields smaller than <samp class="mono">66</samp> are in <samp class="mono">L</samp>. Similarly, if we were to look for <samp class="mono">99</samp>, we would ignore <samp class="mono">L</samp> and focus on <samp class="mono">R</samp> because <b class="calibre9">all</b> <samp class="mono">node</samp>s with <samp class="mono">ssn</samp>s larger than <samp class="mono">66</samp> are in <samp class="mono">R</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 325. Design <samp class="mono">search-bst</samp>. The function consumes a number <samp class="mono">n</samp> and a <samp class="mono">BST</samp>. If the tree contains a <samp class="mono">node</samp> whose <samp class="mono">ssn</samp> field is <samp class="mono">n</samp>, the function produces the value of the <samp class="mono">name</samp> field in that node. Otherwise, the function produces <samp class="mono">NONE</samp>. The function organization must exploit the BST invariant so that the function performs as few comparisons as necessary.</p>
+<p class="calibre8">See exercise 189 for searching in sorted lists. Compare! <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Building a binary tree is easy; building a binary search tree is complicated. Given any two BTs, a number, and a name, we simply apply <samp class="mono">make-node</samp> to these values in the correct order, and voilà, we get a new BT. This same procedure fails for BSTs because the result would typically not be a <samp class="mono">BST</samp>. For example, if one BST contains nodes with <samp class="mono">ssn</samp> fields <samp class="mono">3</samp> and <samp class="mono">5</samp> in the correct order, and the other one contains <samp class="mono">ssn</samp> fields <samp class="mono">2</samp> and <samp class="mono">6</samp>, simply combining the two trees with another social security number and a name does not produce a BST.</p>
+<p class="calibre8">The remaining two exercises explain how to build a BST from a list of numbers and names. Specifically, the first exercise calls for a function that inserts a given <samp class="mono">ssn0</samp> and <samp class="mono">name0</samp> into a BST; that is, it produces a BST like the one it is given with one more node inserted containing <samp class="mono">ssn0</samp>, <samp class="mono">name0</samp>, and <samp class="mono">NONE</samp> subtrees. The second exercise then requests a function that can deal with a complete list of numbers and names.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 326. Design the function <samp class="mono">create-bst</samp>. It consumes a <samp class="mono">BST B</samp>, a number <samp class="mono">N</samp>, and a symbol <samp class="mono">S</samp>. It produces a <samp class="mono">BST</samp> that is just like <samp class="mono">B</samp> and that in place of one <samp class="mono">NONE</samp> subtree contains the <samp class="mono">node</samp> structure</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-node N</samp><samp class="mono"> S NONE</samp><samp class="mono"> NONE)</samp></p>
+</div>
+<p class="tni">Once the design is completed, use the function on tree A from <a href="part0011_split_007.html#fig119" class="calibre5">figure 119</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_512" title="512"></span><b class="calibre9">Exercise</b> 327. Design the function <samp class="mono">create-bst-from-list</samp>. It consumes a list of numbers and names and produces a BST by repeatedly applying <samp class="mono">create-bst</samp>. Here is the signature:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of<samp class="mono"> [</samp>List<samp class="mono"> Number Symbol]]</samp><samp class="mono"> -&gt; </samp>BST</p>
+</div>
+<p class="tni">Use the complete function to create a BST from this sample input:</p>
+<figure class="co"><img src="../images/00476.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The result is tree A in <a href="part0011_split_007.html#fig119" class="calibre5">figure 119</a>, if you follow the structural design recipe. If you use an existing abstraction, you may still get this tree but you may also get an “inverted” one. Why? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_12"><a id="sec9-4" class="calibre16"></a>9.4 Russian Dolls</h2>
+<p class="tni">Wikipedia defines a Russian doll as “a set of dolls of decreasing sizes placed one inside the other” and illustrates it with this picture:</p>
+<figure class="co"><img src="../images/00201.gif" alt="" class="calibre26"/></figure>
+<p class="tni">In this picture, the dolls are taken apart so that the viewer can see them all.</p>
+<div class="calibre4">
+<p class="marginpar">The problem may strike you as abstract or even absurd; it isn’t clear why you would want to represent Russian dolls or what you would do with such a representation. Just play along for now.</p>
+</div>
+<p class="calibre8">Now consider the problem of representing such Russian dolls with BSL data. With a little bit of imagination, it is easy to see that an artist can create a nest of Russian dolls that consists of an arbitrary number of dolls. After all, it is always possible to wrap another layer around some given Russian doll. Then again, you also know that deep inside there is a solid doll without anything inside.</p>
+<p class="calibre8">For each layer of a Russian doll, we could care about many different things: its size, though it is related to the nesting level; its color; the image that is painted on the surface; and so on. Here we just pick one, namely the color of the doll, which we represent with a string. Given that, we know that each layer of the Russian doll has two properties: its color and the doll that is inside. To represent pieces of information with two properties, we always define a structure type:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct layer</samp><samp class="mono"> [color doll])</samp></p>
+</div>
+<p class="tni">And then we add a data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">RD</i><samp class="mono"> (short for</samp><samp class="mono"> </samp><i class="calibre6">Russian doll</i><samp class="mono">) is</samp><samp class="mono"> one of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> </samp>String <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-layer </samp>String RD<samp class="mono">)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_269" title="269"></span>Naturally, the first clause of this data definition represents the innermost doll, or, to be precise, its color. The second clause is for adding a layer around some given Russian doll. We represent this with an instance of <samp class="mono">layer</samp>, which obviously contains the color of the doll and one other field: the doll that is nested immediately inside of this doll.</p>
+<p class="calibre8">Take a look at this doll:</p>
+<figure class="co"><img src="../images/00202.gif" alt="" class="calibre27"/></figure>
+<p class="tni">It consists of three dolls. The red one is the innermost one, the green one sits in the middle, and the yellow is the current outermost wrapper. To represent this doll with an element of RD, you start on either end. We proceed from the inside out. The red doll is easy to represent as an RD. Since nothing is inside and since it is red, the string <samp class="mono">"red"</samp> will do fine. For the second layer, we use</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-layer "green"</samp><samp class="mono"> "red")</samp></p>
+</div>
+<p class="tni">which says that a green (hollow) doll contains a red doll. Finally, to get the outside we just wrap another layer around this last doll:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-layer "yellow"</samp><samp class="mono"> (make-layer "green"</samp><samp class="mono"> "red"))</samp></p>
+</div>
+<p class="calibre8">This process should give you a good idea of how to go from any set of colored Russian dolls to a data representation. But keep in mind that a programmer must also be able to do the converse, that is, go from a piece of data to concrete information. In this spirit, draw a schematic Russian doll for the following element of RD:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-layer "pink"</samp><samp class="mono"> (make-layer "black"</samp><samp class="mono"> "white"))</samp></p>
+</div>
+<p class="tni">You might even try this in BSL.</p>
+<p class="calibre8">Now that we have a data definition and understand how to represent actual dolls and how to interpret elements of RD as dolls, we are ready to design functions that consume RDs. Specifically, let’s design the function that counts how many dolls a Russian doll set contains. This sentence is a fine purpose statement and determines the signature, too:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_270" title="270"></span><samp class="mono">; </samp>RD<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; how</samp><samp class="mono"> many dolls</samp><samp class="mono"> are part</samp><samp class="mono"> of an-rd</samp></p>
+</div>
+<p class="tni">As for data examples, let’s start with <samp class="mono">(make-layer "yellow" (make-layer "green" "red"))</samp>. The image above tells us that <samp class="mono">3</samp> is the expected answer because there are three dolls: the red one, the green one, and the yellow one. Just working through this one example also tells us that when the input is a representation of this doll</p>
+<figure class="co"><img src="../images/00203.gif" alt="" class="calibre28"/></figure>
+<p class="tni">then the answer is <samp class="mono">1</samp>.</p>
+<p class="calibre8">Step four demands the development of a template. Using the standard questions for this step produces this template:</p>
+<figure class="co"><img src="../images/00204.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The number of <samp class="mono">cond</samp> clauses is determined by the number of clauses in the definition of RD. Each of the clauses specifically spells out what kind of data it is about, and that tells us to use the <samp class="mono">string?</samp> and <samp class="mono">layer?</samp> predicates. While strings aren’t compound data, instances of <samp class="mono">layer</samp> contain two values. If the function needs these values, it uses the selector expressions <samp class="mono">(layer-color an-rd)</samp> and <samp class="mono">(layer-doll an-rd)</samp>. Finally, the second clause of the data definition contains a self-reference from the <i class="calibre6">doll</i> field of the <samp class="mono">layer</samp> structure to the definition itself. Hence we need a recursive function call for the second selector expression.</p>
+<p class="calibre8">The examples and the template almost dictate the function definition. For the non-recursive <samp class="mono">cond</samp> clause, the answer is obviously <samp class="mono">1</samp>. For the recursive clause, the template expressions compute the following results:</p>
+<p class="blf">•  <samp class="mono">(layer-color an-rd)</samp> extracts the string that describes the color of the current layer;</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_271" title="271"></span>•  <samp class="mono">(layer-doll an-rd)</samp> extracts the doll contained within the current layer; and</p>
+<p class="bll">•  <samp class="mono">(depth (layer-doll an-rd))</samp> determines how many dolls are part of <samp class="mono">(layer-doll an-rd)</samp>, according to the purpose statement of <samp class="mono">depth</samp>.</p>
+<p class="tni">This last number is almost the desired answer but not quite because the difference between <samp class="mono">an-rd</samp> and <samp class="mono">(layer-doll an-rd)</samp> is one layer, meaning one extra doll. Put differently, the function must add <samp class="mono">1</samp> to the recursive result to obtain the actual answer:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>RD<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; how</samp><samp class="mono"> many dolls</samp><samp class="mono"> are a</samp><samp class="mono"> part of</samp><samp class="mono"> an-rd</samp> <br class="calibre4"/><samp class="mono">(define (depth</samp><samp class="mono"> an-rd)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(string?</samp><samp class="mono"> an-rd) 1]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (+ (depth</samp><samp class="mono"> (layer-doll an-rd))</samp><samp class="mono"> 1)]))</samp></p>
+</div>
+<p class="tni">Note how the function definition does not use <samp class="mono">(layer-color an-rd)</samp> in the second clause. Once again, we see that the template is an organization schema for everything we know about the data definition, but we may not need all of these pieces for the actual definition.</p>
+<p class="calibre8">Let’s finally translate the examples into tests:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (depth</samp><samp class="mono"> "red") 1)</samp> <br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (depth</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (make-layer "yellow"</samp><samp class="mono"> (make-layer "green"</samp><samp class="mono"> "red")))</samp> <br class="calibre4"/><samp class="mono">  3)</samp></p>
+</div>
+<p class="tni">If you run these in DrRacket, you will see that their evaluation touches all pieces of the definition of <samp class="mono">depth</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 154. Design the function <samp class="mono">colors</samp>. It consumes a Russian doll and produces a string of all colors, separated by a comma and a space. Thus our example should produce</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">"yellow, green,</samp><samp class="mono"> red"</samp></p>
+</div>
+<p class="tni"><img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 155. Design the function <samp class="mono">inner</samp>, which consumes an RD and produces the (color of the) innermost doll. Use DrRacket’s stepper to evaluate <samp class="mono">(inner rd)</samp> for your favorite <samp class="mono">rd</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

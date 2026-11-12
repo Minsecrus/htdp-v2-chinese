@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><a id="sec32-1" class="calibre16"></a>32.1 Recognizing the Need for an Accumulator</h2>
+<p class="tni">Recognizing the need for accumulators is not an easy task. We have seen two reasons, and they are the most prevalent ones. In either case, it is critical that we first built a complete function based on a <b class="calibre9">conventional</b> design recipe. Then we study the function and proceed as follows:</p>
+<p class="nlf">1. If a structurally recursive function traverses the result of its natural recursion with an auxiliary, recursive function, consider the use of an accumulator parameter.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_707" title="707"></span>Take a look at the definition of <samp class="mono">invert</samp> in <a id="rfig182" href="part0015_split_006.html#fig182" class="calibre5">figure 182</a>. The result of the recursive application produces the reverse of the rest of the list. It uses <samp class="mono">add-as-last</samp> to add the first item to this reversed list and thus creates the reverse of the entire list. This second, auxiliary function is also recursive. We have thus identified an accumulator candidate.</p>
+<div class="figure">
+<figure class="img"><a id="fig182" class="calibre5"></a><img src="../images/00727.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0015_split_006.html#rfig182" class="calibre5">Figure 182</a>:</span> <span>Design with accumulators, a structural example</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni">It is now time to study some hand-evaluations, as in chapter 31.1, to see whether an accumulator helps. Consider the following:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(invert '(a</samp><samp class="mono"> b c))</samp> <br class="calibre4"/><samp class="mono">== (add-as-last</samp><samp class="mono"> 'a (invert</samp><samp class="mono"> '(b c)))</samp> <br class="calibre4"/><samp class="mono">== (add-as-last</samp><samp class="mono"> 'a (add-as-last</samp><samp class="mono"> 'b (invert</samp><samp class="mono"> '(c))))</samp> <br class="calibre4"/><samp class="mono">== <span>…</span></samp><samp class="mono"> <br class="calibre4"/>== (add-as-last</samp><samp class="mono"> 'a (add-as-last</samp><samp class="mono"> 'b '(c)))</samp> <br class="calibre4"/><samp class="mono">== (add-as-last</samp><samp class="mono"> 'a '(c</samp><samp class="mono"> b))</samp> <br class="calibre4"/><samp class="mono">== '(c</samp><samp class="mono"> b a)</samp></samp></p>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_708" title="708"></span>Stop! Replace the dots with the two missing steps. Then you can see that <samp class="mono">invert</samp> eventually reaches the end of the given list—just like <samp class="mono">add-as-last</samp>—and if it knew which items to put there, there would be no need for the auxiliary function.</p>
+<p class="nll">2. If we are dealing with a function based on generative recursion, we are faced with a much more difficult task. Our goal must be to understand whether the algorithm can fail to produce a result for inputs for which we expect a result. If so, adding a parameter that accumulates knowledge may help. Because these situations are complex, we defer the discussion of an example to chapter 33.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 493. Argue that, in the terminology of intermezzo 5, <samp class="mono">invert</samp> consumes <i class="calibre6">O</i>(<i class="calibre6">n</i><sup class="calibre15">2</sup>) time when the given list consists of <i class="calibre6">n</i> items. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 494. Does the insertion <samp class="mono">sort&gt;</samp> function from chapter 11.3 need an accumulator? If so, why? If not, why not? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

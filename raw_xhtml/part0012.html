@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="BE6O0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<p class="sp1"> </p>
+<article epub:type="part" role="main">
+<hgroup>
+<h1 class="pn" id="pt4"><span epub:type="pagebreak" id="pg_589" title="589" class="calibre1"></span>I<small class="calibre7">NTERMEZZO</small> 4: T<small class="calibre7">HE</small> N<small class="calibre7">ATURE</small> <small class="calibre7">OF</small> N<small class="calibre7">UMBERS</small></h1>
+</hgroup>
+<p class="tni">When it comes to numbers, programming languages mediate the gap between the underlying hardware and true mathematics. The typical computer hardware represents numbers with fixed-size chunks of data; they also come with processors that work on just such chunks. In paper-and-pencil calculations, we don’t worry about how many digits we process; in principle, we can deal with numbers that consist of one digit, 10 digits, or 10,000 digits. Thus, if a programming language uses the numbers from the underlying hardware, its calculations are as efficient as possible. If it sticks to the numbers we know from mathematics, it must translate those into chunks of hardware data and back—and these translations cost time. Because of this cost, most creators of programming languages adopt the hardware-based choice.</p>
+
+<p class="marginpar">These chunks are called <i class="calibre6">bits</i>, <i class="calibre6">bytes</i>, and <i class="calibre6">words</i>.</p>
+
+<p class="calibre8">This intermezzo explains the hardware representation of numbers as an exercise in data representation. Concretely, the first subsection introduces a concrete fixed-size data representation for numbers, discusses how to map numbers into this representation, and hints at how calculations work on such numbers. The second and third sections illustrate the two most fundamental problems of this choice: arithmetic overflow and underflow, respectively. The last one sketches how arithmetic in the teaching languages works; its number system <b class="calibre9">generalizes</b> what you find in most of today’s programming languages. The final exercises show how bad things can get when programs compute with numbers.</p>
+
+<p class="stni"><b class="calibre9">Fixed-Size Number Arithmetic</b></p>
+<p class="tni">Suppose we can use four digits to represent numbers. If we represent natural numbers, one representable range is [0<i class="calibre6">,</i>10000). For real numbers, we could pick 10,000 fractions between 0 and 1 or 5,000 between 0 and 1 and another 5,000 between 1 and 2, and so on. In either case, four digits can represent at most 10,000 numbers for some chosen interval, while the number line for this interval contains an infinite number of numbers.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_590" title="590"></span>The common choice for hardware numbers is to use so-called scientific notation, meaning numbers are represented with two parts:</p>
+<p class="marginpar">For pure scientific notation, the base is between 0 and 9; we ignore this constraint.</p>
+<p class="nlf">1. a <i class="calibre6">mantissa</i>, which is a base number, and</p>
+<p class="nll">2. an <i class="calibre6">exponent</i>, which is used to determine a 10-based factor.</p>
+<p class="tni">Expressed as a formula, we write numbers as</p>
+<figure class="co"><img src="../images/00557.gif" alt="" class="calibre10"/></figure>
+<p class="tni">where <i class="calibre6">m</i> is the mantissa and <i class="calibre6">e</i> the exponent. For example, one representation of 1200 with this scheme is</p>
+<figure class="co"><img src="../images/00558.gif" alt="" class="calibre10"/></figure>
+<p class="tni">another one is</p>
+<figure class="co"><img src="../images/00559.gif" alt="" class="calibre10"/></figure>
+<p class="tni">In general, a number has several equivalents in this representation.</p>
+<p class="calibre8">We can also use negative exponents, which add fractions at the cost of one extra piece of data: the sign of the exponent. For example,</p>
+<figure class="co"><img src="../images/00560.gif" alt="" class="calibre10"/></figure>
+<p class="tni">stands for</p>
+<figure class="co"><img src="../images/00561.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">To use a form of mantissa-exponent notation for our problem, we must decide how many of the four digits we wish to use for the representation of the mantissa and how many for the exponent. Here we use two for each plus a sign for the exponent; other choices are possible. Given this decision, we can still represent 0 as</p>
+<figure class="co"><img src="../images/00562.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The maximal number we can represent is</p>
+<figure class="co"><img src="../images/00563.gif" alt="" class="calibre10"/></figure>
+<p class="tni">which is 99 followed by 99 0’s. Using the negative exponents, we can add fractions all the way down to</p>
+<figure class="co"><img src="../images/00564.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_591" title="591"></span>which is the smallest representable number. In sum, using scientific notation with four digits (and a sign), we can represent a vast range of numbers and fractions, but this improvement comes with its own problems.</p>
+<p class="calibre8">To understand the problems, it is best to make these choices concrete with a data representation in ISL+ and by running some experiments. Let’s represent a fixed-size number with a structure that has three fields:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct inex</samp><samp class="mono"> [mantissa sign</samp><samp class="mono"> exponent])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Inex</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-inex</samp><samp class="mono"> </samp>N99 S N99<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; An</samp><span class="calibre6"> S</span> <samp class="mono">is</samp><samp class="mono"> one of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> 1</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> -1</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">N99</span><samp class="mono"> is an</samp><samp class="mono"> </samp>N<samp class="mono"> between 0</samp><samp class="mono"> and 99</samp><samp class="mono"> (inclusive).</samp></p>
+</div>
+<p class="tni">Because the conditions on the fields of an Inex are so stringent, we define the function <samp class="mono">create-inex</samp> to instantiate this structure type definition; see <a id="rfig143" href="part0012.html#fig143" class="calibre5">figure 143</a>. The figure also defines <samp class="mono">inex-&gt;number</samp>, which turns Inexes into numbers using the above formula.</p>
+<div class="figure">
+<figure class="img"><a id="fig143" class="calibre5"></a><img src="../images/00565.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0012.html#rfig143" class="calibre5">Figure 143</a>:</span> <span>Functions for inexact representations</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Let’s translate the above example, <samp class="mono">1200</samp>, into our data representation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(create-inex 12</samp><samp class="mono"> 1 2)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_592" title="592"></span>Representing <samp class="mono">1200</samp> as 120 · 10<sup class="calibre15">1</sup> is illegal, however, according to our Inex data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (create-inex</samp><samp class="mono"> 120 1</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">bad values</samp><samp class="mono"> given</samp></p>
+</div>
+<p class="calibre8">For other numbers, though, we can find two Inex equivalents. One example is <samp class="mono">5e-19</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (create-inex</samp><samp class="mono"> 50 -1</samp><samp class="mono"> 20)</samp> <br class="calibre4"/><samp class="mono">(make-inex 50</samp><samp class="mono"> -1 20)</samp> <br class="calibre4"/><samp class="mono">&gt; (create-inex</samp><samp class="mono"> 5 -1</samp><samp class="mono"> 19)</samp> <br class="calibre4"/><samp class="mono">(make-inex 5</samp><samp class="mono"> -1 19)</samp></p>
+</div>
+<p class="tni">Use <samp class="mono">inex-&gt;number</samp> to confirm the equivalence of these two numbers.</p>
+<p class="calibre8">With <samp class="mono">create-inex</samp> it is also easy to delimit the range of representable numbers, which is actually quite small for many applications:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define MAX-POSITIVE</samp><samp class="mono"> (create-inex 99</samp><samp class="mono"> 1 99))</samp> <br class="calibre4"/><samp class="mono">(define MIN-POSITIVE</samp><samp class="mono"> (create-inex 1</samp><samp class="mono"> -1 99))</samp></p>
+</div>
+<p class="tni">The question is which of the real numbers in the range between 0 and <samp class="mono">MAX-POSITIVE</samp> can be translated into an Inex. In particular, any positive number less than</p>
+<figure class="co"><img src="../images/00566.gif" alt="" class="calibre10"/></figure>
+<p class="tni">has no equivalent Inex. Similarly, the representation has gaps in the middle. For example, the immediate successor of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(create-inex 12</samp><samp class="mono"> 1 2)</samp></p>
+</div>
+<p class="tni">is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(create-inex 13</samp><samp class="mono"> 1 2)</samp></p>
+</div>
+<p class="tni">The first Inex represents 1200, the second one 1300. Numbers in the middle, say 1240, can be represented as one or the other—no other Inex makes sense. The standard choice is to round the number to the closest representable equivalent, and that is what computer scientists mean with <i class="calibre6">inexact numbers</i>. That is, the chosen data representation forces us to map mathematical numbers to approximations.</p>
+<p class="calibre8">Finally, we must also consider arithmetic operations on Inex structures. Adding two Inex representations with the same exponent means adding the two mantissas:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_593" title="593"></span><samp class="mono">(inex+ (create-inex</samp><samp class="mono"> 1 1</samp><samp class="mono"> 0) (create-inex</samp><samp class="mono"> 2 1</samp><samp class="mono"> 0))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 3</samp><samp class="mono"> 1 0)</samp></p>
+</div>
+<p class="tni">Translated into mathematical notation, we have</p>
+<figure class="co"><img src="../images/00567.gif" alt="" class="calibre10"/></figure>
+<p class="tni">When the addition of two mantissas yields too many digits, we have to use the closest neighbor in Inex. Consider adding 55 · 10<sup class="calibre15">0</sup> to itself. Mathematically we get</p>
+<figure class="co"><img src="../images/00568.gif" alt="" class="calibre10"/></figure>
+<p class="tni">but we can’t just translate this number naively into our chosen representation because 110 &gt; 99. The proper corrective action is to represent the result as</p>
+<figure class="co"><img src="../images/00569.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Or, translated into ISL+, we must ensure that <samp class="mono">inex+</samp> computes as follows:</p>
+<figure class="co"><img src="../images/00570.gif" alt="" class="calibre10"/></figure>
+<p class="tni">More generally, if the mantissa of the result is too large, we must divide it by <samp class="mono">10</samp> and increase the exponent by one.</p>
+<p class="calibre8">Sometimes the result contains more mantissa digits than we can represent. In those cases, <samp class="mono">inex+</samp> must round to the closest equivalent in the Inex world. For example:</p>
+<figure class="co"><img src="../images/00571.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Compare this with the precise calculation:</p>
+<figure class="co"><img src="../images/00572.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Because the result has too many mantissa digits, the integer division of the result mantissa by <samp class="mono">10</samp> produces an approximate result:</p>
+<figure class="co"><img src="../images/00573.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This is an example of the many approximations in Inex arithmetic.</p>
+<p class="marginpar">And <b class="calibre9">inexact</b> is appropriate.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_594" title="594"></span>We can also multiply Inex numbers. Recall that</p>
+<figure class="co"><img src="../images/00574.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Thus we get:</p>
+<figure class="co"><img src="../images/00575.gif" alt="" class="calibre10"/></figure>
+<p class="tni">or, in ISL+ notation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inex* (create-inex</samp><samp class="mono"> 2 1</samp><samp class="mono"> 4) (create-inex</samp><samp class="mono"> 8 1</samp><samp class="mono"> 10))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 16</samp><samp class="mono"> 1 14)</samp></p>
+</div>
+<p class="tni">As with addition, things are not straightforward. When the result has too many significant digits in the mantissa, <samp class="mono">inex*</samp> has to increase the exponent:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inex* (create-inex</samp><samp class="mono"> 20 1</samp><samp class="mono"> 1) (create-inex</samp><samp class="mono"> 5 1</samp><samp class="mono"> 4))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 10</samp><samp class="mono"> 1 6)</samp></p>
+</div>
+<p class="tni">And just like <samp class="mono">inex+</samp>, <samp class="mono">inex*</samp> introduces an approximation if the true mantissa doesn’t have an exact equivalent in Inex:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inex* (create-inex</samp><samp class="mono"> 27 -1</samp><samp class="mono"> 1) (create-inex</samp><samp class="mono"> 7 1</samp><samp class="mono"> 4))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 19</samp><samp class="mono"> 1 4)</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 412. Design <samp class="mono">inex+</samp>. The function adds two Inex representations of numbers that have the same exponent. The function must be able to deal with inputs that increase the exponent. Furthermore, it must signal its own error if the result is out of range, not rely on <samp class="mono">create-inex</samp> for error checking.</p>
+<p class="calibre8"><b class="calibre9">Challenge</b> Extend <samp class="mono">inex+</samp> so that it can deal with inputs whose exponents differ by <samp class="mono">1</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (inex+</samp><samp class="mono"> (create-inex 1</samp><samp class="mono"> 1 0)</samp><samp class="mono"> (create-inex 1</samp><samp class="mono"> -1 1))</samp> <br class="calibre4"/><samp class="mono">  (create-inex</samp><samp class="mono"> 11 -1</samp><samp class="mono"> 1))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_595" title="595"></span>Do not attempt to deal with larger classes of inputs than that without reading the following subsection. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 413. Design <samp class="mono">inex*</samp>. The function multiplies two Inex representations of numbers, including inputs that force an additional increase of the output’s exponent. Like <samp class="mono">inex+</samp>, it must signal its own error if the result is out of range, not rely on <samp class="mono">create-inex</samp> to perform error checking. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 414. As this section illustrates, gaps in the data representation lead to round-off errors when numbers are mapped to Inexes. The problem is, such round-off errors accumulate across computations.</p>
+<p class="calibre8">Design <samp class="mono">add</samp>, a function that adds up <samp class="mono">n</samp> copies of <samp class="mono">#i1/185</samp>. For your examples, use <samp class="mono">0</samp> and <samp class="mono">1</samp>; for the latter, use a tolerance of <samp class="mono">0.0001</samp>. What is the result for <samp class="mono">(add 185)</samp>? What would you expect? What happens if you multiply the result with a large number?</p>
+<p class="calibre8">Design <samp class="mono">sub</samp>. The function counts how often <samp class="mono">1/185</samp> can be subtracted from the argument until it is <samp class="mono">0</samp>. Use <samp class="mono">0</samp> and <samp class="mono">1/185</samp> for your examples. What are the expected results? What are the results for <samp class="mono">(sub 1)</samp> and <samp class="mono">(sub #i1.0)</samp>? What happens in the second case? Why? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Overflow</b></p>
+<p class="tni">While scientific notation expands the range of numbers we can represent with fixed-size chunks of data, it is still finite. Some numbers are just too big to fit into a fixed-size number representation. For example,</p>
+<figure class="co"><img src="../images/00576.gif" alt="" class="calibre10"/></figure>
+<p class="tni">can’t be represented because the exponent 500 won’t fit into two digits, and the mantissa is as large as legally possible.</p>
+<p class="calibre8">Numbers that are too large for Inex can arise during a computation. For example, two numbers that we can represent can add up to a number that we cannot represent:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inex+ (create-inex</samp><samp class="mono"> 50 1</samp><samp class="mono"> 99) (create-inex</samp><samp class="mono"> 50 1</samp><samp class="mono"> 99))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 100</samp><samp class="mono"> 1 99)</samp></p>
+</div>
+<p class="tni">which violates the data definition. When Inex arithmetic produces numbers that are too large to be represented, we speak of (arithmetic) <i class="calibre6">overflow</i>.</p>
+<p class="calibre8">When overflow takes place, some language implementations signal an error and stop the computation. Others designate some symbolic value, called <i class="calibre6">infinity</i>, to represent such numbers and propagate it through arithmetic operations.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_596" title="596"></span><b class="calibre9">Note</b> If Inexes had a sign field for the mantissa, then two negative numbers can add up to one that is so negative that it can’t be represented either. This is called <i class="calibre6">overflow in the negative direction</i>. <b class="calibre9">End</b></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 415. ISL+ uses <samp class="mono">+inf.0</samp> to deal with overflow. Determine the integer <samp class="mono">n</samp> such that</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(expt #i10.0</samp><samp class="mono"> n)</samp></p>
+</div>
+<p class="tni">is an inexact number while <samp class="mono">(expt #i10. (+ n 1))</samp> is approximated with <samp class="mono">+inf.0</samp>. <b class="calibre9">Hint</b> Design a function to compute <samp class="mono">n</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">Underflow</b></p>
+<p class="tni">At the opposite end of the spectrum, there are small numbers that don’t have a representation in Inex. For example, 10<sup class="calibre15">−500</sup> is not 0, but it’s smaller than the smallest non-zero number we can represent. An (arithmetic) <i class="calibre6">underflow</i> arises when we multiply two small numbers and the result is too small for Inex:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inex* (create-inex</samp><samp class="mono"> 1 -1</samp><samp class="mono"> 10) (create-inex</samp><samp class="mono"> 1 -1</samp><samp class="mono"> 99))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(create-inex 1</samp><samp class="mono"> -1 109)</samp></p>
+</div>
+<p class="tni">which signals an error.</p>
+<p class="calibre8">When underflow occurs, some language implementations signal an error; others use 0 to approximate the result. Using 0 to approximate underflow is qualitatively different from picking an approximate representation of a number in Inex. Concretely, approximating 1250 with <samp class="mono">(create-inex 12 1 2)</samp> drops significant digits from the mantissa, but the result is always within 10% of the number to be represented. Approximating an underflow, however, means dropping the entire mantissa, meaning the result is not within a predictable percentage range of the true result.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 416. ISL+ uses <samp class="mono">#i0.0</samp> to approximate underflow. Determine the smallest integer <samp class="mono">n</samp> such that <samp class="mono">(expt #i10.0 n)</samp> is still an inexact ISL+ number and <samp class="mono">(expt #i10. (</samp>- <samp class="mono">n 1))</samp> is approximated with <samp class="mono">0</samp>. <b class="calibre9">Hint</b> Use a function to compute <samp class="mono">n</samp>. Consider abstracting over this function and the solution of exercise 415. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="stni"><b class="calibre9">*SL Numbers</b></p>
+<p class="tni">Most programming languages support only approximate number representations and arithmetic for numbers. A typical language limits its integers to an interval that is related to the size of the chunks of the hardware <span epub:type="pagebreak" id="pg_597" title="597"></span>on which it runs. Its representation of real numbers is loosely based on the sketch in the preceding sections, though with larger chunks than the four digits Inex uses and with digits from the 2-based number system.</p>
+<p class="marginpar">Inexact real representations come in several flavors: <i class="calibre6">float</i>, <i class="calibre6">double</i>, <i class="calibre6">extflonum</i>, and so on.</p>
+<p class="calibre8">The teaching languages support both exact and inexact numbers. Their integers and rationals are arbitrarily large and precise, limited only by the absolute size of the computer’s entire memory. For calculations on these numbers, our teaching languages use the underlying hardware as long as the involved rationals fit into the supported chunks of data; it automatically switches to a different representation and to a different version of the arithmetic operations for numbers outside of this interval. Their real numbers come in two flavors: exact and inexact. An exact number truly represents a real number; an inexact one approximates a real number in the spirit of the preceding sections. Arithmetic operations preserve exactness when possible; they produce an inexact result when necessary. Thus, <samp class="mono">sqrt</samp> returns an inexact number for both the exact and inexact representation of <samp class="mono">2</samp>. In contrast, <samp class="mono">sqrt</samp> produces an exact <samp class="mono">2</samp> when given exact <samp class="mono">4</samp> and <samp class="mono">#i2.0</samp> for an input of <samp class="mono">#i4.0</samp>. Finally, a numeric constant in a teaching program is understood as an exact rational, unless it is prefixed with <samp class="mono">#i</samp>.</p>
+<p class="calibre8">Plain Racket interprets all decimal numbers as inexact numbers; it also renders all real numbers as decimals, regardless of whether they are exact or inexact. The implication is that all such numbers are dangerous because they are likely to be inexact approximations of the true number. A programmer can force Racket to interpret numbers with a dot as exact by prefixing numerical constants with <samp class="mono">#e</samp>.</p>
+<p class="calibre8">At this point, you may wonder how much a program’s results may differ from the true results if it uses these inexact numbers. This question is one that early computer scientists struggled with a lot, and over the past few decades these studies have created a separate field, called <i class="calibre6">numerical analysis</i>. Every computer scientist, and indeed, every person who uses computers and software, ought to be aware of its existence and some of its basic insights into the workings of numeric programs. As a first taste, the following exercises illustrate how bad things can get. Work through them to never lose sight of the problems of inexact numbers.</p>
+<p class="marginpar">For an accessible introduction—using Racket—read <span class="serif-nor">Practically Accurate Floating-Point Math,</span> an article on error analysis by Neil Toronto and Jay McCarthy. It is also fun to watch <span class="serif-nor">Debugging Floating-Point Math in Racket,</span> Neil Toronto’s RacketCon 2011 lecture, available on YouTube.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 417. Evaluate <samp class="mono">(expt 1.001 1e-12)</samp> in Racket and in ISL+. Explain what you see. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 418. Design <samp class="mono">my-expt</samp> without using <samp class="mono">expt</samp>. The function raises the first given number to the power of the second one, a natural number. Using this function, conduct the following experiment. Add</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define inex</samp><samp class="mono"> (+ 1</samp><samp class="mono"> #i1e-12))</samp> <br class="calibre4"/><samp class="mono">(define exac</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1e-12))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_598" title="598"></span>to the definitions area. What is <samp class="mono">(my-expt inex 30)</samp>? And how about <samp class="mono">(my-expt exac 30)</samp>? Which answer is more useful? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 419. When you add two inexact numbers of vastly different orders of magnitude, you may get the larger one back as the result. For example, if a number system uses only 15 significant digits, we run into problems when adding numbers that vary by more than a factor of 10<sup class="calibre15">16</sup>:</p>
+<figure class="co"><img src="../images/00577.gif" alt="" class="calibre10"/></figure>
+<p class="tni">but the closest representable answer is 10<sup class="calibre15">16</sup>.</p>
+<p class="calibre8">At first glance, this approximation doesn’t look too bad. Being wrong by one part in 10<sup class="calibre15">16</sup> (ten million billion) is close enough to the truth. Unfortunately, this kind of problem can add up to huge problems. Consider the list of numbers in <a id="rfig144" href="part0012.html#fig144" class="calibre5">figure 144</a> and determine the values of these expressions:</p>
+<p class="blf">•  <samp class="mono">(sum JANUS)</samp></p>
+<p class="blf">•  <samp class="mono">(sum (reverse JANUS))</samp></p>
+<p class="bll">•  <samp class="mono">(sum (sort JANUS &lt;))</samp></p>
+<div class="figure">
+<figure class="img"><a id="fig144" class="calibre5"></a><img src="../images/00578.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0012.html#rfig144" class="calibre5">Figure 144</a>:</span> <span>A Janus-faced series of inexact numbers</span></p></figcaption>
+</figure>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_599" title="599"></span>Assuming <samp class="mono">sum</samp> adds the numbers in a list from left to right, explain what these expressions compute. What do you think of the results?</p>
+<p class="calibre8">Generic advice on inexact calculations tells programmers to start additions with the smallest numbers. While adding a big number to two small numbers might yield the big one, adding small numbers first creates a large one, which might change the outcome:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (expt</samp><samp class="mono"> 2 #i53.0)</samp> <br class="calibre4"/><samp class="mono">#i9007199254740992.0</samp> <br class="calibre4"/><samp class="mono">&gt; (sum</samp><samp class="mono"> (list #i1.0</samp><samp class="mono"> (expt 2</samp><samp class="mono"> #i53.0)))</samp> <br class="calibre4"/><samp class="mono">#i9007199254740992.0</samp> <br class="calibre4"/><samp class="mono">&gt; (sum</samp><samp class="mono"> (list #i1.0</samp><samp class="mono"> #i1.0 (expt</samp><samp class="mono"> 2 #i53.0)))</samp> <br class="calibre4"/><samp class="mono">#i9007199254740994.0</samp></p>
+</div>
+<p class="tni">This trick may <b class="calibre9">not</b> work; see the <samp class="mono">JANUS</samp> interactions above.</p>
+<p class="calibre8">In a language such as ISL+, you can convert the numbers to exact rationals, use exact arithmetic on those, and convert the result back:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(exact-&gt;inexact (sum</samp><samp class="mono"> (map inexact-&gt;exact</samp><samp class="mono"> JANUS)))</samp></p>
+</div>
+<p class="tni">Evaluate this expression and compare the result to the three sums above. What do you think now about advice from the web? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 420. <samp class="mono">JANUS</samp> is just a fixed list, but take a look at this function:</p>
+<figure class="co"><img src="../images/00579.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Applying <samp class="mono">oscillate</samp> to a natural number <samp class="mono">n</samp> produces the first <samp class="mono">n</samp> elements of a mathematical series. It is best understood as a graph, like the one in <a id="rfig145" href="part0012.html#fig145" class="calibre5">figure 145</a>. Run <samp class="mono">(oscillate 15)</samp> in DrRacket and inspect the result.</p>
+<div class="figure">
+<figure class="img"><a id="fig145" class="calibre5"></a><img src="../images/00580.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0012.html#rfig145" class="calibre5">Figure 145</a>:</span> <span>The graph of <samp class="mono">oscillate</samp></span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Summing its results from left to right computes a different result than from right to left:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (sum</samp><samp class="mono"> (oscillate #i1000.0))</samp> <br class="calibre4"/><samp class="mono">#i-0.49746596003269394</samp> <br class="calibre4"/><samp class="mono">&gt; (sum</samp><samp class="mono"> (reverse (oscillate</samp><samp class="mono"> #i1000.0)))</samp> <br class="calibre4"/><samp class="mono">#i-0.4974659600326953</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_600" title="600"></span>Again, the difference may appear to be small until we see the context:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (-</samp><samp class="mono"> (* 1e+16</samp><samp class="mono"> (sum (oscillate</samp><samp class="mono"> #i1000.0)))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (* 1e+16</samp><samp class="mono"> (sum (reverse</samp><samp class="mono"> (oscillate #i1000.0)))))</samp> <br class="calibre4"/><samp class="mono">#i14.0</samp></p>
+</div>
+<p class="tni">Can this difference matter? Can we trust computers? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The question is which numbers programmers should use in their programs if they are given a choice. The answer depends on the context, of course. In the world of financial statements, numerical constants should be interpreted as exact numbers, and computational manipulations of financial statements ought to be able to rely on the exactness-preserving nature of mathematical operations. After all, the law cannot accommodate the serious errors that come with inexact numbers and their operations. In scientific computations, however, the extra time needed to produce exact results might impose too much of a burden. Scientists therefore tend to use inexact numbers but carefully analyze their programs to make sure that the numerical errors are tolerable for their uses of the outputs of programs.</p>
+</article>
+</div>
+</body></html>

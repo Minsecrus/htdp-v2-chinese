@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_18"><a id="sec16-4" class="calibre16"></a>16.4 Computing with <samp class="monospace-margin1">local</samp></h2>
+<p class="tni">ISL’s <samp class="mono">local</samp> expression calls for the first rule of calculation that is truly beyond pre-algebra knowledge. The rule is relatively simple but quite unusual. It’s best illustrated with some examples. We start with a second look at this definition:</p>
+<figure class="co"><img src="../images/00363.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Now suppose we wish to calculate what DrRacket might produce for</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(simulate AN-FSM</samp><samp class="mono"> A-STATE)</samp></p>
+</div>
+<p class="tni">where <samp class="mono">AN-FSM</samp> and <samp class="mono">A-STATE</samp> are unknown values. Using the usual substitution rule, we proceed as follows:</p>
+<figure class="co"><img src="../images/00364.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_424" title="424"></span>This is the body of <samp class="mono">simulate</samp> with all occurrences of <samp class="mono">fsm</samp> and <samp class="mono">s</samp> replaced by the argument values <samp class="mono">AN-FSM</samp> and <samp class="mono">A-STATE</samp>, respectively.</p>
+<p class="calibre8">At this point we are stuck because the expression is a <samp class="mono">local</samp> expression, and we don’t know how to calculate with it. So here we go. To deal with a <samp class="mono">local</samp> expression in a program evaluation, we proceed in two steps:</p>
+<p class="nlf">1. We rename the locally defined constants and functions to use names that aren’t used elsewhere in the program.</p>
+<p class="nll">2. We lift the definitions in the <samp class="mono">local</samp> expression to the top level and evaluate the body of the <samp class="mono">local</samp> expression next.</p>
+<p class="tni">Stop! Don’t think. Accept the two steps for now.</p>
+<p class="calibre8">Let’s apply these two steps to our running example, one at a time:</p>
+<figure class="co"><img src="../images/00365.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Our choice is to append “-1” to the end of the function name. If this variant of the name already exists, we use “-2” instead, and so on. So here is the result of step 2:</p>
+<figure class="co"><img src="../images/00366.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">We use <span class="serif-nor">⊕</span> to indicate that the step produces two pieces.</p>
+<p class="tni">The result is an ordinary program: some globally defined constants and functions followed by an expression. The normal rules apply, and there is nothing else to say.</p>
+<p class="calibre8">At this point, it is time to rationalize the two steps. For the renaming step, we use a variant of the <samp class="mono">inf</samp> function from <a href="part0009_split_015.html#fig100" class="calibre5">figure 100</a>. Clearly,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(inf (list</samp><samp class="mono"> 2 1</samp><samp class="mono"> 3)) ==</samp><samp class="mono"> 1</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_425" title="425"></span>The question is whether you can show the calculations that DrRacket performs to determine this result.</p>
+<p class="calibre8">The first step is straightforward:</p>
+<figure class="co"><img src="../images/00367.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We substitute <samp class="mono">(list 2 1 3)</samp> for <samp class="mono">l</samp>.</p>
+<p class="calibre8">Since the list isn’t empty, we skip the steps for evaluating the conditional and focus on the next expression to be evaluated:</p>
+<figure class="co"><img src="../images/00368.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Applying the two steps for the rule of <samp class="mono">local</samp> yields two parts: the local definition lifted to the top and the body of the <samp class="mono">local</samp> expression. Here is how we write this down:</p>
+<figure class="co"><img src="../images/00369.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_426" title="426"></span>Curiously, the next expression we need to evaluate is the right-hand side of a constant definition in a <samp class="mono">local</samp> expression. But the point of computing is that you can replace expressions with their equivalents wherever you want:</p>
+<figure class="co"><img src="../images/00370.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Once again, we skip the conditional steps and focus on the <samp class="mono">else</samp> clause, which is also a <samp class="mono">local</samp> expression. Indeed it is another variant of the <samp class="mono">local</samp> expression in the definition of <samp class="mono">inf</samp>, with a different list value substituted for the parameter:</p>
+<figure class="co"><img src="../images/00371.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Because it originates from the same <samp class="mono">local</samp> expression in <samp class="mono">inf</samp>, it uses the same name for the constant, <samp class="mono">smallest-in-rest</samp>. <b class="calibre9">If we didn’t rename <span epub:type="pagebreak" id="pg_427" title="427"></span>local definitions before lifting them, we would introduce two conflicting definitions for the same name</b>, and conflicting definitions are catastrophic for mathematical calculations.</p>
+<p class="calibre8">Here is how we continue:</p>
+<figure class="co"><img src="../images/00372.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The key is that we now have <b class="calibre9">two</b> definitions generated from <b class="calibre9">one and the same</b> <samp class="mono">local</samp> expression in the function definition. As a matter of fact we get one such definition per item in the given list (minus 1).</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 263. Use DrRacket’s stepper to study the steps of this calculation in detail. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 264. Use DrRacket’s stepper to calculate out how it evaluates</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(sup (list</samp><samp class="mono"> 2 1</samp><samp class="mono"> 3))</samp></p>
+</div>
+<p class="tni">where <samp class="mono">sup</samp> is the function from <a href="part0009_split_004.html#fig89" class="calibre5">figure 89</a> equipped with <samp class="mono">local</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">For the explanation of the lifting step, we use a toy example that gets to the heart of the issue, namely, that functions are now values:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">((local ((define</samp><samp class="mono"> (f x)</samp><samp class="mono"> (+ (*</samp><samp class="mono"> 4 (sqr</samp><samp class="mono"> x)) 3)))</samp><samp class="mono"> f)</samp> <br class="calibre4"/><samp class="mono"> 1)</samp></p>
+</div>
+<p class="tni">Deep down we know that this is equivalent to <samp class="mono">(f 1)</samp> where</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> x) (+</samp><samp class="mono"> (* 4</samp><samp class="mono"> (sqr x))</samp><samp class="mono"> 3))</samp></p>
+</div>
+<p class="tni">but the rules of pre-algebra don’t apply. The key is that <b class="calibre9">functions can be the result of expressions, including</b> <samp class="mono">local</samp> <b class="calibre9">expressions</b>. And the best way <span epub:type="pagebreak" id="pg_428" title="428"></span>to think of this is to move such <samp class="mono">local</samp> definitions to the top and to deal with them like ordinary definitions. Doing so renders the definition visible for every step of the calculation. By now you also understand that the renaming step makes sure that the lifting of definitions does not accidentally conflate names or introduce conflicting definitions.</p>
+<p class="calibre8">Here are the first two steps of the calculation:</p>
+<figure class="co"><img src="../images/00373.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Remember that the second step of the <samp class="mono">local</samp> rule replaces the <samp class="mono">local</samp> expression with its body. In this case, the body is just the name of the function, and its surrounding is an application to <samp class="mono">1</samp>. The rest is arithmetic:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span class="colorbox">(f-1 1)</span></samp> <samp class="mono"> == (+</samp><samp class="mono"> (* 4</samp><samp class="mono"> (sqr 1))</samp><samp class="mono"> 3) ==</samp><samp class="mono"> 7</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 265. Use DrRacket’s stepper to fill in any gaps above. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 266. Use DrRacket’s stepper to find out how ISL evaluates</p>
+<figure class="co"><img src="../images/00374.gif" alt="" class="calibre10"/></figure>
+<p class="tni">to <samp class="mono">5</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

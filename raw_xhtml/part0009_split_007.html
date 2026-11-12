@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_8"><a id="sec14-5" class="calibre16"></a>14.5 Computing with Functions</h2>
+<p class="tni">The switch from BSL+ to ISL allows the use of functions as arguments and the use of names in the first position of an application. DrRacket deals with names in these positions like anywhere else, but naturally, it expects a function as a result. Surprisingly, a simple adaptation of the laws of algebra suffices to evaluate programs in ISL.</p>
+<p class="calibre8">Let’s see how this works for <samp class="mono">extract</samp> from chapter 14.2. Obviously,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(extract &lt;</samp><samp class="mono"> '() 5)</samp><samp class="mono"> == '()</samp></p>
+</div>
+<p class="tni">holds. We can use the law of substitution from intermezzo 1 and continue computing with the body of the function. Like so many times, the parameters, <samp class="mono">R</samp>, <samp class="mono">l</samp>, and <samp class="mono">t</samp>, are replaced by their arguments, <samp class="mono">&lt;</samp>, <samp class="mono">'()</samp>, and <samp class="mono">5</samp>, respectively. From here, it is plain arithmetic, starting with the conditionals:</p>
+<figure class="co"><img src="../images/00331.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Next we look at a one-item list:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(extract &lt;</samp><samp class="mono"> (cons 4</samp><samp class="mono"> '()) 5)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_394" title="394"></span>The result should be <samp class="mono">(cons 4 '())</samp> because the only item of this list is <samp class="mono">4</samp> and <samp class="mono">(&lt; 4 5)</samp> is true. Here is the first step of the evaluation:</p>
+<figure class="co"><img src="../images/00332.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Again, all occurrences of <samp class="mono">R</samp> are replaced by <samp class="mono">&lt;</samp>, <samp class="mono">l</samp> by <samp class="mono">(cons 4 '())</samp>, and <samp class="mono">t</samp> by <samp class="mono">5</samp>. The rest is straightforward:</p>
+<figure class="co"><img src="../images/00333.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_395" title="395"></span>This is the key step, with <samp class="mono">&lt;</samp> used after being substituted into this position. And it continues with arithmetic:</p>
+<figure class="co"><img src="../images/00334.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The last step is the equation from above, meaning we can apply the law of substituting equals for equals.</p>
+<p class="calibre8">Our final example is an application of <samp class="mono">extract</samp> to a list of two items:</p>
+<figure class="co"><img src="../images/00335.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Step 1 is new. It deals with the case that <samp class="mono">extract</samp> eliminates the first item on the list if it is not below the threshold.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 246. Check step 1 of the last calculation</p>
+<figure class="co"><img src="../images/00336.gif" alt="" class="calibre10"/></figure>
+<p class="tni">using DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_396" title="396"></span><b class="calibre9">Exercise</b> 247. Evaluate <samp class="mono">(extract &lt; (cons 8 (cons 4 '())) 5)</samp> with DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 248. Evaluate <samp class="mono">(squared&gt;? 3 10)</samp> and <samp class="mono">(squared&gt;? 4 10)</samp> in DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Consider this interaction:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (extract</samp><samp class="mono"> squared&gt;? (list</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5) 10)</samp> <br class="calibre4"/><samp class="mono">(list 4</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="tni">Here are some steps as the stepper would show them:</p>
+<figure class="co"><img src="../images/00337.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Use the stepper to confirm the step from lines (1) to (2). Continue the stepping to fill in the gaps between steps (2) and (3). Explain each step as the use of a law.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 249. Functions are values: arguments, results, items in lists. Place the following definitions and expressions into DrRacket’s definitions window and use the stepper to find out how running this program works:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_397" title="397"></span><samp class="mono">(define (f</samp><samp class="mono"> x) x)</samp> <br class="calibre4"/><samp class="mono">(cons f</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">(f f)</samp> <br class="calibre4"/><samp class="mono">(cons f</samp><samp class="mono"> (cons 10</samp><samp class="mono"> (cons (f</samp><samp class="mono"> 10) '())))</samp></p>
+</div>
+<p class="tni">The stepper displays functions as <samp class="mono">lambda</samp> expressions; see chapter 17. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

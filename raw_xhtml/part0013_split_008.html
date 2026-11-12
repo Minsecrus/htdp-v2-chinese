@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_9"><a id="sec26-3" class="calibre16"></a>26.3 Structural versus Generative Recursion</h2>
+<p class="tni">The template for algorithms is so general that it includes structurally recursive functions. Consider the left side of <a id="rfig153" href="part0013_split_008.html#fig153" class="calibre5">figure 153</a>. This template is specialized to deal with one trivial clause and one generative step. If we replace <samp class="mono">trivial?</samp> with <samp class="mono">empty?</samp> and <samp class="mono">generate</samp> with <samp class="mono">rest</samp>, we get a template for list-processing functions; see the right side of <a href="part0013_split_008.html#fig153" class="calibre5">figure 153</a>.</p>
+<div class="figure">
+<figure class="img"><a id="fig153" class="calibre5"></a><img src="../images/00596.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_008.html#rfig153" class="calibre5">Figure 153</a>:</span> <span>From generative to structural recursion</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 437. Define <samp class="mono">solve</samp> and <samp class="mono">combine-solutions</samp> so that</p>
+<p class="blf">•  <samp class="mono">special</samp> computes the length of its input,</p>
+<p class="blf">•  <samp class="mono">special</samp> negates each number on the given list of numbers, and</p>
+<p class="bll">•  <samp class="mono">special</samp> uppercases the given list of strings.</p>
+<p class="tni">What do you conclude from these exercises? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Now you may wonder whether there is a real difference between structural recursive design and the one for generative recursion. Our answer is “it depends.” Of course, we could say that all functions using structural recursion are just special cases of generative recursion. This “everything is equal” attitude, however, is of no help if we wish to understand the process of designing functions. It confuses two kinds of design that require different forms of knowledge and that have different consequences. One relies <span epub:type="pagebreak" id="pg_622" title="622"></span>on a systematic data analysis and not much more; the other requires a deep, often mathematical, insight into the problem-solving process itself. One leads programmers to naturally terminating functions; the other requires a termination argument. Conflating these two approaches is unhelpful.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,765 @@
+# Chapter 32: Designing Accumulator-Style Functions / 第 32 章：累加器风格函数设计
+
+<h1>
+32 Designing Accumulator-Style Functions
+</h1>
+
+<P>
+The preceding chapter illustrates the need for accumulating extra knowledge with two examples. In one case, accumulation makes it easy to understand the function and yields one that is far faster than the original version. In the other case, accumulation is necessary for the function to work properly. In both cases, though, the need for accumulation becomes only apparent once a properly designed function exists.
+</P>
+
+<P>
+Generalizing from the preceding chapter suggests that the design of accumulator functions has two major aspects:
+</P>
+
+<P>
+1. the recognition that a function benefits from an accumulator; and
+</P>
+
+<P>
+2. an understanding of what the accumulator represents.
+</P>
+
+<P>
+The first two sections address these two questions. Because the second one is a difficult topic, the third section illustrates it with a series of examples that convert regular functions into accumulating ones.
+</P>
+
+<h2>
+32.1 Recognizing the Need for an Accumulator
+</h2>
+
+<P>
+Recognizing the need for accumulators is not an easy task. We have seen two reasons, and they are the most prevalent ones. In either case, it is critical that we first built a complete function based on a conventional design recipe. Then we study the function and proceed as follows:
+</P>
+
+<P>
+1. If a structurally recursive function traverses the result of its natural recursion with an auxiliary, recursive function, consider the use of an accumulator parameter.
+</P>
+
+<P>
+Take a look at the definition of invert in figure 182. The result of the recursive application produces the reverse of the rest of the list. It uses add-as-last to add the first item to this reversed list and thus creates the reverse of the entire list. This second, auxiliary function is also recursive. We have thus identified an accumulator candidate.
+</P>
+
+<FIGURE src="images/00727.png">
+Figure 182: Design with accumulators, a structural example
+</FIGURE>
+
+<P>
+It is now time to study some hand-evaluations, as in chapter 31.1, to see whether an accumulator helps. Consider the following:
+</P>
+
+<P>
+(invert '(a b c)) == (add-as-last 'a (invert '(b c))) == (add-as-last 'a (add-as-last 'b (invert '(c)))) == … == (add-as-last 'a (add-as-last 'b '(c))) == (add-as-last 'a '(c b)) == '(c b a)
+</P>
+
+<P>
+Stop! Replace the dots with the two missing steps. Then you can see that invert eventually reaches the end of the given list—just like add-as-last—and if it knew which items to put there, there would be no need for the auxiliary function.
+</P>
+
+<P>
+2. If we are dealing with a function based on generative recursion, we are faced with a much more difficult task. Our goal must be to understand whether the algorithm can fail to produce a result for inputs for which we expect a result. If so, adding a parameter that accumulates knowledge may help. Because these situations are complex, we defer the discussion of an example to chapter 33.
+</P>
+
+<EXERCISE>
+Exercise 493. Argue that, in the terminology of intermezzo 5, invert consumes O(n2) time when the given list consists of n items.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 494. Does the insertion sort> function from chapter 11.3 need an accumulator? If so, why? If not, why not?
+</EXERCISE>
+
+<h2>
+32.2 Adding Accumulators
+</h2>
+
+<P>
+Once you have decided that an existing function should be equipped with an accumulator, take these two steps:
+</P>
+
+<P>
+•  Determine the knowledge that the accumulator represents, what kind of data to use, and how the knowledge is acquired as data.
+</P>
+
+<P>
+For example, for the conversion of relative distances to absolute distances, it suffices to accumulate the total distance encountered so far. As the function processes the list of relative distances, it adds each new relative distance found to the accumulator’s current value. For the routing problem, the accumulator remembers every node encountered. As the path-checking function traverses the graph, it conses each new node on to the accumulator.
+</P>
+
+<P>
+In general, you will want to proceed as follows.
+</P>
+
+<P>
+1. Create an accumulator template:
+</P>
+
+<FIGURE src="images/00728.png">
+
+</FIGURE>
+
+<P>
+Sketch a manual evaluation of an application of function to understand the nature of the accumulator.
+</P>
+
+<P>
+2. Determine the kind of data that the accumulator tracks.
+</P>
+
+<P>
+Write down a statement that explains the accumulator as a relationship between the argument d of the auxiliary function/a and the original argument d0.
+</P>
+
+<P>
+Note The relationship remains constant, also called invariant, over the course of the evaluation. Because of this property, an accumulator statement is often called an invariant.
+</P>
+
+<P>
+3. Use the invariant to determine the initial value a0 for a.
+</P>
+
+<P>
+4. Also exploit the invariant to determine how to compute the accumulator for the recursive function calls within the definition of function/a.
+</P>
+
+<P>
+•  Exploit the accumulator’s knowledge for the design of function/a.
+</P>
+
+<P>
+For a structurally recursive function, the accumulator’s value is typically used in the base case, that is, the cond clause that does not recur. For functions that use generative-recursive functions, the accumulated knowledge might be used in an existing base case, in a new base case, or in the cond clauses that deal with generative recursion.
+</P>
+
+<P>
+As you can see, the key is the precise description of the role of the accumulator. It is therefore important to practice this skill.
+</P>
+
+<P>
+Let’s take a look at the invert example:
+</P>
+
+<FIGURE src="images/00729.png">
+
+</FIGURE>
+
+<P>
+As illustrated in the preceding section, this template suffices to sketch a manual evaluation of an example such as
+</P>
+
+<CODE>
+(invert '(a b c))
+</CODE>
+
+<P>
+Here is the idea:
+</P>
+
+<FIGURE src="images/00730.png">
+
+</FIGURE>
+
+<P>
+This sketch suggests that invert/a can keep track of all the items it has seen in a list that tracks the difference between alox0 and a in reverse order. The initial value is clearly '(); updating the accumulator inside of invert/a with cons produces exactly the desired value when invert/a reaches '().
+</P>
+
+<P>
+Here is a refined template that includes these insights:
+</P>
+
+<FIGURE src="images/00731.png">
+
+</FIGURE>
+
+<P>
+While the body of the local definition initializes the accumulator with '(), the recursive call uses cons to add the current head of alox to the accumulator. In the base case, invert/a uses the knowledge in the accumulator, the reversed list.
+</P>
+
+<P>
+Note how, once again, invert.v2 merely traverses the list. In contrast, invert reprocesses every result of its natural recursion with add-as-last. Stop! Measure how much faster invert.v2 runs than invert.
+</P>
+
+<P>
+Terminology Programmers use the phrase accumulator-style function to discuss functions that use an accumulator parameter. Examples of functions in accumulator style are relative->absolute/a, invert/a, and path-exists?/a.
+</P>
+
+<h2>
+32.3 Transforming Functions into Accumulator Style
+</h2>
+
+<P>
+Articulating the accumulator statement is difficult, but, without formulating a good invariant, it is impossible to understand an accumulator-style function. Since the goal of a programmer is to make sure that others who follow understand the code easily, practicing this skill is critical. And formulating invariants deserves a lot of practice.
+</P>
+
+<P>
+The goal of this section is to study the formulation of accumulator statements with three case studies: a summation function, the factorial function, and a tree-traversal function. Each such case is about the conversion of a structurally recursive function into accumulator style. None actually calls for the use of an accumulator parameter. But they are easily understood and, with the elimination of all other distractions, using such examples allows us to focus on the articulation of the accumulator invariant.
+</P>
+
+<P>
+For the first example, consider these definitions of the sum function:
+</P>
+
+<FIGURE src="images/00732.png">
+
+</FIGURE>
+
+<P>
+Here is the first step toward an accumulator version:
+</P>
+
+<FIGURE src="images/00733.png">
+
+</FIGURE>
+
+<P>
+Stop! Supply a signature and a test case that works for both.
+</P>
+
+<P>
+As suggested by our first step, we have put the template for sum/a into a local definition, added an accumulator parameter, and renamed the parameter of sum.
+</P>
+
+<P>
+Figure 183 shows two side-by-side sketches of hand-evaluations. A comparison immediately suggests the central idea, namely, that sum/a can use the accumulator to add up the numbers it encounters. Concerning the accumulator invariant, the calculations suggest a represents the sum of the numbers encountered so far:
+</P>
+
+<FIGURE src="images/00734.png">
+Figure 183: Calculating with accumulator-style templates
+</FIGURE>
+
+<P>
+a is the sum of the numbers that alon lacks from alon0
+</P>
+
+<P>
+For example, the invariant forces the following relationships to hold:
+</P>
+
+<FIGURE src="images/00735.png">
+
+</FIGURE>
+
+<P>
+Given this precise invariant, the rest of the design is straightforward:
+</P>
+
+<FIGURE src="images/00736.png">
+
+</FIGURE>
+
+<P>
+If alon is '(), sum/a returns a because it represents the sum of all numbers on alon. The invariant also implies that 0 is the initial value for a0 and + updates the accumulator by adding the number that is about to be “forgotten”—(first alox)—to the accumulator a.
+</P>
+
+<EXERCISE>
+Exercise 495. Complete the manual evaluation of (sum/a '(10 4) 0) in figure 182. Doing so shows that the sum and sum.v2 add up the given numbers in reverse order. While sum adds up the numbers from right to left, the accumulator-style version adds them up from left to right.
+</EXERCISE>
+
+<P>
+Note on Numbers Remember that for exact numbers, this difference has no effect on the final result. For inexact numbers, the difference can be significant. See the exercises at the end of intermezzo 5.
+</P>
+
+<P>
+For the second example, we turn to the well-known factorial function:
+</P>
+
+<FIGURE src="images/00737.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+The factorial function is useful for the analysis of algorithms.
+</MARGIN_NOTE>
+
+<P>
+While relative-2-absolute and invert processed lists, the factorial function works on natural numbers, which its template reflects.
+</P>
+
+<P>
+We proceed as before with a template for an accumulator-style version:
+</P>
+
+<FIGURE src="images/00738.png">
+
+</FIGURE>
+
+<P>
+followed by a sketch of a hand-evaluation:
+</P>
+
+<FIGURE src="images/00739.png">
+
+</FIGURE>
+
+<P>
+The left column indicates how the original version works; the right one sketches how the accumulator-style function proceeds. Both structurally traverse a natural number until they reach 0. While the original version schedules only multiplications, the accumulator keeps track of each number as the structural traversal descends through the given natural number.
+</P>
+
+<P>
+Given the goal of multiplying these numbers, !/a can use the accumulator to multiply the numbers immediately:
+</P>
+
+<P>
+a is the product of the natural numbers in the interval [n0,n).
+</P>
+
+<P>
+In particular, when n0 is 3 and n is 1, a is 6.
+</P>
+
+<EXERCISE>
+Exercise 496. What should the value of a be when n0 is 3 and n is 1? How about when n0 is 10 and n is 8?
+</EXERCISE>
+
+<P>
+Using this invariant we can easily pick the initial value for a—it is 1—and we know that multiplying the current accumulator with n is the proper update operation:
+</P>
+
+<FIGURE src="images/00740.png">
+
+</FIGURE>
+
+<P>
+It also follows from the accumulator statement that when n is 0, the accumulator is the product of n through 1, meaning it is the desired result. So, like sum, !/a returns a in this case and uses the result of the recursion in the second case.
+</P>
+
+<EXERCISE>
+Exercise 497. Like sum, !.v1 performs the primitive computations, multiplication in this case, in reverse order. Surprisingly, this affects the performance of the function in a negative manner.
+</EXERCISE>
+
+<P>
+Measure how long it takes to evaluate (!.v1 20) 1,000 times. Recall that (time an-expression) function determines how long it takes to run an-expression.
+</P>
+
+<P>
+For the third and last example, we use a function that measures the height of simplified binary trees. The example illustrates that accumulator-style programming applies to all kinds of data, not just those defined with single self-references. Indeed, it is as commonly used for complicated data definitions as it is for lists and natural numbers.
+</P>
+
+<P>
+Here are the relevant definitions:
+</P>
+
+<CODE>
+(define-struct node [left right]) ; A Tree is one of: ; -- '() ; -- (make-node Tree Tree) (define example   (make-node (make-node '() (make-node '() '())) '()))
+</CODE>
+
+<P>
+These trees carry no information; their leafs are '(). Still, there are many different trees, as figure 184 shows; it also uses suggestive graphics to bring across what these pieces of data look like as trees.
+</P>
+
+<FIGURE src="images/00741.png">
+Figure 184: Some stripped-down binary trees
+</FIGURE>
+
+<P>
+One property that one may wish to compute is the height of such a tree:
+</P>
+
+<FIGURE src="images/00742.png">
+
+</FIGURE>
+
+<P>
+Stop! Supply a signature and a test. The table in figure 184 indicates how to measure the height of a tree, though it leaves the notion somewhat ambiguous: it is either the number of nodes from the root of the tree to the highest leaf or the number of connections on such a path. The height function follows the second option.
+</P>
+
+<P>
+To transform this function into an accumulator-style function, we follow the standard path. We begin with an appropriate template:
+</P>
+
+<FIGURE src="images/00743.png">
+
+</FIGURE>
+
+<P>
+As always, the problem is to determine what knowledge the accumulator represents. One obvious choice is the number of traversed branches:
+</P>
+
+<P>
+a is the number of steps it takes to reach abt from abt0.
+</P>
+
+<P>
+Illustrating this accumulator invariant is best done with a graphical example. Take a second look at figure 184. The bottom-most tree comes with two annotations, each pointing out one subtree:
+</P>
+
+<P>
+1. If abt0 is the complete tree and abt is the subtree pointed to by the circled 1, the accumulator’s value must be 1 because it takes exactly one step to get from the root of abt to the root of abt0.
+</P>
+
+<P>
+2. In the same spirit, for the subtree labeled 2 the accumulator is 2 because it takes two steps to get to this place.
+</P>
+
+<P>
+As for the preceding two examples, the invariant basically dictates how to follow the rest of the design recipe for accumulators: the initial value for a is 0; the update operation is add1; and the base case uses the accumulated knowledge by returning it. Translating this into code yields the following skeleton definition:
+</P>
+
+<FIGURE src="images/00744.png">
+
+</FIGURE>
+
+<P>
+But, in contrast to the first two examples, a is not the final result. In the second cond clause, the two recursive calls yield two values. The design recipe for structural functions dictates that we combine those in order to formulate an answer for this case; the dots above indicate that we still need to pick an operation that combines these values.
+</P>
+
+<P>
+Following the design recipe also tells us that we need to interpret the two values to find the appropriate function. According to the purpose statement for height/a, the first value is the height of the left subtree, and the second one is the height of the right one. Given that we are interested in the height of abt itself and that the height is the largest number of steps it takes to reach a leaf, we use the max function to pick the proper one; see figure 185 for the complete definition.
+</P>
+
+<FIGURE src="images/00745.png">
+Figure 185: The accumulator-style version of height
+</FIGURE>
+
+<P>
+Note on an Alternative Design In addition to counting the number of steps it takes to reach a node, an accumulator function could hold on to the largest height encountered so far. Here is the accumulator statement for the design idea:
+</P>
+
+<P>
+The first accumulator represents the number of steps it takes to reach abt from (the root of) abt0. The second one stands for the height of the part in abt0 that is strictly to to the left of abt.
+</P>
+
+<P>
+Clearly, this statement assumes a template with two accumulator parameters, something we have not encountered before:
+</P>
+
+<FIGURE src="images/00746.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 498. Complete height.v3. Hint The bottom-most tree of figure 184 contains no subtree to the left of the subtree marked with 1. It contains one complete path from root to tree in the part of the tree that is to the left of the subtree marked with 2; this path consists of two steps.
+</EXERCISE>
+
+<P>
+This second design has a more complex accumulator invariant than the first one. By implication, its implementation requires more care than the first one. At the same time, it comes without any obvious advantages.
+</P>
+
+<P>
+Our point is that different accumulator invariants yield different variants. You can design both variants systematically, following the same design recipe. When you have complete function definitions, you can compare and contrast the results, and you can then decide which one to keep, based on evidence. End
+</P>
+
+<EXERCISE>
+Exercise 499. Design an accumulator-style version of product, the function that computes the product of a list of numbers. Stop when you have formulated the accumulator invariant and have someone check it.
+</EXERCISE>
+
+<P>
+The performance of product is O(n) where n is the length of the list. Does the accumulator version improve on this?
+</P>
+
+<EXERCISE>
+Exercise 500. Design an accumulator-style version of how-many, which is the function that determines the number of items on a list. Stop when you have formulated the invariant and have someone check it.
+</EXERCISE>
+
+<P>
+The performance of how-many is O(n) where n is the length of the list. Does the accumulator version improve on this?
+</P>
+
+<MARGIN_NOTE>
+Computer scientists refer to this space as stack space, but you can safely ignore this terminology for now.
+</MARGIN_NOTE>
+
+<P>
+When you evaluate (how-many some-non-empty-list) by hand, n applications of add1 are pending by the time the function reaches '()—where n is the number of items on the list. Computer scientists sometime say that how-many needs O(n) space to represent these pending function applications. Does the accumulator reduce the amount of space needed to compute the result?
+</P>
+
+<EXERCISE>
+Exercise 501. Design an accumulator-style version of add-to-pi. The function adds a natural number to pi without using +:
+</EXERCISE>
+
+<CODE>
+; N -> Number ; adds n to pi without using + (check-within (add-to-pi 2) (+ 2 pi) 0.001) (define (add-to-pi n)   (cond     [(zero? n) pi]     [else (add1 (add-to-pi (sub1 n)))]))
+</CODE>
+
+<P>
+Stop when you have formulated the accumulator invariant and have someone check it.
+</P>
+
+<EXERCISE>
+Exercise 502. Design the function palindrome, which accepts a non-empty list and constructs a palindrome by mirroring the list around the last item. When given (explode "abc"), it yields (explode "abcba").
+</EXERCISE>
+
+<P>
+Hint Here is a solution designed by function composition:
+</P>
+
+<FIGURE src="images/00747.png">
+
+</FIGURE>
+
+<P>
+See chapter 11.4 for last; design all-but-last in an analogous manner.
+</P>
+
+<P>
+This solution traverses s0 four times:
+</P>
+
+<P>
+1. via all-but-last,
+</P>
+
+<P>
+2. via last,
+</P>
+
+<P>
+3. via all-but-last again, and
+</P>
+
+<P>
+4. via reverse, which is ISL+’s version of invert.
+</P>
+
+<P>
+Even with local definition for the result of all-but-last, the function needs three traversals. While these traversals aren’t “stacked” and therefore don’t have a disastrous impact on the function’s performance, an accumulator version can compute the same result with a single traversal.
+</P>
+
+<EXERCISE>
+Exercise 503. Exercise 467 implicitly asks for the design of a function that rotates a Matrix until the first coefficient of the first row differs from 0. In the context of Exercise 467, the solution calls for a generative-recursive function that creates a new matrix by shifting the first row to the end when it encounters a 0 in the first position. Here is the solution:
+</EXERCISE>
+
+<FIGURE src="images/00748.png">
+
+</FIGURE>
+
+<P>
+Stop! Modify this function so that it signals an error when all rows start with 0.
+</P>
+
+<P>
+If you measure this function on large instances of Matrix, you get a surprising result:
+</P>
+
+<FIGURE src="images/00749.png">
+
+</FIGURE>
+
+<P>
+As the number of rows increases from 1,000 to 5,000, the time spent by rotate does not increase by a factor of five but by twenty.
+</P>
+
+<P>
+The problem is that rotate uses append, which makes a brand-new list like (rest M) only to add (first M) at the end. If M consists of 1,000 rows and the last row is the only one with a non-0 coefficient, that’s roughly
+</P>
+
+<FIGURE src="images/00750.png">
+
+</FIGURE>
+
+<P>
+lists. How many lists do we get if M consists of 5,000 lines?
+</P>
+
+<P>
+Now suppose we conjecture that the accumulator-style version is faster than the generative one. Here is the accumulator template for a structurally recursive version of rotate:
+</P>
+
+<FIGURE src="images/00751.png">
+
+</FIGURE>
+
+<P>
+The goal is to remember the first row when its leading coefficient is 0 without using append for every recursion.
+</P>
+
+<P>
+Formulate an accumulator statement. Then follow the accumulator design recipe to complete the above function. Measure how fast it runs on a Matrix that consists of rows with leading 0s except for the last one. If you completed the design correctly, the function is quite fast.
+</P>
+
+<EXERCISE>
+Exercise 504. Design to10. It consumes a list of digits and produces the corresponding number. The first item on the list is the most significant digit. Hence, when applied to '(1 0 2), it produces 102.
+</EXERCISE>
+
+<P>
+Domain Knowledge You may recall from grade school that the result is determined by 1 · 102 + 0 · 101 + 2 · 100 = ((1 · 10 + 0) · 10) + 2 = 102.
+</P>
+
+<EXERCISE>
+Exercise 505. Design the function is-prime, which consumes a natural number and returns #true if it is prime and #false otherwise.
+</EXERCISE>
+
+<P>
+Domain Knowledge A number n is prime if it is not divisible by any number between n - 1 and 2.
+</P>
+
+<P>
+Hint The design recipe for N [ >=1] suggests the following template:
+</P>
+
+<FIGURE src="images/00752.png">
+
+</FIGURE>
+
+<P>
+This template immediately tells you that the function forgets n, its initial argument as it recurs. Since n is definitely needed to determine whether n is divisible by (- n 1), (- n 2), and so on, you know that you need an accumulator-style function.
+</P>
+
+<P>
+Note on Speed Programmers who encounter accumulator-style functions for the first time often get the impression that they are always faster than their plain counterparts. So let’s take a look at the solution of exercise 497:
+</P>
+
+<FIGURE src="images/00753.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+An explanation of these times is beyond the scope of this book.
+</MARGIN_NOTE>
+
+<P>
+The table’s top row shows the number of seconds for five runs of (!.v1 20), while the bottom one lists those of running (!.v2 20). The last column shows the averages. In short, the table shows that people jump to premature conclusions; the performance of at least one accumulator-style function is worse than that of the original. Do not trust prejudices. Instead, measure performance characteristics of your programs for yourself. End
+</P>
+
+<EXERCISE>
+Exercise 506. Design an accumulator-style version of map.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 507. Exercise 257 explains how to design foldl with the design recipes and guidelines of the first two parts of the book:
+</EXERCISE>
+
+<FIGURE src="images/00754.png">
+
+</FIGURE>
+
+<P>
+That is, foldl is the result of reversing the given list and then using foldr to fold the given function over this intermediate list.
+</P>
+
+<P>
+The f*ldl function obviously traverses the list twice, but once we design all the functions, it becomes clear how much harder it has to work:
+</P>
+
+<FIGURE src="images/00755.png">
+
+</FIGURE>
+
+<P>
+We know that reverse has to traverse a list once for every item on the list, meaning f*ldl really performs n2 traversals for a list of length n. Fortunately, we know how to eliminate this bottleneck with an accumulator:
+</P>
+
+<FIGURE src="images/00756.png">
+
+</FIGURE>
+
+<P>
+Once reverse uses an accumulator, we actually get the apparent performance of two traversals of the list. The question is whether we can improve on this by adding an accumulator to the locally defined fold:
+</P>
+
+<FIGURE src="images/00757.png">
+
+</FIGURE>
+
+<P>
+Since equipping the function with an accumulator reverses the order in which the list is traversed, the initial reversal of the list is superfluous.
+</P>
+
+<P>
+Task 1 Recall the signature for foldl:
+</P>
+
+<CODE>
+; [X Y] [X Y -> Y] Y [List-of X] -> Y
+</CODE>
+
+<P>
+It is also the signature of f*ldl. Formulate the signature for fold/a and its accumulator invariant. Hint Assume that the difference between l0 and l is (list x1 x2 x3). What is a, then?
+</P>
+
+<P>
+You may also be wondering why fold/a consumes its arguments in this unusual order, first the accumulator and then the list. To understand the reason for this ordering, imagine instead that fold/a also consumes f—as the first argument. At this point it becomes abundantly clear that fold/a is foldl:
+</P>
+
+<FIGURE src="images/00758.png">
+
+</FIGURE>
+
+<P>
+Task 2 Design build-l*st using an accumulator-style approach. The function must satisfy the following tests:
+</P>
+
+<CODE>
+(check-expect (build-l*st n f) (build-list n f))
+</CODE>
+
+<P>
+for any natural number n and function f.
+</P>
+
+<h2>
+32.4 A Graphical Editor, with Mouse
+</h2>
+
+<P>
+Chapter 5.10 introduces the notion of a one-line editor and presents a number of exercises on creating a graphical editor. Recall that a graphical editor is an interactive program that interprets key events as editing actions on a string. In particular, when a user presses the left or right arrow keys, the cursor moves left or right; similarly, pressing the delete key removes a 1String from the edited text. The editor program uses a data representation that combines two strings in a structure. Chapter 10.4 resumes these exercises and shows how the same program can greatly benefit from a different data structure, one that combines two strings.
+</P>
+
+<P>
+Neither of these sections deals with mouse actions for navigation, even though all modern applications support this functionality. The basic difficulty with mouse events is to place the cursor at the appropriate spot. Since the program deals with a single line of text, a mouse click at (x,y) clearly aims to place the cursor between the letters that are visible at or around the x position. This section fills the gap.
+</P>
+
+<P>
+Recall the relevant definitions from chapter 10.4:
+</P>
+
+<CODE>
+(define FONT-SIZE 11) (define FONT-COLOR "black") ; [List-of 1String] -> Image ; renders a string as an image for the editor (define (editor-text s)   (text (implode s) FONT-SIZE FONT-COLOR)) (define-struct editor [pre post]) ; An Editor is a structure: ;    (make-editor [List-of 1String] [List-of 1String]) ; interpretation if (make-editor p s) is the state of ; an interactive editor, (reverse p) corresponds to ; the text to the left of the cursor and s to the ; text on the right
+</CODE>
+
+<EXERCISE>
+Exercise 508. Design split-structural using the structural design recipe. The function consumes a list of 1Strings ed and a natural number x; the former represents the complete string in some Editor and the latter the x-coordinate of the mouse click. The function produces
+</EXERCISE>
+
+<CODE>
+(make-editor p s)
+</CODE>
+
+<P>
+such that (1) p and s make up ed and (2) x is larger than the image of p and smaller than the image of p extended with the first 1String on s (if any).
+</P>
+
+<P>
+Here is the first condition expressed with an ISL+ expression:
+</P>
+
+<CODE>
+(string=? (string-append p s) ed)
+</CODE>
+
+<P>
+The second one is
+</P>
+
+<CODE>
+(<= (image-width (editor-text p))     x     (image-width (editor-text (append p (first s)))))
+</CODE>
+
+<P>
+assuming (cons? s).
+</P>
+
+<P>
+Hints (1) The x-coordinate measures the distance from the left. Hence the function must check whether smaller and smaller prefixes of ed fit into the given width. The first one that doesn’t fit corresponds to the pre field of the desired Editor, the remainder of ed to the post field.
+</P>
+
+<P>
+(2) Designing this function calls for thoroughly developing examples and tests. See chapter 4.
+</P>
+
+<EXERCISE>
+Exercise 509. Design the function split. Use the accumulator design recipe to improve on the result of exercise 508. After all, the hints already point out that when the function discovers the correct split point, it needs both parts of the list, and one part is obviously lost due to recursion.
+</EXERCISE>
+
+<P>
+Once you have solved this exercise, equip the main function of chapter 10.4 with a clause for mouse clicks. As you experiment with moving the cursor via mouse clicks, you will notice that it does not exactly behave like applications that you use on your other devices—even though split passes all its tests.
+</P>
+
+<P>
+Graphical programs, like editors, call for experimentation to come up with the best “look and feel” experiences. In this case, your editor is too simplistic with its placement of the cursor. After the applications on your computer determine the split point, they also determine which letter division is closer to the x-coordinate and place the cursor there.
+</P>
+
+<EXERCISE>
+Exercise 510. Many operating systems come with the fmt program, which can rearrange the words in a file so that all lines in the resulting file have a maximal width. As a widely used program, fmt supports a range of related functions. This exercise focuses on its core functionality.
+</EXERCISE>
+
+<P>
+Design the program fmt. It consumes a natural number w, the name of an input file in-f, and the name of an output file out-f—in the same sense as read-file from the 2htdp/batch-io library. Its purpose is to read all the words from the in-f, to arrange these words in the given order into lines of maximal width w, and to write these lines to out-f.
+</P>

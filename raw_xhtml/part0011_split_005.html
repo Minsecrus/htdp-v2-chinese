@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_6"><a id="sec19-3" class="calibre16"></a>19.3 S-expressions</h2>
+<p class="tni">While intermezzo 2 introduced S-expressions on an informal basis, it is possible to describe them with a combination of three data definitions:</p>
+<figure class="co"><img src="../images/00464.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Recall that Symbols look like strings with a single quote at the beginning and with no quote at the end.</p>
+<p class="calibre8">The idea of S-expressions is due to John McCarthy and his Lispers, who created S-expressions in 1958 so that they could process Lisp programs with other Lisp programs. This seemingly circular reasoning may sound esoteric, but, as mentioned in intermezzo 2, S-expressions are a versatile form of data that is often rediscovered, most recently with applications to the world wide web. Working with S-expressions thus prepares a discussion of how to design functions for highly intertwined data definitions.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 316. Define the <samp class="mono">atom?</samp> function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Up to this point in this book, no data has required a data definition as complex as the one for S-expressions. And yet, with one extra hint, you can <span epub:type="pagebreak" id="pg_500" title="500"></span>design functions that process S-expressions if you follow the design recipe. To demonstrate this point, let’s work through a specific example:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design the function <samp class="mono">count</samp>, which determines how many times some symbol occurs in some S-expression.</p>
+</div>
+<p class="tni">While the first step calls for data definitions and appears to have been completed, remember that it also calls for the creation of data examples, especially when the definition is complex.</p>
+<p class="calibre8">A data definition is supposed to be a prescription of how to create data, and its “test” is whether it is usable. One point that the data definition for S-expr makes is that every Atom is an element of S-expr, and you know that Atoms are easy to fabricate:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">'hello<br class="calibre4"/>20.12</samp><br class="calibre4"/><samp class="mono">"world"</samp></p>
+</div>
+<p class="tni">In the same vein, every SL is a list as well as an S-expr:</p>
+<figure class="co"><img src="../images/00465.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The first two are obvious; the third one deserves a second look. It repeats the second S-expr but nested inside <samp class="mono">(cons<span>…</span> '())</samp>. What this means is that it is a list that contains a single item, namely, the second example. You can simplify the example with <samp class="mono">list</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(list (cons</samp><samp class="mono"> 'hello (cons</samp><samp class="mono"> 20.12 (cons</samp><samp class="mono"> "world" '()))))</samp><samp class="mono"> <br class="calibre4"/>; or</samp><br class="calibre4"/><samp class="mono">(list</samp> <samp class="mono">(list 'hello</samp><samp class="mono"> 20.12 "world"))</samp></p>
+</div>
+<p class="calibre8">Indeed, with the quotation mechanism of intermezzo 2 it is even easier to write down S-expressions. Here are the last three:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; '()</samp> <br class="calibre4"/><samp class="mono">'()</samp> <br class="calibre4"/><samp class="mono">&gt; '(hello</samp><samp class="mono"> 20.12 "world")</samp> <br class="calibre4"/><samp class="mono">(list 'hello</samp><samp class="mono"> #i20.12 "world")</samp> <br class="calibre4"/><samp class="mono">&gt; '((hello</samp><samp class="mono"> 20.12 "world"))</samp> <br class="calibre4"/><samp class="mono">(list (list</samp><samp class="mono"> 'hello #i20.12</samp><samp class="mono"> "world"))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_501" title="501"></span>To help you out, we evaluate these examples in the interactions area of DrRacket so that you can see the result, which is closer to the above constructions than the <samp class="mono">quote</samp> notation.</p>
+<p class="calibre8">With <samp class="mono">quote</samp>, it is quite easy to make up complex examples:</p>
+<figure class="co"><img src="../images/00466.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This example may strike you as odd because it looks like a definition in BSL, but, as the interaction with DrRacket shows, it is just a piece of data. Here is another one:</p>
+<figure class="co"><img src="../images/00467.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This piece of data looks like a table, associating letters with numbers. The last example is a piece of art:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; '(wing</samp><samp class="mono"> (wing body</samp><samp class="mono"> wing) wing)</samp> <br class="calibre4"/><samp class="mono">(list 'wing</samp><samp class="mono"> (list 'wing</samp><samp class="mono"> 'body 'wing)</samp><samp class="mono"> 'wing)</samp></p>
+</div>
+<p class="calibre8">It is now time to write down the rather obvious header for <samp class="mono">count</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>S-expr Symbol<samp class="mono"> -&gt; </samp>N<samp class="mono"> <br class="calibre4"/>; counts</samp><samp class="mono"> all occurrences</samp><samp class="mono"> of</samp> <samp class="mono">sy in</samp><samp class="mono"> sexp <br class="calibre4"/>(define</samp><samp class="mono"> (count sexp</samp><samp class="mono"> sy)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></p>
+</div>
+<p class="tni">Since the header is obvious, we move on to functional examples. If the given S-expr is <samp class="mono">'world</samp> and the to-be-counted symbol is <samp class="mono">'world</samp>, the answer is obviously <samp class="mono">1</samp>. Here are some more examples, immediately formulated as tests:</p>
+<div class="verbatim">
+
+<p class="code-new"><samp class="mono">(check-expect (count</samp><samp class="mono"> 'world 'hello)</samp><samp class="mono"> 0)<br class="calibre4"/>(check-expect</samp><samp class="mono"> (count</samp> <samp class="mono">'(world hello)</samp><samp class="mono"> 'hello) 1)</samp><br class="calibre4"/><samp class="mono">(check-expect (count</samp><samp class="mono"> '(((world) hello)</samp> <samp class="mono">hello) 'hello)</samp><samp class="mono"> 2)</samp></p>
+
+</div>
+<p class="tni">You can see how convenient quotation notation is for test cases. When it comes to templates, however, thinking in terms of <samp class="mono">quote</samp> is disastrous.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_502" title="502"></span>Before we move on to the template step, we need to prepare you for the next generalization of the design recipe:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Hint</b> For intertwined data definitions, create one template per data definition. Create them in parallel. Make sure they refer to each other in the same way the data definitions do. <b class="calibre9">End</b></p>
+</div>
+<p class="tni">This hint sounds more complicated than it is. For our problem, it means we need three templates:</p>
+<p class="nlf">1. one for <samp class="mono">count</samp>, which counts occurrences of symbols in S-exprs;</p>
+<p class="nlf">2. one for a function that counts occurrences of symbols in SLs; and</p>
+<p class="nll">3. one for a function that counts occurrences of symbols in Atoms.</p>
+<p class="calibre8">And here are three partial templates, with conditionals as suggested by the three data definitions:</p>
+<figure class="co"><img src="../images/00468.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The template for <samp class="mono">count</samp> contains a two-pronged conditional because the data definition for S-expr has two clauses. It uses the <samp class="mono">atom?</samp> function to distinguish the case for Atoms from the case for SLs. The template named <samp class="mono">count-sl</samp> consumes an element of SL and a symbol, and because SL is basically a list, <samp class="mono">count-sl</samp> also contains a two-pronged <samp class="mono">cond</samp>. Finally, <samp class="mono">count-atom</samp> is supposed to work for both Atoms and Symbols. And this means that its template checks for the three distinct forms of data mentioned in the data definition of Atom.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_503" title="503"></span>The next step is to take apart compound data in the relevant clauses:</p>
+<figure class="co"><img src="../images/00469.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Why do we add just two selector expressions to <samp class="mono">count-sl</samp>?</p>
+<p class="calibre8">The last step in the template creation process calls for an inspection of self-references in the data definitions. In our context, this means self-references <b class="calibre9">and</b> references from one data definition to another and (possibly) back. Let’s inspect the <samp class="mono">cond</samp> lines in the three templates:</p>
+<p class="nlf">1. The <samp class="mono">atom?</samp> line in <samp class="mono">count</samp> corresponds to the first line in the definition of S-expr. To indicate the cross-reference from here to Atom, we add <samp class="mono">(count-atom sexp sy)</samp>, meaning we interpret <samp class="mono">sexp</samp> as an Atom and let the appropriate function deal with it.</p>
+<p class="nlf">2. Following the same line of thought, the second <samp class="mono">cond</samp> line in <samp class="mono">count</samp> calls for the addition of <samp class="mono">(count-sl sexp sy)</samp>.</p>
+<p class="nlf">3. The <samp class="mono">empty?</samp> line in <samp class="mono">count-sl</samp> corresponds to a line in the data definition that makes no reference to another data definition.</p>
+<p class="nlf">4. In contrast, the <samp class="mono">else</samp> line contains two selector expressions, and each extracts a different kind of value. Specifically, <samp class="mono">(first sl)</samp> is an element of S-expr, which means that we wrap it in <samp class="mono">(count <span>…</span>)</samp>. After all, <samp class="mono">count</samp> is responsible for counting inside of arbitrary S-exprs. Next, <samp class="mono">(rest sl)</samp> corresponds to a self-reference, and we know that we need to deal with those via recursive function calls.</p>
+<p class="nll">5. Finally, all three cases in Atom refer to atomic forms of data. Therefore the <samp class="mono">count-atom</samp> function does not need to change.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_504" title="504"></span><a id="rfig116" href="part0011_split_005.html#fig116" class="calibre5">Figure 116</a> presents the three complete templates. Filling in the blanks in these templates is straightforward, as <a id="rfig117" href="part0011_split_005.html#fig117" class="calibre5">figure 117</a> shows. You ought to be able to explain any random line in the three definitions. For example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">[(atom? sexp)</samp><samp class="mono"> (count-atom sexp</samp><samp class="mono"> sy)]</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig116" class="calibre5"></a><img src="../images/00470.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_005.html#rfig116" class="calibre5">Figure 116</a>:</span> <span>A template for S-expressions</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig117" class="calibre5"></a><img src="../images/00471.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_005.html#rfig117" class="calibre5">Figure 117</a>:</span> <span>A program for S-expressions</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">determines whether <samp class="mono">sexp</samp> is an Atom and, if so, interprets the S-expr as an Atom via <samp class="mono">count-atom</samp>.</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">[else</samp> <br class="calibre4"/><samp class="mono"> (+ (count</samp><samp class="mono"> (first sl)</samp><samp class="mono"> sy) (count-sl</samp><samp class="mono"> (rest sl)</samp><samp class="mono"> sy))]</samp></p>
+</div>
+<p class="tni">means the given list consists of two parts: an S-expr and an SL. By using <samp class="mono">count</samp> and <samp class="mono">count-sl</samp>, the corresponding functions are used to count how often <samp class="mono">sy</samp> appears in each part, and the two numbers are added up—yielding the total number of <samp class="mono">sy</samp>s in all of <samp class="mono">sexp</samp>.</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">[(symbol? at)</samp><samp class="mono"> (if (symbol=?</samp><samp class="mono"> at sy)</samp><samp class="mono"> 1 0)]</samp></p>
+</div>
+<p class="tni">tells us that if an Atom is a Symbol, <samp class="mono">sy</samp> occurs once if it is equal to <samp class="mono">sexp</samp> and otherwise it does not occur at all. Since the two pieces of data are atomic, there is no other possibility.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_505" title="505"></span><b class="calibre9">Exercise</b> 317. A program that consists of three connected functions ought to express this relationship with a <samp class="mono">local</samp> expression.</p>
+<p class="calibre8">Copy and reorganize the program from <a href="part0011_split_005.html#fig117" class="calibre5">figure 117</a> into a single function using <samp class="mono">local</samp>. Validate the revised code with the test suite for <samp class="mono">count</samp>.</p>
+<p class="calibre8">The second argument to the local functions, <samp class="mono">sy</samp>, never changes. It is always the same as the original symbol. Hence you can eliminate it from the local function definitions to tell the reader that <samp class="mono">sy</samp> is a constant across the traversal process. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 318. Design <samp class="mono">depth</samp>. The function consumes an S-expression and determines its depth. An Atom has a depth of <samp class="mono">1</samp>. The depth of a list of S-expressions is the maximum depth of its items plus <samp class="mono">1</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 319. Design <samp class="mono">substitute</samp>. It consumes an S-expression <samp class="mono">s</samp> and two symbols, <samp class="mono">old</samp> and <samp class="mono">new</samp>. The result is like <samp class="mono">s</samp> with all occurrences of <samp class="mono">old</samp> replaced by <samp class="mono">new</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_506" title="506"></span><b class="calibre9">Exercise</b> 320. Reformulate the data definition for S-expr so that the first clause is expanded into the three clauses of Atom and the second clause uses the List-of abstraction. Redesign the <samp class="mono">count</samp> function for this data definition.</p>
+<p class="calibre8">Now integrate the definition of SL into the one for S-expr. Simplify <samp class="mono">count</samp> again. Consider using <samp class="mono">lambda</samp>.</p>
+<p class="calibre8"><b class="calibre9">Note</b> This kind of simplification is not always possible, but experienced programmers tend to recognize such opportunities. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 321. Abstract the data definitions for S-expr and SL so that they abstract over the kinds of Atoms that may appear. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

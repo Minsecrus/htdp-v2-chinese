@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_15"><span epub:type="pagebreak" id="pg_523" title="523" class="calibre1"></span><a id="sec21-1" class="calibre16"></a>21.1 Interpreting Expressions</h2>
+<p class="tni">Our first task is to agree on a data representation for BSL programs. That is, we must figure out how to represent a BSL expression as a piece of BSL data. At first, this sounds strange and unusual, but it is not difficult. Suppose we just want to represent numbers, additions, and multiplications for a start. Clearly, numbers can stand for numbers. An addition expression, however, calls for compound data because it contains two expressions and because it is distinct from a multiplication expression, which also needs a data representation.</p>
+<p class="calibre8">Following chapter 5, a straightforward way to represent additions and multiplications is to define two structure types, each with two fields:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct add</samp><samp class="mono"> [left right])</samp><samp class="mono"> <br class="calibre4"/>(define-struct mul</samp><samp class="mono"> [left right])</samp></p>
+</div>
+<p class="tni">The intention is that the <samp class="mono">left</samp> field contains one operand—the one to the “left” of the operator—and the <samp class="mono">right</samp> field contains the other operand. The following table shows three examples:</p>
+<figure class="co"><img src="../images/00482.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">The next question concerns an expression with sub-expressions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ (*</samp><samp class="mono"> 3 3)</samp><samp class="mono"> (* 4</samp><samp class="mono"> 4))</samp></p>
+</div>
+<p class="tni">The surprisingly simple answer is that fields may contain any value. In this particular case, <samp class="mono">left</samp> and <samp class="mono">right</samp> may contain representations of expressions, and you may nest this as deeply as you wish. See <a id="rfig124" href="part0011_split_014.html#fig124" class="calibre5">figure 124</a> for additional examples.</p>
+<div class="figure">
+<figure class="img"><a id="fig124" class="calibre5"></a><img src="../images/00483.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_014.html#rfig124" class="calibre5">Figure 124</a>:</span> <span>Representing BSL expressions in BSL</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 345. Formulate a data definition for the representation of BSL expressions based on the structure type definitions of <samp class="mono">add</samp> and <samp class="mono">mul</samp>. Let’s use <i class="calibre6">BSL-expr</i> in analogy for S-expr for the new class of data.</p>
+<p class="calibre8">Translate the following expressions into data:</p>
+<p class="nlf">1. <samp class="mono">(+ 10</samp> -1<samp class="mono">0)</samp></p>
+<p class="nlf">2. <samp class="mono">(+ (* 20 3) 33)</samp></p>
+<p class="nll">3. <samp class="mono">(+ (* 3.14 (* 2 3)) (* 3.14 (*</samp> -1 -9<samp class="mono">)))</samp></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_524" title="524"></span>Interpret the following data as expressions:</p>
+<p class="nlf">1. <samp class="mono">(make-add</samp> <samp class="mono">-1 2)</samp></p>
+<p class="nlf">2. <samp class="mono">(make-add (make-mul</samp> <samp class="mono">-2 -3) 33)</samp></p>
+<p class="nll">3. <samp class="mono">(make-mul (make-add 1 (make-mul 2 3)) 3.14</samp><samp class="mono">)</samp> <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="marginpar">Here “interpret” means “translate from data into information.” In contrast, “interpreter” in the title of this chapter refers to a program that consumes the representation of a program and produces its value. While the two ideas are related, they are not the same.</p>
+<p class="calibre8">Now that you have a data representation for BSL programs, it is time to design an evaluator. This function consumes a representation of a BSL expression and produces its value. Again, this function is unlike any you have ever designed so it pays off to experiment with some examples. To this end, either you can use the rules of arithmetic to figure out what the value of an expression is or you can “play” in the interactions area of DrRacket. Take a look at the following table for our examples:</p>
+<figure class="co"><img src="../images/00484.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 346. Formulate a data definition for the class of values to which a representation of a BSL expression can evaluate. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 347. Design <samp class="mono">eval-expression</samp>. The function consumes a representation of a BSL expression and computes its value. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_525" title="525"></span><b class="calibre9">Exercise</b> 348. Develop a data representation for Boolean BSL expressions constructed from <samp class="mono">#true</samp>, <samp class="mono">#false</samp>, <samp class="mono">and</samp>, <samp class="mono">or</samp>, and <samp class="mono">not</samp>. Then design <samp class="mono">eval-bool-expression</samp>, which consumes (representations of) Boolean BSL expressions and computes their values. What kind of values do these Boolean expressions yield? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Convenience and parsing</b> S-expressions offer a convenient way to represent BSL expressions in our programming language:</p>
+<figure class="co"><img src="../images/00485.gif" alt="" class="calibre10"/></figure>
+<p class="tni">By simply putting a quote in front of an expression, we get ISL+ data.</p>
+<p class="calibre8">Interpreting an S-expression representation is clumsy, mostly because not all S-expressions represent BSL-exprs. For example, <samp class="mono">#true</samp>, <samp class="mono">"hello"</samp>, and <samp class="mono">'(+ x 1)</samp> are not representatives of BSL expressions. As a result, S-expressions are quite inconvenient for the designers of interpreters. Programmers invented <i class="calibre6">parser</i>s to bridge the gap between convenience of use and implementation. A parser simultaneously checks whether some piece of data conforms to a data definition and, if it does, builds a matching element from the chosen class of data. The latter is called a <i class="calibre6">parse tree</i>. If the given data does not conform, a parser signals an error, much like the checked functions from chapter 6.3.</p>
+<p class="calibre8"><a id="rfig125" href="part0011_split_014.html#fig125" class="calibre5">Figure 125</a> presents a BSL parser for S-expressions. Specifically, <samp class="mono">parse</samp> consumes an S-expr and produces a <samp class="mono">BSL-expr</samp>—if and only if the given S-expression is the result of quoting a BSL expression that has a <samp class="mono">BSL-expr</samp> representative.</p>
+<div class="figure">
+<figure class="img"><a id="fig125" class="calibre5"></a><img src="../images/00486.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_014.html#rfig125" class="calibre5">Figure 125</a>:</span> <span>From S-expr to BSL-expr</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 349. Create tests for <samp class="mono">parse</samp> until DrRacket tells you that every element in the definitions area is covered during the test run. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 350. What is unusual about the definition of this program with respect to the design recipe?</p>
+<p class="calibre8"><b class="calibre9">Note</b> One unusual aspect is that <samp class="mono">parse</samp> uses <samp class="mono">length</samp> on the list argument. Real parsers avoid <samp class="mono">length</samp> because it slows the functions down. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 351. Design <samp class="mono">interpreter-expr</samp>. The function accepts S-expressions. If <samp class="mono">parse</samp> recognizes them as BSL-expr, it produces their value. Otherwise, it signals the same error as <samp class="mono">parse</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

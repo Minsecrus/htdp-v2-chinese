@@ -1,0 +1,1601 @@
+# Chapter 5: Adding Structure / 第 5 章：引入结构体
+
+<h1>
+5 Adding Structure
+</h1>
+
+<P>
+Suppose you want to design a world program that simulates a ball bouncing back and forth on a straight vertical line between the floor and ceiling of some imaginary, perfect room. Assume that it always moves two pixels per clock tick. If you follow the design recipe, your first goal is to develop a data representation for what changes over time. Here, the ball’s position and its direction change over time, but that’s two values while big-bang keeps track of just one. Thus the question arises how one piece of data can represent two changing quantities of information.
+</P>
+
+<P>
+Here is another scenario that raises the same question. Your cell phone is mostly a few million lines of code wrapped in plastic. Among other things, it administrates your contacts. Each contact comes with a name, a phone number, an email address, and perhaps some other information. When you have lots of contacts, each single contact is best represented as a single piece of data; otherwise the various pieces could get mixed up by accident.
+</P>
+
+<MARGIN_NOTE>
+Mathematicians know tricks that “merge” two numbers into a single number such that it is possible to retrieve the original ones. Programmers consider these kinds of tricks evil because they obscure a program’s true intentions.
+</MARGIN_NOTE>
+
+<P>
+Because of such programming problems, every programming language provides some mechanism to combine several pieces of data into a single piece of compound data and ways to retrieve the constituent values when needed. This chapter introduces BSL’s mechanics, so-called structure type definitions, and how to design programs that work on compound data.
+</P>
+
+<h2>
+5.1 From Positions to posn Structures
+</h2>
+
+<P>
+A position on a world canvas is uniquely identified by two pieces of data: the distance from the left margin and the distance from the top margin. The first is called an x-coordinate and the second one is the y-coordinate.
+</P>
+
+<P>
+DrRacket, which is basically a BSL program, represents such positions with posn structures. A posn structure combines two numbers into a single value. We can create a posn structure with the operation make-posn, which consumes two numbers and makes a posn. For example,
+</P>
+
+<CODE>
+(make-posn 3 4)
+</CODE>
+
+<P>
+is an expression that creates a posn structure whose x-coordinate is 3 and whose y-coordinate is 4.
+</P>
+
+<P>
+A posn structure has the same status as a number or a Boolean or a string. In particular, both primitive operations and functions may consume and produce structures. Also, a program can name a posn structure:
+</P>
+
+<CODE>
+(define one-posn (make-posn 8 6))
+</CODE>
+
+<P>
+Stop! Describe one-posn in terms of coordinates.
+</P>
+
+<P>
+Before doing anything else, let’s take a look at the laws of computation for posn structures. That way, we can both create functions that process posn structures and predict what they compute.
+</P>
+
+<h2>
+5.2 Computing with posns
+</h2>
+
+<P>
+While functions and the laws of functions are completely familiar from pre-algebra, posn structures appear to be a new idea. Then again, the concept of a posn ought to look like the Cartesian points or positions in the plane you may have encountered before.
+</P>
+
+<P>
+Selecting a Cartesian point’s pieces is also a familiar process. For example, when a teacher says, “take a look at the graph of figure 29 and tell me what px and py are,” you are likely to answer 31 and 26, respectively, because you know that you need to read off the values where the vertical and horizontal lines that radiate out from p hit the axes.
+</P>
+
+<FIGURE src="images/00095.png">
+Figure 29: A Cartesian point
+</FIGURE>
+
+<MARGIN_NOTE>
+We thank Neil Toronto for the plot library.
+</MARGIN_NOTE>
+
+<P>
+We can express this idea in BSL. Assume you add
+</P>
+
+<CODE>
+(define p (make-posn 31 26))
+</CODE>
+
+<P>
+to the definitions area, click RUN, and perform these interactions:
+</P>
+
+<CODE>
+> (posn-x p) 31 > (posn-y p) 26
+</CODE>
+
+<P>
+Defining p is like marking the point in a Cartesian plane; using posn-x and posn-y is like subscripting p with indexes: px and py.
+</P>
+
+<P>
+Computationally speaking, posn structures come with two equations:
+</P>
+
+<CODE>
+(posn-x (make-posn x0 y0)) == x0 (posn-y (make-posn x0 y0)) == y0
+</CODE>
+
+<P>
+DrRacket uses these equations during computations. Here is an example of a computation involving posn structures:
+</P>
+
+<CODE>
+(posn-x p) == ; DrRacket replaces p with (make-posn 31 26) (posn-x (make-posn 31 26)) == ; DrRacket uses the law for posn-x 31
+</CODE>
+
+<P>
+Stop! Confirm the second interaction above with your own computation. Also use DrRacket’s stepper to double-check.
+</P>
+
+<h2>
+5.3 Programming with posn
+</h2>
+
+<P>
+Now consider designing a function that computes the distance of some location to the origin of the canvas:
+</P>
+
+<FIGURE src="images/00096.png">
+
+</FIGURE>
+
+<P>
+The picture clarifies that “distance” means the length of the most direct path—“as the crow flies”—from the designated point to the top-left corner of the canvas.
+</P>
+
+<P>
+Here are the purpose statement and the header:
+</P>
+
+<CODE>
+; computes the distance of ap to the origin (define (distance-to-0 ap)   0)
+</CODE>
+
+<P>
+The key is that distance-to-0 consumes a single value, some posn. It produces a single value, the distance of the location to the origin.
+</P>
+
+<P>
+In order to make up examples, we need to know how to compute this distance. For points with 0 as one of the coordinates, the result is the other coordinate:
+</P>
+
+<CODE>
+(check-expect (distance-to-0 (make-posn 0 5)) 5) (check-expect (distance-to-0 (make-posn 7 0)) 7)
+</CODE>
+
+<P>
+For the general case, we could try to figure out the formula on our own, or we may recall the formula from our geometry courses. As you know, this is domain knowledge that you might have, but in case you don’t we supply it; after all, this domain knowledge isn’t computer science. So, here is the distance formula for (x,y) again:
+</P>
+
+<FIGURE src="images/00097.png">
+
+</FIGURE>
+
+<P>
+Given this formula, we can easily make up some more functional examples:
+</P>
+
+<CODE>
+(check-expect (distance-to-0 (make-posn 3 4)) 5) (check-expect (distance-to-0 (make-posn 8 6)) 10) (check-expect (distance-to-0 (make-posn 5 12)) 13)
+</CODE>
+
+<P>
+Just in case you’re wondering, we rigged the examples so that the results would be easy to figure out. This isn’t the case for all posn structures.
+</P>
+
+<P>
+Stop! Plug the x- and y-coordinates from the examples into the formula. Confirm the expected results for all five examples.
+</P>
+
+<P>
+Next we can turn our attention to the definition of the function. The examples imply that the design of distance-to-0 does not need to distinguish between different situations; it always just computes the distance from the x- and y-coordinates inside the given posn structure. But the function must select these coordinates from the given posn structure. And for that, it uses the posn-x and posn-y primitives. Specifically, the function needs to compute (posn-x ap) and (posn-y ap) because ap is the name of the given, unknown posn structure:
+</P>
+
+<CODE>
+(define (distance-to-0 ap)   (… (posn-x ap) …    … (posn-y ap) …))
+</CODE>
+
+<P>
+Using this template and the examples, the rest is straightforward:
+</P>
+
+<FIGURE src="images/00098.png">
+
+</FIGURE>
+
+<P>
+The function squares (posn-x ap) and (posn-y ap), which represent the x- and y-coordinates, sums up the results, and takes the square root. With DrRacket, we can also quickly check that our new function produces the proper results for our examples.
+</P>
+
+<EXERCISE>
+Exercise 63. Evaluate the following expressions:
+</EXERCISE>
+
+<P>
+•  (distance-to-0 (make-posn 3 4))
+</P>
+
+<P>
+•  (distance-to-0 (make-posn 6 (* 2 4)))
+</P>
+
+<P>
+•  (+ (distance-to-0 (make-posn 12 5)) 10)
+</P>
+
+<P>
+by hand. Show all steps. Assume that sqr performs its computation in a single step. Check the results with DrRacket’s stepper.
+</P>
+
+<EXERCISE>
+Exercise 64. The Manhattan distance of a point to the origin considers a path that follows the rectangular grid of streets found in Manhattan. Here are two examples:
+</EXERCISE>
+
+<FIGURE src="images/00099.png">
+
+</FIGURE>
+
+<P>
+The left one shows a “direct” strategy, going as far left as needed, followed by as many upward steps as needed. In comparison, the right one shows a “random walk” strategy, going some blocks leftward, some upward, and so on until the destination—here, the origin—is reached.
+</P>
+
+<P>
+Stop! Does it matter which strategy you follow?
+</P>
+
+<P>
+Design the function manhattan-distance, which measures the Manhattan distance of the given posn to the origin.
+</P>
+
+<h2>
+5.4 Defining Structure Types
+</h2>
+
+<P>
+Unlike numbers or Boolean values, structures such as posn usually don’t come with a programming language. Only the mechanism to define structure types is provided; the rest is left up to the programmer. This is also true for BSL.
+</P>
+
+<P>
+A structure type definition is another form of definition, distinct from constant and function definitions. Here is how the creator of DrRacket defined the posn structure type in BSL:
+</P>
+
+<CODE>
+(define-struct posn [x y])
+</CODE>
+
+<P>
+In general, a structure type definition has this shape:
+</P>
+
+<CODE>
+(define-struct StructureName [FieldName …])
+</CODE>
+
+<MARGIN_NOTE>
+The use of brackets in a structure type definition is a convention, not a necessity. It makes the field names stand out. Replacing brackets with parentheses is perfectly acceptable.
+</MARGIN_NOTE>
+
+<P>
+The keyword define-struct signals the introduction of a new structure type. It is followed by the name of the structure. The third part of a structure type definition is a sequence of names enclosed in brackets; these names are the fields.
+</P>
+
+<P>
+A structure type definition actually defines functions. But, unlike an ordinary function definition, a structure type definition defines many functions simultaneously. Specifically, it defines three kinds of functions:
+</P>
+
+<P>
+•  one constructor, a function that creates structure instances. It takes as many values as there are fields; as mentioned, structure is short for structure instance. The phrase structure type is a generic name for the collection of all possible instances;
+</P>
+
+<P>
+•  one selector per field, which extracts the value of the field from a structure instance; and
+</P>
+
+<P>
+•  one structure predicate, which, like ordinary predicates, distinguishes instances from all other kinds of values.
+</P>
+
+<P>
+A program can use these as if they were functions or built-in primitives.
+</P>
+
+<P>
+Curiously, a structure type definition makes up names for the various new operations it creates. For the name of the constructor, it prefixes the structure name with “make-” and for the names of the selectors it postfixes the structure name with the field names. Finally, the predicate is just the structure name with “?” added, pronounced “huh” when read aloud.
+</P>
+
+<P>
+This naming convention looks complicated and perhaps even confusing. But, with a little bit of practice, you’ll get the hang of it. It also explains the functions that come with posn structures: make-posn is the constructor, posn-x and posn-y are selectors. While we haven’t encountered posn? yet, we now know that it exists; the next chapter explains the role of these predicates in detail.
+</P>
+
+<EXERCISE>
+Exercise 65. Take a look at the following structure type definitions:
+</EXERCISE>
+
+<P>
+•  (define-struct movie [title producer year])
+</P>
+
+<P>
+•  (define-struct person [name hair eyes phone])
+</P>
+
+<P>
+•  (define-struct pet [name number])
+</P>
+
+<P>
+•  (define-struct CD [artist title price])
+</P>
+
+<P>
+•  (define-struct sweater [material size producer])
+</P>
+
+<P>
+Write down the names of the functions (constructors, selectors, and predicates) that each introduces.
+</P>
+
+<P>
+Enough with posn structures for a while. Let’s look at a structure type definition that we might use to keep track of contacts such as those in your cell phone:
+</P>
+
+<CODE>
+(define-struct entry [name phone email])
+</CODE>
+
+<P>
+Here are the names of the functions that this definition introduces:
+</P>
+
+<P>
+•  make-entry, which consumes three values and constructs an instance of entry;
+</P>
+
+<P>
+•  entry-name, entry-phone, and entry-email, which consume one instance of entry and select one of the three field values; and
+</P>
+
+<P>
+•  entry?, the predicate.
+</P>
+
+<P>
+Since each entry combines three values, the expression
+</P>
+
+<CODE>
+(make-entry "Al Abe" "666-7771" "lee@x.me")
+</CODE>
+
+<P>
+creates an entry structure with "Al Abe" in the name field, "666-7771" in the phone field, and "lee@x.me" in the email field.
+</P>
+
+<EXERCISE>
+Exercise 66. Revisit the structure type definitions of exercise 65. Make sensible guesses as to what kind of values go with which fields. Then create at least one instance per structure type definition.
+</EXERCISE>
+
+<P>
+Every structure type definition introduces a new kind of structure, distinct from all others. Programmers want this kind of expressive power because they wish to convey an intention with the structure name. Wherever a structure is created, selected, or tested, the text of the program explicitly reminds the reader of this intention. If it weren’t for these future readers of code, programmers could use one structure definition for structures with one field, another for structures with two fields, a third for structures with three, and so on.
+</P>
+
+<P>
+In this context, let’s study another programming problem:
+</P>
+
+<P>
+Sample Problem Develop a structure type definition for a program that deals with “bouncing balls,” briefly mentioned at the very beginning of this chapter. The ball’s location is a single number, namely the distance of pixels from the top. Its constant speed is the number of pixels it moves per clock tick. Its velocity is the speed plus the direction in which it moves.
+</P>
+
+<P>
+Since the ball moves along a straight, vertical line, a number is a perfectly adequate data representation for its velocity:
+</P>
+
+<P>
+•  A positive number means the ball moves down.
+</P>
+
+<P>
+•  A negative number means it moves up.
+</P>
+
+<P>
+We can use this domain knowledge to formulate a structure type definition:
+</P>
+
+<CODE>
+(define-struct ball [location velocity])
+</CODE>
+
+<P>
+Both fields are going to contain numbers, so (make-ball 10 -3) is a good data example. It represents a ball that is 10 pixels from the top and moves up at 3 pixels per clock tick.
+</P>
+
+<P>
+Notice how, in principle, a ball structure merely combines two numbers, just like a posn structure. When a program contains the expression (ball-velocity a-ball), it immediately conveys that this program deals with the representation of a ball and its velocity. In contrast, if the program used posn structures instead, (posn-y a-ball) might mislead a reader of the code into thinking that the expression is about a y-coordinate.
+</P>
+
+<EXERCISE>
+Exercise 67. Here is another way to represent bouncing balls:
+</EXERCISE>
+
+<CODE>
+(define SPEED 3) (define-struct balld [location direction]) (make-balld 10 "up")
+</CODE>
+
+<P>
+Interpret this code fragment and create other instances of balld.
+</P>
+
+<P>
+Since structures are values, just like numbers or Booleans or strings, it makes sense that one instance of a structure occurs inside another instance. Consider game objects. Unlike bouncing balls, such objects don’t always move along vertical lines. Instead, they move in some “oblique” manner across the canvas. Describing both the location and the velocity of a ball moving across a 2-dimensional world canvas demands two numbers: one per direction. For the location part, the two numbers represent the x- and y-coordinates. Velocity describes the changes in the horizontal and vertical direction; in other words, these “change numbers” must be added to the respective coordinates to find out where the object will be next.
+</P>
+
+<MARGIN_NOTE>
+It is physics that tells you to add an object’s velocity to its location to obtain its next location. Developers need to learn whom to ask about which domain.
+</MARGIN_NOTE>
+
+<P>
+Clearly, posn structures can represent locations. For the velocities, we define the vel structure type:
+</P>
+
+<CODE>
+(define-struct vel [deltax deltay])
+</CODE>
+
+<P>
+It comes with two fields: deltax and deltay. The word “delta” is commonly used to speak of change when it comes to simulations of physical activities, and the x and y parts indicate which axis is concerned.
+</P>
+
+<P>
+Now we can use instances of ball to combine a posn structure with a vel structure to represent balls that move in straight lines but not necessarily along only vertical (or horizontal) lines:
+</P>
+
+<CODE>
+(define ball1    (make-ball (make-posn 30 40) (make-vel -10 5)))
+</CODE>
+
+<P>
+One way to interpret this instance is to think of a ball that is 30 pixels from the left and 40 pixels from the top. It moves 10 pixels toward the left per clock tick, because subtracting 10 pixels from the x-coordinate brings it closer to the left. As for the vertical direction, the ball drops at 5 pixels per clock tick, because adding positive numbers to a y-coordinate increases the distance from the top.
+</P>
+
+<EXERCISE>
+Exercise 68. An alternative to the nested data representation of balls uses four fields to keep track of the four properties:
+</EXERCISE>
+
+<CODE>
+(define-struct ballf [x y deltax deltay])
+</CODE>
+
+<MARGIN_NOTE>
+Yet another alternative is to use complex numbers. If you know about them, contemplate a data representation that uses them for both location and velocity. For example, in BSL, 4-3i is a complex number and could be used to represent the location or velocity (4,-3).
+</MARGIN_NOTE>
+
+<P>
+Programmers call this a flat representation. Create an instance of ballf that has the same interpretation as ball1.
+</P>
+
+<P>
+For a second example of nested structures, let’s briefly look at the example of contact lists. Many cell phones support contact lists that allow several phone numbers per name: one for a home line, one for the office, and one for a cell phone number. For phone numbers, we wish to include both the area code and the local number. Since this nests the information, it’s best to create a nested data representation, too:
+</P>
+
+<CODE>
+(define-struct centry [name home office cell]) (define-struct phone [area number]) (make-centry "Shriram Fisler"              (make-phone 207 "363-2421")              (make-phone 101 "776-1099")              (make-phone 208 "112-9981"))
+</CODE>
+
+<P>
+The intention here is that an entry on a contact list has four fields: a name and three phone records. The latter are represented with instance of phone, which separates the area code from the local phone number.
+</P>
+
+<P>
+In sum, nesting information is natural. The best way to represent such information with data is to mirror the nesting with nested structure instances. Doing so makes it easy to interpret the data in the application domain of the program, and it is also straightforward to go from examples of information to data. Of course, it is really the task of data definitions to specify how to go back and forth between information and data. Before we study data definitions for structure type definitions, however, we first take a systematic look at computing with, and thinking about, structures.
+</P>
+
+<h2>
+5.5 Computing with Structures
+</h2>
+
+<P>
+Structure types generalize Cartesian points in two ways. First, a structure type may specify an arbitrary number of fields: zero, one, two, three, and so forth. Second, structure types name fields, they don’t number them. This helps programmers read code because it is much easier to remember that a family name is available in a field called last-name than in the 7th field.
+</P>
+
+<MARGIN_NOTE>
+Most programming languages also support structure-like data that use numeric field names.
+</MARGIN_NOTE>
+
+<P>
+In the same spirit, computing with structure instances generalizes the manipulation of Cartesian points. To appreciate this idea, let us first look at a diagrammatic way to think about structure instances as lockboxes with as many compartments as there are fields. Here is a representation of
+</P>
+
+<CODE>
+(definepl(make-entry"Al Abe""666-7771""lee@x.me"))
+</CODE>
+
+<P>
+as such a diagram:
+</P>
+
+<FIGURE src="images/00100.png">
+
+</FIGURE>
+
+<P>
+The box’s italicized label identifies it as an instance of a specific structure type; each compartment is labeled, too. Here is another instance:
+</P>
+
+<CODE>
+(make-entry "Tara Harp" "666-7770" "th@smlu.edu")
+</CODE>
+
+<P>
+corresponds to a similar box diagram, though the content differs:
+</P>
+
+<FIGURE src="images/00101.png">
+
+</FIGURE>
+
+<P>
+Not surprisingly, nested structure instances have a diagram of boxes nested in boxes. Thus, ball1 from above is equivalent to this diagram:
+</P>
+
+<FIGURE src="images/00102.png">
+
+</FIGURE>
+
+<P>
+In this case, the outer box contains two boxes, one per field.
+</P>
+
+<EXERCISE>
+Exercise 69. Draw box representations for the solution of exercise 65.
+</EXERCISE>
+
+<P>
+In the context of this imagery, a selector is like a key. It opens a specific compartment for a certain kind of box and thus enables the holder to extract its content. Hence, applying entry-name to pl from above yields a string:
+</P>
+
+<CODE>
+> (entry-name pl) "Al Abe"
+</CODE>
+
+<P>
+But entry-name applied to a posn structure signals an error:
+</P>
+
+<CODE>
+> (entry-name (make-posn 42 5)) entry-name:expects an entry, given (posn 42 5)
+</CODE>
+
+<P>
+If a compartment contains a box, it might be necessary to use two selectors in a row to get to the desired number:
+</P>
+
+<CODE>
+> (ball-velocity ball1) (make-vel -10 5)
+</CODE>
+
+<P>
+Applying ball-velocity to ball1 extracts the value of the velocity field, which is an instance of vel. To get to the velocity along the x axis, we apply a selector to the result of the first selection:
+</P>
+
+<CODE>
+> (vel-deltax (ball-velocity ball1)) -10
+</CODE>
+
+<P>
+Since the inner expression extracts the velocity from ball1, the outer expression extracts the value of the deltax field, which in this case is -10.
+</P>
+
+<P>
+The interactions also show that structure instances are values. DrRacket prints them exactly as entered, just like for plain values such as numbers:
+</P>
+
+<FIGURE src="images/00103.png">
+
+</FIGURE>
+
+<P>
+Stop! Try this last interaction at home, so you see the proper result.
+</P>
+
+<P>
+Generally speaking, a structure type definition not only creates new functions and new ways to create values, but it also adds new laws of computation to DrRacket’s knowledge. These laws generalize those for posn structures in chapter 5.2, and they are best understood by example.
+</P>
+
+<P>
+When DrRacket encounters a structure type definition with two fields,
+</P>
+
+<CODE>
+(define-struct ball [location velocity])
+</CODE>
+
+<P>
+it introduces two laws, one per selector:
+</P>
+
+<CODE>
+(ball-location (make-ball l0 v0)) == l0 (ball-velocity (make-ball l0 v0)) == v0
+</CODE>
+
+<P>
+For different structure type definitions, it introduces analogous laws. Thus,
+</P>
+
+<CODE>
+(define-struct vel [deltax deltay])
+</CODE>
+
+<P>
+DrRacket adds these two laws to its knowledge:
+</P>
+
+<CODE>
+(vel-deltax (make-vel dx0 dy0)) == dx0 (vel-deltay (make-vel dx0 dy0)) == dy0
+</CODE>
+
+<P>
+Using these laws, we can now explain the interaction from above:
+</P>
+
+<CODE>
+(vel-deltax (ball-velocity ball1)) == ; DrRacket replaces ball1 with its value (vel-deltax   (ball-velocity     (make-ball (make-posn 30 40) (make-vel -10 5)))) == ; DrRacket uses the law for ball-velocity (vel-deltax (make-vel -10 5)) == ; DrRacket uses the law for vel-deltax -10
+</CODE>
+
+<EXERCISE>
+Exercise 70. Spell out the laws for these structure type definitions:
+</EXERCISE>
+
+<CODE>
+(define-struct centry [name home office cell]) (define-struct phone [area number])
+</CODE>
+
+<P>
+Use DrRacket’s stepper to confirm 101 as the value of this expression:
+</P>
+
+<CODE>
+(phone-area  (centry-office    (make-centry "Shriram Fisler"      (make-phone 207 "363-2421")      (make-phone 101 "776-1099")      (make-phone 208 "112-9981"))))
+</CODE>
+
+<P>
+Predicates are the last idea that we must discuss to understand structure type definitions. As mentioned, every structure type definition introduces one new predicate. DrRacket uses these predicates to discover whether a selector is applied to the proper kind of value; the next chapter explains this idea in detail. Here we just want to convey that these predicates are just like the predicates from “arithmetic.” While number? recognizes numbers and string? recognizes strings, predicates such as posn? and entry? recognize posn structures and entry structures. We can confirm our ideas of how they work with experiments in the interactions area. Assume that the definitions area contains these definitions:
+</P>
+
+<CODE>
+(define ap (make-posn 7 0)) (define pl (make-entry "Al Abe" "666-7771" "lee@x.me"))
+</CODE>
+
+<P>
+If posn? is a predicate that distinguishes posns from all other values, we should expect that it yields #false for numbers and #true for ap:
+</P>
+
+<CODE>
+> (posn? ap) #true > (posn? 42) #false > (posn? #true) #false > (posn? (make-posn 3 4)) #true
+</CODE>
+
+<P>
+Similarly, entry? distinguishes entry structures from all other values:
+</P>
+
+<CODE>
+> (entry? pl) #true > (entry? 42) #false > (entry? #true) #false
+</CODE>
+
+<P>
+In general, a predicate recognizes exactly those values constructed with a constructor of the same name. Intermezzo 1 explains this law in detail, and it also collects the laws of computing for BSL in one place.
+</P>
+
+<EXERCISE>
+Exercise 71. Place the following into DrRacket’s definitions area:
+</EXERCISE>
+
+<CODE>
+; distances in terms of pixels: (define HEIGHT 200) (define MIDDLE (quotient HEIGHT 2)) (define WIDTH 400) (define CENTER (quotient WIDTH 2)) (define-struct game [left-player right-player ball]) (define game0   (make-game MIDDLE MIDDLE (make-posn CENTER CENTER)))
+</CODE>
+
+<P>
+Click RUN and evaluate the following expressions:
+</P>
+
+<CODE>
+(game-ball game0) (posn? (game-ball game0)) (game-left-player game0)
+</CODE>
+
+<P>
+Explain the results with step-by-step computations. Double-check your computations with DrRacket’s stepper.
+</P>
+
+<h2>
+5.6 Programming with Structures
+</h2>
+
+<P>
+Proper programming calls for data definitions. With the introduction of structure type definitions, data definitions become interesting. Remember that a data definition provides a way of representing information into data and interpreting that data as information. For structure types, this calls for a description of what kind of data goes into which field. For some structure type definitions, formulating such descriptions is easy and obvious:
+</P>
+
+<CODE>
+(define-struct posn [x y]) ; A Posn is a structure: ;   (make-posn Number Number) ; interpretation a point x pixels from left, y from top
+</CODE>
+
+<P>
+It doesn’t make any sense to use other kinds of data to create a posn. Similarly, all fields of entry—our structure type definition for entries on a contact list—are clearly supposed to be strings, according to our usage in the preceding section:
+</P>
+
+<CODE>
+(define-struct entry [name phone email]) ; An Entry is a structure: ;    (make-entry String String String) ; interpretation a contact's name, phone#, and email
+</CODE>
+
+<P>
+For both posn and entry, a reader can easily interpret instances of these structures in the application domain.
+</P>
+
+<P>
+Contrast this simplicity with the structure type definition for ball, which obviously allows at least two distinct interpretations:
+</P>
+
+<CODE>
+(define-struct ball [location velocity]) ; A Ball-1d is a structure: ;    (make-ball Number Number) ; interpretation 1 distance to top and velocity ; interpretation 2 distance to left and velocity
+</CODE>
+
+<P>
+Whichever one we use in a program, we must stick to it consistently. As chapter 5.4 shows, however, it is also possible to use ball structures in an entirely different manner:
+</P>
+
+<CODE>
+; A Ball-2d is a structure: ; (make-ball Posn Vel) ; interpretation a 2-dimensional position and velocity (define-struct vel [deltax deltay]) ; A Vel is a structure: ; (make-vel Number Number) ; interpretation (make-vel dx dy) means a velocity of ; dx pixels [per tick] along the horizontal and ; dy pixels [per tick] along the vertical direction
+</CODE>
+
+<P>
+Here we name a second collection of data, Ball-2d, distinct from Ball-1d, to describe data representations for balls that move in straight lines across a world canvas. In short, it is possible to use one and the same structure type in two different ways. Of course, within one program, it is best to stick to one and only one use; otherwise you are setting yourself up for problems.
+</P>
+
+<P>
+Also, Ball-2d refers to another one of our data definitions, namely, the one for Vel. While all other data definitions have thus far referred to built-in data collections (Number, Boolean, String), it is perfectly acceptable, and indeed common, that one of your data definitions refers to another.
+</P>
+
+<EXERCISE>
+Exercise 72. Formulate a data definition for the above phone structure type definition that accommodates the given examples.
+</EXERCISE>
+
+<P>
+Next formulate a data definition for phone numbers using this structure type definition:
+</P>
+
+<CODE>
+(define-struct phone# [area switch num])
+</CODE>
+
+<P>
+Historically, the first three digits make up the area code, the next three the code for the phone switch (exchange) of your neighborhood, and the last four the phone with respect to the neighborhood. Describe the content of the three fields as precisely as possible with intervals.
+</P>
+
+<P>
+At this point, you might be wondering what data definitions really mean. This question, and its answer, is the topic of the next section. For now, we indicate how to use data definitions for program design.
+</P>
+
+<P>
+Here is a problem statement to set up some context:
+</P>
+
+<P>
+Sample Problem Your team is designing an interactive game program that moves a red dot across a 100 × 100 canvas and allows players to use the mouse to reset the dot. Here is how far you got together:
+</P>
+
+<P>
+(define MTS (empty-scene 100 100)) (define DOT (circle 3 "solid" "red")) ; A Posn represents the state of the world. ; Posn -> Posn (define (main p0)   (big-bang p0     [on-tick x+]     [on-mouse reset-dot]     [to-draw scene+dot]))
+</P>
+
+<P>
+Your task is to design scene+dot, the function that adds a red dot to the empty canvas at the specified position.
+</P>
+
+<P>
+The problem context dictates the signature of your function:
+</P>
+
+<CODE>
+; Posn -> Image ; adds a red spot to MTS at p (define (scene+dot p) MTS)
+</CODE>
+
+<P>
+Adding a purpose statement is straightforward. As chapter 3.1 mentions, it uses the function’s parameter to express what the function computes.
+</P>
+
+<P>
+Now we work out a couple of examples and formulate them as tests:
+</P>
+
+<CODE>
+(check-expect (scene+dot (make-posn 10 20))               (place-image DOT 10 20 MTS)) (check-expect (scene+dot (make-posn 88 73))               (place-image DOT 88 73 MTS))
+</CODE>
+
+<P>
+Given that the function consumes a Posn, we know that the function can extract the values of the x and y fields:
+</P>
+
+<CODE>
+(define (scene+dot p)   (… (posn-x p) … (posn-y p) …))
+</CODE>
+
+<P>
+Once we see these additional pieces in the body of the function, the rest of the definition is straightforward. Using place-image, the function puts DOT into MTS at the coordinates contained in p:
+</P>
+
+<CODE>
+(define (scene+dot p)   (place-image DOT (posn-x p) (posn-y p) MTS))
+</CODE>
+
+<P>
+A function may produce structures. Let’s resume our sample problem from above because it includes just such a task:
+</P>
+
+<P>
+Sample Problem A colleague is asked to define x+, a function that consumes a Posn and increases the x-coordinate by 3.
+</P>
+
+<P>
+Recall that the x+ function handles clock ticks.
+</P>
+
+<P>
+We can adapt the first few steps of the design of scene+dot:
+</P>
+
+<CODE>
+; Posn -> Posn ; increases the x-coordinate of p by 3 (check-expect (x+ (make-posn 10 0)) (make-posn 13 0)) (define (x+ p)   (… (posn-x p) … (posn-y p) …))
+</CODE>
+
+<P>
+The signature, the purpose, and the example all come out of the problem statement. Instead of a header—a function with a default result—our sketch contains the two selector expressions for Posns. After all, the information for the result must come from the inputs, and the input is a structure that contains two values.
+</P>
+
+<P>
+Finishing the definition is easy now. Since the desired result is a Posn, the function uses make-posn to combine the pieces:
+</P>
+
+<CODE>
+(define (x+ p)   (make-posn (+ (posn-x p) 3) (posn-y p)))
+</CODE>
+
+<EXERCISE>
+Exercise 73. Design the function posn-up-x, which consumes a Posn p and a Number n. It produces a Posn like p with n in the x field.
+</EXERCISE>
+
+<P>
+A neat observation is that we can define x+ using posn-up-x:
+</P>
+
+<CODE>
+(define (x+ p)   (posn-up-x p (+ (posn-x p) 3)))
+</CODE>
+
+<P>
+Note Functions such as posn-up-x are often called updaters or functional setters. They are extremely useful when you write large programs.
+</P>
+
+<P>
+A function may also produce instances from atomic data. While make-posn is a built-in primitive that does so, our running problem provides another fitting illustration:
+</P>
+
+<P>
+Sample Problem Another colleague is tasked to design reset-dot, a function that resets the dot when the mouse is clicked.
+</P>
+
+<P>
+To tackle this problem, you need to recall from chapter 3.6 that mouse-event handlers consume four values: the current state of the world, the x- and y-coordinates of the mouse click, and a MouseEvt.
+</P>
+
+<P>
+By adding the knowledge from the sample problem to the program design recipe, we get a signature, a purpose statement, and a header:
+</P>
+
+<CODE>
+; Posn Number Number MouseEvt -> Posn ; for mouse clicks, (make-posn x y); otherwise p (define (reset-dot p x y me) p)
+</CODE>
+
+<P>
+Examples for mouse-event handlers need a Posn, two numbers, and a MouseEvt, which is just a special kind of String. A mouse click, for example, is represented with one of two strings: "button-down" and "button-up". The first one signals that a user clicked the mouse button, the latter signals its release. With this in mind, here are two examples, which you may wish to study and interpret:
+</P>
+
+<CODE>
+(check-expect   (reset-dot (make-posn 10 20) 29 31 "button-down")   (make-posn 29 31)) (check-expect   (reset-dot (make-posn 10 20) 29 31 "button-up")   (make-posn 10 20))
+</CODE>
+
+<P>
+Although the function consumes only atomic forms of data, its purpose statement and the examples suggest that it differentiates between two kinds of MouseEvts: "button-down" and all others. Such a case split suggests a cond expression:
+</P>
+
+<CODE>
+(define (reset-dot p x y me)   (cond     [(mouse=? "button-down" me) (… p … x y …)]     [else (… p … x y …)]))
+</CODE>
+
+<P>
+Following the design recipe, this skeleton mentions the parameters to remind you of what data is available.
+</P>
+
+<P>
+The rest is straightforward again because the purpose statement itself dictates what the function computes in each of the two cases:
+</P>
+
+<CODE>
+(define (reset-dot p x y me)   (cond     [(mouse=? me "button-down") (make-posn x y)]     [else p]))
+</CODE>
+
+<P>
+As above, we could have mentioned that make-posn creates instances of Posn, but you know this and we don’t need to remind you constantly.
+</P>
+
+<EXERCISE>
+Exercise 74. Copy all relevant constant and function definitions to DrRacket’s definitions area. Add the tests and make sure they pass. Then run the program and use the mouse to place the red dot.
+</EXERCISE>
+
+<P>
+Many programs deal with nested structures. We illustrate this point with another small excerpt from a world program:
+</P>
+
+<P>
+Sample Problem Your team is designing a game program that keeps track of an object that moves across the canvas at changing speed. The chosen data representation requires two data definitions:
+</P>
+
+<P>
+(define-struct ufo [loc vel]) ; A UFO is a structure: ; (make-ufo Posn Vel) ; interpretation (make-ufo p v) is at location ; p moving at velocity v
+</P>
+
+<MARGIN_NOTE>
+Remember, it’s about physics.
+</MARGIN_NOTE>
+
+<P>
+It is your task to develop ufo-move-1. The function computes the location of a given UFO after one clock tick passes.
+</P>
+
+<P>
+Let us start with some examples that explore the data definitions a bit:
+</P>
+
+<CODE>
+(define v1 (make-vel 8 -3)) (define v2 (make-vel -5 -3)) (define p1 (make-posn 22 80)) (define p2 (make-posn 30 77)) (define u1 (make-ufo p1 v1)) (define u2 (make-ufo p1 v2)) (define u3 (make-ufo p2 v1)) (define u4 (make-ufo p2 v2))
+</CODE>
+
+<MARGIN_NOTE>
+The order of these definitions matters. See intermezzo 1.
+</MARGIN_NOTE>
+
+<P>
+The first four are elements of Vel and Posn. The last four combine the first four in all possible combinations.
+</P>
+
+<P>
+Next we write down a signature, a purpose, some examples, and a function header:
+</P>
+
+<FIGURE src="images/00104.png">
+
+</FIGURE>
+
+<P>
+For the function examples, we use the data examples and our domain knowledge of positions and velocities. Specifically, we know that a vehicle that is moving north at 60 miles per hour and west at 10 miles per hour is going to end up 60 miles north from its starting point and 10 miles west after one hour of driving. After two hours, it will be 120 miles north from the starting point and 20 miles to its west.
+</P>
+
+<P>
+As always, a function that consumes a structure instance can (and probably must) extract information from the structure to compute its result. So once again we add selector expressions to the function definition:
+</P>
+
+<CODE>
+(define (ufo-move-1 u)   (… (ufo-loc u) … (ufo-vel u) …))
+</CODE>
+
+<P>
+Note The selector expressions raise the question whether we need to refine this sketch even more. After all, the two expressions extract instances of Posn and Vel, respectively. These two are also structure instances, and we could extract values from them in turn. Here is what the resulting skeleton would look like:
+</P>
+
+<CODE>
+; UFO -> UFO (define (ufo-move-1 u)   (… (posn-x (ufo-loc u)) …    … (posn-y (ufo-loc u)) …    … (vel-deltax (ufo-vel u)) …    … (vel-deltay (ufo-vel u)) …))
+</CODE>
+
+<P>
+Doing so obviously makes the sketch look quite complex, however. For truly realistic programs, following this idea to its logical end would create incredibly complex program outlines. More generally,
+</P>
+
+<P>
+If a function deals with nested structures, develop one function per level of nesting.
+</P>
+
+<P>
+In the second part of the book, this guideline becomes even more important and we refine it a bit. End
+</P>
+
+<P>
+Here we focus on how to combine the given Posn and the given Vel in order to obtain the next location of the UFO—because that’s what our physics knowledge tells us. Specifically, it says to “add” the two together, where “adding” can’t mean the operation we usually apply to numbers. So let us imagine that we have a function for adding a Vel to a Posn:
+</P>
+
+<CODE>
+; Posn Vel -> Posn ; adds v to p (define (posn+ p v) p)
+</CODE>
+
+<P>
+Writing down the signature, purpose, and header like this is a legitimate way of programming. It is called “making a wish” and is a part of “making a wish list” as described in chapter 3.4.
+</P>
+
+<P>
+The key is to make wishes in such a way that we can complete the function that we are working on. In this manner, we can split difficult programming tasks into different tasks, a technique that helps us solve problems in reasonably small steps. For the sample problem, we get a complete definition for ufo-move-1:
+</P>
+
+<FIGURE src="images/00105.png">
+
+</FIGURE>
+
+<P>
+Because ufo-move-1 and posn+ are complete definitions, we can even click RUN, which checks that DrRacket doesn’t complain about grammatical problems with our work so far. Naturally, the tests fail because posn+ is just a wish, not the function we need.
+</P>
+
+<P>
+Now it is time to focus on posn+. We have completed the first two steps of the design (data definitions, signature/purpose/header), so we must create examples. One easy way to create functional examples for a “wish” is to use the examples for the original function and to turn them into examples for the new function:
+</P>
+
+<CODE>
+(check-expect (posn+ p1 v1) p2) (check-expect (posn+ p1 v2) (make-posn 17 77))
+</CODE>
+
+<MARGIN_NOTE>
+In geometry, the operation corresponding to posn+ is called a translation.
+</MARGIN_NOTE>
+
+<P>
+For this problem, we know that (ufo-move-1 (make-ufo p1 v1)) is to produce p2. At the same time, we know that ufo-move-1 applies posn+ to p1 and v1, implying that posn+ must produce p2 for these inputs. Stop! Check our manual calculations to ensure that you are following what we are doing.
+</P>
+
+<P>
+We are now able to add selector expressions to our design sketch:
+</P>
+
+<CODE>
+(define (posn+ p v)   (… (posn-x p) … (posn-y p) …    … (vel-deltax v) … (vel-deltay v) …))
+</CODE>
+
+<P>
+Because posn+ consumes instances of Posn and Vel and because each piece of data is an instance of a two-field structure, we get four expressions. In contrast to the nested selector expressions from above, these are simple applications of a selector to a parameter.
+</P>
+
+<P>
+If we remind ourselves what these four expressions represent, or if we recall how we computed the desired results from the two structures, our completion of the definition of posn+ is straightforward:
+</P>
+
+<FIGURE src="images/00106.png">
+
+</FIGURE>
+
+<P>
+The first step is to add the velocity in the horizontal direction to the x-coordinate and the velocity in the vertical direction to the y-coordinate. This yields two expressions, one per new coordinate. With make-posn we can combine them into a single Posn again.
+</P>
+
+<EXERCISE>
+Exercise 75. Enter these definitions and their test cases into the definitions area of DrRacket and make sure they work. This is the first time that you have dealt with a “wish,” and you need to make sure you understand how the two functions work together.
+</EXERCISE>
+
+<h2>
+5.7 The Universe of Data
+</h2>
+
+<P>
+Every language comes with a universe of data. This data represents information from and about the external world; it is what programs manipulate. This universe of data is a collection that not only contains all built-in data but also any piece of data that any program may ever create.
+</P>
+
+<MARGIN_NOTE>
+Remember that mathematicians call data collections or data classes sets.
+</MARGIN_NOTE>
+
+<P>
+The left side of figure 30 shows one way to imagine the universe of BSL. Since there are infinitely many numbers and strings, the collection of all data is infinite. We indicate “infinity” in the figure with “⋯”, but a real definition would have to avoid this imprecision.
+</P>
+
+<FIGURE src="images/00107.png">
+Figure 30: The universe of data
+</FIGURE>
+
+<P>
+Neither programs nor individual functions in programs deal with the entire universe of data. It is the purpose of a data definition to describe parts of this universe and to name these parts so that we can refer to them concisely. Put differently, a named data definition is a description of a collection of data, and that name is usable in other data definitions and in function signatures. In a function signature, the name specifies what data a function will deal with and, implicitly, which part of the universe of data it won’t deal with.
+</P>
+
+<P>
+Practically, the data definitions of the first four chapters restrict built-in collections of data. They do so via an explicit or implicit itemization of all included values. For example, the region shaded with gray on the right side in figure 30 depicts the following data definition:
+</P>
+
+<CODE>
+; A BS is one of: ; --- "hello", ; --- "world", or ; --- pi.
+</CODE>
+
+<P>
+While this particular data definition looks silly, note the stylized mix of English and BSL that is used. Its meaning is precise and unambiguous, clarifying exactly which elements belong to BS and which don’t.
+</P>
+
+<P>
+The definition of structure types completely revised the picture. When a programmer defines a structure type, the universe expands with all possible structure instances. For example, the addition of posn means that instances of posn with all possible values in the two fields appear. The middle bubble in figure 31 depicts the addition of these values, including such seeming nonsense as (make-posn "hello" 0) and (make-posn (make-posn 0 1) 2). And yes, some of these instances of posn make no sense to us. But, a BSL program may construct any of them.
+</P>
+
+<FIGURE src="images/00108.png">
+Figure 31: Adding structure to a universe
+</FIGURE>
+
+<P>
+Adding yet another structure type definition mixes and matches everything again. Say we add the definition for ball, also with two fields. As the third bubble in figure 31 shows, this addition creates instances of ball that contain numbers, posn structures, and so on, as well as instances of posn that contain instances of ball. Try it out in DrRacket! Add
+</P>
+
+<CODE>
+(define-struct ball [location velocity])
+</CODE>
+
+<P>
+to the definitions area, hit RUN, and create some structure instances.
+</P>
+
+<P>
+As far as the pragmatics of data definitions is concerned, a data definition for structure types describes large collections of data via combinations of existing data definitions with instances. When we write
+</P>
+
+<CODE>
+; Posn is (make-posn Number Number)
+</CODE>
+
+<P>
+we are describing an infinite number of possible instances of posn. Like above, the data definitions use combinations of natural language, data collections defined elsewhere, and data constructors. Nothing else should show up in a data definition at the moment.
+</P>
+
+<P>
+A data definition for structures specifies a new collection of data made up of those instances to be used by our functions. For example, the data definition for Posns identifies the region shaded in gray in the center bubble of the universe in figure 31, which includes all those posn structures whose two fields contain numbers. At the same time, it is perfectly possible to construct an instance of posn that doesn’t satisfy the requirement that both fields contain numbers:
+</P>
+
+<CODE>
+(make-posn (make-posn 1 1) "hello")
+</CODE>
+
+<P>
+This structure contains a posn in the x field and a string in the y field.
+</P>
+
+<EXERCISE>
+Exercise 76. Formulate data definitions for the following structure type definitions:
+</EXERCISE>
+
+<P>
+•  (define-struct movie [title producer year])
+</P>
+
+<P>
+•  (define-struct person [name hair eyes phone])
+</P>
+
+<P>
+•  (define-struct pet [name number])
+</P>
+
+<P>
+•  (define-struct CD [artist title price])
+</P>
+
+<P>
+•  (define-struct sweater [material size producer])
+</P>
+
+<P>
+Make sensible assumptions as to what kind of values go into each field.
+</P>
+
+<EXERCISE>
+Exercise 77. Provide a structure type definition and a data definition for representing points in time since midnight. A point in time consists of three numbers: hours, minutes, and seconds.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 78. Provide a structure type and a data definition for representing three-letter words. A word consists of lowercase letters, represented with the 1Strings "a" through "z" plus #false. Note This exercise is a part of the design of a hangman game; see exercise 396.
+</EXERCISE>
+
+<P>
+Programmers not only write data definitions, they also read them in order to understand programs, to expand the kind of data they can deal with, to eliminate errors, and so on. We read a data definition to understand how to create data that belongs to the designated collection and to determine whether some piece of data belongs to some specified class.
+</P>
+
+<P>
+Since data definitions play such a central and important role in the design process, it is often best to illustrate data definitions with examples just like we illustrate the behavior of functions with examples. And indeed, creating data examples from a data definition is straightforward:
+</P>
+
+<P>
+•  for a built-in collection of data (number, string, Boolean, images), choose your favorite examples;
+</P>
+
+<P>
+Note On occasion, people use descriptive names to qualify built-in data collections, such as NegativeNumber or OneLetterString. They are no replacement for a well-written data definition. End
+</P>
+
+<P>
+•  for an enumeration, use several of the items of the enumeration;
+</P>
+
+<P>
+•  for intervals, use the end points (if they are included) and at least one interior point;
+</P>
+
+<P>
+•  for itemizations, deal with each part separately; and
+</P>
+
+<P>
+•  for data definitions for structures, follow the natural language description; that is, use the constructor and pick an example from the data collection named for each field.
+</P>
+
+<P>
+That’s all there is to constructing examples from data definitions for most of this book, though data definitions are going to become much more complex than what you have seen so far.
+</P>
+
+<EXERCISE>
+Exercise 79. Create examples for the following data definitions:
+</EXERCISE>
+
+<P>
+•  ; A Color is one of:; --- "white" ; --- "yellow" ; --- "orange" ; --- "green" ; --- "red" ; --- "blue" ; --- "black"
+</P>
+
+<P>
+Note DrRacket recognizes many more strings as colors. End
+</P>
+
+<P>
+•  ; H is a Number between 0 and 100. ; interpretation represents a happiness value
+</P>
+
+<P>
+•  (define-struct person [fstname lstname male?]) ; A Person is a structure: ;   (make-person String String Boolean)
+</P>
+
+<P>
+Is it a good idea to use a field name that looks like the name of a predicate?
+</P>
+
+<P>
+•  (define-struct dog [owner name age happiness]) ; A Dog is a structure: ;       (make-dog Person String PositiveInteger H)
+</P>
+
+<P>
+Add an interpretation to this data definition, too.
+</P>
+
+<P>
+•  ; A Weapon is one of:; --- #false; --- Posn; interpretation #false means the missile hasn't; been fired yet; a Posn means it is in flight
+</P>
+
+<P>
+The last definition is an unusual itemization, combining built-in data with a structure type. The next chapter deals with such definitions in depth.
+</P>
+
+<h2>
+5.8 Designing with Structures
+</h2>
+
+<P>
+The introduction of structure types reinforces the need for all six steps in the design recipe. It no longer suffices to rely on built-in data collections to represent information; it is now clear that programmers must create data definitions for all but the simplest problems.
+</P>
+
+<P>
+This section adds a design recipe, illustrating it with the following:
+</P>
+
+<P>
+Sample Problem Design a function that computes the distance of objects in a 3-dimensional space to the origin.
+</P>
+
+<P>
+Here we go:
+</P>
+
+<P>
+1. When a problem calls for the representation of pieces of information that belong together or describe a natural whole, you need a structure type definition. It requires as many fields as there are relevant properties. An instance of this structure type corresponds to the whole, and the values in the fields correspond to its attributes.
+</P>
+
+<P>
+A data definition for a structure type introduces a name for the collection of instances that are legitimate. Furthermore, it must describe which kind of data goes with which field. Use only names of built-in data collections or previously defined data definitions.
+</P>
+
+<P>
+In the end, we (and others) must be able to use the data definition to create sample structure instances. Otherwise, something is wrong with our data definition. To ensure that we can create instances, our data definitions should come with data examples.
+</P>
+
+<P>
+Here is how we apply this idea to the sample problem:
+</P>
+
+<CODE>
+(define-struct r3 [x y z]) ; An R3 is a structure: ;   (make-r3 Number Number Number) (define ex1 (make-r3 1 2 13)) (define ex2 (make-r3 -1 0 3))
+</CODE>
+
+<P>
+The structure type definition introduces a new kind of structure, r3, and the data definition introduces R3 as the name for all instances of r3 that contain only numbers.
+</P>
+
+<P>
+2. You still need a signature, a purpose statement, and a function header but they remain the same. Stop! Do it for the sample problem.
+</P>
+
+<P>
+3. Use the examples from the first step to create functional examples. For each field associated with intervals or enumerations, make sure to pick end points and intermediate points to create functional examples. We expect you to continue working on the sample problem.
+</P>
+
+<P>
+4. A function that consumes structures usually—though not always—extracts the values from the various fields in the structure. To remind yourself of this possibility, add a selector for each field to the templates for such functions.
+</P>
+
+<P>
+Here is what we have for the sample problem:
+</P>
+
+<CODE>
+; R3 -> Number ; determines the distance of p to the origin (define (r3-distance-to-0 p)   (… (r3-x p) … (r3-y p) … (r3-z p) …))
+</CODE>
+
+<P>
+You may want to write down next to each selector expression what kind of data it extracts from the given structure; you can find this information in the data definition. Stop! Just do it!
+</P>
+
+<P>
+5. Use the selector expressions from the template when you define the function. Keep in mind that you may not need some of them.
+</P>
+
+<P>
+6. Test. Test as soon as the function header is written. Test until all expressions have been covered. Test again when you make changes.
+</P>
+
+<P>
+Finish the sample problem. If you cannot remember the distance of a 3-dimensional point to the origin, look it up in a geometry book.
+</P>
+
+<MARGIN_NOTE>
+There you will find a formula such as .
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 80. Create templates for functions that consume instances of the following structure types:
+</EXERCISE>
+
+<P>
+•  (define-struct movie [title director year])
+</P>
+
+<P>
+•  (define-struct pet [name number])
+</P>
+
+<P>
+•  (define-struct CD [artist title price])
+</P>
+
+<P>
+•  (define-struct sweater [material size color])
+</P>
+
+<P>
+No, you do not need data definitions for this task.
+</P>
+
+<EXERCISE>
+Exercise 81. Design the function time->seconds, which consumes instances of time structures (see exercise 77) and produces the number of seconds that have passed since midnight. For example, if you are representing 12 hours, 30 minutes, and 2 seconds with one of these structures and if you then apply time->seconds to this instance, the correct result is 45002.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 82. Design the function compare-word. The function consumes two three-letter words (see exercise 78). It produces a word that indicates where the given ones agree and disagree. The function retains the content of the structure fields if the two agree; otherwise it places #false in the field of the resulting word. Hint The exercises mentions two tasks: the comparison of words and the comparison of “letters.”
+</EXERCISE>
+
+<h2>
+5.9 Structure in the World
+</h2>
+
+<P>
+When a world program must track two independent pieces of information, we must use a collection of structures to represent the world state data. One field keeps track of one piece of information and the other field the second piece of information. Naturally, if the domain world contains more than two independent pieces of information, the structure type definition must specify as many fields as there are distinct pieces of information.
+</P>
+
+<P>
+Consider a space invader game that consists of a UFO and a tank. The UFO descends along a straight vertical line and a tank moves horizontally at the bottom of a scene. If both objects move at known constant speeds, all that’s needed to describe these two objects is one piece of information per object: the y-coordinate for the UFO and the x-coordinate for the tank. Putting those together requires a structure with two fields:
+</P>
+
+<CODE>
+(define-struct space-game [ufo tank])
+</CODE>
+
+<P>
+We leave it to you to formulate an adequate data definition for this structure type definition, including an interpretation. Ponder the hyphen in the name of the structure. BSL really allows the use of all kinds of characters in the names of variables, functions, structures, and field names. What are the selector names for this structure? The name of the predicate?
+</P>
+
+<P>
+Every time we say “piece of information,” we don’t necessarily mean a single number or a single word. A piece of information may itself combine several pieces of information. Creating a data representation for that kind of information naturally leads to nested structures.
+</P>
+
+<P>
+Let’s add a modicum of spice to our imaginary space invader game. A UFO that descends only along a vertical line is boring. To turn this idea into an interesting game where the tank attacks the UFO with some weapon, the UFO must be able to descend in nontrivial lines, perhaps jumping randomly. An implementation of this idea means that we need two coordinates to describe the location of the UFO, so that our revised data definition for the space game becomes:
+</P>
+
+<CODE>
+; A SpaceGame is a structure: ;    (make-space-game Posn Number). ; interpretation (make-space-game (make-posn ux uy) tx) ; describes a configuration where the UFO is ; at (ux,uy) and the tank's x-coordinate is tx
+</CODE>
+
+<P>
+Understanding what kind of data representations are needed for world programs takes practice. The following two sections introduce several reasonably complex problem statements. Solve them before moving on to the kind of games that you might like to design on your own.
+</P>
+
+<h2>
+5.10 A Graphical Editor
+</h2>
+
+<P>
+To program in BSL, you open DrRacket, type on the keyboard, and watch text appear. Pressing the left arrow on the keyboard moves the cursor to the left; pressing the backspace (or delete) key erases a single letter to the left of the cursor—if there is a letter to start with.
+</P>
+
+<P>
+This process is called “editing,” though its precise name should be “text editing of programs” because we will use “editing” for a more demanding task than typing on a keyboard. When you write and revise other kinds of documents, say, an English assignment, you are likely to use other software applications, called word processors, though computer scientists dub all of them editors or even graphical editors.
+</P>
+
+<P>
+You are now in a position to design a world program that acts as a one-line editor for plain text. Editing here includes entering letters and somehow changing the already existing text, including the deletion and the insertion of letters. This implies some notion of position within the text. People call this position a cursor; most graphical editors display it in such a way that it can easily be spotted.
+</P>
+
+<P>
+Take a look at the following editor configuration:
+</P>
+
+<FIGURE src="images/00110.png">
+
+</FIGURE>
+
+<P>
+Someone might have entered the text “helloworld” and hit the left arrow key five times, causing the cursor to move from the end of the text to the position between “o” and “w.” Pressing the space bar would now cause the editor to change its display as follows:
+</P>
+
+<FIGURE src="images/00111.png">
+
+</FIGURE>
+
+<P>
+In short, the action inserts “” and places the cursor between it and “w.”
+</P>
+
+<P>
+Given this much, an editor must track two pieces of information:
+</P>
+
+<P>
+1. the text entered so far, and
+</P>
+
+<P>
+2. the current location of the cursor.
+</P>
+
+<P>
+And this suggests a structure type with two fields.
+</P>
+
+<P>
+We can imagine several different ways of going from the information to data and back. For example, one field in the structure may contain the entire text entered, and the other the number of characters between the first character (counting from the left) and the cursor. Another data representation is to use two strings in the two fields: the part of the text to the left of the cursor and the part of the text to its right. Here is our preferred approach to representing the state of an editor:
+</P>
+
+<CODE>
+(define-struct editor [pre post]) ; An Editor is a structure: ;    (make-editor String String) ; interpretation (make-editor s t) describes an editor ; whose visible text is (string-append s t) with ; the cursor displayed between s and t
+</CODE>
+
+<P>
+Solve the next few exercises based on this data representation.
+</P>
+
+<EXERCISE>
+Exercise 83. Design the function render, which consumes an Editor and produces an image.
+</EXERCISE>
+
+<P>
+The purpose of the function is to render the text within an empty scene of 200 × 20 pixels. For the cursor, use a 1 × 20 red rectangle and for the strings, black text of size 16.
+</P>
+
+<P>
+Develop the image for a sample string in DrRacket’s interactions area. We started with this expression:
+</P>
+
+<FIGURE src="images/00112.png">
+
+</FIGURE>
+
+<P>
+You may wish to read up on beside, above, and such functions. When you are happy with the looks of the image, use the expression as a test and as a guide to the design of render.
+</P>
+
+<EXERCISE>
+Exercise 84. Design edit. The function consumes two inputs, an editor ed and a KeyEvent ke, and it produces another editor. Its task is to add a single-character KeyEvent ke to the end of the pre field of ed, unless ke denotes the backspace ("\b") key. In that case, it deletes the character immediately to the left of the cursor (if there are any). The function ignores the tab key ("\t") and the return key ("\r").
+</EXERCISE>
+
+<P>
+The function pays attention to only two KeyEvents longer than one letter: "left" and "right". The left arrow moves the cursor one character to the left (if any), and the right arrow moves it one character to the right (if any). All other such KeyEvents are ignored.
+</P>
+
+<P>
+Develop a goodly number of examples for edit, paying attention to special cases. When we solved this exercise, we created 20 examples and turned all of them into tests.
+</P>
+
+<P>
+Hint Think of this function as consuming KeyEvents, a collection that is specified as an enumeration. It uses auxiliary functions to deal with the Editor structure. Keep a wish list handy; you will need to design additional functions for most of these auxiliary functions, such as string-first, string-rest, string-last, and string-remove-last. If you haven’t done so, solve the exercises in chapter 2.1.
+</P>
+
+<EXERCISE>
+Exercise 85. Define the function run. Given the pre field of an editor, it launches an interactive editor, using render and edit from the preceding two exercises for the to-draw and on-key clauses, respectively.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 86. Notice that if you type a lot, your editor program does not display all of the text. Instead the text is cut off at the right margin. Modify your function edit from exercise 84 so that it ignores a keystroke if adding it to the end of the pre field would mean the rendered text is too wide for your canvas.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 87. Develop a data representation for an editor based on our first idea, using a string and an index. Then solve the preceding exercises again. Retrace the design recipe. Hint if you haven’t done so, solve the exercises in chapter 2.1.
+</EXERCISE>
+
+<P>
+Note on Design Choices The exercise is a first study of making design choices. It shows that the very first design choice concerns the data representation. Making the right choice requires planning ahead and weighing the complexity of each. Of course, getting good at this is a question of gaining experience.
+</P>
+
+<h2>
+5.11 More Virtual Pets
+</h2>
+
+<P>
+In this section we continue our virtual zoo project from chapter 3.7. Specifically, the goal of the exercise is to combine the cat world program with the program for managing its happiness gauge. When the combined program runs, you see the cat walking across the canvas, and, with each step, its happiness goes down. The only way to make the cat happy is to feed it (down arrow) or to pet it (up arrow). Finally, the goal of the last exercise in this section is to create another virtual, happy pet.
+</P>
+
+<EXERCISE>
+Exercise 88. Define a structure type that keeps track of the cat’s x-coordinate and its happiness. Then formulate a data definition for cats, dubbed VCat, including an interpretation.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 89. Design the happy-cat world program, which manages a walking cat and its happiness level. Let’s assume that the cat starts out with perfect happiness.
+</EXERCISE>
+
+<P>
+Hints (1) Reuse the functions from the world programs in chapter 3.7. (2) Use structure type from the preceding exercise to represent the state of the world.
+</P>
+
+<EXERCISE>
+Exercise 90. Modify the happy-cat program from the preceding exercises so that it stops whenever the cat’s happiness falls to 0.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 91. Extend your structure type definition and data definition from exercise 88 to include a direction field. Adjust your happy-cat program so that the cat moves in the specified direction. The program should move the cat in the current direction, and it should turn the cat around when it reaches either end of the scene.
+</EXERCISE>
+
+<FIGURE src="images/00113.png">
+
+</FIGURE>
+
+<P>
+The above drawing of a chameleon is a transparent image. To insert it into DrRacket, insert it with the “Insert Image” menu item. Using this instruction preserves the transparency of the drawing’s pixels.
+</P>
+
+<P>
+When a partly transparent image is combined with a colored shape, say a rectangle, the image takes on the underlying color. In the chameleon drawing, it is actually the inside of the animal that is transparent; the area outside is solid white. Try out this expression in your DrRacket:
+</P>
+
+<FIGURE src="images/00114.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 92. Design the cham program, which has the chameleon continuously walking across the canvas from left to right. When it reaches the right end of the canvas, it disappears and immediately reappears on the left. Like the cat, the chameleon gets hungry from all the walking, and, as time passes by, this hunger expresses itself as unhappiness.
+</EXERCISE>
+
+<P>
+For managing the chameleon’s happiness gauge, you may reuse the happiness gauge from the virtual cat. To make the chameleon happy, you feed it (down arrow, two points only); petting isn’t allowed. Of course, like all chameleons, ours can change color, too: "r" turns it red, "b" blue, and "g" green. Add the chameleon world program to the virtual cat game and reuse functions from the latter when possible.
+</P>
+
+<P>
+Start with a data definition, VCham, for representing chameleons.
+</P>
+
+<EXERCISE>
+Exercise 93. Copy your solution to exercise 92 and modify the copy so that the chameleon walks across a tricolor background. Our solution uses these colors:
+</EXERCISE>
+
+<FIGURE src="images/00115.png">
+
+</FIGURE>
+
+<P>
+but you may use any colors. Observe how the chameleon changes colors to blend in as it crosses the border between two colors.
+</P>
+
+<MARGIN_NOTE>
+Have some Italian pizza when you’re done.
+</MARGIN_NOTE>
+
+<P>
+Note When you watch the animation carefully, you see the chameleon riding on a white rectangle. If you know how to use image editing software, modify the picture so that the white rectangle is invisible. Then the chameleon will really blend in.
+</P>

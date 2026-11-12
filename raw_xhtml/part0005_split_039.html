@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_40"><a id="sec5-7" class="calibre16"></a>5.7 The Universe of Data</h2>
+<p class="tni">Every language comes with a universe of data. This data represents information from and about the external world; it is what programs manipulate. This universe of data is a collection that not only contains all built-in data but also any piece of data that any program may ever create.</p>
+<p class="marginpar">Remember that mathematicians call data collections or data classes <i class="calibre6">sets</i>.</p>
+<p class="calibre8">The left side of <a id="rfig30" href="part0005_split_039.html#fig30" class="calibre5">figure 30</a> shows one way to imagine the universe of BSL. Since there are infinitely many numbers and strings, the collection of all data is infinite. We indicate “infinity” in the figure with “<span>⋯</span>”, but a real definition would have to avoid this imprecision.</p>
+<div class="figure">
+<figure class="img"><a id="fig30" class="calibre5"></a><img src="../images/00107.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_039.html#rfig30" class="calibre5">Figure 30</a>:</span> <span>The universe of data</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Neither programs nor individual functions in programs deal with the entire universe of data. It is the purpose of a data definition to describe parts of this universe and to name these parts so that we can refer to them concisely. Put differently, a named data definition is a description of a collection of data, and that name is usable in other data definitions and in function signatures. In a function signature, the name specifies what data a function will deal with and, implicitly, which part of the universe of data it won’t deal with.</p>
+<p class="calibre8">Practically, the data definitions of the first four chapters restrict built-in collections of data. They do so via an explicit or implicit itemization of all included values. For example, the region shaded with gray on the right side in <a href="part0005_split_039.html#fig30" class="calibre5">figure 30</a> depicts the following data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">BS</span><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "hello",</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "world", or</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> pi.</samp></p>
+</div>
+<p class="tni">While this particular data definition looks silly, note the stylized mix of English and BSL that is used. Its meaning is precise and unambiguous, clarifying exactly which elements belong to BS and which don’t.</p>
+<p class="calibre8">The definition of structure types completely revised the picture. When a programmer defines a structure type, the universe expands with all possible structure instances. For example, the addition of <samp class="mono">posn</samp> means that <span epub:type="pagebreak" id="pg_162" title="162"></span>instances of <samp class="mono">posn</samp> with all possible values in the two fields appear. The middle bubble in <a id="rfig31" href="part0005_split_039.html#fig31" class="calibre5">figure 31</a> depicts the addition of these values, including such seeming nonsense as <samp class="mono">(make-posn "hello" 0)</samp> and <samp class="mono">(make-posn (make-posn 0 1) 2)</samp>. And yes, some of these instances of <samp class="mono">posn</samp> make no sense to us. But, a BSL program may construct any of them.</p>
+<div class="figure">
+<figure class="img"><a id="fig31" class="calibre5"></a><img src="../images/00108.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_039.html#rfig31" class="calibre5">Figure 31</a>:</span> <span>Adding structure to a universe</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Adding yet another structure type definition mixes and matches everything again. Say we add the definition for <samp class="mono">ball</samp>, also with two fields. As the third bubble in <a href="part0005_split_039.html#fig31" class="calibre5">figure 31</a> shows, this addition creates instances of <samp class="mono">ball</samp> that contain numbers, <samp class="mono">posn</samp> structures, and so on, as well as instances of <samp class="mono">posn</samp> that contain instances of <samp class="mono">ball</samp>. Try it out in DrRacket! Add</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define-struct ball</samp><samp class="mono"> [location velocity])</samp></samp></p>
+</div>
+<p class="tni">to the definitions area, hit <i class="calibre6">RUN</i>, and create some structure instances.</p>
+<p class="calibre8">As far as the pragmatics of data definitions is concerned, a data definition for structure types describes large collections of data via combinations of existing data definitions with instances. When we write</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp><samp class="monospace-italic">Posn</samp><samp class="mono"> is (make-posn</samp><samp class="mono"> </samp>Number Number<samp class="mono">)</samp></p>
+</div>
+<p class="tni">we are describing an infinite number of possible instances of <samp class="mono">posn</samp>. Like above, the data definitions use combinations of natural language, data collections defined elsewhere, and data constructors. Nothing else should show up in a data definition at the moment.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_163" title="163"></span>A data definition for structures specifies a new collection of data made up of those instances to be used by our functions. For example, the data definition for Posns identifies the region shaded in gray in the center bubble of the universe in <a href="part0005_split_039.html#fig31" class="calibre5">figure 31</a>, which includes all those <samp class="mono">posn</samp> structures whose two fields contain numbers. At the same time, it is perfectly possible to construct an instance of <samp class="mono">posn</samp> that doesn’t satisfy the requirement that both fields contain numbers:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(make-posn (make-posn</samp><samp class="mono"> 1 1)</samp><samp class="mono"> "hello")</samp></samp></p>
+</div>
+<p class="tni">This structure contains a <samp class="mono">posn</samp> in the <samp class="mono">x</samp> field and a string in the <samp class="mono">y</samp> field.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 76. Formulate data definitions for the following structure type definitions:</p>
+<p class="blf">•  <samp class="mono">(define-struct movie [title producer year])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct person [name hair eyes phone])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct pet [name number])</samp></p>
+<p class="blf">•  <samp class="mono">(define-struct CD [artist title price])</samp></p>
+<p class="bll"><span epub:type="pagebreak" id="pg_164" title="164"></span>•  <samp class="mono">(define-struct sweater [material size producer])</samp></p>
+<p class="tni">Make sensible assumptions as to what kind of values go into each field. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 77. Provide a structure type definition and a data definition for representing points in time since midnight. A point in time consists of three numbers: hours, minutes, and seconds. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 78. Provide a structure type and a data definition for representing three-letter words. A word consists of lowercase letters, represented with the 1Strings <samp class="mono">"a"</samp> through <samp class="mono">"z"</samp> plus <samp class="mono">#false</samp>. <b class="calibre9">Note</b> This exercise is a part of the design of a hangman game; see exercise 396. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Programmers not only write data definitions, they also read them in order to understand programs, to expand the kind of data they can deal with, to eliminate errors, and so on. We read a data definition to understand how to create data that belongs to the designated collection and to determine whether some piece of data belongs to some specified class.</p>
+<p class="calibre8">Since data definitions play such a central and important role in the design process, it is often best to illustrate data definitions with examples just like we illustrate the behavior of functions with examples. And indeed, creating data examples from a data definition is straightforward:</p>
+<p class="blf">•  for a built-in collection of data (number, string, Boolean, images), choose your favorite examples;</p>
+<p class="myitemizeitem"><b class="calibre9">Note</b> On occasion, people use descriptive names to qualify built-in data collections, such as <samp class="mono">NegativeNumber</samp> or <samp class="mono">OneLetterString</samp>. They are no replacement for a well-written data definition. <b class="calibre9">End</b></p>
+<p class="blf">•  for an enumeration, use several of the items of the enumeration;</p>
+<p class="blf">•  for intervals, use the end points (if they are included) and at least one interior point;</p>
+<p class="blf">•  for itemizations, deal with each part separately; and</p>
+<p class="bll">•  for data definitions for structures, follow the natural language description; that is, use the constructor and pick an example from the data collection named for each field.</p>
+<p class="tni">That’s all there is to constructing examples from data definitions for most of this book, though data definitions are going to become much more complex than what you have seen so far.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_165" title="165"></span><b class="calibre9">Exercise</b> 79. Create examples for the following data definitions:</p>
+<div class="alltt">
+<p class="bl-co"><samp class="mono">•  <samp class="mono">; A</samp><samp class="mono"> </samp><span><i class="calibre6">Color</i></span><samp class="mono"> is one</samp><samp class="mono"> of:</samp><br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "white"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "yellow"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "orange"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "green"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "red"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "blue"</samp> <br class="calibre4"/><samp class="mono">; ---</samp><samp class="mono"> "black"</samp></samp></p>
+</div>
+<p class="bl-co1"><b class="calibre9">Note</b> DrRacket recognizes many more strings as colors. <b class="calibre9">End</b></p>
+<div class="alltt">
+<p class="bl-co"><samp class="mono">•  <samp class="mono">; </samp><span><i class="calibre6">H</i></span><samp class="mono"> is a</samp><samp class="mono"> </samp><span>Number</span><samp class="mono"> between 0</samp><samp class="mono"> and 100.</samp> <br class="calibre4"/>; <span><b class="calibre9">interpretation</b></span><samp class="mono"> represents a</samp><samp class="mono"> happiness value</samp></samp></p>
+</div>
+<div class="alltt">
+<p class="bl-co"><samp class="mono">•  <samp class="mono">(define-struct person</samp><samp class="mono"> [fstname lstname</samp><samp class="mono"> male?])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span><i class="calibre6">Person</i></span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-person</samp><samp class="mono"> </samp><span>String String Boolean</span><samp class="mono">)</samp></samp></p>
+</div>
+<p class="bl-co1">Is it a good idea to use a field name that looks like the name of a predicate?</p>
+<div class="verbatim">
+<p class="bl-co"><samp class="mono">•  <samp class="mono">(define-struct dog</samp><samp class="mono"> [owner name</samp><samp class="mono"> age happiness])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><span><i class="calibre6">Dog</i></span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (make-dog</samp><span> Person String PositiveInteger H</span>)</samp></p>
+</div>
+<p class="bl-co1">Add an interpretation to this data definition, too.</p>
+<div class="alltt">
+<p class="bl-co"><samp class="mono">•  ; A <span><i class="calibre6">Weapon</i></span> is one of:<br class="calibre4"/>; --- #false<br class="calibre4"/>; --- <span>Posn</span><br class="calibre4"/>; <span><b class="calibre9">interpretation</b></span> #false means the missile hasn't<br class="calibre4"/>; been fired yet; a <span>Posn</span> means it is in flight</samp></p>
+</div>
+<p class="tni">The last definition is an unusual itemization, combining built-in data with a structure type. The next chapter deals with such definitions in depth. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

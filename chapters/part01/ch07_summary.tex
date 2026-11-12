@@ -1,0 +1,48 @@
+% ==============================================================================
+% 第 7 章：第一部分小结 (Chapter 7: Summary)
+% ==============================================================================
+
+\chapter{第一部分小结}
+\label{sec:ch07_summary}
+
+在本书的第一部分中，你学习了一系列看似质朴却至关重要的编程铁律。作为本阶段的收束，我们将其精要归纳如下：
+
+\begin{notebox}[第一部分核心心得归纳]
+\begin{enumerate}[label=\textbf{\arabic*.}]
+  \item \textbf{设计胜于修补}：
+    优秀的程序员\term{系统性地设计}程序；拙劣的程序员则盲目拼凑代码，不断打补丁，直到程序“表面上似乎能跑起来”为止。编程不是试错的撞大运，而是严密的工程思维。
+
+  \item \textbf{设计配方的两个维度}：
+    程序设计配方具有紧密交织的两个维度：
+    \begin{itemize}
+      \item \textbf{过程维度}：即开发必须遵循的严谨步骤序列——从数据定义、函数签名、目的说明与函数头，到设计功能测试、梳理模板、编写函数体，最终运行自动化测试。
+      \item \textbf{数据维度}：即所选取的\textbf{数据表示形态}（原子类型、枚举、区间、分类、结构体）如何直接决定了函数模板的骨架与实现方式。
+    \end{itemize}
+
+  \item \textbf{良构程序的解剖结构}：
+    每一个精心设计的程序都由多项常量定义、结构体类型定义、数据定义以及函数定义有机协同构成：
+    \begin{itemize}
+      \item \textbf{批处理程序}（Batch Programs）：由一个 \code{main} 主函数统领全局，该主函数通常组合若干专职辅助函数来完成复杂的端到端计算。
+      \item \textbf{交互式程序}（Interactive Programs）：由 \code{big-bang} 表达式承担主函数的职责；它规定了世界的初始状态、一个生成画面的渲染函数，以及至多三个核心事件处理器（时钟滴答处理、鼠标点击处理、键盘事件处理）。
+      \item 无论是哪种程序，函数定义在源文件中均应以\textbf{自顶向下}（top-down）的方式布局：首先呈现主函数，接着呈现主函数直接调用的下层函数，依此类推。
+    \end{itemize}
+
+  \item \textbf{语法与计算语义}：
+    与一切自然语言和程序设计语言相同，初学学生语言（BSL）拥有一套严密的词汇与文法规则。程序员必须深刻理解语言中每一条合法语句的\term{计算含义}（语义），从而能够准确预测程序在接收特定输入时将如何一步步归约求值。接下来的插曲将深入剖析这一概念。
+
+  \item \textbf{拥抱标准库，避免重复造轮子}：
+    包括 BSL 在内的现代编程语言都提供了丰富的标准库函数（例如图形库 \code{2htdp/image} 与宇宙模拟库 \code{2htdp/universe}）。优秀程序员应当熟练掌握标准库提供的武器，尤其是其函数签名与目的说明，善用现成的高效工具解决问题。
+
+  \item \textbf{熟练驾驭语言工具与术语}：
+    程序员必须对自己所选编程语言提供的各类机制了如指掌。这些机制要么是语言的核心构件（如 \code{cond} 或 \code{max}），要么是从库中导入的利器。在此精神下，请读者务必确保自己已经毫无障碍地彻底掌握以下核心概念：
+    \begin{itemize}
+      \item 结构体类型定义（Structure Type Definition）
+      \item 函数定义（Function Definition）
+      \item 常量定义（Constant Definition）
+      \item 结构体实例（Structure Instance）
+      \item 数据定义与解释（Data Definition and Interpretation）
+      \item 世界主控表达式 \code{big-bang}
+      \item 事件处理函数（Event-Handling Function）
+    \end{itemize}
+\end{enumerate}
+\end{notebox}

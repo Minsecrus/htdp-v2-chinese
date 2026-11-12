@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_18"><a id="sec3-1" class="calibre16"></a>3.1 Designing Functions</h2>
+<p class="tni"><b class="calibre9">Information and Data</b> The purpose of a program is to describe a computational process that consumes some information and produces new information. In this sense, a program is like the instructions a mathematics teacher gives to grade school students. Unlike a student, however, a program works with more than numbers: it calculates with navigation information, looks up a person’s address, turns on switches, or inspects the state of a video game. All this information comes from a part of the real world—often called the program’s <i class="calibre6">domain</i>—and the results of a program’s computation represent more information in this domain.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_79" title="79"></span><i class="calibre6">Information</i> plays a central role in our description. Think of information as facts about the program’s domain. For a program that deals with a furniture catalog, a “table with five legs” or a “square table of two by two meters” are pieces of information. A game program deals with a different kind of domain, where “five” might refer to the number of pixels per clock tick that some object travels on its way from one part of the canvas to another. Or, a payroll program is likely to deal with “five deductions.”</p>
+<p class="calibre8">For a program to process information, it must turn it into some form of <i class="calibre6">data</i> in the programming language; then it processes the data; and once it is finished, it turns the resulting data into information again. An interactive program may even intermingle these steps, acquiring more information from the world as needed and delivering information in between.</p>
+<p class="calibre8">We use BSL and DrRacket so that you do <b class="calibre9">not</b> have to worry about the translation of information into data. In DrRacket’s BSL you can apply a function directly to data and observe what it produces. As a result, we avoid the serious chicken-and-egg problem of writing functions that convert information into data and vice versa. For simple kinds of information, designing such program pieces is trivial; for anything other than simple information, you need to know about parsing, for example, and <b class="calibre9">that</b> immediately requires a lot of expertise in program design.</p>
+<p class="calibre8">Software engineers use the slogan <i class="calibre6">model-view-controller</i> (MVC) for the way BSL and DrRacket separate data processing from parsing information into data and turning data into information. Indeed, it is now accepted wisdom that well-engineered software systems enforce this separation, even though most introductory books still comingle them. Thus, working with BSL and DrRacket allows you to focus on the design of the core of programs, and, when you have enough experience with that, you can learn to design the information-data translation parts.</p>
+<p class="calibre8">Here we use two preinstalled teachpacks to demonstrate the separation of data and information: <samp class="mono">2htdp/batch-io</samp> and <samp class="mono">2htdp/universe</samp>. Starting with this chapter, we develop design recipes for <b class="calibre9">batch</b> and <b class="calibre9">interactive</b> programs to give you an idea of how complete programs are designed. Do keep in mind that the libraries of full-fledged programming languages offer many more contexts for complete programs, and that you will need to adapt the design recipes appropriately.</p>
+<p class="calibre8">Given the central role of information and data, program design must start with the connection between them. Specifically, we, the programmers, must decide how to use our chosen programming language to <i class="calibre6">represent</i> the relevant pieces of information as data and how we should <i class="calibre6">interpret</i> data as information. <a id="rfig15" href="part0005_split_017.html#fig15" class="calibre5">Figure 15</a> explains this idea with an abstract diagram.</p>
+<div class="figure">
+<figure class="img"><a id="fig15" class="calibre5"></a><img src="../images/00057.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_017.html#rfig15" class="calibre5">Figure 15</a>:</span> <span>From information to data, and back</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_80" title="80"></span>To make this idea concrete, let’s work through some examples. Suppose you are designing a program that consumes and produces information in the form of numbers. While choosing a representation is easy, an interpretation requires explaining what a number such as <samp class="mono">42</samp> denotes in the domain:</p>
+<p class="blf">•  <samp class="mono">42</samp> may refer to the number of pixels from the top margin in the domain of images;</p>
+<p class="blf">•  <samp class="mono">42</samp> may denote the number of pixels per clock tick that a simulation or game object moves;</p>
+<p class="blf">•  <samp class="mono">42</samp> may mean a temperature, on the Fahrenheit, Celsius, or Kelvin scale for the domain of physics;</p>
+<p class="blf">•  <samp class="mono">42</samp> may specify the size of some table if the domain of the program is a furniture catalog; or</p>
+<p class="bll">•  <samp class="mono">42</samp> could just count the number of characters in a string.</p>
+<p class="tni">The key is to know how to go from numbers as information to numbers as data and vice versa.</p>
+<p class="calibre8">Since this knowledge is so important for everyone who reads the program, we often write it down in the form of comments, which we call <i class="calibre6">data definitions</i>. A data definition serves two purposes. First, it names a collection of data—a <i class="calibre6">class</i>—using a meaningful word. Second, it informs readers <span epub:type="pagebreak" id="pg_81" title="81"></span>how to create elements of this class and how to decide whether some arbitrary piece of data belongs to the collection.</p>
+<p class="marginpar">Computing scientists use “class” to mean something like a “mathematical set.”</p>
+<p class="calibre8">Here is a data definition for one of the above examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; </samp><i class="calibre6">A Temperature</i><samp class="mono"> is a</samp><samp class="mono"> </samp>Number<samp class="mono">.</samp> <br class="calibre4"/><samp class="mono">; </samp><b class="calibre9">interpretation</b><samp class="mono"> represents Celsius</samp><samp class="mono"> degrees</samp></samp></p>
+</div>
+<p class="tni">The first line introduces the name of the data collection, Temperature, and tells us that the class consists of all Numbers. So, for example, if we ask whether <samp class="mono">102</samp> is a temperature, you can respond with “yes” because <samp class="mono">102</samp> is a number and all numbers are temperatures. Similarly, if we ask whether <samp class="mono">"cold"</samp> is a Temperature, you will say “no” because no string belongs to Temperature. And, if we asked you to make up a sample Temperature, you might come up with something like <samp class="mono">−400</samp>.</p>
+<p class="calibre8">If you happen to know that the lowest possible temperature is approximately −274<sup class="calibre15"><i class="calibre6">°</i></sup> C, you may wonder whether it is possible to express this knowledge in a data definition. Since our data definitions are really just English descriptions of classes, you may indeed define the class of temperatures in a much more accurate manner than shown here. In this book, we use a stylized form of English for such data definitions, and the next chapter introduces the style for imposing constraints such as “larger than <samp class="mono">−274</samp>.”</p>
+<p class="calibre8">So far, you have encountered the names of four classes of data: Number, String, Image, and Boolean. With that, formulating a new data definition means nothing more than introducing a new name for an existing form of data, say, “temperature” for numbers. Even this limited knowledge, though, suffices to explain the outline of our design process.</p>
+<p class="marginpar">At this point, you may wish to reread the section on Systematic Program Design in the Preface, especially <a href="part0003.html#fig1" class="calibre5">figure 1</a>.</p>
+<p class="calibre8"><b class="calibre9">The Design Process</b> Once you understand how to represent input information as data and to interpret output data as information, the design of an individual function proceeds according to a straightforward process:</p>
+<p class="nlf">1. Express how you wish to represent information as data. A one-line comment suffices:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; We</samp><samp class="mono"> use numbers</samp><samp class="mono"> to represent</samp><samp class="mono"> centimeters.</samp></samp></p>
+</div>
+<p class="nltni">Formulate data definitions, like the one for Temperature, for the classes of data you consider critical for the success of your program.</p>
+<p class="nlf">2. Write down a signature, a statement of purpose, and a function header.</p>
+<p class="nltni">A <i class="calibre6">function signature</i> is a comment that tells the readers of your design how many inputs your function consumes, from which classes <span epub:type="pagebreak" id="pg_82" title="82"></span>they are drawn, and what kind of data it produces. Here are three examples for functions that respectively</p>
+<div class="ind">
+<p class="blf">•  consume one String and produce a Number:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp>String -&gt; Number</samp></p>
+</div>
+<p class="blf">•  consume a Temperature and produce a String:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp>Temperature -&gt; String</samp></p>
+</div>
+<p class="myitemizeitem">As this signature points out, introducing a data definition as an alias for an existing form of data makes it easy to read the intention behind signatures.</p>
+<p class="myitemizeitem">Nevertheless, we recommend that you stay away from aliasing data definitions for now. A proliferation of such names can cause quite a lot of confusion. It takes practice to balance the need for new names and the readability of programs, and there are more important ideas to understand right now.</p>
+<p class="blf">•  consume a Number, a String, and an Image:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; </samp>Number String Image -&gt; Image</samp></p>
+</div>
+<p class="myitemizeitem-bot">Stop! What does this function produce?</p>
+</div>
+<p class="nltni">A <i class="calibre6">purpose statement</i> is a BSL comment that summarizes the purpose of the function in a single line. If you are ever in doubt about a purpose statement, write down the shortest possible answer to the question</p>
+<div class="ind">
+<div class="verbatim">
+<p class="myitemizeitem"><i class="calibre6">what does</i><i class="calibre6"> the function</i><i class="calibre6"> compute?</i></p>
+</div>
+</div>
+<p class="nltni">Every reader of your program should understand what your functions compute <b class="calibre9">without</b> having to read the function itself.</p>
+<p class="nltni">A multi-function program should also come with a purpose statement. Indeed, good programmers write two purpose statements: one for the reader who may have to modify the code and another one for the person who wishes to use the program but not read it.</p>
+<p class="nltni">Finally, a <i class="calibre6">header</i> is a simplistic function definition, also called a <i class="calibre6">stub</i>. Pick one variable name for each class of input in the signature; the body of the function can be any piece of data from the output class. These three function headers match the above three signatures:</p>
+<div class="ind">
+<p class="blf"><span epub:type="pagebreak" id="pg_83" title="83"></span>•  <samp class="mono">(define (f a-string) 0)</samp></p>
+<p class="blf">•  <samp class="mono">(define(g n) "a")</samp></p>
+<p class="bll">•  <samp class="mono">(define(h num str img) (empty-scene 100 100))</samp></p>
+</div>
+<p class="nltni">Our parameter names reflect what kind of data the parameter represents. Sometimes, you may wish to use names that suggest the purpose of the parameter.</p>
+<p class="nltni">When you formulate a purpose statement, it is often useful to employ the parameter names to clarify what is computed. For example,</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp>Number String Image -&gt; Image <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono">  s</samp><samp class="mono"> to img,</samp> <br class="calibre4"/><samp class="mono">; y</samp><samp class="mono"> pixels from</samp><samp class="mono"> the top</samp><samp class="mono"> and </samp><samp class="mono"> 10 from</samp><samp class="mono"> the left</samp> <br class="calibre4"/><samp class="mono">(define (add-image</samp><samp class="mono"> y s</samp><samp class="mono"> img)</samp><br class="calibre4"/>  <samp class="mono">(empty-scene 100</samp><samp class="mono"> 100))</samp></p>
+</div>
+<p class="nltni">At this point, you can click the <i class="calibre6">RUN</i> button and experiment with the function. Of course, the result is always the same value, which makes these experiments quite boring.</p>
+<p class="nlf">3. Illustrate the signature and the purpose statement with some functional examples. To construct a <i class="calibre6">functional example</i>, pick one piece of data from each input class from the signature and determine what you expect back.</p>
+<p class="nltni">Suppose you are designing a function that computes the area of a square. Clearly this function consumes the length of the square’s side, and that is best represented with a (positive) number. Assuming you have done the first process step according to the recipe, you add the examples between the purpose statement and the header and get this:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp>Number -&gt; Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the area</samp><samp class="mono"> of a</samp><samp class="mono"> square with</samp><samp class="mono"> side len</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 2, expect:</samp><samp class="mono"> 4</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 7, expect:</samp><samp class="mono"> 49</samp> <br class="calibre4"/><samp class="mono">(define (area-of-square</samp><samp class="mono"> len) 0)</samp></p>
+</div>
+<p class="nlf">4. The next step is to take <i class="calibre6">inventory</i>, to understand what are the givens and what we need to compute. For the simple functions we are considering right now, we know that they are given data via parameters. <span epub:type="pagebreak" id="pg_84" title="84"></span>While parameters are placeholders for values that we don’t know yet, we do know that it is from this unknown data that the function must compute its result. To remind ourselves of this fact, we replace the function’s body with a <i class="calibre6">template</i>.</p>
+<p class="marginpar">We owe the term “inventory” to Stephen Bloch.</p>
+<p class="nltni">For now, the template contains just the parameters, so that the preceding example looks like this:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(define (area-of-square</samp><samp class="mono"> len)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (<span>…</span> len</samp><samp class="mono"> <span>…</span>))</samp></samp></p>
+</div>
+<p class="nltni">The dots remind you that this isn’t a complete function, but a template, a suggestion for an organization.</p>
+<p class="nltni">The templates of this section look boring. As soon as we introduce new forms of data, templates become interesting.</p>
+<p class="nlf">5. It is now time to <i class="calibre6">code</i>. In general, to code means to program, though often in the narrowest possible way, namely, to write executable expressions and function definitions.</p>
+<p class="nltni">To us, coding means to replace the body of the function with an expression that attempts to compute from the pieces in the template what the purpose statement promises. Here is the complete definition for <samp class="mono">area-of-square</samp>:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono">; </samp>Number -&gt; Number <br class="calibre4"/><samp class="mono">; computes</samp><samp class="mono"> the area</samp><samp class="mono"> of a</samp><samp class="mono"> square with</samp><samp class="mono"> side </samp><samp class="mono"> len</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 2, expect:</samp><samp class="mono"> 4</samp> <br class="calibre4"/><samp class="mono">; given:</samp><samp class="mono"> 7, expect:</samp><samp class="mono"> 49</samp> <br class="calibre4"/><samp class="mono">(define (area-of-square</samp><samp class="mono"> len)</samp> <br class="calibre4"/><samp class="mono">  (sqr</samp><samp class="mono"> len))</samp></p>
+</div>
+<p class="nltni">To complete the <samp class="mono">add-image</samp> function takes a bit more work than that: see <a id="rfig16" href="part0005_split_017.html#fig16" class="calibre5">figure 16</a>. In particular, the function needs to turn the given string <samp class="mono">s</samp> into an image, which is then placed into the given scene.</p>
+<div class="figure">
+<figure class="img"><a id="fig16" class="calibre5"></a><img src="../images/00058.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_017.html#rfig16" class="calibre5">Figure 16</a>:</span> <span>The completion of design step 5</span></p></figcaption>
+</figure>
+</div>
+<p class="nlf">6. The last step of a proper design is to test the function on the examples that you worked out before. For now, testing works like this. Click the <i class="calibre6">RUN</i> button and enter function applications that match the examples in the interactions area:</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">&gt; (area-of-square</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">4</samp> <br class="calibre4"/><samp class="mono">&gt;(area-of-square 7)</samp> <br class="calibre4"/><samp class="mono">49</samp></samp></p>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_85" title="85"></span>The results must match the output that you expect; you must inspect each result and make sure it is equal to what is written down in the example portion of the design. If the result doesn’t match the expected output, consider the following three possibilities:</p>
+<p class="nlf-lower">(a) You miscalculated and determined the wrong expected output for some of the examples.</p>
+<p class="nl-lower">(b) Alternatively, the function definition computes the wrong result. When this is the case, you have a <i class="calibre6">logical error</i> in your program, also known as a <i class="calibre6">bug</i>.</p>
+<p class="nll-lower">(c) Both the examples and the function definition are wrong.</p>
+<p class="nltni">When you do encounter a mismatch between expected results and actual values, we recommend that you first reassure yourself that the expected results are correct. If so, assume that the mistake is in the function definition. Otherwise, fix the example and then run the tests again. If you are still encountering problems, you may have encountered the third, somewhat rare, situation.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

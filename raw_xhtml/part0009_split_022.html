@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_23"><span epub:type="pagebreak" id="pg_439" title="439" class="calibre1"></span><a id="sec17" class="calibre16"></a>17 Nameless Functions</h1>
+<p class="tni">Using abstract functions needs functions as arguments. Occasionally these functions are existing primitive functions, library functions, or functions that you defined:</p>
+<p class="blf">•  <samp class="mono">(build-list n add1)</samp> creates <samp class="mono">(list 1<span>…</span> n)</samp>;</p>
+<p class="blf">•  <samp class="mono">(foldr cons another-list a-list)</samp> concatenates the items in <samp class="mono">a-list</samp> and <samp class="mono">another-list</samp> into a single list; and</p>
+<p class="bll">•  <samp class="mono">(foldr above empty-image images)</samp> stacks the given images.</p>
+<p class="tni">At other times, it requires the definition of a simple helper function, a definition that often consists of a single line. Consider this use of <samp class="mono">filter</samp>:</p>
+<figure class="co"><img src="../images/00387.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It finds all items on an inventory list whose price is below <samp class="mono">th</samp>. The auxiliary function is nearly trivial yet its definition takes up three lines.</p>
+<p class="marginpar">In DrRacket, choose “Intermediate Student with <samp class="monospace-italic">lambda</samp>” from the “How to Design Programs” submenu in the “Language” menu. The history of <samp class="monospace-margin">lambda</samp> is intimately involved with the early history of programming and programming language design.</p>
+<p class="calibre8">This situation calls for an improvement to the language. Programmers should be able to create such small and insignificant functions without much effort. The next level in our hierarchy of teaching languages, “Intermediate Student Language with <samp class="mono">lambda</samp>,” solves the problem with a new concept, nameless functions. This chapter introduces the concept: its syntax, its meaning, and its pragmatics. With <samp class="mono">lambda</samp>, the above definition is, conceptually speaking, a one-liner:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of I<samp class="mono">R] </samp>Number<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">(define (find</samp><samp class="mono"> l th)</samp> <br class="calibre4"/><samp class="mono">  (filter</samp><samp class="mono"> (lambda (ir)</samp><samp class="mono"> (&lt;= (ir-price</samp><samp class="mono"> ir) th))</samp><samp class="mono"> l))</samp></p>
+</div>
+<p class="tni">The first two sections focus the mechanics of <samp class="mono">lambda</samp>; the remaining ones use <samp class="mono">lambda</samp> for instantiating abstractions, for testing and specifying, and for representing infinite data.</p>
+</section>
+</article>
+</div>
+</body></html>

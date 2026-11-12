@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_23"><a id="sec11-3" class="calibre16"></a>11.3 Auxiliary Functions that Recur</h2>
+<p class="tni">People need to sort things all the time, and so do programs. Investment advisors sort portfolios by the profit each holding generates. Game programs sort lists of players according to scores. And mail programs sort messages according to date or sender or some other criterion.</p>
+<p class="calibre8">In general, you can sort a bunch of items if you can compare and order each pair of data items. Although not every kind of data comes with a comparison primitive, we all know one that does: numbers. Hence, we use a simplistic but highly representative sample problem in this section:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that sorts a list of reals.</p>
+</div>
+<p class="tni">The exercises below clarify how to adapt this function to other data.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_319" title="319"></span>Since the problem statement does not mention any other task and since sorting does not seem to suggest other tasks, we just follow the design recipe. Sorting means rearranging a bunch of numbers. This restatement implies a natural data definition for the inputs and outputs of the function and thus its signature. Given that we have a definition for List-of-numbers, the first step is easy:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-numbers<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a sorted</samp><samp class="mono"> version of</samp><samp class="mono"> alon</samp> <br class="calibre4"/><samp class="mono">(define (sort&gt;</samp><samp class="mono"> alon)</samp> <br class="calibre4"/><samp class="mono">  alon)</samp></p>
+</div>
+<p class="tni">Returning <samp class="mono">alon</samp> ensures that the result is appropriate as far as the function signature is concerned, but in general, the given list isn’t sorted and this result is wrong.</p>
+<p class="calibre8">When it comes to making up examples, it quickly becomes clear that the problem statement is quite imprecise. As before, we use the data definition of List-of-numbers to organize the development of examples. Since the data definition consists of two clauses, we need two examples. Clearly, when <samp class="mono">sort&gt;</samp> is applied to <samp class="mono">'()</samp>, the result must be <samp class="mono">'()</samp>. The question is what the result for</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons 12</samp><samp class="mono"> (cons 20</samp><samp class="mono"> (cons -5</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">should be. The list isn’t sorted, but there are two ways to sort it:</p>
+<p class="blf">•  <samp class="mono">(cons 20 (cons 12 (cons</samp> -5 <samp class="mono">'())))</samp>, that is, a list with the numbers arranged in <b class="calibre9">descending</b> order; and</p>
+<p class="bll">•  <samp class="mono">(cons</samp> -5 <samp class="mono">(cons 12 (cons 20 '())))</samp>, that is, a list with the numbers arranged in <b class="calibre9">ascending</b> order.</p>
+<p class="tni">In a real-world situation, you would now have to ask the person who posed the problem for clarification. Here we go for the descending alternative; designing the ascending alternative doesn’t pose any different obstacles.</p>
+<p class="calibre8">The decision calls for a revision of the header material:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_320" title="320"></span><img src="../images/00255.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The header material now includes the examples reformulated as unit tests and using <samp class="mono">list</samp>. If the latter makes you uncomfortable, reformulate the test with <samp class="mono">cons</samp> to exercise translating back and forth. As for the additional two examples, they demand that <samp class="mono">sort&gt;</samp> works on lists already sorted in ascending and descending order.</p>
+<p class="calibre8">Next we must translate the data definition into a function template. We have dealt with lists of numbers before, so this step is easy:</p>
+<figure class="co"><img src="../images/00256.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Using this template, we can finally turn to the interesting part of the program development. We consider each case of the <samp class="mono">cond</samp> expression separately, starting with the simple case. If <samp class="mono">sort&gt;</samp>’s input is <samp class="mono">'()</samp>, the answer is <samp class="mono">'()</samp>, as specified by the example. If <samp class="mono">sort&gt;</samp>’s input is a <samp class="mono">cons</samp>ed list, the template suggests two expressions that might help:</p>
+<p class="blf">•  <samp class="mono">(first alon)</samp> extracts the first number from the input; and</p>
+<p class="bll">•  <samp class="mono">(sort&gt; (rest alon))</samp> rearranges <samp class="mono">(rest alon)</samp> in descending order, according to the purpose statement of the function.</p>
+<p class="tni">To clarify these abstract answers, let’s use the second example to explain these pieces in detail. When <samp class="mono">sort&gt;</samp> consumes <samp class="mono">(list 12 20</samp> -5<samp class="mono">)</samp>,</p>
+<p class="nlf">1. <samp class="mono">(first alon)</samp> is <samp class="mono">12</samp>,</p>
+<p class="nlf">2. <samp class="mono">(rest alon)</samp> is <samp class="mono">(list 20</samp> -5<samp class="mono">)</samp>, and</p>
+<p class="nll">3. <samp class="mono">(sort&gt; (rest alon))</samp> produces <samp class="mono">(list 20</samp> -5<samp class="mono">)</samp> because this list is already sorted.</p>
+<p class="tni"><span epub:type="pagebreak" id="pg_321" title="321"></span>To produce the desired answer, <samp class="mono">sort&gt;</samp> must insert <samp class="mono">12</samp> between the two numbers of the last list. More generally, we must find an expression that inserts <samp class="mono">(first alon)</samp> in its proper place into the result of <samp class="mono">(sort&gt; (rest alon))</samp>. If we can do so, sorting is an easily solved problem.</p>
+<p class="calibre8">Inserting a number into a sorted list clearly isn’t a simple task. It demands searching through the sorted list to find the proper place of the item. Searching through any list demands an auxiliary function because lists are of arbitrary size and, by item 3 of the preceding section, processing values of arbitrary size calls for the design of an auxiliary function.</p>
+<p class="calibre8">So here is the new wish-list entry:</p>
+<div class="verbatim">
+<p class="code-new">; Number List-of-numbers <samp class="mono">-&gt;</samp> List-of-numbers <br class="calibre4"/><samp class="mono">; inserts</samp><samp class="mono"> n into</samp><samp class="mono"> the sorted</samp><samp class="mono"> list of</samp><samp class="mono"> numbers alon</samp> <br class="calibre4"/><samp class="mono">(define (insert</samp><samp class="mono"> n alon)</samp><samp class="mono"> alon)</samp></p>
+</div>
+<p class="tni">That is, <samp class="mono">insert</samp> consumes a number and a list sorted in descending order and produces a sorted list by inserting the former into the latter.</p>
+<p class="calibre8">With <samp class="mono">insert</samp>, it is easy to complete the definition of <samp class="mono">sort&gt;</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (sort&gt;</samp><samp class="mono"> alon)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [(empty? alon)</samp><samp class="mono"> '()]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [else</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (insert</samp><samp class="mono"> (first alon)</samp><samp class="mono"> (sort&gt; (rest</samp><samp class="mono"> alon)))]))</samp></p>
+</div>
+<p class="tni">In order to produce the final result, <samp class="mono">sort&gt;</samp> extracts the first item of a non-empty list, computes the sorted version of the rest, and uses <samp class="mono">insert</samp> to produce the completely sorted list from the two pieces.</p>
+<p class="calibre8">Stop! Test the program as is. Some test cases pass, and some fail. That’s progress. The next step in its design is the creation of functional examples. Since the first input of <samp class="mono">insert</samp> is any number, we use <samp class="mono">5</samp> and use the data definition for List-of-numbers to make up examples for the second input.</p>
+<p class="calibre8">First we consider what <samp class="mono">insert</samp> should produce when given a number and <samp class="mono">'()</samp>. According to <samp class="mono">insert</samp>’s purpose statement, the output must be a list, it must contain all numbers from the second input, and it must contain the first argument. This suggests the following:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (insert</samp><samp class="mono"> 5 '())</samp><samp class="mono"> (list 5))</samp></p>
+</div>
+<p class="calibre8">Second, we use a non-empty list of just one item:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (insert</samp><samp class="mono"> 5 (list</samp><samp class="mono"> 6)) (list</samp><samp class="mono"> 6 5))</samp> <br class="calibre4"/><samp class="mono">(check-expect (insert</samp><samp class="mono"> 5 (list</samp><samp class="mono"> 4)) (list</samp><samp class="mono"> 5 4))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_322" title="322"></span>The reasoning of why these are the expected results is just like before. For one, the result must contain all numbers from the second list and the extra number. For two, the result must be sorted.</p>
+<p class="calibre8">Finally, let’s create an example with a list that contains more than one item. Indeed, we can derive such an example from the examples for <samp class="mono">sort&gt;</samp> and especially from our analysis of the second <samp class="mono">cond</samp> clause. From there, we know that <samp class="mono">sort&gt;</samp> works only if <samp class="mono">12</samp> is inserted into <samp class="mono">(list 20</samp> -5<samp class="mono">)</samp> at its proper place:</p>
+<figure class="co"><img src="../images/00257.gif" alt="" class="calibre10"/></figure>
+<p class="tni">That is, <samp class="mono">insert</samp> is given a second list and it is sorted in descending order.</p>
+<p class="calibre8">Note what the development of examples teaches us. The <samp class="mono">insert</samp> function has to find the first number that is smaller than the given <samp class="mono">n</samp>. When there is no such number, the function eventually reaches the end of the list and it must add <samp class="mono">n</samp> to the end. Now, before we move on to the template, you should work out some additional examples. To do so, you may wish to use the supplementary examples for <samp class="mono">sort&gt;</samp>.</p>
+<p class="calibre8">In contrast to <samp class="mono">sort&gt;</samp>, the function <samp class="mono">insert</samp> consumes <b class="calibre9">two</b> inputs. Since we know that the first one is a number and atomic, we can focus on the second argument—the list of numbers—for the template development:</p>
+<figure class="co"><img src="../images/00258.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The only difference between this template and the one for <samp class="mono">sort&gt;</samp> is that this one needs to take into account the additional argument <samp class="mono">n</samp>.</p>
+<p class="calibre8">To fill the gaps in the template of <samp class="mono">insert</samp>, we again proceed on a case-by-case basis. The first case concerns the empty list. According to the first example, <samp class="mono">(list n)</samp> is the expression needed in the first <samp class="mono">cond</samp> clause because it constructs a sorted list from <samp class="mono">n</samp> and <samp class="mono">alon</samp>.</p>
+<p class="calibre8">The second case is more complicated than the first, and so we follow the questions from <a href="part0007_split_007.html#fig53" class="calibre5">figure 53</a>:</p>
+<p class="nlf">1. <samp class="mono">(first alon)</samp> is the first number on <samp class="mono">alon</samp>;</p>
+<p class="nlf">2. <samp class="mono">(rest alon)</samp> is the rest of <samp class="mono">alon</samp> and, like <samp class="mono">alon</samp>, it is sorted in descending order; and</p>
+<p class="nll"><span epub:type="pagebreak" id="pg_323" title="323"></span>3. <samp class="mono">(insert n (rest alon))</samp> produces a sorted list from <samp class="mono">n</samp> and the numbers on <samp class="mono">(rest alon)</samp>.</p>
+<p class="tni">The problem is how to combine these pieces of data to get the final answer.</p>
+<p class="calibre8">Let’s work through some examples to make all this concrete:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(insert 7</samp><samp class="mono"> (list 6</samp><samp class="mono"> 5 4))</samp></p>
+</div>
+<p class="tni">Here <samp class="mono">n</samp> is <samp class="mono">7</samp> and larger than any of the numbers in the second input. We know so by just looking at the first item of the list. It is <samp class="mono">6</samp>, but because the list is sorted all other numbers on the list are even smaller than <samp class="mono">6</samp>. Hence it suffices if we just <samp class="mono">cons 7</samp> onto <samp class="mono">(list 6 5 4)</samp>.</p>
+<p class="calibre8">In contrast, when the application is something like</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(insert 0</samp><samp class="mono"> (list 6</samp><samp class="mono"> 2 1</samp><samp class="mono"> -1))</samp></p>
+</div>
+<p class="tni"><samp class="mono">n</samp> must indeed be inserted into the rest of the list. More concretely, <samp class="mono">(first alon)</samp> is <samp class="mono">6</samp>; <samp class="mono">(rest alon)</samp> is <samp class="mono">(list 2 1</samp> <samp class="mono">-1)</samp>; and <samp class="mono">(insert n (rest alon))</samp> produces <samp class="mono">(list 2 1 0</samp> <samp class="mono">-1)</samp> according to the purpose statement. By adding <samp class="mono">6</samp> back onto that last list, we get the desired answer for <samp class="mono">(insert 0 (list 6 2 1</samp> <samp class="mono">-1))</samp>.</p>
+<p class="calibre8">To get a complete function definition, we must generalize these examples. The case analysis suggests a nested conditional that determines whether <samp class="mono">n</samp> is larger than (or equal to) <samp class="mono">(first alon)</samp>:</p>
+<p class="blf">•  If so, all the items in <samp class="mono">alon</samp> are smaller than <samp class="mono">n</samp> because <samp class="mono">alon</samp> is already sorted. The answer in that case is <samp class="mono">(cons n alon)</samp>.</p>
+<p class="bll">•  If, however, <samp class="mono">n</samp> is smaller than <samp class="mono">(first alon)</samp>, then the function has not yet found the proper place to insert <samp class="mono">n</samp> into <samp class="mono">alon</samp>. The first item of the result must be <samp class="mono">(first alon)</samp> and that <samp class="mono">n</samp> must be inserted into <samp class="mono">(rest alon)</samp>. The final result in this case is</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">(cons (first</samp><samp class="mono"> alon) (insert</samp><samp class="mono"> n (rest</samp><samp class="mono"> alon)))</samp></p>
+</div>
+<p class="bl-tni">because this list contains <samp class="mono">n</samp> and all items of <samp class="mono">alon</samp> in sorted order—which is what we need.</p>
+<p class="stni">The translation of this discussion into BSL+ calls for an <samp class="mono">if</samp> expression for such cases. The condition is <samp class="mono">(&gt;= n (first alon))</samp>, and the expressions for the two branches have been formulated.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_324" title="324"></span><a id="rfig72" href="part0007_split_022.html#fig72" class="calibre5">Figure 72</a> contains the complete sort program. Copy it into the definitions area of DrRacket, add the test cases back in, and test the program. All tests should pass now, and they should cover all expressions.</p>
+<div class="figure">
+<figure class="img"><a id="fig72" class="calibre5"></a><img src="../images/00259.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_022.html#rfig72" class="calibre5">Figure 72</a>:</span> <span>Sorting lists of numbers</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Terminology</b> This particular program for sorting is known as <i class="calibre6">insertion sort</i> in the programming literature. Later we will study alternative ways to sort lists, using an entirely different design strategy.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 186. Take a second look at intermezzo 1, the intermezzo that presents BSL and its ways of formulating tests. One of the latter is <samp class="mono">check-satisfied</samp>, which determines whether an expression satisfies a certain property. Use <samp class="mono">sorted&gt;?</samp> from exercise 145 to reformulate the tests for <samp class="mono">sort&gt;</samp> with <samp class="mono">check-satisfied</samp>.</p>
+<p class="calibre8">Now consider this function definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-numbers<samp class="mono"> -&gt; </samp>List-of-numbers <br class="calibre4"/><samp class="mono">; produces</samp><samp class="mono"> a sorted</samp><samp class="mono"> version of</samp><samp class="mono"> l</samp> <br class="calibre4"/><samp class="mono">(define (sort&gt;/bad</samp><samp class="mono"> l)</samp> <br class="calibre4"/><samp class="mono">  (list</samp><samp class="mono"> 9 8</samp><samp class="mono"> 7 6</samp><samp class="mono"> 5 4</samp><samp class="mono"> 3 2</samp><samp class="mono"> 1 0))</samp></p>
+</div>
+<p class="tni">Can you formulate a test case that shows that <samp class="mono">sort&gt;/bad</samp> is <b class="calibre9">not</b> a sorting function? Can you use <samp class="mono">check-satisfied</samp> to formulate this test case?</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_325" title="325"></span><b class="calibre9">Notes</b> (1) What may surprise you here is that we define a function to create a test. In the real world, this step is common, and, on occasion, you really need to design functions for tests—with their own tests and all. (2) Formulating tests with <samp class="mono">check-satisfied</samp> is occasionally easier than using <samp class="mono">check-expect</samp> (or other forms), and it is also a bit more general. When the predicate completely describes the relationship between all possible inputs and outputs of a function, computer scientists speak of a <i class="calibre6">specification</i>. Chapter 17.4 explains how to specify <samp class="mono">sort&gt;</samp> completely. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 187. Design a program that sorts lists of game players by score:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct gp</samp><samp class="mono"> [name score])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">GamePlayer</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-gp </samp>String Number<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> (make-gp p</samp><samp class="mono"> s) represents</samp><samp class="mono"> player p</samp><samp class="mono"> who</samp> <br class="calibre4"/><samp class="mono">; scored</samp><samp class="mono"> a maximum</samp><samp class="mono"> of s</samp><samp class="mono"> points</samp></p>
+</div>
+<p class="tni"><b class="calibre9">Hint</b> Formulate a function that compares two elements of GamePlayer. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 188. Design a program that sorts lists of emails by date:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct email</samp><samp class="mono"> [from date</samp><samp class="mono"> message])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><i class="calibre6">Email Message</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-email</samp><samp class="mono"> </samp>String Number String<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> (make-email f</samp><samp class="mono"> d m)</samp><samp class="mono"> represents text</samp><samp class="mono"> m</samp> <br class="calibre4"/><samp class="mono">; sent</samp><samp class="mono"> by f,</samp><samp class="mono"> d seconds</samp><samp class="mono"> after the</samp><samp class="mono"> beginning of</samp><samp class="mono"> time</samp></p>
+</div>
+<p class="tni">Also develop a program that sorts lists of email messages by name. To compare two strings alphabetically, use the <samp class="mono">string&lt;?</samp> primitive. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 189. Here is the function <samp class="mono">search</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number List-of-numbers<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">(define (search</samp><samp class="mono"> n alon)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [(empty? alon)</samp><samp class="mono"> #false]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> [else (or</samp><samp class="mono"> (= (first</samp><samp class="mono"> alon) n)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> (search n</samp><samp class="mono"> (rest alon)))]))</samp></p>
+</div>
+<p class="tni">It determines whether some number occurs in a list of numbers. The function may have to traverse the entire list to find out that the number of interest isn’t contained in the list.</p>
+<p class="calibre8">Develop the function <samp class="mono">search-sorted</samp>, which determines whether a number occurs in a sorted list of numbers. The function must take advantage of the fact that the list is sorted. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_326" title="326"></span><b class="calibre9">Exercise</b> 190. Design the <samp class="mono">prefixes</samp> function, which consumes a list of 1Strings and produces the list of all prefixes. A list <samp class="mono">p</samp> is a <i class="calibre6">prefix</i> of <samp class="mono">l</samp> if <samp class="mono">p</samp> and <samp class="mono">l</samp> are the same up through all items in <samp class="mono">p</samp>. For example, <samp class="mono">(list "a" "b" "c")</samp> is a prefix of itself and <samp class="mono">(list "a" "b" "c" "d")</samp>.</p>
+<p class="calibre8">Design the function <samp class="mono">suffixes</samp>, which consumes a list of 1Strings and produces all <samp class="mono">suffixes</samp>. A list <samp class="mono">s</samp> is a <i class="calibre6">suffix</i> of <samp class="mono">l</samp> if <samp class="mono">p</samp> and <samp class="mono">l</samp> are the same from the end, up through all items in <samp class="mono">s</samp>. For example, <samp class="mono">(list "b" "c" "d")</samp> is a suffix of itself and <samp class="mono">(list "a" "b" "c" "d"</samp><samp class="mono">)</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

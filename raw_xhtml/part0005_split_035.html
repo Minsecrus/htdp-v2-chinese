@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head2" id="calibre_pb_36"><span epub:type="pagebreak" id="pg_141" title="141" class="calibre1"></span><a id="sec5-3" class="calibre16"></a><b class="calibre21">5.3 Programming with</b> <samp class="monospace-margin1">posn</samp></h2>
+<p class="tni">Now consider designing a function that computes the distance of some location to the origin of the canvas:</p>
+<figure class="co"><img src="../images/00096.gif" alt="" class="calibre22"/></figure>
+<p class="tni">The picture clarifies that “distance” means the length of the most direct path—“as the crow flies”—from the designated point to the top-left corner of the canvas.</p>
+<p class="calibre8">Here are the purpose statement and the header:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">; computes</samp><samp class="mono"> the distance</samp><samp class="mono"> of ap</samp><samp class="mono"> to the</samp><samp class="mono"> origin</samp> <br class="calibre4"/><samp class="mono">(define (distance-to-0</samp><samp class="mono"> ap)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></samp></p>
+</div>
+<p class="tni">The key is that <samp class="mono">distance-to-0</samp> consumes a single value, some <samp class="mono">posn</samp>. It produces a single value, the distance of the location to the origin.</p>
+<p class="calibre8">In order to make up examples, we need to know how to compute this distance. For points with <samp class="mono">0</samp> as one of the coordinates, the result is the other coordinate:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (distance-to-0</samp><samp class="mono"> (make-posn 0</samp><samp class="mono"> 5)) 5)</samp> <br class="calibre4"/><samp class="mono">(check-expect (distance-to-0</samp><samp class="mono"> (make-posn 7</samp><samp class="mono"> 0)) 7)</samp></samp></p>
+</div>
+<p class="tni">For the general case, we could try to figure out the formula on our own, or we may recall the formula from our geometry courses. As you know, this is domain knowledge that you might have, but in case you don’t we supply it; after all, this domain knowledge isn’t computer science. So, here is the distance formula for (<i class="calibre6">x,y</i>) again:</p>
+<figure class="co"><img src="../images/00097.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Given this formula, we can easily make up some more functional examples:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(check-expect (distance-to-0</samp><samp class="mono"> (make-posn 3</samp><samp class="mono"> 4)) 5)</samp> <br class="calibre4"/><samp class="mono">(check-expect (distance-to-0</samp><samp class="mono"> (make-posn 8</samp><samp class="mono"> 6)) 10)</samp> <br class="calibre4"/><samp class="mono">(check-expect (distance-to-0</samp><samp class="mono"> (make-posn 5</samp><samp class="mono"> 12)) 13)</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_142" title="142"></span>Just in case you’re wondering, we rigged the examples so that the results would be easy to figure out. This isn’t the case for all <samp class="mono">posn</samp> structures.</p>
+<p class="calibre8">Stop! Plug the x- and y-coordinates from the examples into the formula. Confirm the expected results for all five examples.</p>
+<p class="calibre8">Next we can turn our attention to the definition of the function. The examples imply that the design of <samp class="mono">distance-to-0</samp> does not need to distinguish between different situations; it always just computes the distance from the x- and y-coordinates inside the given <samp class="mono">posn</samp> structure. But the function must select these coordinates from the given <samp class="mono">posn</samp> structure. And for that, it uses the <samp class="mono">posn-x</samp> and <samp class="mono">posn-y</samp> primitives. Specifically, the function needs to compute <samp class="mono">(posn-x ap)</samp> and <samp class="mono">(posn-y ap)</samp> because <samp class="mono">ap</samp> is the name of the given, unknown <samp class="mono">posn</samp> structure:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (distance-to-0</samp><samp class="mono"> ap)</samp> <br class="calibre4"/><samp class="mono">  (<span>…</span></samp><samp class="mono"> (posn-x ap)</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> <span>…</span> (posn-y</samp><samp class="mono"> ap) <span>…</span>))</samp></samp></p>
+</div>
+<p class="tni">Using this template and the examples, the rest is straightforward:</p>
+<figure class="co"><img src="../images/00098.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The function squares <samp class="mono">(posn-x ap)</samp> and <samp class="mono">(posn-y ap)</samp>, which represent the x- and y-coordinates, sums up the results, and takes the square root. With DrRacket, we can also quickly check that our new function produces the proper results for our examples.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 63. Evaluate the following expressions:</p>
+<p class="blf">•  <samp class="mono">(distance-to-0 (make-posn 3 4))</samp></p>
+<p class="blf">•  <samp class="mono">(distance-to-0 (make-posn 6 (* 2 4)))</samp></p>
+<p class="bll">•  <samp class="mono">(+ (distance-to-0 (make-posn 12 5)) 10)</samp></p>
+<p class="tni">by hand. Show all steps. Assume that <samp class="mono">sqr</samp> performs its computation in a single step. Check the results with DrRacket’s stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 64. The Manhattan distance of a point to the origin considers a path that follows the rectangular grid of streets found in Manhattan. Here are two examples:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_143" title="143"></span><img src="../images/00099.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The left one shows a “direct” strategy, going as far left as needed, followed by as many upward steps as needed. In comparison, the right one shows a “random walk” strategy, going some blocks leftward, some upward, and so on until the destination—here, the origin—is reached.</p>
+<p class="calibre8">Stop! Does it matter which strategy you follow?</p>
+<p class="calibre8">Design the function <samp class="mono">manhattan-distance</samp>, which measures the Manhattan distance of the given <samp class="mono">posn</samp> to the origin. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

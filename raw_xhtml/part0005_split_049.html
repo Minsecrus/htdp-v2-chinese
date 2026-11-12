@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_50"><a id="sec6-5" class="calibre16"></a>6.5 Equality Predicates</h2>
+<p class="tni">An <i class="calibre6">equality predicate</i> is a function that compares two elements of the same collection of data. Recall the definition of TrafficLight, which is the collection of three strings: <samp class="mono">"red"</samp>, <samp class="mono">"green"</samp>, and <samp class="mono">"yellow"</samp>. Here is one way to define the <samp class="mono">light=?</samp> function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>TrafficLight TrafficLight<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; are</samp><samp class="mono"> the two</samp><samp class="mono"> (states of)</samp><samp class="mono"> traffic lights</samp><samp class="mono"> equal</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "red" "red")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "red" "green")</samp><samp class="mono"> #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "green" "green")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "yellow" "yellow")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (light=?</samp><samp class="mono"> a-value another-value)</samp> <br class="calibre4"/><samp class="mono">  (string=?</samp><samp class="mono"> a-value another-value))</samp></p>
+</div>
+<p class="tni">When we click <i class="calibre6">RUN</i>, all tests succeed, but unfortunately other interactions reveal conflicts with our intentions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (light=?</samp><samp class="mono"> "salad" "greens")</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (light=?</samp><samp class="mono"> "beans" 10)</samp> <br class="calibre4"/><samp class="mono">string=?:expects a</samp><samp class="mono"> string as</samp><samp class="mono"> 2nd argument,</samp><samp class="mono"> given 10</samp></samp></p>
+</div>
+<p class="tni">Compare these interactions with other, built-in equality predicates:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (boolean=?</samp><samp class="mono"> "#true" 10)</samp> <br class="calibre4"/><samp class="mono">boolean=?:expects a</samp><samp class="mono"> boolean as</samp><samp class="mono"> 1st argument,</samp><samp class="mono"> given "#true"</samp></samp></p>
+</div>
+<p class="tni">Try <samp class="mono">(string=? 10 #true)</samp> and <samp class="mono">(= 20 "help")</samp> on your own. All of them signal an error about being applied to the wrong kind of argument.</p>
+<p class="marginpar">The case of characters matters; <samp class="monospace-noitalic">"red"</samp> is different from <samp class="monospace-margin">"Red"</samp> or <samp class="monospace-margin">"RED"</samp>.</p>
+
+<p class="calibre8">A checked version of <samp class="mono">light=?</samp> enforces that both arguments belong to TrafficLight; if not, it signals an error like those that built-in equality predicates issue. We call the predicate for <samp class="mono">TrafficLight light?</samp> for brevity:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_199" title="199"></span><img src="../images/00133.gif" alt="" class="calibre10"/></figure>
+
+<p class="calibre8">Now we can wrap up the revision of <samp class="mono">light=?</samp> by just following our original analysis. First, the function determines that the two inputs are elements of TrafficLight; if not it uses <samp class="mono">error</samp> to signal the mistake:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define MESSAGE</samp> <br class="calibre4"/><samp class="mono">  "traffic</samp><samp class="mono"> light expected,</samp><samp class="mono"> given some</samp><samp class="mono"> other value")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Any Any<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; are</samp><samp class="mono"> the two</samp><samp class="mono"> values elements</samp><samp class="mono"> of </samp>TrafficLight<samp class="mono"> and,</samp> <br class="calibre4"/><samp class="mono">; if</samp><samp class="mono"> so, are</samp><samp class="mono"> they equal</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "red" "red")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "red" "green")</samp><samp class="mono"> #false)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "green" "green")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">(check-expect (light=?</samp><samp class="mono"> "yellow" "yellow")</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (light=?</samp><samp class="mono"> a-value another-value)</samp> <br class="calibre4"/><samp class="mono">  (if</samp><samp class="mono"> (and (light?</samp><samp class="mono"> a-value) (light?</samp><samp class="mono"> another-value))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (string=?</samp><samp class="mono"> a-value another-value)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  (error</samp><samp class="mono"> MESSAGE)))</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 115. Revise <samp class="mono">light=?</samp> so that the error message specifies which of the two arguments isn’t an element of TrafficLight. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">While it is unlikely that your programs will use <samp class="mono">light=?</samp>, they ought to use <samp class="mono">key=?</samp> and <samp class="mono">mouse=?</samp>, two equality predicates that we briefly mentioned at the end of the last subsection. Naturally, <samp class="mono">key=?</samp> is an operation for comparing two KeyEvents; similarly, <samp class="mono">mouse=?</samp> compares two MouseEvts. While both kinds of events are represented as strings, it is important to realize that not all strings represent key events or mouse events.</p>
+<p class="calibre8">We recommend using <samp class="mono">key=?</samp> in key-event handlers and <samp class="mono">mouse=?</samp> in mouse-event handlers from now on. The use of <samp class="mono">key=?</samp> in a key-event handler ensures that the function really compares strings that represent key <span epub:type="pagebreak" id="pg_200" title="200"></span>events and not arbitrary strings. As soon as, say, the function is accidentally applied to <samp class="mono">"hello\n world"</samp>, <samp class="mono">key=?</samp> signals an error and thus informs us that something is wrong.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

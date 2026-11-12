@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_47"><a id="sec6-2" class="calibre16"></a>6.2 Mixing Up Worlds</h2>
+<p class="tni">This section suggests several design problems for world program, starting with simple extension exercises concerning our virtual pets.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 106. In chapter 5.11 we discussed the creation of virtual pets that come with happiness gauges. One of the virtual pets is a cat; the other one, a chameleon. Each program is dedicated to a single pet, however.</p>
+<p class="calibre8">Design the <samp class="mono">cat-cham</samp> world program. Given both a location and an animal, it walks the latter across the canvas, starting from the given location. Here is the chosen data representation for animals:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">VAnimal</span><samp class="mono"> is either</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> a </samp><span class="calibre6">VCat</span> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> a </samp><span class="calibre6">VCham</span></p>
+</div>
+<p class="tni">where <i class="calibre6">VCat</i> and <i class="calibre6">VCham</i> are your data definitions from exercises 88 and 92.</p>
+<p class="calibre8">Given that VAnimal is the collection of world states, you need to design</p>
+<p class="blf">•  a rendering function from VAnimal to Image;</p>
+<p class="blf">•  a function for handling clock ticks, from VAnimal to VAnimal; and</p>
+<p class="bll">•  a function for dealing with key events so that you can feed and pet and colorize your animal—as applicable.</p>
+<p class="tni">It remains impossible to change the color of a cat or to pet a chameleon. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 107. Design the <samp class="mono">cham-and-cat</samp> program, which deals with both a virtual cat <b class="calibre9">and</b> a virtual chameleon. You need a data definition for a “zoo” containing both animals and functions for dealing with it.</p>
+<p class="calibre8">The problem statement leaves open how keys manipulate the two animals. Here are two possible interpretations:</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_189" title="189"></span>1. Each key event goes to both animals.</p>
+<p class="nlf">2. Each key event applies to only one of the two animals.</p>
+<p class="nltni">For this alternative, you need a data representation that specifies a <i class="calibre6">focus</i> animal, that is, the animal that can currently be manipulated. To switch focus, have the key-handling function interpret <samp class="mono">"k"</samp> for “kitty” and <samp class="mono">"l"</samp> for lizard. Once a player hits <samp class="mono">"k"</samp>, the following keystrokes apply to the cat only—until the player hits <samp class="mono">"l"</samp>.</p>
+<p class="stni">Choose one of the alternatives and design the appropriate program. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 108. In its default state, a pedestrian crossing light shows an orange person standing on a red background. When it is time to allow the pedestrian to cross the street, the light receives a signal and switches to a green, walking person. This phase lasts for 10 seconds. After that the light displays the digits <samp class="mono">9</samp>, <samp class="mono">8</samp>, <span>⋯</span>, <samp class="mono">0</samp> with odd numbers colored orange and even numbers colored green. When the countdown reaches 0, the light switches back to its default state.</p>
+<p class="calibre8">Design a world program that implements such a pedestrian traffic light. The light switches from its default state when you press the space bar on your keyboard. All other transitions must be reactions to clock ticks. You may wish to use the following images</p>
+<figure class="co"><img src="../images/00127.gif" alt="" class="calibre18"/></figure>
+<p class="tni">or you can make up your own stick figures with the image library. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 109. Design a world program that recognizes a pattern in a sequence of KeyEvents. Initially the program shows a 100 by 100 white rectangle. Once your program has encountered the first desired letter, it displays a yellow rectangle of the same size. After encountering the final letter, the color of the rectangle turns green. If any “bad” key event occurs, the program displays a red rectangle.</p>
+<p class="calibre8">The specific sequences that your program looks for start with <samp class="mono">"a"</samp>, followed by an arbitrarily long mix of <samp class="mono">"b"</samp> and <samp class="mono">"c"</samp>, and ended by a <samp class="mono">"d"</samp>. Clearly, <samp class="mono">"acbd"</samp> is one example of an acceptable string; two others are <samp class="mono">"ad"</samp> and <samp class="mono">"abcbbbcd"</samp>. Of course, <samp class="mono">"da"</samp>, <samp class="mono">"aa"</samp>, or <samp class="mono">"d"</samp> do not match.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> Your solution implements a finite state machine (FSM), an idea introduced in chapter 4.7 as one design principle behind world programs. As the name says, an FSM program may be in one of a finite number of states. The first state is called an <i class="calibre6">initial state</i>. Each key event causes the <span epub:type="pagebreak" id="pg_190" title="190"></span>machine to reconsider its current state; it may transition to the same state or to another one. When your program recognizes a proper sequence of key events, it transitions to a <i class="calibre6">final state</i>.</p>
+
+<p class="marginpar">The data definition on the right uses the naming technique introduced in exercise 61.</p>
+
+<p class="calibre8">For a sequence-recognition problem, states typically represent the letters that the machine expects to see next; see <a id="rfig36" href="part0005_split_046.html#fig36" class="calibre5">figure 36</a> for a data definition. Take a look at the last state, which says an illegal input has been encountered. <a id="rfig37" href="part0005_split_046.html#fig37" class="calibre5">Figure 37</a> shows how to think of these states and their relationships in a diagrammatic manner. Each node corresponds to one of the four finite states; each arrow specifies which KeyEvent causes the program to transition from one state to another.</p>
+<div class="figure">
+<figure class="img"><a id="fig36" class="calibre5"></a><img src="../images/00128.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_046.html#rfig36" class="calibre5">Figure 36</a>:</span> <span>Two ways of writing a data definition for FSMs</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig37" class="calibre5"></a><img src="../images/00129.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_046.html#rfig37" class="calibre5">Figure 37</a>:</span> <span>A finite state machine as a diagram</span></p></figcaption>
+</figure>
+</div>
+
+<p class="calibre8"><b class="calibre9">History</b> In the 1950s, Stephen C. Kleene, whom we would call a computer scientist, invented <i class="calibre6">regular expressions</i> as a notation for the problem of recognizing text patterns. For the above problem, Kleene would write</p>
+<figure class="co"><img src="../images/00130.gif" alt="" class="calibre10"/></figure>
+<p class="tni">which means <samp class="mono">a</samp> followed by <samp class="mono">b</samp> or <samp class="mono">c</samp> arbitrarily often until <samp class="mono">d</samp> is encountered. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,1679 @@
+[
+  {
+    "id": "num_1",
+    "order": "1",
+    "level": 0,
+    "title": "Title Page",
+    "src": "text/part0000.html",
+    "children": []
+  },
+  {
+    "id": "num_2",
+    "order": "1",
+    "level": 0,
+    "title": "Copyright",
+    "src": "text/part0001.html#UGI0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_3",
+    "order": "2",
+    "level": 0,
+    "title": "Contents",
+    "src": "text/part0002.html#1T140-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_4",
+    "order": "3",
+    "level": 0,
+    "title": "Preface",
+    "src": "text/part0003.html#2RHM0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": [
+      {
+        "id": "num_5",
+        "order": "2",
+        "level": 1,
+        "title": "Systematic Program Design",
+        "src": "text/part0003.html#sec-1",
+        "children": []
+      },
+      {
+        "id": "num_6",
+        "order": "3",
+        "level": 1,
+        "title": "DrRacket and the Teaching Languages",
+        "src": "text/part0003.html#sec-2",
+        "children": []
+      },
+      {
+        "id": "num_7",
+        "order": "4",
+        "level": 1,
+        "title": "Skills that Transfer",
+        "src": "text/part0003.html#sec-3",
+        "children": []
+      },
+      {
+        "id": "num_8",
+        "order": "5",
+        "level": 1,
+        "title": "This Book and Its Parts",
+        "src": "text/part0003.html#sec-4",
+        "children": []
+      },
+      {
+        "id": "num_9",
+        "order": "6",
+        "level": 1,
+        "title": "The Differences",
+        "src": "text/part0003.html#sec-5",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_10",
+    "order": "7",
+    "level": 0,
+    "title": "Prologue: How to Program",
+    "src": "text/part0004_split_001.html",
+    "children": [
+      {
+        "id": "num_11",
+        "order": "8",
+        "level": 1,
+        "title": "Arithmetic and Arithmetic",
+        "src": "text/part0004_split_001.html#sec-6",
+        "children": []
+      },
+      {
+        "id": "num_12",
+        "order": "9",
+        "level": 1,
+        "title": "Inputs and Output",
+        "src": "text/part0004_split_001.html#sec-7",
+        "children": []
+      },
+      {
+        "id": "num_13",
+        "order": "10",
+        "level": 1,
+        "title": "Many Ways to Compute",
+        "src": "text/part0004_split_001.html#sec-8",
+        "children": []
+      },
+      {
+        "id": "num_14",
+        "order": "11",
+        "level": 1,
+        "title": "One Program, Many Definitions",
+        "src": "text/part0004_split_001.html#sec-9",
+        "children": []
+      },
+      {
+        "id": "num_15",
+        "order": "12",
+        "level": 1,
+        "title": "One More Definition",
+        "src": "text/part0004_split_001.html#sec-10",
+        "children": []
+      },
+      {
+        "id": "num_16",
+        "order": "13",
+        "level": 1,
+        "title": "You Are a Programmer Now",
+        "src": "text/part0004_split_001.html#sec-11",
+        "children": []
+      },
+      {
+        "id": "num_17",
+        "order": "14",
+        "level": 1,
+        "title": "Not!",
+        "src": "text/part0004_split_002.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_18",
+    "order": "15",
+    "level": 0,
+    "title": "I. Fixed-Size Data",
+    "src": "text/part0005_split_001.html",
+    "children": [
+      {
+        "id": "num_19",
+        "order": "16",
+        "level": 1,
+        "title": "1. Arithmetic",
+        "src": "text/part0005_split_002.html",
+        "children": [
+          {
+            "id": "num_20",
+            "order": "17",
+            "level": 2,
+            "title": "1.1. The Arithmetic of Numbers",
+            "src": "text/part0005_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_21",
+            "order": "18",
+            "level": 2,
+            "title": "1.2. The Arithmetic of Strings",
+            "src": "text/part0005_split_004.html",
+            "children": []
+          },
+          {
+            "id": "num_22",
+            "order": "19",
+            "level": 2,
+            "title": "1.3. Mixing It Up",
+            "src": "text/part0005_split_005.html",
+            "children": []
+          },
+          {
+            "id": "num_23",
+            "order": "20",
+            "level": 2,
+            "title": "1.4. The Arithmetic of Images",
+            "src": "text/part0005_split_006.html",
+            "children": []
+          },
+          {
+            "id": "num_24",
+            "order": "21",
+            "level": 2,
+            "title": "1.5. The Arithmetic of Booleans",
+            "src": "text/part0005_split_007.html",
+            "children": []
+          },
+          {
+            "id": "num_25",
+            "order": "22",
+            "level": 2,
+            "title": "1.6. Mixing It Up with Booleans",
+            "src": "text/part0005_split_008.html",
+            "children": []
+          },
+          {
+            "id": "num_26",
+            "order": "23",
+            "level": 2,
+            "title": "1.7. Predicates: Know Thy Data",
+            "src": "text/part0005_split_009.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_27",
+        "order": "24",
+        "level": 1,
+        "title": "2. Functions and Programs",
+        "src": "text/part0005_split_010.html",
+        "children": [
+          {
+            "id": "num_28",
+            "order": "25",
+            "level": 2,
+            "title": "2.1. Functions",
+            "src": "text/part0005_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_29",
+            "order": "26",
+            "level": 2,
+            "title": "2.2. Computing",
+            "src": "text/part0005_split_012.html",
+            "children": []
+          },
+          {
+            "id": "num_30",
+            "order": "27",
+            "level": 2,
+            "title": "2.3. Composing Functions",
+            "src": "text/part0005_split_013.html",
+            "children": []
+          },
+          {
+            "id": "num_31",
+            "order": "28",
+            "level": 2,
+            "title": "2.4. Global Constants",
+            "src": "text/part0005_split_014.html",
+            "children": []
+          },
+          {
+            "id": "num_32",
+            "order": "29",
+            "level": 2,
+            "title": "2.5. Programs",
+            "src": "text/part0005_split_015.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_33",
+        "order": "30",
+        "level": 1,
+        "title": "3. How to Design Programs",
+        "src": "text/part0005_split_016.html",
+        "children": [
+          {
+            "id": "num_34",
+            "order": "31",
+            "level": 2,
+            "title": "3.1. Designing Functions",
+            "src": "text/part0005_split_017.html",
+            "children": []
+          },
+          {
+            "id": "num_35",
+            "order": "32",
+            "level": 2,
+            "title": "3.2. Finger Exercises: Functions",
+            "src": "text/part0005_split_018.html",
+            "children": []
+          },
+          {
+            "id": "num_36",
+            "order": "33",
+            "level": 2,
+            "title": "3.3. Domain Knowledge",
+            "src": "text/part0005_split_019.html",
+            "children": []
+          },
+          {
+            "id": "num_37",
+            "order": "34",
+            "level": 2,
+            "title": "3.4. From Functions to Programs",
+            "src": "text/part0005_split_020.html",
+            "children": []
+          },
+          {
+            "id": "num_38",
+            "order": "35",
+            "level": 2,
+            "title": "3.5. On Testing",
+            "src": "text/part0005_split_021.html",
+            "children": []
+          },
+          {
+            "id": "num_39",
+            "order": "36",
+            "level": 2,
+            "title": "3.6. Designing World Programs",
+            "src": "text/part0005_split_022.html",
+            "children": []
+          },
+          {
+            "id": "num_40",
+            "order": "37",
+            "level": 2,
+            "title": "3.7. Virtual Pet Worlds",
+            "src": "text/part0005_split_023.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_41",
+        "order": "38",
+        "level": 1,
+        "title": "4. Intervals, Enumerations, and Itemizations",
+        "src": "text/part0005_split_024.html",
+        "children": [
+          {
+            "id": "num_42",
+            "order": "39",
+            "level": 2,
+            "title": "4.1. Programming with Conditionals",
+            "src": "text/part0005_split_025.html",
+            "children": []
+          },
+          {
+            "id": "num_43",
+            "order": "40",
+            "level": 2,
+            "title": "4.2. Computing Conditionally",
+            "src": "text/part0005_split_026.html",
+            "children": []
+          },
+          {
+            "id": "num_44",
+            "order": "41",
+            "level": 2,
+            "title": "4.3. Enumerations",
+            "src": "text/part0005_split_027.html",
+            "children": []
+          },
+          {
+            "id": "num_45",
+            "order": "42",
+            "level": 2,
+            "title": "4.4. Intervals",
+            "src": "text/part0005_split_028.html",
+            "children": []
+          },
+          {
+            "id": "num_46",
+            "order": "43",
+            "level": 2,
+            "title": "4.5. Itemizations",
+            "src": "text/part0005_split_029.html",
+            "children": []
+          },
+          {
+            "id": "num_47",
+            "order": "44",
+            "level": 2,
+            "title": "4.6. Designing with Itemizations",
+            "src": "text/part0005_split_030.html",
+            "children": []
+          },
+          {
+            "id": "num_48",
+            "order": "45",
+            "level": 2,
+            "title": "4.7. Finite State Worlds",
+            "src": "text/part0005_split_031.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_49",
+        "order": "46",
+        "level": 1,
+        "title": "5. Adding Structure",
+        "src": "text/part0005_split_032.html",
+        "children": [
+          {
+            "id": "num_50",
+            "order": "47",
+            "level": 2,
+            "title": "5.1. From Positions to posn Structures",
+            "src": "text/part0005_split_033.html",
+            "children": []
+          },
+          {
+            "id": "num_51",
+            "order": "48",
+            "level": 2,
+            "title": "5.2. Computing with posns",
+            "src": "text/part0005_split_034.html",
+            "children": []
+          },
+          {
+            "id": "num_52",
+            "order": "49",
+            "level": 2,
+            "title": "5.3. Programming with posn",
+            "src": "text/part0005_split_035.html",
+            "children": []
+          },
+          {
+            "id": "num_53",
+            "order": "50",
+            "level": 2,
+            "title": "5.4. Defining Structure Types",
+            "src": "text/part0005_split_036.html",
+            "children": []
+          },
+          {
+            "id": "num_54",
+            "order": "51",
+            "level": 2,
+            "title": "5.5. Computing with Structures",
+            "src": "text/part0005_split_037.html",
+            "children": []
+          },
+          {
+            "id": "num_55",
+            "order": "52",
+            "level": 2,
+            "title": "5.6. Programming with Structures",
+            "src": "text/part0005_split_038.html",
+            "children": []
+          },
+          {
+            "id": "num_56",
+            "order": "53",
+            "level": 2,
+            "title": "5.7. The Universe of Data",
+            "src": "text/part0005_split_039.html",
+            "children": []
+          },
+          {
+            "id": "num_57",
+            "order": "54",
+            "level": 2,
+            "title": "5.8. Designing with Structures",
+            "src": "text/part0005_split_040.html",
+            "children": []
+          },
+          {
+            "id": "num_58",
+            "order": "55",
+            "level": 2,
+            "title": "5.9. Structure in the World",
+            "src": "text/part0005_split_041.html",
+            "children": []
+          },
+          {
+            "id": "num_59",
+            "order": "56",
+            "level": 2,
+            "title": "5.10. A Graphical Editor",
+            "src": "text/part0005_split_042.html",
+            "children": []
+          },
+          {
+            "id": "num_60",
+            "order": "57",
+            "level": 2,
+            "title": "5.11. More Virtual Pets",
+            "src": "text/part0005_split_043.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_61",
+        "order": "58",
+        "level": 1,
+        "title": "6. Itemizations and Structures",
+        "src": "text/part0005_split_044.html",
+        "children": [
+          {
+            "id": "num_62",
+            "order": "59",
+            "level": 2,
+            "title": "6.1. Designing with Itemizations, Again",
+            "src": "text/part0005_split_045.html",
+            "children": []
+          },
+          {
+            "id": "num_63",
+            "order": "60",
+            "level": 2,
+            "title": "6.2. Mixing Up Worlds",
+            "src": "text/part0005_split_046.html",
+            "children": []
+          },
+          {
+            "id": "num_64",
+            "order": "61",
+            "level": 2,
+            "title": "6.3. Input Errors",
+            "src": "text/part0005_split_047.html",
+            "children": []
+          },
+          {
+            "id": "num_65",
+            "order": "62",
+            "level": 2,
+            "title": "6.4. Checking the World",
+            "src": "text/part0005_split_048.html",
+            "children": []
+          },
+          {
+            "id": "num_66",
+            "order": "63",
+            "level": 2,
+            "title": "6.5. Equality Predicates",
+            "src": "text/part0005_split_049.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_67",
+        "order": "64",
+        "level": 1,
+        "title": "7. Summary",
+        "src": "text/part0005_split_050.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_68",
+    "order": "67",
+    "level": 0,
+    "title": "Intermezzo 1: Beginning Student Language",
+    "src": "text/part0006_split_000.html#5N3C0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_69",
+    "order": "65",
+    "level": 0,
+    "title": "II. Arbitrarily Large Data",
+    "src": "text/part0007_split_001.html",
+    "children": [
+      {
+        "id": "num_70",
+        "order": "66",
+        "level": 1,
+        "title": "8. Lists",
+        "src": "text/part0007_split_002.html",
+        "children": [
+          {
+            "id": "num_71",
+            "order": "67",
+            "level": 2,
+            "title": "8.1. Creating Lists",
+            "src": "text/part0007_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_72",
+            "order": "68",
+            "level": 2,
+            "title": "8.2. What Is '(), What Is cons",
+            "src": "text/part0007_split_004.html",
+            "children": []
+          },
+          {
+            "id": "num_73",
+            "order": "69",
+            "level": 2,
+            "title": "8.3. Programming with Lists",
+            "src": "text/part0007_split_005.html",
+            "children": []
+          },
+          {
+            "id": "num_74",
+            "order": "70",
+            "level": 2,
+            "title": "8.4. Computing with Lists",
+            "src": "text/part0007_split_006.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_75",
+        "order": "71",
+        "level": 1,
+        "title": "9. Designing with Self-Referential Data Definitions",
+        "src": "text/part0007_split_007.html",
+        "children": [
+          {
+            "id": "num_76",
+            "order": "72",
+            "level": 2,
+            "title": "9.1. Finger Exercises: Lists",
+            "src": "text/part0007_split_008.html",
+            "children": []
+          },
+          {
+            "id": "num_77",
+            "order": "73",
+            "level": 2,
+            "title": "9.2. Non-empty Lists",
+            "src": "text/part0007_split_009.html",
+            "children": []
+          },
+          {
+            "id": "num_78",
+            "order": "74",
+            "level": 2,
+            "title": "9.3. Natural Numbers",
+            "src": "text/part0007_split_010.html",
+            "children": []
+          },
+          {
+            "id": "num_79",
+            "order": "75",
+            "level": 2,
+            "title": "9.4. Russian Dolls",
+            "src": "text/part0007_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_80",
+            "order": "76",
+            "level": 2,
+            "title": "9.5. Lists and World",
+            "src": "text/part0007_split_012.html",
+            "children": []
+          },
+          {
+            "id": "num_81",
+            "order": "77",
+            "level": 2,
+            "title": "9.6. A Note on Lists and Sets",
+            "src": "text/part0007_split_013.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_82",
+        "order": "78",
+        "level": 1,
+        "title": "10. More on Lists",
+        "src": "text/part0007_split_014.html",
+        "children": [
+          {
+            "id": "num_83",
+            "order": "79",
+            "level": 2,
+            "title": "10.1. Functions that Produce Lists",
+            "src": "text/part0007_split_015.html",
+            "children": []
+          },
+          {
+            "id": "num_84",
+            "order": "80",
+            "level": 2,
+            "title": "10.2. Structures in Lists",
+            "src": "text/part0007_split_016.html",
+            "children": []
+          },
+          {
+            "id": "num_85",
+            "order": "81",
+            "level": 2,
+            "title": "10.3. Lists in Lists, Files",
+            "src": "text/part0007_split_017.html",
+            "children": []
+          },
+          {
+            "id": "num_86",
+            "order": "82",
+            "level": 2,
+            "title": "10.4. A Graphical Editor, Revisited",
+            "src": "text/part0007_split_018.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_87",
+        "order": "83",
+        "level": 1,
+        "title": "11. Design by Composition",
+        "src": "text/part0007_split_019.html",
+        "children": [
+          {
+            "id": "num_88",
+            "order": "84",
+            "level": 2,
+            "title": "11.1. The list Function",
+            "src": "text/part0007_split_020.html",
+            "children": []
+          },
+          {
+            "id": "num_89",
+            "order": "85",
+            "level": 2,
+            "title": "11.2. Composing Functions",
+            "src": "text/part0007_split_021.html",
+            "children": []
+          },
+          {
+            "id": "num_90",
+            "order": "86",
+            "level": 2,
+            "title": "11.3. Auxiliary Functions that Recur",
+            "src": "text/part0007_split_022.html",
+            "children": []
+          },
+          {
+            "id": "num_91",
+            "order": "87",
+            "level": 2,
+            "title": "11.4. Auxiliary Functions that Generalize",
+            "src": "text/part0007_split_023.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_92",
+        "order": "88",
+        "level": 1,
+        "title": "12. Projects: Lists",
+        "src": "text/part0007_split_024.html",
+        "children": [
+          {
+            "id": "num_93",
+            "order": "89",
+            "level": 2,
+            "title": "12.1. Real-World Data: Dictionaries",
+            "src": "text/part0007_split_025.html",
+            "children": []
+          },
+          {
+            "id": "num_94",
+            "order": "90",
+            "level": 2,
+            "title": "12.2. Real-World Data: iTunes",
+            "src": "text/part0007_split_026.html",
+            "children": []
+          },
+          {
+            "id": "num_95",
+            "order": "91",
+            "level": 2,
+            "title": "12.3. Word Games, Composition Illustrated",
+            "src": "text/part0007_split_027.html",
+            "children": []
+          },
+          {
+            "id": "num_96",
+            "order": "92",
+            "level": 2,
+            "title": "12.4. Word Games, the Heart of the Problem",
+            "src": "text/part0007_split_028.html",
+            "children": []
+          },
+          {
+            "id": "num_97",
+            "order": "93",
+            "level": 2,
+            "title": "12.5. Feeding Worms",
+            "src": "text/part0007_split_029.html",
+            "children": []
+          },
+          {
+            "id": "num_98",
+            "order": "94",
+            "level": 2,
+            "title": "12.6. Simple Tetris",
+            "src": "text/part0007_split_030.html",
+            "children": []
+          },
+          {
+            "id": "num_99",
+            "order": "95",
+            "level": 2,
+            "title": "12.7. Full Space War",
+            "src": "text/part0007_split_031.html",
+            "children": []
+          },
+          {
+            "id": "num_100",
+            "order": "96",
+            "level": 2,
+            "title": "12.8. Finite State Machines",
+            "src": "text/part0007_split_032.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_101",
+        "order": "97",
+        "level": 1,
+        "title": "13. Summary",
+        "src": "text/part0007_split_033.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_102",
+    "order": "101",
+    "level": 0,
+    "title": "Intermezzo 2: Quote, Unquote",
+    "src": "text/part0008.html#7K4G0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_103",
+    "order": "98",
+    "level": 0,
+    "title": "III. Abstraction",
+    "src": "text/part0009_split_001.html",
+    "children": [
+      {
+        "id": "num_104",
+        "order": "99",
+        "level": 1,
+        "title": "14. Similarities Everywhere",
+        "src": "text/part0009_split_002.html",
+        "children": [
+          {
+            "id": "num_105",
+            "order": "100",
+            "level": 2,
+            "title": "14.1. Similarities in Functions",
+            "src": "text/part0009_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_106",
+            "order": "101",
+            "level": 2,
+            "title": "14.2. Different Similarities",
+            "src": "text/part0009_split_004.html",
+            "children": []
+          },
+          {
+            "id": "num_107",
+            "order": "102",
+            "level": 2,
+            "title": "14.3. Similarities in Data Definitions",
+            "src": "text/part0009_split_005.html",
+            "children": []
+          },
+          {
+            "id": "num_108",
+            "order": "103",
+            "level": 2,
+            "title": "14.4. Functions Are Values",
+            "src": "text/part0009_split_006.html",
+            "children": []
+          },
+          {
+            "id": "num_109",
+            "order": "104",
+            "level": 2,
+            "title": "14.5. Computing with Functions",
+            "src": "text/part0009_split_007.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_110",
+        "order": "105",
+        "level": 1,
+        "title": "15. Designing Abstractions",
+        "src": "text/part0009_split_008.html",
+        "children": [
+          {
+            "id": "num_111",
+            "order": "106",
+            "level": 2,
+            "title": "15.1. Abstractions from Examples",
+            "src": "text/part0009_split_009.html",
+            "children": []
+          },
+          {
+            "id": "num_112",
+            "order": "107",
+            "level": 2,
+            "title": "15.2. Similarities in Signatures",
+            "src": "text/part0009_split_010.html",
+            "children": []
+          },
+          {
+            "id": "num_113",
+            "order": "108",
+            "level": 2,
+            "title": "15.3. Single Point of Control",
+            "src": "text/part0009_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_114",
+            "order": "109",
+            "level": 2,
+            "title": "15.4. Abstractions from Templates",
+            "src": "text/part0009_split_012.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_115",
+        "order": "110",
+        "level": 1,
+        "title": "16. Using Abstractions",
+        "src": "text/part0009_split_013.html",
+        "children": [
+          {
+            "id": "num_116",
+            "order": "111",
+            "level": 2,
+            "title": "16.1. Existing Abstractions",
+            "src": "text/part0009_split_014.html",
+            "children": []
+          },
+          {
+            "id": "num_117",
+            "order": "112",
+            "level": 2,
+            "title": "16.2. Local Definitions",
+            "src": "text/part0009_split_015.html",
+            "children": []
+          },
+          {
+            "id": "num_118",
+            "order": "113",
+            "level": 2,
+            "title": "16.3. Local Definitions Add Expressive Power",
+            "src": "text/part0009_split_016.html",
+            "children": []
+          },
+          {
+            "id": "num_119",
+            "order": "114",
+            "level": 2,
+            "title": "16.4. Computing with local",
+            "src": "text/part0009_split_017.html",
+            "children": []
+          },
+          {
+            "id": "num_120",
+            "order": "115",
+            "level": 2,
+            "title": "16.5. Using Abstractions, by Example",
+            "src": "text/part0009_split_018.html",
+            "children": []
+          },
+          {
+            "id": "num_121",
+            "order": "116",
+            "level": 2,
+            "title": "16.6. Designing with Abstractions",
+            "src": "text/part0009_split_019.html",
+            "children": []
+          },
+          {
+            "id": "num_122",
+            "order": "117",
+            "level": 2,
+            "title": "16.7. Finger Exercises: Abstraction",
+            "src": "text/part0009_split_020.html",
+            "children": []
+          },
+          {
+            "id": "num_123",
+            "order": "118",
+            "level": 2,
+            "title": "16.8. Projects: Abstraction",
+            "src": "text/part0009_split_021.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_124",
+        "order": "119",
+        "level": 1,
+        "title": "17. Nameless Functions",
+        "src": "text/part0009_split_022.html",
+        "children": [
+          {
+            "id": "num_125",
+            "order": "120",
+            "level": 2,
+            "title": "17.1. Functions from lambda",
+            "src": "text/part0009_split_023.html",
+            "children": []
+          },
+          {
+            "id": "num_126",
+            "order": "121",
+            "level": 2,
+            "title": "17.2. Computing with lambda",
+            "src": "text/part0009_split_024.html",
+            "children": []
+          },
+          {
+            "id": "num_127",
+            "order": "122",
+            "level": 2,
+            "title": "17.3. Abstracting with lambda",
+            "src": "text/part0009_split_025.html",
+            "children": []
+          },
+          {
+            "id": "num_128",
+            "order": "123",
+            "level": 2,
+            "title": "17.4. Specifying with lambda",
+            "src": "text/part0009_split_026.html",
+            "children": []
+          },
+          {
+            "id": "num_129",
+            "order": "124",
+            "level": 2,
+            "title": "17.5. Representing with lambda",
+            "src": "text/part0009_split_027.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_130",
+        "order": "125",
+        "level": 1,
+        "title": "18. Summary",
+        "src": "text/part0009_split_028.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_131",
+    "order": "130",
+    "level": 0,
+    "title": "Intermezzo 3: Scope and Abstraction",
+    "src": "text/part0010.html#9H5K0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_132",
+    "order": "126",
+    "level": 0,
+    "title": "IV. Intertwined Data",
+    "src": "text/part0011_split_001.html",
+    "children": [
+      {
+        "id": "num_133",
+        "order": "127",
+        "level": 1,
+        "title": "19. The Poetry of S-expressions",
+        "src": "text/part0011_split_002.html",
+        "children": [
+          {
+            "id": "num_134",
+            "order": "128",
+            "level": 2,
+            "title": "19.1. Trees",
+            "src": "text/part0011_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_135",
+            "order": "129",
+            "level": 2,
+            "title": "19.2. Forests",
+            "src": "text/part0011_split_004.html",
+            "children": []
+          },
+          {
+            "id": "num_136",
+            "order": "130",
+            "level": 2,
+            "title": "19.3. S-expressions",
+            "src": "text/part0011_split_005.html",
+            "children": []
+          },
+          {
+            "id": "num_137",
+            "order": "131",
+            "level": 2,
+            "title": "19.4. Designing with Intertwined Data",
+            "src": "text/part0011_split_006.html",
+            "children": []
+          },
+          {
+            "id": "num_138",
+            "order": "132",
+            "level": 2,
+            "title": "19.5. Project: BSTs",
+            "src": "text/part0011_split_007.html",
+            "children": []
+          },
+          {
+            "id": "num_139",
+            "order": "133",
+            "level": 2,
+            "title": "19.6. Simplifying Functions",
+            "src": "text/part0011_split_008.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_140",
+        "order": "134",
+        "level": 1,
+        "title": "20. Iterative Refinement",
+        "src": "text/part0011_split_009.html",
+        "children": [
+          {
+            "id": "num_141",
+            "order": "135",
+            "level": 2,
+            "title": "20.1. Data Analysis",
+            "src": "text/part0011_split_010.html",
+            "children": []
+          },
+          {
+            "id": "num_142",
+            "order": "136",
+            "level": 2,
+            "title": "20.2. Refining Data Definitions",
+            "src": "text/part0011_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_143",
+            "order": "137",
+            "level": 2,
+            "title": "20.3. Refining Functions",
+            "src": "text/part0011_split_012.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_144",
+        "order": "138",
+        "level": 1,
+        "title": "21. Refining Interpreters",
+        "src": "text/part0011_split_013.html",
+        "children": [
+          {
+            "id": "num_145",
+            "order": "139",
+            "level": 2,
+            "title": "21.1. Interpreting Expressions",
+            "src": "text/part0011_split_014.html",
+            "children": []
+          },
+          {
+            "id": "num_146",
+            "order": "140",
+            "level": 2,
+            "title": "21.2. Interpreting Variables",
+            "src": "text/part0011_split_015.html",
+            "children": []
+          },
+          {
+            "id": "num_147",
+            "order": "141",
+            "level": 2,
+            "title": "21.3. Interpreting Functions",
+            "src": "text/part0011_split_016.html",
+            "children": []
+          },
+          {
+            "id": "num_148",
+            "order": "142",
+            "level": 2,
+            "title": "21.4. Interpreting Everything",
+            "src": "text/part0011_split_017.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_149",
+        "order": "143",
+        "level": 1,
+        "title": "22. Project: The Commerce of XML",
+        "src": "text/part0011_split_018.html",
+        "children": [
+          {
+            "id": "num_150",
+            "order": "144",
+            "level": 2,
+            "title": "22.1. XML as S-expressions",
+            "src": "text/part0011_split_019.html",
+            "children": []
+          },
+          {
+            "id": "num_151",
+            "order": "145",
+            "level": 2,
+            "title": "22.2. Rendering XML Enumerations",
+            "src": "text/part0011_split_020.html",
+            "children": []
+          },
+          {
+            "id": "num_152",
+            "order": "146",
+            "level": 2,
+            "title": "22.3. Domain-Specific Languages",
+            "src": "text/part0011_split_021.html",
+            "children": []
+          },
+          {
+            "id": "num_153",
+            "order": "147",
+            "level": 2,
+            "title": "22.4. Reading XML",
+            "src": "text/part0011_split_022.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_154",
+        "order": "148",
+        "level": 1,
+        "title": "23. Simultaneous Processing",
+        "src": "text/part0011_split_023.html",
+        "children": [
+          {
+            "id": "num_155",
+            "order": "149",
+            "level": 2,
+            "title": "23.1. Processing Two Lists Simultaneously: Case 1",
+            "src": "text/part0011_split_024.html",
+            "children": []
+          },
+          {
+            "id": "num_156",
+            "order": "150",
+            "level": 2,
+            "title": "23.2. Processing Two Lists Simultaneously: Case 2",
+            "src": "text/part0011_split_025.html",
+            "children": []
+          },
+          {
+            "id": "num_157",
+            "order": "151",
+            "level": 2,
+            "title": "23.3. Processing Two Lists Simultaneously: Case 3",
+            "src": "text/part0011_split_026.html",
+            "children": []
+          },
+          {
+            "id": "num_158",
+            "order": "152",
+            "level": 2,
+            "title": "23.4. Function Simplification",
+            "src": "text/part0011_split_027.html",
+            "children": []
+          },
+          {
+            "id": "num_159",
+            "order": "153",
+            "level": 2,
+            "title": "23.5. Designing Functions that Consume Two Complex Inputs",
+            "src": "text/part0011_split_028.html",
+            "children": []
+          },
+          {
+            "id": "num_160",
+            "order": "154",
+            "level": 2,
+            "title": "23.6. Finger Exercises: Two Inputs",
+            "src": "text/part0011_split_029.html",
+            "children": []
+          },
+          {
+            "id": "num_161",
+            "order": "155",
+            "level": 2,
+            "title": "23.7. Project: Database",
+            "src": "text/part0011_split_030.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_162",
+        "order": "156",
+        "level": 1,
+        "title": "24. Summary",
+        "src": "text/part0011_split_031.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_163",
+    "order": "162",
+    "level": 0,
+    "title": "Intermezzo 4: The Nature of Numbers",
+    "src": "text/part0012.html#BE6O0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_164",
+    "order": "157",
+    "level": 0,
+    "title": "V. Generative Recursion",
+    "src": "text/part0013_split_001.html",
+    "children": [
+      {
+        "id": "num_165",
+        "order": "158",
+        "level": 1,
+        "title": "25. Non-standard Recursion",
+        "src": "text/part0013_split_002.html",
+        "children": [
+          {
+            "id": "num_166",
+            "order": "159",
+            "level": 2,
+            "title": "25.1. Recursion without Structure",
+            "src": "text/part0013_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_167",
+            "order": "160",
+            "level": 2,
+            "title": "25.2. Recursion that Ignores Structure",
+            "src": "text/part0013_split_004.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_168",
+        "order": "161",
+        "level": 1,
+        "title": "26. Designing Algorithms",
+        "src": "text/part0013_split_005.html",
+        "children": [
+          {
+            "id": "num_169",
+            "order": "162",
+            "level": 2,
+            "title": "26.1. Adapting the Design Recipe",
+            "src": "text/part0013_split_006.html",
+            "children": []
+          },
+          {
+            "id": "num_170",
+            "order": "163",
+            "level": 2,
+            "title": "26.2. Termination",
+            "src": "text/part0013_split_007.html",
+            "children": []
+          },
+          {
+            "id": "num_171",
+            "order": "164",
+            "level": 2,
+            "title": "26.3. Structural versus Generative Recursion",
+            "src": "text/part0013_split_008.html",
+            "children": []
+          },
+          {
+            "id": "num_172",
+            "order": "165",
+            "level": 2,
+            "title": "26.4. Making Choices",
+            "src": "text/part0013_split_009.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_173",
+        "order": "166",
+        "level": 1,
+        "title": "27. Variations on the Theme",
+        "src": "text/part0013_split_010.html",
+        "children": [
+          {
+            "id": "num_174",
+            "order": "167",
+            "level": 2,
+            "title": "27.1. Fractals, a First Taste",
+            "src": "text/part0013_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_175",
+            "order": "168",
+            "level": 2,
+            "title": "27.2. Binary Search",
+            "src": "text/part0013_split_012.html",
+            "children": []
+          },
+          {
+            "id": "num_176",
+            "order": "169",
+            "level": 2,
+            "title": "27.3. A Glimpse at Parsing",
+            "src": "text/part0013_split_013.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_177",
+        "order": "170",
+        "level": 1,
+        "title": "28. Mathematical Examples",
+        "src": "text/part0013_split_014.html",
+        "children": [
+          {
+            "id": "num_178",
+            "order": "171",
+            "level": 2,
+            "title": "28.1. Newton’s Method",
+            "src": "text/part0013_split_015.html",
+            "children": []
+          },
+          {
+            "id": "num_179",
+            "order": "172",
+            "level": 2,
+            "title": "28.2. Numeric Integration",
+            "src": "text/part0013_split_016.html",
+            "children": []
+          },
+          {
+            "id": "num_180",
+            "order": "173",
+            "level": 2,
+            "title": "28.3. Project: Gaussian Elimination",
+            "src": "text/part0013_split_017.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_181",
+        "order": "174",
+        "level": 1,
+        "title": "29. Algorithms that Backtrack",
+        "src": "text/part0013_split_018.html",
+        "children": [
+          {
+            "id": "num_182",
+            "order": "175",
+            "level": 2,
+            "title": "29.1. Traversing Graphs",
+            "src": "text/part0013_split_019.html",
+            "children": []
+          },
+          {
+            "id": "num_183",
+            "order": "176",
+            "level": 2,
+            "title": "29.2. Project: Backtracking",
+            "src": "text/part0013_split_020.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_184",
+        "order": "177",
+        "level": 1,
+        "title": "30. Summary",
+        "src": "text/part0013_split_021.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_185",
+    "order": "184",
+    "level": 0,
+    "title": "Intermezzo 5: The Cost of Computation",
+    "src": "text/part0014.html#DB7S0-3ff7fa1de4e14a1eaa161451695ae206",
+    "children": []
+  },
+  {
+    "id": "num_186",
+    "order": "178",
+    "level": 0,
+    "title": "VI. Accumulators",
+    "src": "text/part0015_split_001.html",
+    "children": [
+      {
+        "id": "num_187",
+        "order": "179",
+        "level": 1,
+        "title": "31. The Loss of Knowledge",
+        "src": "text/part0015_split_002.html",
+        "children": [
+          {
+            "id": "num_188",
+            "order": "180",
+            "level": 2,
+            "title": "31.1. A Problem with Structural Processing",
+            "src": "text/part0015_split_003.html",
+            "children": []
+          },
+          {
+            "id": "num_189",
+            "order": "181",
+            "level": 2,
+            "title": "31.2. A Problem with Generative Recursion",
+            "src": "text/part0015_split_004.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_190",
+        "order": "182",
+        "level": 1,
+        "title": "32. Designing Accumulator-Style Functions",
+        "src": "text/part0015_split_005.html",
+        "children": [
+          {
+            "id": "num_191",
+            "order": "183",
+            "level": 2,
+            "title": "32.1. Recognizing the Need for an Accumulator",
+            "src": "text/part0015_split_006.html",
+            "children": []
+          },
+          {
+            "id": "num_192",
+            "order": "184",
+            "level": 2,
+            "title": "32.2. Adding Accumulators",
+            "src": "text/part0015_split_007.html",
+            "children": []
+          },
+          {
+            "id": "num_193",
+            "order": "185",
+            "level": 2,
+            "title": "32.3. Transforming Functions into Accumulator Style",
+            "src": "text/part0015_split_008.html",
+            "children": []
+          },
+          {
+            "id": "num_194",
+            "order": "186",
+            "level": 2,
+            "title": "32.4. A Graphical Editor, with Mouse",
+            "src": "text/part0015_split_009.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_195",
+        "order": "187",
+        "level": 1,
+        "title": "33. More Uses of Accumulation",
+        "src": "text/part0015_split_010.html",
+        "children": [
+          {
+            "id": "num_196",
+            "order": "188",
+            "level": 2,
+            "title": "33.1. Accumulators and Trees",
+            "src": "text/part0015_split_011.html",
+            "children": []
+          },
+          {
+            "id": "num_197",
+            "order": "189",
+            "level": 2,
+            "title": "33.2. Data Representations with Accumulators",
+            "src": "text/part0015_split_012.html",
+            "children": []
+          },
+          {
+            "id": "num_198",
+            "order": "190",
+            "level": 2,
+            "title": "33.3. Accumulators as Results",
+            "src": "text/part0015_split_013.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "num_199",
+        "order": "191",
+        "level": 1,
+        "title": "34. Summary",
+        "src": "text/part0015_split_014.html",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_200",
+    "order": "192",
+    "level": 0,
+    "title": "Epilogue: Moving On",
+    "src": "text/part0016_split_001.html",
+    "children": [
+      {
+        "id": "num_201",
+        "order": "193",
+        "level": 1,
+        "title": "Computing",
+        "src": "text/part0016_split_001.html#sec-13",
+        "children": []
+      },
+      {
+        "id": "num_202",
+        "order": "194",
+        "level": 1,
+        "title": "Program Design",
+        "src": "text/part0016_split_001.html#sec-14",
+        "children": []
+      },
+      {
+        "id": "num_203",
+        "order": "195",
+        "level": 1,
+        "title": "Onward, Developers and Computer Scientists",
+        "src": "text/part0016_split_001.html#sec-15",
+        "children": []
+      },
+      {
+        "id": "num_204",
+        "order": "196",
+        "level": 1,
+        "title": "Onward, Accountants, Journalists, Surgeons, and Everyone Else",
+        "src": "text/part0016_split_001.html#sec-16",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "num_205",
+    "order": "197",
+    "level": 0,
+    "title": "Index",
+    "src": "text/part0017_split_001.html",
+    "children": []
+  }
+]

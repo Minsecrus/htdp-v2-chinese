@@ -1,0 +1,957 @@
+# Chapter 6: Itemizations and Structures / 第 6 章：分类与结构体
+
+<h1>
+6 Itemizations and Structures
+</h1>
+
+<P>
+The preceding two chapters introduce two ways of formulating data definitions. Those that employ itemization (enumeration and intervals) are used to create small collections from large ones. Those that use structures combine multiple collections. Since the development of data representations is the starting point for proper program design, it cannot surprise you that programmers frequently want to itemize data definitions that involve structures or to use structures to combine itemized data.
+</P>
+
+<P>
+Recall the imaginary space invader game from chapter 5.9 in the preceding chapter. Thus far, it involves one UFO, descending from space, and one tank on the ground, moving horizontally. Our data representation uses a structure with two fields: one for the data representation of the UFO and another one for the data representation of the tank. Naturally, players will want a tank that can fire off a missile. All of a sudden, we can think of a second kind of state that contains three independently moving objects: the UFO, the tank, and the missile. Thus we have two distinct structures: one for representing two independently moving objects and another one for the third. Since a world state may now be one of these two structures, it is natural to use an itemization to describe all possible states:
+</P>
+
+<P>
+1. the state of the world is a structure with two fields, or
+</P>
+
+<P>
+2. the state of the world is a structure with three fields.
+</P>
+
+<P>
+As far as our domain is concerned—the actual game—the first kind of state represents the time before the tank has launched its sole missile and the second one the time after the missile has been fired.
+</P>
+
+<MARGIN_NOTE>
+No worries, the next part of the book is about firing as many missiles as you want, without reloading.
+</MARGIN_NOTE>
+
+<P>
+This chapter introduces the basic idea of itemizing data definitions that involve structures. Because we have all the other ingredients we need, we start straight with itemizing structures. After that, we discuss some examples, including world programs that benefit from our new power. The last section is about errors in programming.
+</P>
+
+<h2>
+6.1 Designing with Itemizations, Again
+</h2>
+
+<P>
+Let’s start with a refined problem statement for our space invader game from chapter 5.6.
+</P>
+
+<P>
+Sample Problem Design a game program using the 2htdp/universe library for playing a simple space invader game. The player is in control of a tank (a small rectangle) that must defend our planet (the bottom of the canvas) from a UFO (see chapter 4.4 for one possibility) that descends from the top of the canvas to the bottom. In order to stop the UFO from landing, the player may fire a single missile (a triangle smaller than the tank) by hitting the space bar. In response, the missile emerges from the tank. If the UFO collides with the missile, the player wins; otherwise the UFO lands and the player loses.
+</P>
+
+<P>
+Here are some details concerning the three game objects and their movements. First, the tank moves a constant speed along the bottom of the canvas, though the player may use the left arrow key and the right arrow key to change directions. Second, the UFO descends at a constant velocity but makes small random jumps to the left or right. Third, once fired, the missile ascends along a straight vertical line at a constant speed at least twice as fast as the UFO descends. Finally, the UFO and the missile collide if their reference points are close enough, for whatever you think “close enough” means.
+</P>
+
+<P>
+The following two subsections use this sample problem as a running example, so study it well and solve the following exercise before you continue. Doing so will help you understand the problem in enough depth.
+</P>
+
+<EXERCISE>
+Exercise 94. Draw some sketches of what the game scenery looks like at various stages. Use the sketches to determine the constant and the variable pieces of the game. For the former, develop physical and graphical constants that describe the dimensions of the world (canvas) and its objects. Also develop some background scenery. Finally, create your initial scene from the constants for the tank, the UFO, and the background.
+</EXERCISE>
+
+<P>
+Defining Itemizations The first step in our design recipe calls for the development of data definitions. One purpose of a data definition is to describe the construction of data that represents the state of the world; another is to describe all possible pieces of data that the event-handing functions of the world program may consume. Since we haven’t seen itemizations that include structures, this first subsection introduces this idea. While this probably won’t surprise you, pay close attention.
+</P>
+
+<MARGIN_NOTE>
+For this space invader game, we could get away with one structure type definition of three fields where the third field contains #false until the missile is fired, and a Posn for the missile’s coordinates thereafter. See below.
+</MARGIN_NOTE>
+
+<P>
+As argued in the introduction to this chapter, the space invader game with a missile-firing tank requires a data representation for two different kinds of game states. We choose two structure type definitions:
+</P>
+
+<CODE>
+(define-struct aim [ufo tank]) (define-struct fired [ufo tank missile])
+</CODE>
+
+<P>
+The first one is for the time period when the player is trying to get the tank in position for a shot, and the second one is for representing states after the missile is fired. Before we can formulate a data definition for the complete game state, however, we need data representations for the tank, the UFO, and the missile.
+</P>
+
+<P>
+Assuming constant definitions for such physical constants as WIDTH and HEIGHT, which are the subject of exercise 94, we formulate the data definitions like this:
+</P>
+
+<CODE>
+; A UFO is a Posn. ; interpretation (make-posn x y) is the UFO's location ; (using the top-down, left-to-right convention) (define-struct tank [loc vel]) ; A Tank is a structure: ; (make-tank Number Number). ; interpretation (make-tank x dx) specifies the position: ; (x, HEIGHT) and the tank's speed: dx pixels/tick ; A Missile is a Posn. ; interpretation (make-posn x y) is the missile's place
+</CODE>
+
+<P>
+Each of these data definitions describes nothing but a structure, either a newly defined one, tank, or a built-in data collection, Posn. Concerning the latter, it may surprise you a little bit that Posns are used to represent two distinct aspects of the world. Then again, we have used numbers (and strings and Boolean values) to represent many different kinds of information in the real world, so reusing a collection of structures such as Posn isn’t a big deal.
+</P>
+
+<P>
+Now we are in a position to formulate the data definitions for the state of the space invader game:
+</P>
+
+<CODE>
+; A SIGS is one of: ; -- (make-aim UFO Tank) ; -- (make-fired UFO Tank Missile) ; interpretation represents the complete state of a ; space invader game
+</CODE>
+
+<P>
+The shape of the data definition is that of an itemization. Each clause, however, describes the content of a structure type, just like the data definition for structure types we have seen so far. Still, this data definition shows that not every data definition comes with exactly one structure type definition; here one data definition involves two distinct structure type definitions.
+</P>
+
+<P>
+The meaning of such a data definition is also straightforward. It introduces the name SIGS for the collection of all those structure instances that you can create according to the definition. So let us create some:
+</P>
+
+<P>
+•  Here is an instance that describes the tank maneuvering into position to fire the missile:
+</P>
+
+<CODE>
+(make-aim (make-posn 20 10) (make-tank 28 -3))
+</CODE>
+
+<P>
+•  This one is just like the previous one but the missile has been fired:
+</P>
+
+<FIGURE src="images/00116.png">
+
+</FIGURE>
+
+<P>
+Of course, the capitalized names refer to the physical constants that you defined.
+</P>
+
+<P>
+•  Finally, here is one where the missile is about to collide with the UFO:
+</P>
+
+<FIGURE src="images/00117.png">
+
+</FIGURE>
+
+<P>
+This example assumes that the canvas is more than 100 pixels tall.
+</P>
+
+<P>
+Notice that the first instance of SIGS is generated according to the first clause of the data definition, and the second and third follow the second clause. Naturally the numbers in each field depend on your choices for global game constants.
+</P>
+
+<EXERCISE>
+Exercise 95. Explain why the three instances are generated according to the first or second clause of the data definition.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 96. Sketch how each of the three game states could be rendered assuming a 200 × 200 canvas.
+</EXERCISE>
+
+<P>
+The Design Recipe With a new way of formulating data definitions comes an inspection of the design recipe. This chapter introduces a way to combine two or more means of describing data, and the revised design recipe reflects this, especially the first step:
+</P>
+
+<P>
+1. When do you need this new way of defining data? You already know that the need for itemizations is due to distinctions among different classes of information in the problem statement. Similarly, the need for structure-based data definitions is due to the demand to group several different pieces of information.
+</P>
+
+<P>
+An itemization of different forms of data—including collections of structures—is required when your problem statement distinguishes different kinds of information and when at least some of these pieces of information consist of several different pieces.
+</P>
+
+<P>
+One thing to keep in mind is that data definitions may refer to other data definitions. Hence, if a particular clause in a data definition looks overly complex, it is acceptable to write down a separate data definition for this clause and refer to this auxiliary definition.
+</P>
+
+<P>
+And, as always, formulate data examples using the data definitions.
+</P>
+
+<P>
+2. The second step remains the same. Formulate a function signature that mentions only the names of defined or built-in data collections, add a purpose statement, and create a function header.
+</P>
+
+<P>
+3. Nothing changes for the third step. You still need to formulate functional examples that illustrate the purpose statement from the second step, and you still need one example per item in the itemization.
+</P>
+
+<P>
+4. The development of the template now exploits two different dimensions: the itemization itself and the use of structures in its clauses.
+</P>
+
+<P>
+By the first, the body of the template consists of a cond expression that has as many cond clauses as the itemizations has items. Furthermore, you must add a condition to each cond clause that identifies the sub-class of data in the corresponding item.
+</P>
+
+<P>
+By the second, if an item deals with a structure, the template contains the selector expressions—in the cond clause that deals with the sub-class of data described in the item.
+</P>
+
+<P>
+When you choose to describe the data with a separate data definition, however, you do not add selector expressions. Instead, you create a template for the separate data definition to the task at hand and refer to that template with a function call. The latter indicates that this sub-class of data is being processed separately.
+</P>
+
+<P>
+Before going through the work of developing a template, briefly reflect on the nature of the function. If the problem statement suggests that there are several tasks to be performed, it is likely that a composition of several, separately designed functions is needed instead of a template. In that case, skip the template step.
+</P>
+
+<P>
+5. Fill the gaps in the template. The more complex you make your data definitions, the more complex this step becomes. The good news is that this design recipe can help in many situations.
+</P>
+
+<P>
+If you are stuck, fill the easy cases first and use default values for the others. While this makes some of the test cases fail, you are making progress and you can visualize this progress.
+</P>
+
+<P>
+If you are stuck on some cases of the itemization, analyze the examples that correspond to those cases. Determine what the pieces of the template compute from the given inputs. Then consider how to combine these pieces (plus some constants) to compute the desired output. Keep in mind that you might need an auxiliary function.
+</P>
+
+<P>
+Also, if your template “calls” another template because the data definitions refer to each other, assume that the other function delivers what its purpose statement and its examples promise—even if this other function’s definition isn’t finished yet.
+</P>
+
+<P>
+6. Test. If tests fail, determine what’s wrong: the function, the tests, or both. Go back to the appropriate step.
+</P>
+
+<P>
+Go back to chapter 3.1, reread the description of the simple design recipe, and compare it to this revision.
+</P>
+
+<P>
+Let’s illustrate the design recipe with the design of a rendering function for the sample problem at the beginning of this section. Recall that a big-bang expression needs such a rendering function to turn the state of the world into an image after every clock tick, mouse click, or keystroke.
+</P>
+
+<P>
+The signature of this rendering function says that it maps an element of the state-of-the-world class to the class of Images:
+</P>
+
+<CODE>
+; SIGS -> Image ; adds TANK, UFO, and possibly MISSILE to ; the BACKGROUND scene (define (si-render s) BACKGROUND)
+</CODE>
+
+<P>
+Here TANK, UFO, MISSILE, and BACKGROUND are the requested image constants from exercise 94. Recall that this signature is just an instance of the general signature for rendering functions, which always consume the collections of world states and produce some image.
+</P>
+
+<P>
+Since the itemization in the data definition consists of two items, let’s make three examples, using the data examples from above. See figure 32. Unlike the function tables found in mathematics books, this table is rendered vertically. The left column contains sample inputs for our desired function; the right column lists the corresponding desired results. As you can see, we used the data examples from the first step of the design recipe, and they cover both items of the itemization.
+</P>
+
+<FIGURE src="images/00118.png">
+Figure 32: Rendering space invader game states, by example
+</FIGURE>
+
+<P>
+Next we turn to the development of the template, the most important step of the design process. First, we know that the body of si-render must be a cond expression with two cond clauses. Following the design recipe, the two conditions are (aim? s) and (fired? s), and they distinguish the two possible kinds of data that si-render may consume:
+</P>
+
+<FIGURE src="images/00119.png">
+
+</FIGURE>
+
+<P>
+Second, we add selector expressions to every cond clause that deals with structures. In this case, both clauses concern the processing of structures: aim and fired. The former comes with two fields and thus requires two selector expressions for the first cond clause, and the latter kind of structures consists of three values and thus demands three selector expressions:
+</P>
+
+<FIGURE src="images/00120.png">
+
+</FIGURE>
+
+<P>
+The template contains nearly everything we need to finish our task. To complete the definition, we figure out for each cond line how to combine the values we have in order to compute the expected result. Beyond the pieces of the input, we may also use globally defined constants, for example, BACKGROUND, which is obviously of help here; primitive or built-in operations; and, if all else fails, wish-list functions, that is, we describe functions we wish we had.
+</P>
+
+<P>
+Consider the first cond clause, where we have a data representation of a tank, that is, (aim-tank s), and the data representation of a UFO, that is, (aim-ufo s). From the first example in figure 32, we know that we need to add the two objects to the background scenery. In addition, the design recipe suggests that if these pieces of data come with their own data definition, we are to consider defining helper (auxiliary) functions and to use those to compute the result:
+</P>
+
+<FIGURE src="images/00121.png">
+
+</FIGURE>
+
+<P>
+Here tank-render and ufo-render are wish-list functions:
+</P>
+
+<CODE>
+; Tank Image -> Image ; adds t to the given image im (define (tank-render t im) im) ; UFO Image -> Image ; adds u to the given image im (define (ufo-render u im) im)
+</CODE>
+
+<P>
+With a bit of analogy, we can deal with the second cond clause in the same way. Figure 33 shows the complete definition. Best of all, we can immediately reuse our wish-list functions, tank-render and ufo-render, and all we need to add is a function for including a missile in the scene. The appropriate wish-list entry is:
+</P>
+
+<CODE>
+; Missile Image -> Image ; adds m to the given image im (define (missile-render m im) im)
+</CODE>
+
+<P>
+As above, the comment describes in sufficient detail what we want.
+</P>
+
+<FIGURE src="images/00122.png">
+Figure 33: The complete rendering function
+</FIGURE>
+
+<EXERCISE>
+Exercise 97. Design the functions tank-render, ufo-render, and missile-render. Compare this expression:
+</EXERCISE>
+
+<FIGURE src="images/00123.png">
+
+</FIGURE>
+
+<P>
+with this one:
+</P>
+
+<FIGURE src="images/00124.png">
+
+</FIGURE>
+
+<P>
+When do the two expressions produce the same result?
+</P>
+
+<EXERCISE>
+Exercise 98. Design the function si-game-over? for use as the stop-when handler. The game stops if the UFO lands or if the missile hits the UFO. For both conditions, we recommend that you check for proximity of one object to another.
+</EXERCISE>
+
+<P>
+The stop-when clause allows for an optional second sub-expression, namely a function that renders the final state of the game. Design si-render-final and use it as the second part for your stop-when clause in the main function of exercise 100.
+</P>
+
+<EXERCISE>
+Exercise 99. Design si-move. This function is called for every clock tick to determine to which position the objects move now. Accordingly, it consumes an element of SIGS and produces another one.
+</EXERCISE>
+
+<P>
+Moving the tank and the missile (if any) is relatively straightforward. They move in straight lines at a constant speed. Moving the UFO calls for small random jumps to the left or the right. Since you have never dealt with functions that create random numbers, the rest of this exercise is a longish hint on how to deal with this issue.
+</P>
+
+<P>
+BSL comes with a function that creates random numbers. Introducing this function illustrates why the signatures and purpose statements play such an important role during the design. Here is the relevant material for the function you need:
+</P>
+
+<CODE>
+; Number -> Number ; produces a number in the interval [0,n), ; possibly a different one each time it is called (define (random n) …)
+</CODE>
+
+<P>
+Since the signature and purpose statement precisely describe what a function computes, you can now experiment with random in DrRacket’s interactions area. Stop! Do so!
+</P>
+
+<P>
+If random produces different numbers (almost) every time it is called, testing functions that use random is difficult. To start with, separate si-move and its proper functionality into two parts:
+</P>
+
+<MARGIN_NOTE>
+The idea that you must use random is BSL knowledge, not a part of the design skills you must acquire, which is why we provide this hint. Also, random is the first and only BSL primitive that is not a mathematical function. Functions in programming are inspired by mathematical functions, but they are not identical concepts.
+</MARGIN_NOTE>
+
+<CODE>
+(define (si-move w)   (si-move-proper w (random …))) ; SIGS Number -> SIGS ; moves the space-invader objects predictably by delta (define (si-move-proper w delta)   w)
+</CODE>
+
+<P>
+With this definition you separate the creation of a random number from the act of moving the game objects. While random may produce different results every time it is called, si-move-proper can be tested on specific numeric inputs and is thus guaranteed to return the same result when given the same inputs. In short, most of the code remains testable.
+</P>
+
+<P>
+Instead of calling random directly, you may wish to design a function that creates a random x-coordinate for the UFO. Consider using check-random from BSL’s testing framework to test such a function.
+</P>
+
+<EXERCISE>
+Exercise 100. Design the function si-control, which plays the role of the key-event handler. As such, it consumes a game state and a KeyEvent and produces a new game state. It reacts to three different keys:
+</EXERCISE>
+
+<P>
+•  pressing the left arrow ensures that the tank moves left;
+</P>
+
+<P>
+•  pressing the right arrow ensures that the tank moves right; and
+</P>
+
+<P>
+•  pressing the space bar fires the missile if it hasn’t been launched yet.
+</P>
+
+<P>
+Once you have this function, you can define the si-main function, which uses big-bang to spawn the game-playing window. Enjoy!
+</P>
+
+<P>
+Data representations are rarely unique. For example, we could use a single structure type to represent the states of a space invader game:
+</P>
+
+<CODE>
+(define-struct sigs [ufo tank missile]) ; A SIGS.v2 (short for SIGS version 2) is a structure: ; (make-sigs UFO Tank MissileOrNot) ; interpretation represents the complete state of a ; space invader game; A MissileOrNot is one of: ; -- #false ; -- Posn ; interpretation#false means the missile is in the tank; ; Posn says the missile is at that location
+</CODE>
+
+<P>
+Unlike the first data representation for game states, this second version does not distinguish between before and after the missile launch. Instead, each state contains some data about the missile though this piece of data may just be #false, indicating that the missile hasn’t been fired yet.
+</P>
+
+<P>
+As a result, the functions for this second data representation of states differ from the functions for the first one. In particular, functions that consume an element of SIGS.v2 do not use a cond expression because there is only one kind of element in the collection. In terms of design approach, the design recipe for structures from chapter 5.8 suffices. Figure 34 shows the result of designing the rendering function for this data representation.
+</P>
+
+<FIGURE src="images/00125.png">
+Figure 34: Rendering game states again
+</FIGURE>
+
+<P>
+In contrast, the design of functions using MissileOrNot requires the recipe from this section. Let’s look at the design of missile-render.v2, whose job it is to add a missile to an image. Here is the header material:
+</P>
+
+<CODE>
+; MissileOrNot Image -> Image ; adds an image of missile m to scene s (define (missile-render.v2 m s)   s)
+</CODE>
+
+<P>
+As for examples, we must consider at least two cases: one when m is #false and another one when m is a Posn. In the first case, the missile hasn’t been fired, which means that no image of a missile is to be added to the given scene. In the second case, the missile’s position is specified and that is where the image of the missile must show up. Figure 35 demonstrates the workings of the function with two distinct scenarios.
+</P>
+
+<FIGURE src="images/00126.png">
+Figure 35: Rendering the space invader games, with tanks
+</FIGURE>
+
+<EXERCISE>
+Exercise 101. Turn the examples in figure 35 into test cases.
+</EXERCISE>
+
+<P>
+Now we are ready to develop the template. Because the data definition for the major argument (m) is an itemization with two items, the function body is likely to consist of a cond expression with two clauses:
+</P>
+
+<CODE>
+(define (missile-render.v2 m s)   (cond     [(boolean? m) …]     [(posn? m) …]))
+</CODE>
+
+<P>
+Following the data definition again, the first cond clause checks whether m is a Boolean value and the second one checks whether it is an element of Posn. And, if someone were to accidentally apply missile-render.v2 to #true and to some image, the function would use the first cond clause to compute the result. We have more to say on such errors below.
+</P>
+
+<P>
+The second template step requests selector expressions in all those cond clauses that deal with structures. In our example, this is true for the second clause, and the selector expressions extract the x- and y-coordinates from the given Posn:
+</P>
+
+<CODE>
+(define (missile-render.v2 m s)   (cond     [(boolean? m) …]     [(posn? m) (… (posn-x m) … (posn-y m) …)]))
+</CODE>
+
+<P>
+Compare this template with the one for si-render above. The data definition for the latter deals with two distinct structure types, and therefore the function template for si-render contains selector expressions in both cond clauses. The data definition for MissileOrNot, however, mixes items that are plain values with items that describe structures. Both kinds of definitions are perfectly fine; the key for you is to follow the recipe and to find a code organization that matches the data definition.
+</P>
+
+<P>
+Here is the complete function definition:
+</P>
+
+<CODE>
+(define (missile-render.v2 m s)   (cond     [(boolean? m) s]     [(posn? m) (place-image MISSILE (posn-x m) (posn-y m) s)]))
+</CODE>
+
+<P>
+Doing this step-by-step, you first work on the easy clauses; in this function that’s the first one. Since it says the missile hasn’t been fired, the function returns the given s. For the second clause, you need to remember that (posn-x m) and (posn-y m) select the coordinates for the image of the missile. This function must add MISSILE to s, so you have to figure out the best combination of primitive operations and your own functions to combine the four values. The choice of this combining operation is precisely where your creative insight as a programmer comes into play.
+</P>
+
+<EXERCISE>
+Exercise 102. Design all other functions that are needed to complete the game for this second data definition.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 103. Develop a data representation for the following four kinds of zoo animals:
+</EXERCISE>
+
+<P>
+•  spiders, whose relevant attributes are the number of remaining legs (we assume that spiders can lose legs in accidents) and the space they need in case of transport;
+</P>
+
+<P>
+•  elephants, whose only attributes are the space they need in case of transport;
+</P>
+
+<P>
+•  boa constrictors, whose attributes include length and girth; and
+</P>
+
+<P>
+•  armadillos, for which you must determine appropriate attributes, including one that determines the space needed for transport.
+</P>
+
+<P>
+Develop a template for functions that consume zoo animals.
+</P>
+
+<P>
+Design the fits? function, which consumes a zoo animal and a description of a cage. It determines whether the cage’s volume is large enough for the animal.
+</P>
+
+<EXERCISE>
+Exercise 104. Your home town manages a fleet of vehicles: automobiles, vans, buses, and SUVs. Develop a data representation for vehicles. The representation of each vehicle must describe the number of passengers that it can carry, its license plate number, and its fuel consumption (miles per gallon). Develop a template for functions that consume vehicles.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 105. Some program contains the following data definition:
+</EXERCISE>
+
+<CODE>
+; A Coordinate is one of: ; -- a NegativeNumber ; interpretation on the y axis, distance from top ; -- a PositiveNumber ; interpretation on the x axis, distance from left ; -- a Posn ; interpretation an ordinary Cartesian point
+</CODE>
+
+<P>
+Make up at least two data examples per clause in the data definition. For each of the examples, explain its meaning with a sketch of a canvas.
+</P>
+
+<h2>
+6.2 Mixing Up Worlds
+</h2>
+
+<P>
+This section suggests several design problems for world program, starting with simple extension exercises concerning our virtual pets.
+</P>
+
+<EXERCISE>
+Exercise 106. In chapter 5.11 we discussed the creation of virtual pets that come with happiness gauges. One of the virtual pets is a cat; the other one, a chameleon. Each program is dedicated to a single pet, however.
+</EXERCISE>
+
+<P>
+Design the cat-cham world program. Given both a location and an animal, it walks the latter across the canvas, starting from the given location. Here is the chosen data representation for animals:
+</P>
+
+<CODE>
+; A VAnimal is either ; -- a VCat ; -- a VCham
+</CODE>
+
+<P>
+where VCat and VCham are your data definitions from exercises 88 and 92.
+</P>
+
+<P>
+Given that VAnimal is the collection of world states, you need to design
+</P>
+
+<P>
+•  a rendering function from VAnimal to Image;
+</P>
+
+<P>
+•  a function for handling clock ticks, from VAnimal to VAnimal; and
+</P>
+
+<P>
+•  a function for dealing with key events so that you can feed and pet and colorize your animal—as applicable.
+</P>
+
+<P>
+It remains impossible to change the color of a cat or to pet a chameleon.
+</P>
+
+<EXERCISE>
+Exercise 107. Design the cham-and-cat program, which deals with both a virtual cat and a virtual chameleon. You need a data definition for a “zoo” containing both animals and functions for dealing with it.
+</EXERCISE>
+
+<P>
+The problem statement leaves open how keys manipulate the two animals. Here are two possible interpretations:
+</P>
+
+<P>
+1. Each key event goes to both animals.
+</P>
+
+<P>
+2. Each key event applies to only one of the two animals.
+</P>
+
+<P>
+For this alternative, you need a data representation that specifies a focus animal, that is, the animal that can currently be manipulated. To switch focus, have the key-handling function interpret "k" for “kitty” and "l" for lizard. Once a player hits "k", the following keystrokes apply to the cat only—until the player hits "l".
+</P>
+
+<P>
+Choose one of the alternatives and design the appropriate program.
+</P>
+
+<EXERCISE>
+Exercise 108. In its default state, a pedestrian crossing light shows an orange person standing on a red background. When it is time to allow the pedestrian to cross the street, the light receives a signal and switches to a green, walking person. This phase lasts for 10 seconds. After that the light displays the digits 9, 8, ⋯, 0 with odd numbers colored orange and even numbers colored green. When the countdown reaches 0, the light switches back to its default state.
+</EXERCISE>
+
+<P>
+Design a world program that implements such a pedestrian traffic light. The light switches from its default state when you press the space bar on your keyboard. All other transitions must be reactions to clock ticks. You may wish to use the following images
+</P>
+
+<FIGURE src="images/00127.png">
+
+</FIGURE>
+
+<P>
+or you can make up your own stick figures with the image library.
+</P>
+
+<EXERCISE>
+Exercise 109. Design a world program that recognizes a pattern in a sequence of KeyEvents. Initially the program shows a 100 by 100 white rectangle. Once your program has encountered the first desired letter, it displays a yellow rectangle of the same size. After encountering the final letter, the color of the rectangle turns green. If any “bad” key event occurs, the program displays a red rectangle.
+</EXERCISE>
+
+<P>
+The specific sequences that your program looks for start with "a", followed by an arbitrarily long mix of "b" and "c", and ended by a "d". Clearly, "acbd" is one example of an acceptable string; two others are "ad" and "abcbbbcd". Of course, "da", "aa", or "d" do not match.
+</P>
+
+<P>
+Hint Your solution implements a finite state machine (FSM), an idea introduced in chapter 4.7 as one design principle behind world programs. As the name says, an FSM program may be in one of a finite number of states. The first state is called an initial state. Each key event causes the machine to reconsider its current state; it may transition to the same state or to another one. When your program recognizes a proper sequence of key events, it transitions to a final state.
+</P>
+
+<MARGIN_NOTE>
+The data definition on the right uses the naming technique introduced in exercise 61.
+</MARGIN_NOTE>
+
+<P>
+For a sequence-recognition problem, states typically represent the letters that the machine expects to see next; see figure 36 for a data definition. Take a look at the last state, which says an illegal input has been encountered. Figure 37 shows how to think of these states and their relationships in a diagrammatic manner. Each node corresponds to one of the four finite states; each arrow specifies which KeyEvent causes the program to transition from one state to another.
+</P>
+
+<FIGURE src="images/00128.png">
+Figure 36: Two ways of writing a data definition for FSMs
+</FIGURE>
+
+<FIGURE src="images/00129.png">
+Figure 37: A finite state machine as a diagram
+</FIGURE>
+
+<P>
+History In the 1950s, Stephen C. Kleene, whom we would call a computer scientist, invented regular expressions as a notation for the problem of recognizing text patterns. For the above problem, Kleene would write
+</P>
+
+<FIGURE src="images/00130.png">
+
+</FIGURE>
+
+<P>
+which means a followed by b or c arbitrarily often until d is encountered.
+</P>
+
+<h2>
+6.3 Input Errors
+</h2>
+
+<P>
+One central point of this chapter concerns the role of predicates. They are critical when you must design functions that process mixes of data. Such mixes come up naturally when your problem statement mentions many different kinds of information, but they also come up when you hand your functions and programs to others. After all, you know and respect your data definitions and function signatures. You never know, however, what your friends and colleagues do, and you especially don’t know how someone without knowledge of BSL and programming uses your programs. This section therefore presents one way of protecting programs from inappropriate inputs.
+</P>
+
+<MARGIN_NOTE>
+It is a form of self-delusion to expect that we always respect our own function signatures. Calling a function on the wrong kind of data happens to the best of us. While many languages are like BSL and expect programmers to check signatures on their own, others do so automatically at the cost of some additional complexity.
+</MARGIN_NOTE>
+
+<P>
+Let’s demonstrate this point with a simple program, a function for computing the area of a disk:
+</P>
+
+<CODE>
+; Number -> Number ; computes the area of a disk with radius r (define (area-of-disk r)   (* 3.14 (* r r)))
+</CODE>
+
+<P>
+Our friends may wish to use this function for their geometry homework. Unfortunately, when our friends use this function, they may accidentally apply it to a string rather than a number. When that happens, the function stops the program execution with a mysterious error message:
+</P>
+
+<CODE>
+> (area-of-disk "my-disk") *:expects a number as 1st argument, given "my-disk"
+</CODE>
+
+<P>
+With predicates, you can prevent this kind of cryptic error message and signal an informative error of your own choice.
+</P>
+
+<P>
+Specifically, we can define checked versions of our functions, when we wish to hand them to our friends. Because our friends may not know much BSL, we must expect that they apply this checked function to arbitrary BSL values: numbers, strings, images, Posns, and so on. Although we cannot anticipate which structure types will be defined in BSL, we know the rough shape of the data definition for the collection of all BSL values. Figure 38 displays this shape of this data definition. As discussed in chapter 5.7, the data definition for Any is open-ended because every structure type definition adds new instances. These instances may contain Any values again, which implies that the data definition of Any must refer to itself—a scary thought at first.
+</P>
+
+<FIGURE src="images/00131.png">
+Figure 38: The universe of BSL data
+</FIGURE>
+
+<P>
+Based on this itemization, the template for a checked function has the following rough shape:
+</P>
+
+<CODE>
+; Any -> ??? (define (checked-f v)   (cond     [(number? v) …]     [(boolean? v) …]     [(string? v) …]     [(image? v) …]     [(posn? v) (…(posn-x v) … (posn-y v) …)]     …     ; which selectors are needed in the next clause?     [(tank? v) …]     …))
+</CODE>
+
+<P>
+Of course, nobody can list all clauses of this definition; fortunately, that’s not necessary. What we do know is that for all those values in the class of values for which the original function is defined, the checked version must produce the same results; for all others, it must signal an error.
+</P>
+
+<P>
+Concretely, our sample function checked-area-of-disk consumes an arbitrary BSL value and uses area-of-disk to compute the area of a disk if the input is a number. It must stop with an error message otherwise; in BSL we use the function error to accomplish this. The error function consumes a string and stops the program:
+</P>
+
+<CODE>
+(error "area-of-disk: number expected")
+</CODE>
+
+<P>
+Hence the rough definition of checked-area-of-disk looks like this:
+</P>
+
+<CODE>
+(define MESSAGE "area-of-disk: number expected") (define (checked-area-of-disk v)   (cond     [(number? v) (area-of-disk v)]     [(boolean? v) (error MESSAGE)]     [(string? v) (error MESSAGE)]     [(image? v) (error MESSAGE)]     [(posn? v) (error MESSAGE)]     …     [(tank? v) (error MESSAGE)]     …))
+</CODE>
+
+<P>
+The use of else helps us finish this definition in the natural way:
+</P>
+
+<CODE>
+; Any -> Number ; computes the area of a disk with radius v, ; if v is a number (define (checked-area-of-disk v)   (cond     [(number? v) (area-of-disk v)]     [else (error "area-of-disk: number expected")]))
+</CODE>
+
+<P>
+And just to make sure we get what we want, let’s experiment:
+</P>
+
+<CODE>
+> (checked-area-of-disk "my-disk") area-of-disk:number expected
+</CODE>
+
+<P>
+Writing checked functions is important if we distribute our programs for others to use. Designing programs that work properly, however, is far more important. This book focuses on the design process for proper program design, and, to do this without distraction, we agree that we always adhere to data definitions and signatures. At least, we almost always do so, and on rare occasions we may ask you to design checked versions of a function or a program.
+</P>
+
+<EXERCISE>
+Exercise 110. A checked version of area-of-disk can also enforce that the arguments to the function are positive numbers, not just arbitrary numbers. Modify checked-area-of-disk in this way.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 111. Take a look at these definitions:
+</EXERCISE>
+
+<CODE>
+(define-struct vec [x y]) ; A vec is ;   (make-vec PositiveNumber PositiveNumber) ; interpretation represents a velocity vector
+</CODE>
+
+<P>
+Develop the function checked-make-vec, which is to be understood as a checked version of the primitive operation make-vec. It ensures that the arguments to make-vec are positive numbers. In other words, checked-make-vec enforces our informal data definition.
+</P>
+
+<P>
+Predicates You might wonder how you can design your own predicates. After all, checked functions really seem to have this general shape:
+</P>
+
+<CODE>
+; Any -> …; checks that a is a proper input for function g (define (checked-g a)   (cond     [(XYZ? a) (g a)]     [else (error "g: bad input")]))
+</CODE>
+
+<P>
+where g itself is defined like this:
+</P>
+
+<CODE>
+; XYZ -> … (define (g some-x) …)
+</CODE>
+
+<P>
+We assume that there is a data definition labeled XYZ, and that (XYZ? a) produces #true when a is an element of XYZ and #false otherwise.
+</P>
+
+<P>
+For area-of-disk, which consumes Numbers, number? is clearly the appropriate predicate. In contrast, for some functions like missile-render from above, we clearly need to define our own predicate because MissileOrNot is a made-up, not a built-in, data collection. So let us design a predicate for MissileOrNot.
+</P>
+
+<P>
+We recall the signature for predicates:
+</P>
+
+<CODE>
+; Any -> Boolean ; is a an element of the MissileOrNot collection (define (missile-or-not? a) #false)
+</CODE>
+
+<P>
+It is a good practice to use questions as purpose statements for predicates, because applying a predicate is like asking a question about a value. The question mark “?” at the end of the name also reinforces this idea; some people may tack on “huh” to pronounce the name of such functions.
+</P>
+
+<P>
+Making up examples is also straightforward:
+</P>
+
+<CODE>
+(check-expect (missile-or-not? #false) #true) (check-expect (missile-or-not? (make-posn 9 2)) #true) (check-expect (missile-or-not? "yellow") #false)
+</CODE>
+
+<P>
+The first two examples recall that every element of MissileOrNot is either #false or some Posn. The third test says that strings aren’t elements of the collection. Here are three more tests:
+</P>
+
+<CODE>
+(check-expect (missile-or-not? #true) #false) (check-expect (missile-or-not? 10) #false) (check-expect (missile-or-not? empty-image) #false)
+</CODE>
+
+<P>
+Explain the expected answers!
+</P>
+
+<P>
+Since predicates consume all possible BSL values, their templates are just like the templates for checked-f. Stop! Find the template and take a second look before you read on.
+</P>
+
+<P>
+As with checked functions, a predicate doesn’t need all possible cond lines. Only those that might produce #true are required:
+</P>
+
+<CODE>
+(define (missile-or-not? v)   (cond     [(boolean? v) …]     [(posn? v) (… (posn-x v) … (posn-y v) …)]     [else #false]))
+</CODE>
+
+<P>
+All other cases are summarized via an else line that produces #false.
+</P>
+
+<P>
+Given the template, the definition of missile-or-not? is a simple matter of thinking through each case:
+</P>
+
+<CODE>
+(define (missile-or-not? v)   (cond     [(boolean? v) (boolean=? #false v)]     [(posn? v) #true]     [else #false]))
+</CODE>
+
+<P>
+Only #false is a legitimate MissileOrNot; #true isn’t. We express this idea with (boolean=? #false v), but (false? v) would also do:
+</P>
+
+<CODE>
+(define (missile-or-not? v)   (cond     [(false? v) #true]     [(posn? v) #true]     [else #false]))
+</CODE>
+
+<P>
+Naturally all elements of Posn are also members of MissileOrNot, which explains the #true in the second line.
+</P>
+
+<EXERCISE>
+Exercise 112. Reformulate the predicate now using an or expression.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 113. Design predicates for the following data definitions from the preceding section: SIGS, Coordinate (VAnimal.
+</EXERCISE>
+
+<P>
+To wrap up, let us mention key-event? and mouse-event? as two important predicates that you may wish to use in your world programs. They check the expected property, but you should check out their documentation to make sure you understand what they compute.
+</P>
+
+<h2>
+6.4 Checking the World
+</h2>
+
+<P>
+In a world program, many things can go wrong. Although we just agreed to trust that our functions are always applied to the proper kind of data, in a world program we may juggle too many things at once to place that much trust in ourselves. When we design a world program that takes care of clock ticks, mouse clicks, keystrokes, and rendering, it is just too easy to get one of those interplays wrong. Of course, going wrong doesn’t mean that BSL recognizes the mistake immediately. For example, one of our functions may produce a result that isn’t quite an element of your data representation for world states. At the same time, big-bang accepts this piece of data and holds on to it, until the next event takes place. It is only when the following event handler receives this inappropriate piece of data that the program may fail. But it may get worse because even the second and third and fourth event-handling step may actually cope with inappropriate state values, and it all blows up much later in the process.
+</P>
+
+<P>
+To help with this kind of problem, big-bang comes with an optional check-with clause that accepts a predicate for world states. If, for example, we chose to represent all world states with Number, we could express this fact easily like this:
+</P>
+
+<CODE>
+(define (main s0)   (big-bang s0 … [check-with number?] …))
+</CODE>
+
+<P>
+As soon as any event-handling function produces something other than a number, the world stops with an appropriate error message.
+</P>
+
+<P>
+A check-with clause is even more useful when the data definition is not just a class of data with a built-in predicate like number? but something subtle such as this interval definition:
+</P>
+
+<CODE>
+; A UnitWorld is a number ;   between 0 (inclusive) and 1 (exclusive).
+</CODE>
+
+<P>
+In that case you want to formulate a predicate for this interval:
+</P>
+
+<CODE>
+; Any -> Boolean ; is x between 0 (inclusive) and 1 (exclusive) (check-expect (between-0-and-1? "a") #false) (check-expect (between-0-and-1? 1.2) #false) (check-expect (between-0-and-1? 0.2) #true) (check-expect (between-0-and-1? 0.0) #true) (check-expect (between-0-and-1? 1.0) #false) (define (between-0-and-1? x)   (and (number? x) (<= 0 x) (< x 1)))
+</CODE>
+
+<P>
+With this predicate you can now monitor every single transition in your world program:
+</P>
+
+<FIGURE src="images/00132.png">
+
+</FIGURE>
+
+<P>
+If any of the world-producing handlers creates a number outside of the interval, or worse, a non-numeric-value, our program discovers this mistake immediately and gives us a chance to fix the mistake.
+</P>
+
+<EXERCISE>
+Exercise 114. Use the predicates from exercise 113 to check the space invader world program, the virtual pet program (exercise 106), and the editor program (chapter 5.10).
+</EXERCISE>
+
+<h2>
+6.5 Equality Predicates
+</h2>
+
+<P>
+An equality predicate is a function that compares two elements of the same collection of data. Recall the definition of TrafficLight, which is the collection of three strings: "red", "green", and "yellow". Here is one way to define the light=? function:
+</P>
+
+<CODE>
+; TrafficLight TrafficLight -> Boolean ; are the two (states of) traffic lights equal (check-expect (light=? "red" "red") #true) (check-expect (light=? "red" "green") #false) (check-expect (light=? "green" "green") #true) (check-expect (light=? "yellow" "yellow") #true) (define (light=? a-value another-value)   (string=? a-value another-value))
+</CODE>
+
+<P>
+When we click RUN, all tests succeed, but unfortunately other interactions reveal conflicts with our intentions:
+</P>
+
+<CODE>
+> (light=? "salad" "greens") #false > (light=? "beans" 10) string=?:expects a string as 2nd argument, given 10
+</CODE>
+
+<P>
+Compare these interactions with other, built-in equality predicates:
+</P>
+
+<CODE>
+> (boolean=? "#true" 10) boolean=?:expects a boolean as 1st argument, given "#true"
+</CODE>
+
+<P>
+Try (string=? 10 #true) and (= 20 "help") on your own. All of them signal an error about being applied to the wrong kind of argument.
+</P>
+
+<MARGIN_NOTE>
+The case of characters matters; "red" is different from "Red" or "RED".
+</MARGIN_NOTE>
+
+<P>
+A checked version of light=? enforces that both arguments belong to TrafficLight; if not, it signals an error like those that built-in equality predicates issue. We call the predicate for TrafficLight light? for brevity:
+</P>
+
+<FIGURE src="images/00133.png">
+
+</FIGURE>
+
+<P>
+Now we can wrap up the revision of light=? by just following our original analysis. First, the function determines that the two inputs are elements of TrafficLight; if not it uses error to signal the mistake:
+</P>
+
+<CODE>
+(define MESSAGE   "traffic light expected, given some other value") ; Any Any -> Boolean ; are the two values elements of TrafficLight and, ; if so, are they equal (check-expect (light=? "red" "red") #true) (check-expect (light=? "red" "green") #false) (check-expect (light=? "green" "green") #true) (check-expect (light=? "yellow" "yellow") #true) (define (light=? a-value another-value)   (if (and (light? a-value) (light? another-value))       (string=? a-value another-value)       (error MESSAGE)))
+</CODE>
+
+<EXERCISE>
+Exercise 115. Revise light=? so that the error message specifies which of the two arguments isn’t an element of TrafficLight.
+</EXERCISE>
+
+<P>
+While it is unlikely that your programs will use light=?, they ought to use key=? and mouse=?, two equality predicates that we briefly mentioned at the end of the last subsection. Naturally, key=? is an operation for comparing two KeyEvents; similarly, mouse=? compares two MouseEvts. While both kinds of events are represented as strings, it is important to realize that not all strings represent key events or mouse events.
+</P>
+
+<P>
+We recommend using key=? in key-event handlers and mouse=? in mouse-event handlers from now on. The use of key=? in a key-event handler ensures that the function really compares strings that represent key events and not arbitrary strings. As soon as, say, the function is accidentally applied to "hello\n world", key=? signals an error and thus informs us that something is wrong.
+</P>

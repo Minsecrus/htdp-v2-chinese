@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_3"><b class="calibre9">BSL Meaning</b></h1>
+<p class="tni">When you hit the return key on your keyboard and ask DrRacket to evaluate an expression, it uses the laws of arithmetic and algebra to obtain a <i class="calibre6">value</i>. For the variant of BSL treated so far, <a href="part0006_split_001.html#fig39" class="calibre5">figure 39</a> defines grammatically what a value is—the set of values is just a subset of all expressions. The set includes Booleans, Strings, and Images.</p>
+<p class="calibre8">The rules of evaluation come in two categories. An infinite number of rules, like those of arithmetic, explain how to determine the value of an application of a primitive operation to values:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1</samp><samp class="mono"> 1) ==</samp><samp class="mono"> 2</samp> <br class="calibre4"/><samp class="mono">(- 2</samp><samp class="mono"> 1) ==</samp><samp class="mono"> 1</samp> <br class="calibre4"/><samp class="mono"><span>…</span></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_208" title="208"></span>Remember <samp class="mono">==</samp> says that two expressions are equal according to the laws of computation in BSL. But BSL arithmetic is more general than just number crunching. It also includes rules for dealing with Boolean values, strings, and so on:</p>
+<figure class="co"><img src="../images/00137.gif" alt="" class="calibre10"/></figure>
+<p class="tni">And, like in algebra, you can always replace equals with equals; see <a id="rfig42" href="part0006_split_003.html#fig42" class="calibre5">figure 42</a> for a sample calculation.</p>
+<div class="figure">
+<figure class="img"><a id="fig42" class="calibre5"></a><img src="../images/00138.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0006_split_003.html#rfig42" class="calibre5">Figure 42</a>:</span> <span>Replacing equals by equals</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Second, we need a rule from algebra to understand the application of a function to arguments. Suppose the program contains the definition</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> x-1 <span>…</span></samp><samp class="mono"> x-n)</samp> <br class="calibre4"/><samp class="mono">  f-body)</samp></p>
+</div>
+<p class="tni">Then an application of a function is governed by the law:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(f v-1</samp><samp class="mono"> <span>…</span> v-n)</samp><samp class="mono"> == f-body</samp> <br class="calibre4"/><samp class="mono">; with</samp><samp class="mono"> all occurrences</samp><samp class="mono"> of x-1</samp><samp class="mono"> <span>…</span> x-n</samp> <br class="calibre4"/><samp class="mono">; replaced</samp><samp class="mono"> with v-1</samp><samp class="mono"> <span>…</span> v-n,</samp><samp class="mono"> respectively</samp></p>
+</div>
+<p class="tni">Due to the history of languages such as BSL, we refer to this rule as the <i class="calibre6">beta</i> or <i class="calibre6">beta-value</i> rule.</p>
+<p class="marginpar">See chapter 17.2 for more on this rule.</p>
+<p class="calibre8">This rule is formulated as generally as possible, so it is best to look at a concrete example. Say the definition is</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_209" title="209"></span><samp class="mono">(define (poly</samp><samp class="mono"> x y)</samp> <br class="calibre4"/><samp class="mono">  (+</samp><samp class="mono"> (expt 2</samp><samp class="mono"> x) y))</samp></p>
+</div>
+<p class="tni">and DrRacket is given the expression <samp class="mono">(poly 3 5)</samp>. Then the first step in an evaluation of the expression uses the beta rule:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(poly 3</samp><samp class="mono"> 5) ==</samp><samp class="mono"> (+ (expt</samp><samp class="mono"> 2 3)</samp><samp class="mono"> 5) <span>…</span></samp><samp class="mono"> == (+</samp><samp class="mono"> 8 5)</samp><samp class="mono"> == 13</samp></p>
+</div>
+<p class="calibre8">In addition to beta, we need rules that determine the value of <samp class="mono">cond</samp> expressions. These rules are algebraic even if they are not explicitly taught as part of the standard curriculum. When the first condition is <samp class="mono">#false</samp>, the first <samp class="mono">cond</samp>-line disappears, leaving the rest of the lines intact:</p>
+<figure class="co"><img src="../images/00139.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This rule has the name <samp class="mono">cond</samp><sub class="calibre17"><i class="calibre6">false</i></sub>.Here is <samp class="mono">cond</samp><sub class="calibre17"><i class="calibre6">true</i></sub>:</p>
+<figure class="co"><img src="../images/00140.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The rule also applies when the first condition is <samp class="mono">else</samp>.</p>
+<p class="calibre8">Consider the following evaluation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(zero?</samp><samp class="mono"> 3) 1]</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 3 3)</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1)]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> 3])</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> by plain</samp><samp class="mono"> arithmetic and</samp><samp class="mono"> equals-for-equals</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#false</samp><samp class="mono"> 1]</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 3 3)</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1)]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> 3])</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> by rule</samp><samp class="mono"> cond</samp><sub class="calibre17"><i class="calibre6">false</i></sub> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 3 3)</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1)]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> 3])</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> by plain</samp><samp class="mono"> arithmetic and</samp><samp class="mono"> equals-for-equals</samp> <br class="calibre4"/><samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [#true</samp><samp class="mono"> (+ 1</samp><samp class="mono"> 1)]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> 3])</samp> <br class="calibre4"/><samp class="mono">== ;</samp><samp class="mono"> by rule</samp><samp class="mono"> cond</samp><sub class="calibre17"><i class="calibre6">true</i></sub> <br class="calibre4"/><samp class="mono">(+ 1</samp><samp class="mono"> 1)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_210" title="210"></span>The calculation illustrates the rules of plain arithmetic, the replacement of equals by equals, and both <samp class="mono">cond</samp> rules.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 121. Evaluate the following expressions step-by-step:</p>
+<p class="nlf">1. <samp class="mono">(+ (*</samp><samp class="mono"> (/ 12</samp><samp class="mono"> 8) 2/3)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> (- 20</samp><samp class="mono"> (sqrt 4)))</samp></p>
+<p class="nlf">2. <samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 0 0)</samp><samp class="mono"> #false]</samp> <br class="calibre4"/><samp class="mono">  [(&gt;</samp><samp class="mono"> 0 1)</samp><samp class="mono"> (string=? "a"</samp><samp class="mono"> "a")]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> (= (/</samp><samp class="mono"> 1 0)</samp><samp class="mono"> 9)])</samp></p>
+<p class="nll">3. <samp class="mono">(cond</samp> <br class="calibre4"/><samp class="mono">  [(=</samp><samp class="mono"> 2 0)</samp><samp class="mono"> #false]</samp> <br class="calibre4"/><samp class="mono">  [(&gt;</samp><samp class="mono"> 2 1)</samp><samp class="mono"> (string=? "a"</samp><samp class="mono"> "a")]</samp> <br class="calibre4"/><samp class="mono">  [else</samp><samp class="mono"> (= (/</samp><samp class="mono"> 1 2)</samp><samp class="mono"> 9)])</samp></p>
+<p class="tni">Use DrRacket’s stepper to confirm your computations. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 122. Suppose the program contains these definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> x y)</samp> <br class="calibre4"/><samp class="mono">  (+</samp><samp class="mono"> (* 3</samp><samp class="mono"> x) (*</samp><samp class="mono"> y y)))</samp></p>
+</div>
+<p class="tni">Show how DrRacket evaluates the following expressions, step-by-step:</p>
+<p class="nlf">1. <samp class="mono">(+ (f 1 2) (f 2 1))</samp></p>
+<p class="nlf">2. <samp class="mono">(f 1 (* 2 3))</samp></p>
+<p class="nll">3. <samp class="mono">(f (f 1 (* 2 3)) 19)</samp></p>
+<p class="tni">Use DrRacket’s stepper to confirm your computations. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</article>
+</div>
+</body></html>

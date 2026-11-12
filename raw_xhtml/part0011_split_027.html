@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_28"><a id="sec23-4" class="calibre16"></a>23.4 Function Simplification</h2>
+<p class="tni">The <samp class="mono">list-pick</samp> function in <a id="rfig134" href="part0011_split_027.html#fig134" class="calibre5">figure 134</a> is far more complicated than necessary. The first two <samp class="mono">cond</samp> clauses signal an error. That is, if either</p>
+<div class="figure">
+<figure class="img"><a id="fig134" class="calibre5"></a><img src="../images/00529.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_027.html#rfig134" class="calibre5">Figure 134</a>:</span> <span>Indexing into a list</span></p></figcaption>
+</figure>
+</div>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(and (=</samp><samp class="mono"> n 0)</samp><samp class="mono"> (empty? alos))</samp></p>
+</div>
+<p class="tni">or</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(and (&gt;</samp><samp class="mono"> n 0)</samp><samp class="mono"> (empty? alos))</samp></p>
+</div>
+<p class="tni">holds, the answer is an error. We can translate this observation into code:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_567" title="567"></span><img src="../images/00530.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">To simplify this function even more, we need to get acquainted with algebraic laws concerning Booleans:</p>
+<figure class="co"><img src="../images/00531.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">These equations are known as de Morgan’s laws.</p>
+<p class="tni">A similar law applies when the sub-expressions of the <samp class="mono">and</samp>s are swapped. Applying these laws to <samp class="mono">list-pick</samp> yields this:</p>
+<figure class="co"><img src="../images/00532.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">Now consider <samp class="mono">(or (= n 0) (&gt; n 0))</samp>. It is always <samp class="mono">#true</samp> because <samp class="mono">n</samp> belongs to N. Since <samp class="mono">(and #true (empty? alos))</samp> is equivalent to <samp class="mono">(empty? alos)</samp>, we can rewrite the function again:</p>
+<figure class="co"><img src="../images/00533.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">This last definition is already significantly simpler than the definition in <a href="part0011_split_027.html#fig134" class="calibre5">figure 134</a>, but we can do even better than this. Compare the first condition in the latest version of <samp class="mono">list-pick</samp> with the second and third. Since the first <samp class="mono">cond</samp> clause filters out all those cases when <samp class="mono">alos</samp> is empty, <samp class="mono">(cons? alos)</samp> in the last two clauses is always going to evaluate to <samp class="mono">#true</samp>. If we <span epub:type="pagebreak" id="pg_568" title="568"></span>replace the condition with <samp class="mono">#true</samp> and simplify the <samp class="mono">and</samp> expressions again, we get a three-line version of <samp class="mono">list-pick</samp></p>
+<p class="calibre8"><a id="rfig135" href="part0011_split_027.html#fig135" class="calibre5">Figure 135</a> displays this simplified version of <samp class="mono">list-pick</samp>. While it is far simpler than the original, it is important to understand that we designed the original in a systematic manner and that we were able to transform the first into the second with well-established algebraic laws. We can therefore trust this simple version. If we try to find the simple versions of functions directly, we sooner or later fail to take care of a case in our analysis, and we are guaranteed to produce flawed programs.</p>
+<div class="figure">
+<figure class="img"><a id="fig135" class="calibre5"></a><img src="../images/00534.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_027.html#rfig135" class="calibre5">Figure 135</a>:</span> <span>Indexing into a list, simplified</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 391. Design <samp class="mono">replace-eol-with</samp> using the strategy of chapter 23.3. Start from the tests. Simplify the result systematically. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 392. Simplify the function <samp class="mono">tree-pick</samp> from exercise 390. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

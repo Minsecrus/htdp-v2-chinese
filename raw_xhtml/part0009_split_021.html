@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_22"><a id="sec16-8" class="calibre16"></a>16.8 Projects: Abstraction</h2>
+<p class="tni">Now that you have some experience with the existing list-processing abstractions in ISL, it is time to tackle some of the small projects for which you already have programs. The challenge is to look for two kinds of improvements. First, inspect the programs for functions that traverse lists. For these functions, you already have signatures, purpose statements, tests, and working definitions that pass the tests. Change the definitions to use abstractions from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>. Second, also determine whether there are opportunities to create new abstractions. Indeed, you might be able to abstract across these classes of programs and provide generalized functions that help you write additional programs.</p>
+<p class="marginpar">You may wish to tackle these exercises again after studying chapter 17.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 275. Chapter 12.1 deals with relatively simple tasks relating to English dictionaries. The design of two of them just call out for the use of existing abstractions:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_438" title="438"></span>•  Design <samp class="mono">most-frequent</samp>. The function consumes a Dictionary and produces the Letter-Count for the letter that is most frequently used as the first one in the words of the given Dictionary.</p>
+<p class="bll">•  Design <samp class="mono">words-by-first-letter</samp>. The function consumes a Dictionary and produces a list of Dictionarys, one per Letter. Do <b class="calibre9">not</b> include <samp class="mono">'()</samp> if there are no words for some letter; ignore the empty grouping instead.</p>
+<p class="tni">For the data definitions, see <a href="part0007_split_025.html#fig74" class="calibre5">figure 74</a>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 276. Chapter 12.2 explains how to analyze the information in an iTunes XML library.</p>
+<p class="blf">•  Design <samp class="mono">select-album-date</samp>. The function consumes the title of an album, a date, and an LTracks. It extracts from the latter the list of tracks from the given album that have been played after the date.</p>
+<p class="bll">•  Design <samp class="mono">select-albums</samp>. The function consumes an LTracks. It produces a list of LTracks, one per album. Each album is uniquely identified by its title and shows up in the result only once.</p>
+<p class="tni">See <a href="part0007_split_026.html#fig77" class="calibre5">figure 77</a> for the services provided by the <i class="calibre6">2htdp/itunes</i> library. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 277. Chapter 12.7 spells out a game of space war. In the basic version, a UFO descends and a player defends with a tank. One additional suggestion is to equip the UFO with charges that it can drop at the tank; the tank is destroyed if a charge comes close enough.</p>
+<p class="calibre8">Inspect the code of your project for places where it can benefit from existing abstraction, that is, processing lists of shots or charges.</p>
+<p class="calibre8">Once you have simplified the code with the use of existing abstractions, look for opportunities to create abstractions. Consider moving lists of objects as one example where abstraction may pay off. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 278. Chapter 12.5 explains how another one of the oldest computer games work. The game features a worm that moves at a constant speed in a player-controlled direction. When it encounters food, it eats the food and grows. When it runs into the wall or into itself, the game is over.</p>
+<p class="calibre8">This project can also benefit from the abstract list-processing functions in ISL. Look for places to use them and replace existing code, a piece at a time. Tests will ensure that you aren’t introducing mistakes. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

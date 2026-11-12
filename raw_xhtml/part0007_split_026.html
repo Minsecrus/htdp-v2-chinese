@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_27"><a id="sec12-2" class="calibre16"></a>12.2 Real-World Data: iTunes</h2>
+<p class="tni">Apple’s iTunes software is widely used to collect music, videos, TV shows, and so on. You may wish to analyze the information that your iTunes application gathers. It is actually quite easy to extract its database. Select the <span epub:type="pagebreak" id="pg_340" title="340"></span>application’s <samp class="mono">File</samp> menu, choose <samp class="mono">Library</samp> and then <samp class="mono">Export</samp>—and voilà, you can export a so-called XML representation of the iTunes information. Processing XML is covered in some depth by chapter 22; here we rely on the <i class="calibre6">2htdp/itunes</i> library to get hold of the information. Specifically, the library enables you to retrieve the music tracks that your iTunes library contains.</p>
+<p class="calibre8">While the details vary, an iTunes library maintains some of the following kinds of information for each music track, occasionally a bit less:</p>
+<p class="blf">•  <i class="calibre6">Track ID</i>, a unique identifier for the track with respect to your library, example: <samp class="mono">442</samp></p>
+<p class="blf">•  <i class="calibre6">Name</i>, the title of the track, <samp class="mono">Wild Child</samp></p>
+<p class="blf">•  <i class="calibre6">Artist</i>, the producing artists, <samp class="mono">Enya</samp></p>
+<p class="blf">•  <i class="calibre6">Album</i>, the title of the album to which it belongs, <samp class="mono">A Day Without</samp></p>
+<p class="blf">•  <i class="calibre6">Genre</i>, the music genre to which the track is assigned, <samp class="mono">New Age</samp></p>
+<p class="blf">•  <i class="calibre6">Kind</i>, the encoding of the music, <samp class="mono">MPEG audio file</samp></p>
+<p class="blf">•  <i class="calibre6">Size</i>, the size of the file, <samp class="mono">4562044</samp></p>
+<p class="blf">•  <i class="calibre6">Total Time</i>, the length of the track in milliseconds, <samp class="mono">227996</samp></p>
+<p class="blf">•  <i class="calibre6">Track Number</i>, the position of the track within the album, <samp class="mono">2</samp></p>
+<p class="blf">•  <i class="calibre6">Track Count</i>, the number of tracks on the album, <samp class="mono">11</samp></p>
+<p class="blf">•  <i class="calibre6">Year</i>, the year of release, <samp class="mono">2000</samp></p>
+<p class="blf">•  <i class="calibre6">Date Added</i>, when the track was added, <samp class="mono">2002-7-17 3:55:14</samp></p>
+<p class="blf">•  <i class="calibre6">Play Count</i>, how many times it was played, <samp class="mono">20</samp></p>
+<p class="blf">•  <i class="calibre6">Play Date</i>, when the track was last played, <samp class="mono">3388484113</samp> Unix seconds</p>
+<p class="bll">•  <i class="calibre6">Play Date UTC</i>, when it was last played, <samp class="mono">2011-5-17 17:35:13</samp></p>
+<p class="calibre8">As always, the first task is to choose a BSL data representation for this information. In this section, we use <b class="calibre9">two</b> representations for music tracks: a structure-based one and another based on lists. While the former records a fixed number of attributes per track and only if all information is available, the latter comes with whatever information is available represented as data. Each serves particular uses well; for some uses, both representations are useful.</p>
+<p class="marginpar">In addition to the <i class="calibre6">2htdp/batch-io</i> library, this section relies on the <i class="calibre6">2htdp/itunes</i> library.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_341" title="341"></span><a id="rfig75" href="part0007_split_026.html#fig75" class="calibre5">Figures 75</a> and <a id="rfig76" href="part0007_split_026.html#fig76" class="calibre5">76</a> introduce the structure-based representation of tracks as implemented by the <i class="calibre6">2htdp/itunes</i> library. The <samp class="mono">track</samp> structure type comes with eight fields, each representing a particular property of the track. Most fields contain atomic kinds of data, such as Strings and Ns; others contain Dates, which is a structure type with six fields. The <i class="calibre6">2htdp/itunes</i> library exports all predicates and selectors for the <samp class="mono">track</samp> and <samp class="mono">date</samp> structure types, but in lieu of constructors it provides checked constructors.</p>
+<div class="figure">
+<figure class="img"><a id="fig75" class="calibre5"></a><img src="../images/00277.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_026.html#rfig75" class="calibre5">Figure 75</a>:</span> <span>Representing iTunes tracks as structures (the structures)</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig76" class="calibre5"></a><img src="../images/00278.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_026.html#rfig76" class="calibre5">Figure 76</a>:</span> <span>Representing iTunes tracks as structures (the functions)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The last element of the description of the <i class="calibre6">2htdp/itunes</i> library is a function that reads an iTunes XML library description and delivers a list of tracks, LTracks. Once you have exported the XML library from some iTunes app, you can run the following code snippet to retrieve all the records:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; modify</samp><samp class="mono"> the following</samp><samp class="mono"> to use</samp><samp class="mono"> your chosen</samp><samp class="mono"> name</samp> <br class="calibre4"/><samp class="mono">(define ITUNES-LOCATION</samp><samp class="mono"> "itunes.xml")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>LTracks <br class="calibre4"/><samp class="mono">(define itunes-tracks</samp> <br class="calibre4"/><samp class="mono">  (read-itunes-as-tracks</samp><samp class="mono"> ITUNES-LOCATION))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_342" title="342"></span>Save the snippet in the same folder as your iTunes XML export. Remember not to use <samp class="mono">itunes-tracks</samp> for examples; it is way too large for that. Indeed, it may be so large that reading the file every time you run your BSL program in DrRacket will take a lot of time. You may therefore wish to comment out this second line while you design functions. Uncomment it only when you wish to compute information about your iTunes collection.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 199. While the important data definitions are already provided, the first step of the design recipe is still incomplete. Make up examples of Dates, Tracks, and LTracks. These examples come in handy for the following exercises as inputs. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_343" title="343"></span><b class="calibre9">Exercise</b> 200. Design the function <samp class="mono">total-time</samp>, which consumes an element of LTracks and produces the total amount of play time. Once the program is done, compute the total play time of your iTunes collection. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 201. Design <samp class="mono">select-all-album-titles</samp>. The function consumes an LTracks and produces the list of album titles as a List-of-strings.</p>
+<p class="calibre8">Also design the function <samp class="mono">create-set</samp>. It consumes a List-of-strings and constructs one that contains every String from the given list exactly once. <b class="calibre9">Hint</b> If String <samp class="mono">s</samp> is at the front of the given list and occurs in the rest of the list, too, <samp class="mono">create-set</samp> does not keep <samp class="mono">s</samp>.</p>
+<p class="calibre8">Finally design <samp class="mono">select-album-titles/unique</samp>, which consumes an LTracks and produces a list of unique album titles. Use this function to determine all album titles in your iTunes collection and also find out how many distinct albums it contains. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 202. Design <samp class="mono">select-album</samp>. The function consumes the title of an album and an LTracks. It extracts from the latter the list of tracks that belong to the given album. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 203. Design <samp class="mono">select-album-date</samp>. The function consumes the title of an album, a date, and an LTracks. It extracts from the latter the list of tracks that belong to the given album and have been played after the given date. <b class="calibre9">Hint</b> You must design a function that consumes two Dates and determines whether the first occurs before the second. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 204. Design <samp class="mono">select-albums</samp>. The function consumes an element of LTracks. It produces a list of <samp class="mono">LTracks</samp>, one per album. Each album is uniquely identified by its title and shows up in the result only once. <b class="calibre9">Hints</b> (1) You want to use some of the solutions of the preceding exercises. (2) The function that groups consumes two lists: the list of album titles and the list of tracks; it considers the latter as atomic until it is handed over to an auxiliary function. See exercise 196. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Terminology</b> The functions whose names starts with <samp class="mono">select-</samp> are so-called <i class="calibre6">database queries</i>. See chapter 23.7 for more details. <b class="calibre9">End</b></p>
+
+
+
+<p class="calibre8"><a id="rfig77" href="part0007_split_026.html#fig77" class="calibre5">Figure 77</a> shows how the <i class="calibre6">2htdp/itunes</i> library represents tracks with lists. An LLists is a list of track representations, each of which is a list of lists pairing Strings with four kinds of values. The <samp class="mono">read-itunes-as-lists</samp> function reads an iTunes XML library and produces an element of LLists. Hence, you get access to all track information if you add the following definitions to your program:</p>
+
+
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_344" title="344"></span><samp class="mono">; modify</samp><samp class="mono"> the following</samp><samp class="mono"> to use</samp><samp class="mono"> your chosen</samp><samp class="mono"> name</samp> <br class="calibre4"/><samp class="mono">(define ITUNES-LOCATION</samp><samp class="mono"> "itunes.xml")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>LLists <br class="calibre4"/><samp class="mono">(define list-tracks</samp> <br class="calibre4"/><samp class="mono">  (read-itunes-as-lists</samp><samp class="mono"> ITUNES-LOCATION))</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig77" class="calibre5"></a><img src="../images/00279.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_026.html#rfig77" class="calibre5">Figure 77</a>:</span> <span>Representing iTunes tracks as lists</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Then save it in the same folder where the iTunes library is stored.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_345" title="345"></span><b class="calibre9">Exercise</b> 205. Develop examples of LAssoc and LLists, that is, the list representation of tracks and lists of such tracks. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 206. Design the function <samp class="mono">find-association</samp>. It consumes three arguments: a String called <samp class="mono">key</samp>, an LAssoc, and an element of Any called <samp class="mono">default</samp>. It produces the first Association whose first item is equal to <samp class="mono">key</samp>, or <samp class="mono">default</samp> if there is no such <samp class="mono">Association</samp>.</p>
+<p class="calibre8"><b class="calibre9">Note</b> Read up on <samp class="mono">assoc</samp> after you have designed this function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 207. Design <samp class="mono">total-time/list</samp>, which consumes an LLists and produces the total amount of play time. <b class="calibre9">Hint</b> Solve exercise 206 first.</p>
+<p class="calibre8">Once you have completed the design, compute the total play time of your iTunes collection. Compare this result with the time that the <samp class="mono">total-time</samp> function from exercise 200 computes. Why is there a difference? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 208. Design <samp class="mono">boolean-attributes</samp>. The function consumes an LLists and produces the Strings that are associated with a Boolean attribute. <b class="calibre9">Hint</b> Use <samp class="mono">create-set</samp> from exercise 201.</p>
+<p class="calibre8">Once you are done, determine how many Boolean-valued attributes your iTunes library employs for its tracks. Do they make sense? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Note</b> A list-based representation is a bit less organized than a structure-based one. The word <i class="calibre6">semi-structured</i> is occasionally used in this context. Such list-representations accommodate properties that show up rarely and thus don’t fit the structure type. People often use such representations to explore unknown information and later introduce structures when the format is well-known. Design a function <samp class="mono">track-as-struct</samp>, which converts an LAssoc to a Track when possible. <b class="calibre9">End</b></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

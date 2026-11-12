@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_12"><span epub:type="pagebreak" id="pg_50" title="50" class="calibre1"></span><a id="sec2-1" class="calibre16"></a>2.1 Functions</h2>
+<p class="tni">Programs are functions. Like functions, programs consume inputs and produce outputs. Unlike the functions you may know, programs work with a variety of data: numbers, strings, images, mixtures of all these, and so on. Furthermore, programs are triggered by events in the real world, and the outputs of programs affect the real world. For example, a spreadsheet program may react to an accountant’s key presses by filling some cells with numbers, or the calendar program on a computer may launch a monthly payroll program on the last day of every month. Lastly, a program may not consume all of its input data at once, instead it may decide to process data in an incremental manner.</p>
+<p class="calibre8"><b class="calibre9">Definitions</b> While many programming languages obscure the relationship between programs and functions, BSL brings it to the fore. Every BSL program consists of several definitions, usually followed by an expression that involves those definitions. There are two kinds of definitions:</p>
+<p class="blf">•  <i class="calibre6">constant definitions</i>, of the shape <samp class="mono">(define</samp> <samp class="monospace-italic">Variable Expression</samp><samp class="mono">)</samp>, which we encountered in the preceding chapter; and</p>
+<p class="bll">•  <i class="calibre6">function definitions</i>, which come in many flavors, one of which we used in the Prologue.</p>
+<p class="calibre8">Like expressions, function definitions in BSL come in a uniform shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (</samp><samp class="monospace-italic">FunctionName Variable</samp><samp class="monospace-italic"> <span>…</span> Variable</samp><samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono"> </samp><samp class="monospace-italic">Expression</samp><samp class="mono">)</samp></p>
+</div>
+<p class="tni">That is, to define a function, we write down</p>
+<p class="blf">•  “<span class="colorbox"><samp class="mono">(</samp></span><samp class="mono">define</samp><span class="colorbox"><samp class="mono">(</samp></span>”,</p>
+<p class="blf">•  the name of the function,</p>
+<p class="blf">•  followed by several variables, separated by space and ending in “<span class="colorbox"><samp class="mono">)</samp></span>”,</p>
+<p class="bll">•  and an expression followed by “<span class="colorbox"><samp class="mono">)</samp></span>”.</p>
+<p class="tni">And that is all there is to it. Here are some small examples:</p>
+<p class="blf">•  <samp class="mono">(define (f x) 1)</samp></p>
+<p class="blf">•  <samp class="mono">(define (g x y) (+ 1 1))</samp></p>
+<p class="bll">•  <samp class="mono">(define (h x y z) (+ (* 2 2) 3))</samp></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_51" title="51"></span>Before we explain why these examples are silly, we need to explain what function definitions mean. Roughly speaking, a function definition introduces a new operation on data; put differently, it adds an operation to our vocabulary if we think of the primitive operations as the ones that are always available. Like a primitive function, a defined function consumes inputs. The number of variables determines how many inputs—also called <i class="calibre6">arguments</i> or <i class="calibre6">parameters</i>—a function consumes. Thus, <samp class="mono">f</samp> is a one-argument function, sometimes called a <i class="calibre6">unary</i> function. In contrast, <samp class="mono">g</samp> is a two-argument function, also dubbed <i class="calibre6">binary</i>, and <samp class="mono">h</samp> is a <i class="calibre6">ternary</i> or three-argument function. The expression—often referred to as the <i class="calibre6">function body</i>—determines the output.</p>
+<p class="calibre8">The examples are silly because the expressions inside the functions do not involve the variables. Since variables are about inputs, not mentioning them in the expressions means that the function’s output is independent of its input and therefore always the same. We don’t need to write functions or programs if the output is always the same.</p>
+<p class="calibre8">Variables aren’t data; they represent data. For example, a constant definition such as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> 3)</samp></p>
+</div>
+<p class="tni">says that <samp class="mono">x</samp> always stands for <samp class="mono">3</samp>. The variables in a <i class="calibre6">function header</i>, that is, the variables that follow the function name, are placeholders for <b class="calibre9">unknown</b> pieces of data, the inputs of the function. Mentioning a variable in the function body is the way to use these pieces of data when the function is applied and the values of the variables become known.</p>
+<p class="calibre8">Consider the following fragment of a definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (ff</samp><samp class="mono"> a) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Its function header is <samp class="mono">(ff a)</samp>, meaning <samp class="mono">ff</samp> consumes one piece of input, and the variable <samp class="mono">a</samp> is a placeholder for this input. Of course, at the time we define a function, we don’t know what its input(s) will be. Indeed, the whole point of defining a function is that we can use the function many times on many different inputs.</p>
+<p class="calibre8">Useful function bodies refer to the function parameters. A reference to a function parameter is really a reference to the piece of data that is the input to the function. If we complete the definition of <samp class="mono">ff</samp> like this</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (ff</samp><samp class="mono"> a)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> 10 a))</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_52" title="52"></span>we are saying that the output of a function is ten times its input. Presumably this function is going to be supplied with numbers as inputs because it makes no sense to multiply images or Boolean values or strings by <samp class="mono">10</samp>.</p>
+<p class="calibre8">For now, the only remaining question is how a function obtains its inputs. And to this end, we turn to the notion of applying a function.</p>
+<p class="calibre8"><b class="calibre9">Applications</b> A <i class="calibre6">function application</i> puts <samp class="mono">define</samp>d functions to work, and it looks just like the applications of a pre-defined operation:</p>
+<p class="blf">•  write “(”,</p>
+<p class="blf">•  write down the name of a defined function <samp class="mono">f</samp>,</p>
+<p class="blf">•  write down as many arguments as <samp class="mono">f</samp> consumes, separated by space,</p>
+<p class="bll">•  and add “)” at the end.</p>
+<p class="calibre8">With this bit of explanation, you can now experiment with functions in the interactions area just as we suggested you experiment with primitives to find out what they compute. The following three experiments, for example, confirm that <samp class="mono">f</samp> from above produces the same value no matter what input it is applied to:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (f</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">1</samp> <br class="calibre4"/><samp class="mono">&gt; (f</samp><samp class="mono"> "hello world")</samp> <br class="calibre4"/><samp class="mono">1</samp> <br class="calibre4"/><samp class="mono">&gt; (f</samp><samp class="mono"> #true)</samp> <br class="calibre4"/><samp class="mono">1</samp></p>
+</div>
+<p class="tni">What does <samp class="mono">(f (circle 3 "solid" "red"))</samp> yield?</p>
+<p class="marginpar">Remember to add <samp class="monospace-margin">(require 2htdp/image)</samp> to the definitions area.</p>
+<p class="calibre8">See, even images as inputs don’t change <samp class="mono">f</samp>’s behavior. But here is what happens when the function is applied to too few or too many arguments:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (f)</samp> <br class="calibre4"/><samp class="mono">f:expects 1</samp><samp class="mono"> argument, found</samp><samp class="mono"> none</samp> <br class="calibre4"/><samp class="mono">&gt; (f</samp><samp class="mono"> 1 2</samp><samp class="mono"> 3 4</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">f:expects only</samp><samp class="mono"> 1 argument,</samp><samp class="mono"> found 5</samp></p>
+</div>
+<p class="tni">DrRacket signals an error that is just like those you see when you apply a primitive to the wrong number of arguments:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+)</samp> <br class="calibre4"/><samp class="mono">+:expects at</samp><samp class="mono"> least 2</samp><samp class="mono"> arguments, found</samp><samp class="mono"> none</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_53" title="53"></span>Functions don’t have to be applied at the prompt in the interactions area. It is perfectly acceptable to use function applications nested within other function applications:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+</samp><samp class="mono"> (ff 3)</samp><samp class="mono"> 2)</samp> <br class="calibre4"/><samp class="mono">32</samp> <br class="calibre4"/><samp class="mono">&gt; (*</samp><samp class="mono"> (ff 4)</samp><samp class="mono"> (+ (ff</samp><samp class="mono"> 3) 2))</samp> <br class="calibre4"/><samp class="mono">1280</samp> <br class="calibre4"/><samp class="mono">&gt; (ff</samp><samp class="mono"> (ff 1))</samp> <br class="calibre4"/><samp class="mono">100</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 11. Define a function that consumes two numbers, <i class="calibre6">x</i> and <i class="calibre6">y</i>, and that computes the distance of point (<i class="calibre6">x,y</i>) to the origin.</p>
+<p class="calibre8">In exercise 1 you developed the right-hand side of this function for concrete values of <i class="calibre6">x</i> and <i class="calibre6">y</i>. Now add a header. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 12. Define the function <samp class="mono">cvolume</samp>, which accepts the length of a side of an equilateral cube and computes its volume. If you have time, consider defining <samp class="mono">csurface</samp>, too.</p>
+<p class="calibre8"><b class="calibre9">Hint</b> An equilateral cube is a three-dimensional container bounded by six squares. You can determine the surface of a cube if you know that the square’s area is its length multiplied by itself. Its volume is the length multiplied with the area of one of its squares. (Why?) <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 13. Define the function <samp class="mono">string-first</samp>, which extracts the first 1String from a <b class="calibre9">non-empty</b> string. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 14. Define the function <samp class="mono">string-last</samp>, which extracts the last 1String from a non-empty string. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 15. Define <samp class="mono">==&gt;</samp>. The function consumes two Boolean values, call them <samp class="mono">sunny</samp> and <samp class="mono">friday</samp>. Its answer is <samp class="mono">#true</samp> if <samp class="mono">sunny</samp> is false or <samp class="mono">friday</samp> is true. <b class="calibre9">Note</b> Logicians call this Boolean operation <i class="calibre6">implication</i>, and they use the notation <i class="calibre6">sunny =</i> &gt; <i class="calibre6">friday</i> for this purpose. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 16. Define the function <samp class="mono">image-area</samp>, which counts the number of pixels in a given image. See exercise 6 for ideas. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 17. Define the function <samp class="mono">image-classify</samp>, which consumes an image and conditionally produces <samp class="mono">"tall"</samp> if the image is taller than wide, <samp class="mono">"wide"</samp> if it is wider than tall, or <samp class="mono">"square"</samp> if its width and height are the same. See exercise 8 for ideas. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 18. Define the function <samp class="mono">string-join</samp>, which consumes two strings and appends them with <samp class="mono">"_"</samp> in between. See exercise 2 for ideas. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 19. Define the function <samp class="mono">string-insert</samp>, which consumes a string <samp class="mono">str</samp> plus a number <samp class="mono">i</samp> and inserts <samp class="mono">"_"</samp> at the <i class="calibre6">i</i>th position of <samp class="mono">str</samp>. Assume <span epub:type="pagebreak" id="pg_54" title="54"></span><samp class="mono">i</samp> is a number between <samp class="mono">0</samp> and the length of the given string (inclusive). See exercise 3 for ideas. Ponder how <samp class="mono">string-insert</samp> copes with <samp class="mono">""</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 20. Define the function <samp class="mono">string-delete</samp>, which consumes a string plus a number <samp class="mono">i</samp> and deletes the <i class="calibre6">i</i>th position from <samp class="mono">str</samp>. Assume <samp class="mono">i</samp> is a number between <samp class="mono">0</samp> (inclusive) and the length of the given string (exclusive). See exercise 4 for ideas. Can <samp class="mono">string-delete</samp> deal with empty strings? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

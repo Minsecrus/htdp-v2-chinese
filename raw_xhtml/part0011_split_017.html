@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_18"><a id="sec21-4" class="calibre16"></a>21.4 Interpreting Everything</h2>
+<p class="tni">Take a look at the following BSL program:</p>
+<figure class="co"><img src="../images/00490.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Think of these definitions as the definitions area in DrRacket. After you click <i class="calibre6">RUN</i>, you can evaluate expressions involving <samp class="mono">close-to-pi</samp>, <samp class="mono">area-of-circle</samp>, and <samp class="mono">volume-of-10-cylinder</samp> in the interactions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (area-of-circle</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">#i3.14</samp> <br class="calibre4"/><samp class="mono">&gt; (volume-of-10-cylinder</samp><samp class="mono"> 1)</samp> <br class="calibre4"/><samp class="mono">#i31.400000000000002</samp> <br class="calibre4"/><samp class="mono">&gt; (*</samp><samp class="mono"> 3 close-to-pi)</samp> <br class="calibre4"/><samp class="mono">#i9.42</samp></p>
+</div>
+<p class="tni">The goal of this section is to refine your evaluator again so that it can mimic this much of DrRacket.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 360. Formulate a data definition for the representation of DrRacket’s definitions area. Concretely, the data representation should work for a sequence that freely mixes constant definitions and one-argument function definitions. Make sure you can represent the definitions area consisting of three definitions at the beginning of this section. We name this class of data <i class="calibre6">BSL-da-all</i>.</p>
+<p class="calibre8">Design the function <samp class="mono">lookup-con-def</samp>. It consumes a BSL-da-all <samp class="mono">da</samp> and a symbol <samp class="mono">x</samp>. It produces the representation of a constant definition <span epub:type="pagebreak" id="pg_533" title="533"></span>whose name is <samp class="mono">x</samp>, if such a piece of data exists in <samp class="mono">da</samp>; otherwise the function signals an error saying that no such constant definition can be found.</p>
+<p class="calibre8">Design the function <samp class="mono">lookup-fun-def</samp>. It consumes a BSL-da-all <samp class="mono">da</samp> and a symbol <samp class="mono">f</samp>. It produces the representation of a function definition whose name is <samp class="mono">f</samp>, if such a piece of data exists in <samp class="mono">da</samp>; otherwise the function signals an error saying that no such function definition can be found. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 361. Design <samp class="mono">eval-all</samp>. Like <samp class="mono">eval-function*</samp> from exercise 359, this function consumes the representation of an expression and a definitions area. It produces the same value that DrRacket shows if the expression is entered at the prompt in the interactions area and the definitions area contains the appropriate definitions. <b class="calibre9">Hint</b> Your <samp class="mono">eval-all</samp> function should process variables in the given expression like <samp class="mono">eval-var-lookup</samp> in exercise 355. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 362. It is cumbersome to enter the structure-based data representation of BSL expressions and a definitions area. As the end of chapter 21.1 demonstrates, it is much easier to quote expressions and (lists of) definitions.</p>
+<p class="calibre8">Design a function <samp class="mono">interpreter</samp>. It consumes an <samp class="mono">S-expr</samp> and an <samp class="mono">Sl</samp>. The former is supposed to represent an expression and the latter a list of definitions. The function parses both with the appropriate parsing functions and then uses <samp class="mono">eval-all</samp> from exercise 361 to evaluate the expression. <b class="calibre9">Hint</b> You must adapt the ideas of exercise 350 to create a parser for definitions and lists of definitions.</p>
+<p class="calibre8">You should know that <samp class="mono">eval-all-sexpr</samp> makes it straightforward to check whether it really mimics DrRacket’s evaluator. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">At this point, you know a lot about interpreting BSL. Here are some of the missing pieces: Booleans with <samp class="mono">cond</samp> or <samp class="mono">if</samp>; Strings and such operations <samp class="mono">string-length</samp> or <samp class="mono">string-append</samp>; and lists with <samp class="mono">'()</samp>, <samp class="mono">empty?</samp>, <samp class="mono">cons</samp>, <samp class="mono">cons?</samp>, <samp class="mono">first</samp>, <samp class="mono">rest</samp>; and so on. Once your evaluator can cope with all these, it is basically complete because your evaluators already know how to interpret recursive functions. Now when we say “trust us, you know how to design these refinements,” we mean it.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,433 @@
+% ==============================================================================
+% 第 26 章：设计算法 (Chapter 26: Designing Algorithms)
+% ==============================================================================
+
+\chapter{设计算法}
+\label{sec:ch26_algorithms}
+
+正如本部分的引言所指出的，设计生成型递归函数比结构化设计更加因题而异（ad hoc）。第 25 章表明，两个生成型递归函数在处理机制上可能存在天壤之别：\code{bundle} 和 \code{quick-sort<} 虽然都处理列表，但前者至少维持了给定列表中的元素先后次序，而后者则随心所欲地重新排列列表元素。这就带来了一个深刻的疑问：单一的设计配方能否指导如此大相径庭的函数设计？
+
+本节首先展示如何将设计配方的各个维度调整适配于生成型递归。第二节聚焦于一个全新现象：算法可能对于某些输入根本无法产生答案。因此，程序员必须分析自己的程序，并用终止性（termination）说明来补充设计文档。后续各节将深入对比结构型递归与生成型递归的异同与选择策略。
+
+\section{调整设计配方}
+\label{sec:26_1}
+
+让我们结合前一章的示例，重新审视结构化设计配方的六个通用步骤：
+
+\begin{itemize}
+  \item \textbf{问题分析与数据表示}：与以往一样，我们必须在选定的编程语言中将问题信息表示为数据。对问题数据表示的选择直接影响我们对计算过程的思考，因此需要预先规划；或者做好回溯并探索不同数据表示的准备。无论如何，我们都必须分析问题信息并明确定义数据集合。
+  \item \textbf{签名、函数头与目的说明}：我们同样需要签名、函数头和目的说明。由于生成步骤与输入数据的结构定义不再直接绑定，目的说明不能仅仅停留在函数\term{计算什么}（what），还必须解释函数\term{如何计算}（how）其结果。
+  \item \textbf{功能示例}：通过功能示例来阐释“如何计算”极为有益，就像前一章解释 \code{bundle} 和 \code{quick-sort<} 那样。在结构化世界中，功能示例只需指明特定输入应产生何种输出；而在生成型递归中，示例的核心目的在于解释计算过程背后的\term{生成思想}。
+  
+  对于 \code{bundle}，示例说明了函数在一般情况以及特定边界情形下的行为。对于 \code{quick-sort<}，图~\ref{fig:quicksort-diagram} 中的示例直观展示了函数如何依据基准元划分给定列表。将此类推演示例加入目的说明中，我们作为设计者能更清晰地理解预期的计算过程，并能将这种理解准确传递给未来的代码读者。
+  \item \textbf{函数模板}：我们的讨论催生了一个算法的通用设计模板。粗略地说，算法的设计将问题区分为两类：\term{平凡可解的问题}（trivially solvable problems）与\term{非平凡问题}。若给定问题是平凡可解的，算法直接产生对应的解（例如对空列表或单元素列表进行排序属于平凡情形）。包含多个元素的列表则是非平凡问题。对于非平凡问题，算法通常会生成一个或多个与原问题同类的新问题，递归求解这些子问题，最后将子问题的解合并为原问题的完整解。
+\end{itemize}
+
+\begin{notebox}[关于“平凡”的术语说明]
+在本部分中，“平凡”（trivial）是一个严格的计算机科学术语，指可以直接求解而无需进一步生成子问题的情形（即递归基）。
+\end{notebox}
+
+根据这一定性描述，所有算法大致都具有如下代码组织结构：
+
+\begin{lstlisting}[language=BSL]
+(define (generative-recursive-fun problem)
+  (cond
+    [(trivially-solvable? problem)
+     (determine-solution problem)]
+    [else
+     (combine-solutions
+       ... problem ...
+       (generative-recursive-fun
+         (generate-problem-1 problem))
+       ...
+       (generative-recursive-fun
+         (generate-problem-n problem)))]))
+\end{lstlisting}
+
+有时候合并子问题的解需要用到原问题的某些数据（例如快速排序需要插入原始的基准元），因此原问题的数据也会按需传递给 \code{combine-solutions}。
+
+这一模板只是一幅富有启发性的设计蓝图，而非僵化的死板框架。模板中的各个组成部分提醒我们必须认真思考以下四个核心问题：
+
+\begin{enumerate}
+  \item \textbf{何为平凡可解的问题？}
+  \item \textbf{平凡问题如何直接求解？}
+  \item \textbf{算法如何生成比原问题更容易求解的新问题？生成的是一个还是多个新问题？}
+  \item \textbf{原问题的解是否与新问题的解相同？还是说我们需要合并子问题的解来构造原问题的解？若是后者，是否需要借用原问题的原始数据？}
+\end{enumerate}
+
+为了将算法定义为具体函数，我们必须基于选定的数据表示，用代码和辅助函数来准确回答上述四个问题。
+
+在这一阶段，第 9 章介绍的表格推导法能再次大显身手。以快速排序为例，其核心是将列表划分为更小与更大的两组数并分别排序。图~\ref{fig:combine-table} 展示了若干简单数值示例在非平凡情形下的拆解与合并过程。从这些示例中，很容易猜出第 4 个问题的答案：将较小数排序后的列表、基准元以及较大数排序后的列表拼接在一起，这一思路直接映射为代码中的 \code{append}。
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tabular}{|l|c|l|l|l|}
+    \hline
+    \textbf{alon} & \textbf{pivot} & \textbf{排序后的较小元素} & \textbf{排序后的较大元素} & \textbf{预期结果} \\
+    \hline
+    \code{'(2 3 1 4)} & \code{2} & \code{'(1)} & \code{'(3 4)} & \code{'(1 2 3 4)} \\
+    \code{'(2 0 1 4)} & \code{2} & \code{'(0 1)} & \code{'(4)} & \code{'(0 1 2 4)} \\
+    \code{'(3 0 1 4)} & \code{3} & \code{'(0 1)} & \code{'(4)} & \code{'(0 1 3 4)} \\
+    \hline
+  \end{tabular}
+  \caption{用于猜测解的组合方式的表格推导法}
+  \label{fig:combine-table}
+\end{figure}
+
+当函数主体完成后，最后一步是进行充分测试以排查并消除缺陷。
+
+\begin{exercise}{回答四个核心设计问题}{431}\label{ex:431}
+针对 \code{bundle} 问题回答上述四个核心问题；针对 \code{quick-sort<} 问题回答前三个问题。在每种情况下各需要多少个 \code{generate-problem} 实例？
+\end{exercise}
+
+\begin{exercise}{重构与论证 food-create}{432}\label{ex:432}
+练习 219 介绍了 \code{food-create} 函数，它接收一个 \code{Posn} 并生成一个随机选择的、保证与给定点不同的新 \code{Posn}。请先使用 \code{local} 将其重构成单一函数定义，然后依照上述四个问题论证 \code{food-create} 的算法设计。
+\end{exercise}
+
+\section{终止性分析}
+\label{sec:26_2}
+
+生成型递归为计算引入了一个截然不同的全新维度：\term{非终止性（non-termination）}。对于某些特定输入，诸如 \code{bundle} 这样的函数可能永远无法产生值，也不会报错中断。练习~\ref{ex:421} 询问 \code{(bundle '("a" "b" "c") 0)} 的计算结果，以下求值推导展示了它为何没有结果：
+
+\begin{lstlisting}[language=BSL]
+  (bundle '("a" "b" "c") 0)
+== (cons (implode (take '("a" "b" "c") 0))
+         (bundle (drop '("a" "b" "c") 0) 0))
+== (cons (implode '())
+         (bundle (drop '("a" "b" "c") 0) 0))
+== (cons "" (bundle '("a" "b" "c") 0))
+\end{lstlisting}
+
+推导表明，为了求出 \code{(bundle '("a" "b" "c") 0)} 的值，必须先获得\textbf{完全相同}表达式的求值结果！在 ISL+ 环境中，这意味着求值永远无法结束。计算机科学家称：当第二个参数为 0 时 \code{bundle} \term{不会停机（does not terminate）}；也可以说该函数\term{死循环（loops）}，或者计算陷入了\term{无限循环（infinite loop）}。
+
+将这一现象与前四部分的设计进行对比：依据结构化配方设计的每一个函数，对于每一个合法输入，要么产生答案，要么显式抛出错误信号。这是因为结构化配方严格要求每一次自然递归都只消耗输入的直接子结构，而不是输入本身。由于数据是按层次递归构造的，输入在每个阶段都会缩减，最终必然到达原子数据（基准情形），递归随即终止。
+
+这解释了生成型递归函数为何可能发散（diverge）。根据生成型递归的设计配方，算法生成新子问题是不受任何结构限制的。如果配方强制要求新问题必须在某种度量下严格“小于”原问题，算法自然能够保证终止。然而，施加这种武断的限制在设计阶段往往过于苛刻。
+
+因此，在生成型递归的设计配方中，我们保留前六个步骤，并补充了至关重要的第七个步骤：\term{终止性论证（termination argument）}。
+
+\begin{recipebox}{生成型递归设计配方}
+\textbf{步骤 1：问题分析与数据表示} \\
+确定问题的数据表示；定义数据集合。
+
+\textbf{步骤 2：签名、函数头与目的说明} \\
+给出函数签名；目的说明不仅阐述函数\textbf{计算什么}，还需用一句话说明它\textbf{如何计算}。
+
+\textbf{步骤 3：功能示例} \\
+给出测试用例；通过具体实例展示算法“如何”一步步生成子问题并合并解。
+
+\textbf{步骤 4：设计模板} \\
+区分平凡情形与非平凡情形；划分 \code{cond} 分支结构。
+
+\textbf{步骤 5：函数定义} \\
+明确平凡可解的条件与解法；确定如何生成新子问题以及如何合并子问题的解。
+
+\textbf{步骤 6：测试} \\
+运行测试用例，发现并纠正错误。
+
+\textbf{步骤 7：终止性论证} \\
+论证程序为何能终止，形式为以下二者之一：
+\begin{enumerate}
+  \item \textbf{规模缩减论证}：说明为何每次递归调用的子问题规模都严格小于当前输入规模；
+  \item \textbf{非停机异常说明}：举例说明在何种数据情形下函数可能陷入死循环。
+\end{enumerate}
+\end{recipebox}
+
+终止性论证通常采取两种形式之一。第一种形式是论证为什么每次递归调用处理的问题规模都严格小于当前问题。通常这种论证很直观，但在极少数复杂情况下可能需要借助数学定理证明。第二种形式则是举例说明函数在哪些输入下无法停机，并清晰界定导致死循环的数据类别。
+
+我们用具体示例来说明这两种终止性论证。对于 \code{bundle} 函数，在目的说明中向读者警示块大小为 0 的情况即可：
+
+\begin{lstlisting}[language=BSL]
+; [List-of 1String] N -> [List-of String]
+; 将 s 中的字符序列按长度 n 打包成字符串
+; 停机性：除非 s 为 '()，否则 (bundle s 0) 将陷入死循环
+(define (bundle s n) ...)
+\end{lstlisting}
+
+对于 \code{quick-sort<}，关键观察在于每次递归调用接收的列表长度都严格小于输入列表 \code{alon}：
+
+\begin{lstlisting}[language=BSL]
+; [List-of Number] -> [List-of Number]
+; 生成 alon 的升序排序列表
+; 停机性：quick-sort< 的两次递归调用所接收的列表均剔除了基准元 pivot，
+; 因而列表长度均严格小于 alon
+(define (quick-sort< alon) ...)
+\end{lstlisting}
+
+\begin{exercise}{保证终止的 checked-bundle}{433}\label{ex:433}
+开发一个校验版本 \code{checked-bundle}，保证对所有输入都能停机。在原版本会导致死循环的输入情形下，该函数应当显式抛出友好的错误提示。
+\end{exercise}
+
+\begin{exercise}{错误的 smallers 导致死循环}{434}\label{ex:434}
+考虑如下 \code{smallers} 的错误定义（快速排序的两个问题生成器之一）：
+
+\begin{lstlisting}[language=BSL]
+(define (smallers alon n)
+  (cond
+    [(empty? alon) '()]
+    [else (if (<= (first alon) n)
+              (cons (first alon) (smallers (rest alon) n))
+              (smallers (rest alon) n))]))
+\end{lstlisting}
+
+当在第 25.2 节的 \code{quick-sort<} 中使用该版本时，会发生什么严重错误？为什么？
+\end{exercise}
+
+\begin{exercise}{加固快速排序的停机性}{435}\label{ex:435}
+在完成练习 428 或练习 430 时，你可能会写出死循环的解法。同样，练习~\ref{ex:434} 揭示了快速排序的停机性论据是多么脆弱：整个论证完全仰赖于 \code{smallers} 和 \code{largers} 生成的列表均不包含 \code{pivot}，从而保证列表长度严格缩减。
+
+基于这一分析，请修改 \code{quick-sort<} 的内部定义，使得传递给 \code{smallers} 和 \code{largers} 的列表本身就事先移除了首元素（即传入 \code{(rest alon)}），从而在结构上确保子问题必定缩短。
+\end{exercise}
+
+\begin{exercise}{论证 food-create 的停机性}{436}\label{ex:436}
+为练习~\ref{ex:432} 中的 \code{food-create} 函数撰写完整的终止性论证。
+\end{exercise}
+
+\section{结构型递归与生成型递归的对比}
+\label{sec:26_3}
+
+算法的通用模板极其宽泛，以至于它实际上涵盖了所有的结构型递归函数。考察图~\ref{fig:gen-to-struct} 的左侧：该模板针对一个平凡分支和一个生成步骤进行了特化。如果我们将其中的 \code{trivial?} 替换为 \code{empty?}，并将 \code{generate} 替换为 \code{rest}，就会立即得到右侧的标准列表处理模板！
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.48\textwidth}
+\begin{lstlisting}[language=BSL]
+(define (general P)
+  (cond
+    [(trivial? P) (solve P)]
+    [else
+     (combine-solutions
+       P
+       (general
+         (generate P)))]))
+\end{lstlisting}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+\begin{lstlisting}[language=BSL]
+(define (special P)
+  (cond
+    [(empty? P) (solve P)]
+    [else
+     (combine-solutions
+       P
+       (special (rest P)))]))
+\end{lstlisting}
+  \end{minipage}
+  \caption{从生成型递归到结构型递归的特化}
+  \label{fig:gen-to-struct}
+\end{figure}
+
+\begin{exercise}{特化模板的求解与合并}{437}\label{ex:437}
+为上述 \code{special} 模板分别定义 \code{solve} 与 \code{combine-solutions}，使得：
+\begin{enumerate}
+  \item \code{special} 计算输入列表的长度；
+  \item \code{special} 对给定数字列表中的每个数取相反数；
+  \item \code{special} 将给定字符串列表中的每个字符串转换为大写。
+\end{enumerate}
+从这些练习中你能得出什么结论？
+\end{exercise}
+
+此时你可能会思索：结构型递归设计与生成型递归设计之间是否存在本质区别？我们的回答是：“视情况而定”。从纯形式角度看，所有结构型递归函数都可以被视为生成型递归的特例。然而，这种“万物皆同”的泛化态度对于理解程序设计过程毫无益处。它混淆了两种需要截然不同的思维方式、且具有完全不同后果的设计方法：
+\begin{itemize}
+  \item \textbf{结构型递归}完全依赖于系统化的\textbf{数据分析}，只要跟随数据定义的节奏就能自然写出模板，并且天然保证终止；
+  \item \textbf{生成型递归}则依赖于对问题求解机制本身的深刻洞见，通常蕴含着数学算法层面的“灵感顿悟”（eureka），而且必须显式提供终止性论证。
+\end{itemize}
+将这两种截然不同的设计途径混为一谈是有害的。
+
+\section{方案抉择}
+\label{sec:26_4}
+
+当你在程序中使用一个对数字列表进行排序的函数 $f$ 时，从外部观察，你根本无法分辨 $f$ 究竟是 \code{sort<}（插入排序）还是 \code{quick-sort<}（快速排序）。这两个函数在可观测行为上是完全等价的（observably equivalent）。这就带来了一个现实问题：编程语言究竟应当提供哪一个？更广泛地说，当既可以用结构型递归又可以用生成型递归来解决一个问题时，我们该如何抉择？
+
+为了阐明这种抉择的深远影响，我们探讨数学中的一个经典范例：寻找两个正自然数的\term{最大公约数（greatest common divisor, gcd）}。所有正整数都有公约数 1；在某些情况下（如 2 与 3），1 也是它们唯一的公约数。而 6 与 25 则分别拥有多个约数：
+\begin{itemize}
+  \item 6 能被 1, 2, 3, 6 整除；
+  \item 25 能被 1, 5, 25 整除。
+\end{itemize}
+它们的最大公约数依然是 1。相比之下，18 和 24 拥有多个公约数，它们的最大公约数是 6：
+\begin{itemize}
+  \item 18 能被 1, 2, 3, 6, 9, 18 整除；
+  \item 24 能被 1, 2, 3, 4, 6, 8, 12, 24 整除。
+\end{itemize}
+
+完成设计配方的前三步十分直接：
+
+\begin{lstlisting}[language=BSL]
+; N[>= 1] N[>= 1] -> N
+; 计算 n 和 m 的最大公约数
+(check-expect (gcd 6 25) 1)
+(check-expect (gcd 18 24) 6)
+(define (gcd n m) 42)
+\end{lstlisting}
+
+接下来，我们可以分别设计结构型递归和生成型递归的解法。图~\ref{fig:gcd-structural} 展示了结构化解法。注意表达式 \code{(= (remainder n i) (remainder m i) 0)} 准确表达了“$n$ 和 $m$ 都能被 $i$ 整除”的逻辑。
+
+\begin{figure}[htbp]
+  \centering
+\begin{lstlisting}[language=BSL]
+(define (gcd-structural n m)
+  (local (; N -> N
+          ; 寻找小于等于 i 且能同时整除 n 和 m 的最大整数
+          (define (greatest-divisor-<= i)
+            (cond
+              [(= i 1) 1]
+              [else
+               (if (= (remainder n i) (remainder m i) 0)
+                   i
+                   (greatest-divisor-<= (sub1 i)))])))
+    (greatest-divisor-<= (min n m))))
+\end{lstlisting}
+  \caption{通过结构型递归求解最大公约数}
+  \label{fig:gcd-structural}
+\end{figure}
+
+\begin{exercise}{理解 greatest-divisor-<=}{438}\label{ex:438}
+用你自己的话解释：\code{greatest-divisor-<=} 是如何工作的？运用设计配方的术语来进行阐述。为什么局部定义的 \code{greatest-divisor-<=} 的初次调用是从 \code{(min n m)} 开始递减的？
+\end{exercise}
+
+虽然 \code{gcd-structural} 的设计简单直观，但它非常朴素。它从 $n$ 与 $m$ 的较小者开始，逐个向下测试每一个整数直到 1，返回遇到的第一个公约数。对于较小的 $n$ 和 $m$，这运行良好；然而，请考虑如下调用：
+
+\begin{lstlisting}[language=BSL]
+(gcd-structural 101135853 45014640)
+\end{lstlisting}
+
+正确答案是 177。为了得出这一结果，\code{gcd-structural} 必须从 45014640 逐一检查整除条件，总共要计算 $45014640 - 177$ 次求余运算——而且每次还是对两个数分别求余！如此庞大的计算量即使在现代高速计算机上也需要耗费可观的时间。
+
+\begin{exercise}{测试 gcd-structural 的运行时间}{439}\label{ex:439}
+将 \code{gcd-structural} 复制到 DrRacket 的定义区，并在交互区求值：
+\begin{lstlisting}[language=BSL]
+(time (gcd-structural 101135853 45014640))
+\end{lstlisting}
+观察其运行耗时。
+\end{exercise}
+
+数学家早在两千多年前就认识到了这种蛮力试除法的低效。欧几里得（Euclid）发现了关于整除的一个核心洞见：
+\begin{notebox}[欧几里得洞见]
+对于两个自然数，较大的数记为 $L$（large），较小的数记为 $S$（small），它们的最大公约数等于 $S$ 与 $L$ 除以 $S$ 的余数（即 $L \pmod S$）的最大公约数。
+\end{notebox}
+
+用函数等式表示即为：
+\begin{lstlisting}[language=BSL]
+(gcd L S) == (gcd S (remainder L S))
+\end{lstlisting}
+
+由于 \code{(remainder L S)} 严格小于 $S$，等式右侧的递归调用输入规模迅速下降。以 18 和 24 为例：
+\begin{itemize}
+  \item 给定数字为 18 和 24；
+  \item 依据洞见，它们的 gcd 等价于 18 与 $24 \pmod{18} = 6$ 的 gcd；
+  \item 接下来等价于 6 与 $18 \pmod 6 = 0$ 的 gcd。
+\end{itemize}
+当较小数变为 0 时，由于任何数都能整除 0，较大数 6 就是最终答案！
+
+这一分析不仅验证了数学洞见，而且直接回答了生成型递归设计的四个核心问题：
+\begin{enumerate}
+  \item 当较小的数为 0 时，构成平凡情形；
+  \item 平凡情形的解即为两数中的较大者；
+  \item 生成新子问题只需要一次求余运算；
+  \item 上述数学等式表明，新子问题的解直接就是原问题的解。
+\end{enumerate}
+
+图~\ref{fig:gcd-generative} 给出了该算法的具体定义。局部函数 \code{clever-gcd} 是算法的核心。其首个 \code{cond} 分支发现 \code{min} 为 0 时直接返回 \code{max}；非平凡分支则将 \code{min} 和 \code{(remainder max min)} 作为新参数发起递归。
+
+\begin{figure}[htbp]
+  \centering
+\begin{lstlisting}[language=BSL]
+(define (gcd-generative n m)
+  (local (; N[>= 0] N[>= 0] -> N
+          ; 寻找 max 与 min 的最大公约数
+          ; 停机性：(remainder max min) 严格小于 min
+          (define (clever-gcd max min)
+            (cond
+              [(zero? min) max]
+              [else (clever-gcd min (remainder max min))])))
+    (clever-gcd (max n m) (min n m))))
+\end{lstlisting}
+  \caption{通过生成型递归（欧几里得算法）求解最大公约数}
+  \label{fig:gcd-generative}
+\end{figure}
+
+现在我们用生成式版本再次求解前面的大数例子：
+\begin{lstlisting}[language=BSL]
+(gcd-generative 101135853 45014640)
+\end{lstlisting}
+计算几乎在瞬间完成！手工推导表明，\code{clever-gcd} 仅仅经过了 9 次递归就得出了最终解：
+\begin{lstlisting}[language=BSL]
+   (clever-gcd 101135853 45014640)
+== (clever-gcd 45014640 11106573)
+== (clever-gcd 11106573 588348)
+== (clever-gcd 588348 516309)
+== (clever-gcd 516309 72039)
+== (clever-gcd 72039 12036)
+== (clever-gcd 12036 11859)
+== (clever-gcd 11859 177)
+== (clever-gcd 177 0)
+== 177
+\end{lstlisting}
+这意味着它仅执行了 9 次求余，比起 \code{gcd-structural} 的数千万次运算，效率提升何止万倍！
+
+\begin{exercise}{体验欧几里得算法的极速}{440}\label{ex:440}
+将 \code{gcd-generative} 复制到 DrRacket 中，在交互区求值：
+\begin{lstlisting}[language=BSL]
+(time (gcd-generative 101135853 45014640))
+\end{lstlisting}
+对比练习~\ref{ex:439} 中的运行时间。
+\end{exercise}
+
+你或许会由此得出结论：生成型递归总是优于结构型递归，因此应当全面采用生成型递归。然而，这种结论过于草率，原因有三：
+\begin{enumerate}
+  \item \textbf{性能并非总是占优}：算法即使设计精良，对于小规模输入也不一定比结构型递归更快。例如，快速排序只在长列表上超越插入排序；对于短列表，结构化的 \code{sort<} 往往更胜一筹。更糟的是，拙劣的算法设计甚至可能导致性能灾难。
+  \item \textbf{设计成本不同}：遵循结构化配方设计函数通常要简单得多；相反，设计生成型算法需要关于如何生成子问题的核心洞见，往往需要深厚的数学知识或巧思。
+  \item \textbf{代码可读性与可维护性}：结构型递归的代码即便缺乏文档，其他程序员也能迅速理解其意图；而生成型算法基于“顿悟”，若没有详尽的解释和推导，后来的维护者（包括未来的你自己）将极难看懂。
+\end{enumerate}
+
+工程经验表明：程序中的绝大多数函数都应采用\textbf{结构化设计}；只有少数性能瓶颈处才值得动用生成型递归。当面临既可用结构化又可用生成型递归的情境时，最佳实践是：\textbf{首选结构型递归实现；唯有当其实测性能无法满足需求时，再探寻生成型递归优化。}
+
+\begin{exercise}{快速排序在已有序列表上的最坏情况}{441}\label{ex:441}
+手工推导对已排序列表 \code{(list 1 2 3 4 5 6 7 8 9 10 11 12 13 14)} 执行 \code{quick-sort<} 的过程。仅写出引入新的 \code{quick-sort<} 调用的行。总共需要多少次 \code{quick-sort<} 的递归调用？需要多少次 \code{append} 调用？针对长度为 $n$ 的列表总结出一般规律。这一结果与快速排序的高效声誉是否矛盾？
+\end{exercise}
+
+\begin{exercise}{寻找排序算法的平衡交叉点}{442}\label{ex:442}
+在 DrRacket 定义区中引入 \code{sort<} 和 \code{quick-sort<}。编写辅助函数 \code{create-tests} 用于随机生成大规模测试列表。测试两者在不同长度列表上的运行速度。
+\begin{enumerate}
+  \item 实验是否证实了“短列表上 \code{sort<} 更快，长列表上 \code{quick-sort<} 更快”的断言？
+  \item 测定两者的性能交叉点（cross-over point）阈值。利用该阈值构建混合排序函数 \code{clever-sort}，使其在长列表上采用快速排序，而在小于阈值的短列表上自动切换为插入排序。
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}{为什么朴素结构化模板无法求最大公约数}{443}\label{ex:443}
+针对 \code{gcd-structural} 的签名，如果不加思索地套用自然数结构化模板，可能会得到如下代码草稿：
+\begin{lstlisting}[language=BSL]
+(define (gcd-structural n m)
+  (cond
+    [(and (= n 1) (= m 1)) 1]
+    [(and (> n 1) (= m 1)) ...]
+    [(and (= n 1) (> m 1)) ...]
+    [else
+     (... (gcd-structural (sub1 n) (sub1 m)) ...)]))
+\end{lstlisting}
+为什么单纯依靠这种双参数递减的结构化策略无法正确找到公约数？
+\end{exercise}
+
+\begin{exercise}{组合式设计结构化求最大公约数}{444}\label{ex:444}
+练习~\ref{ex:443} 意味着设计 \code{gcd-structural} 需要通过\term{函数组合（design-by-composition）}来完成。
+
+“最大公约数”的概念本身就暗示了一种两阶段策略：首先设计一个函数计算一个自然数的所有约数列表；其次设计一个函数挑出两个约数列表中共同包含的最大数值。整体框架如下：
+
+\begin{lstlisting}[language=BSL]
+(define (gcd-structural S L)
+  (largest-common (divisors S S) (divisors S L)))
+
+; N[>= 1] N[>= 1] -> [List-of N]
+; 计算 l 的小于或等于 k 的所有约数
+(define (divisors k l)
+  '())
+
+; [List-of N] [List-of N] -> N
+; 找出同时出现在 k 与 l 中的最大数
+(define (largest-common k l)
+  1)
+\end{lstlisting}
+
+为什么 \code{divisors} 需要接收两个数字？为什么在两次调用中都将 \code{S} 作为第一个参数传入？
+\end{exercise}

@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_8"><a id="sec9" class="calibre16"></a>9 Designing with Self-Referential Data Definitions</h1>
+<p class="tni">At first glance, self-referential data definitions seem to be far more complex than those for mixed data. But, as the example of <samp class="mono">contains-flatt?</samp> shows, the six steps of the design recipe still work. Nevertheless, in this section we generalize the design recipe so that it works even better for self-referential data definitions. The new parts concern the process of discovering when a self-referential data definition is needed, deriving a template, and defining the function body:</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_247" title="247"></span>1. If a problem statement is about information of arbitrary size, you need a self-referential data definition to represent it. At this point, you have seen only one such class, List-of-names. The left side of <a id="rfig51" href="part0007_split_007.html#fig51" class="calibre5">figure 51</a> shows how to define <i class="calibre6">List-of-strings</i> in the same way. Other lists of atomic data work the same way.</p>
+<div class="figure">
+<figure class="img"><a id="fig51" class="calibre5"></a><img src="../images/00182.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig51" class="calibre5">Figure 51</a>:</span> <span>Arrows for self-references in data definitions and templates</span></p></figcaption>
+</figure>
+</div>
+<div class="calibre4">
+<p class="marginpar">Numbers also seem to be arbitrarily large. For inexact numbers, this is an illusion. For precise integers, this is indeed the case. Dealing with integers is therefore a part of this chapter.</p>
+</div>
+<p class="nltni">For a self-referential data definition to be valid, it must satisfy two conditions. First, it must contain at least two clauses. Second, at least one of the clauses must not refer back to the class of data that is being defined. It is good practice to identify the self-references explicitly with arrows from the references in the data definition back to the term being defined; see <a href="part0007_split_007.html#fig51" class="calibre5">figure 51</a> for an example of such an annotation.</p>
+<p class="nltni">You must check the validity of self-referential data definitions with the creation of data examples. Start with the clause that does not refer to the data definition; continue with the other one, using the first example where the clause refers to the definition itself. For the data definition in <a href="part0007_split_007.html#fig51" class="calibre5">figure 51</a>, you thus get lists like the following three:</p>
+<figure class="co"><img src="../images/00183.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">If it is impossible to generate examples from the data definition, it is invalid. If you can generate examples but you can’t see how to generate increasingly larger examples, the definition may not live up to its interpretation.</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_248" title="248"></span>2. Nothing changes about the header material: the signature, the purpose statement, and the dummy definition. When you do formulate the purpose statement, focus on <b class="calibre9">what</b> the function computes <b class="calibre9">not how</b> it goes about it, especially not how it goes through instances of the given data.</p>
+<p class="nltni">Here is an example to make this design recipe concrete:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">; </samp>List-of-strings<samp class="mono"> -&gt; </samp>Number <br class="calibre4"/><samp class="mono">; counts</samp><samp class="mono"> how many</samp><samp class="mono"> strings alos</samp><samp class="mono"> contains</samp> <br class="calibre4"/><samp class="mono">(define (how-many</samp><samp class="mono"> alos)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></p>
+</div>
+<p class="nltni">The purpose statement clearly states that the function just counts the strings on the given input; there is no need to think ahead about how you might formulate this idea as a BSL function.</p>
+<p class="nlf">3. When it comes to functional examples, be sure to work through inputs that use the self-referential clause of the data definition several times. It is the best way to formulate tests that cover the entire function definition later.</p>
+<p class="nltni">For our running example, the purpose statement almost generates functional examples by itself from the data examples:</p>
+<figure class="co"><img src="../images/00184.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">The first row is about the empty list, and we know that empty list contains nothing. The second row is a list of one string, so <samp class="mono">1</samp> is the desired answer. The last row is about a list of two strings.</p>
+<p class="nlf">4. At the core, a self-referential data definition looks like a data definition for mixed data. The development of the template can therefore proceed according to the recipe in chapter 6. Specifically, we formulate a <samp class="mono">cond</samp> expression with as many <samp class="mono">cond</samp> clauses as there are clauses in the data definition, match each recognizing condition to the corresponding clause in the data definition, and write down appropriate selector expressions in all <samp class="mono">cond</samp> lines that process compound values.</p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_249" title="249"></span><a id="rfig52" href="part0007_split_007.html#fig52" class="calibre5">Figure 52</a> expresses this idea as a question-and-answer game. In the left column it states questions about the data definition for the argument, and in the right column it explains what the answer means for the construction of the template.</p>
+<div class="figure">
+<figure class="img"><a id="fig52" class="calibre5"></a><img src="../images/00185.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig52" class="calibre5">Figure 52</a>:</span> <span>How to translate a data definition into a template</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni">If you ignore the last row and apply the first three questions to any function that consumes a List-of-strings, you arrive at this shape:</p>
+<figure class="co"><img src="../images/00186.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">Recall, though, that the purpose of a template is to express the data definition as a function layout. That is, a template expresses as code what the data definition for the input expresses as a mix of English <span epub:type="pagebreak" id="pg_250" title="250"></span>and BSL. Hence all important pieces of the data definition must find a counterpart in the template, and this guideline should also hold when a data definition is self-referential—contains an arrow from inside the definition to the term being defined. In particular, when a data definition is self-referential in the <i class="calibre6">i</i>th clause and the <i class="calibre6">k</i>th field of the structure mentioned there, the template should be self-referential in the <i class="calibre6">i</i>th <samp class="mono">cond</samp> clause and the selector expression for the <i class="calibre6">k</i>th field. For each such selector expression, add an arrow back to the function parameter. At the end, your template must have as many arrows as we have in the data definition.</p>
+<p class="nltni"><a href="part0007_split_007.html#fig51" class="calibre5">Figure 51</a> illustrates this idea with the template for functions that consume List-of-strings shown side by side with the data definition. Both contain one arrow that originates in the second clause—the <samp class="mono">rest</samp> field and selector, respectively—and points back to the top of the respective definitions.</p>
+<p class="nltni">Since BSL and most programming languages are text-oriented, you must use an alternative to the arrow, namely, a self-application of the function to the appropriate selector expression:</p>
+<figure class="co"><img src="../images/00187.gif" alt="" class="calibre10"/></figure>
+<p class="nltni">We refer to a self-use of a function as <i class="calibre6">recursion</i> and in the first four parts of the book as <i class="calibre6">natural recursion</i>.</p>
+<p class="marginpar">For the curious among our readers, the design recipe for arbitrarily large data corresponds to so-called “proofs by induction” in mathematics, and the “leap of faith” represents the use of the induction hypothesis for the inductive step of such a proof. Logic proves the validity of this proof technique with an Induction Theorem.</p>
+<p class="nlf">5. For the function body we start with those <samp class="mono">cond</samp> lines without recursive function calls, known as <i class="calibre6">base cases</i>.The corresponding answers are typically easy to formulate or already given as examples.</p>
+<p class="nltni">Then we deal with the self-referential cases. We start by reminding ourselves what each of the expressions in the template line computes. For the natural recursion we assume that the function already works as specified in our purpose statement. This last step is a leap of faith, but as you will see, it always works.</p>
+<p class="nltni"><b class="calibre9">The rest is then a matter of combining the various values.</b></p>
+<p class="nltni"><span epub:type="pagebreak" id="pg_251" title="251"></span><a id="rfig53" href="part0007_split_007.html#fig53" class="calibre5">Figure 53</a> formulates the first four questions and answers for this step. Let’s use this game to complete the definition of <samp class="mono">how-many</samp>. Renaming the <samp class="mono">fun-for-los</samp> template to <samp class="mono">how-many</samp> gives us this much:</p>
+<figure class="co"><img src="../images/00188.gif" alt="" class="calibre10"/></figure>
+<div class="figure">
+<figure class="img"><a id="fig53" class="calibre5"></a><img src="../images/00189.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig53" class="calibre5">Figure 53</a>:</span> <span>How to turn a template into a function definition</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni"><span epub:type="pagebreak" id="pg_252" title="252"></span>As the functional examples already suggest, the answer for the base case is <samp class="mono">0</samp>. The two expressions in the second clause compute the <samp class="mono">first</samp> item and the number of strings in <samp class="mono">(rest alos)</samp>. To compute how many strings there are on all of <samp class="mono">alos</samp>, the function just needs to add <samp class="mono">1</samp> to the value of the latter expression:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">(define (how-many</samp><samp class="mono"> alos)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(empty?</samp><samp class="mono"> alos) 0]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (+ (how-many</samp><samp class="mono"> (rest alos))</samp><samp class="mono"> 1)])</samp></p>
+</div>
+<div class="calibre4">
+<p class="marginpar">Felix Klock suggested this table-based approach to guessing the combinator.</p>
+</div>
+<p class="nltni">Finding the correct way to combine the values into the desired answer isn’t always as easy. Novice programmers often get stuck with this step. As <a id="rfig54" href="part0007_split_007.html#fig54" class="calibre5">figure 54</a> suggests, it is a good idea to arrange the functional examples into a table that also spells out the values of the expressions in the template. <a id="rfig55" href="part0007_split_007.html#fig55" class="calibre5">Figure 55</a> shows what this table looks like for our <samp class="mono">how-many</samp> example. The left-most column lists the sample inputs, while the right-most column contains the desired answers for these inputs. The three columns in between show the values of the template expressions: <samp class="mono">(first alos)</samp>, <samp class="mono">(rest alos)</samp>, and <samp class="mono">(how-many (rest alos))</samp>, which is the natural recursion. If you stare at this table long enough, you recognize that the result column is always <span epub:type="pagebreak" id="pg_253" title="253"></span>one more than the values in the natural recursion column. You may thus guess that</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">(+ (how-many</samp><samp class="mono"> (rest alos))</samp><samp class="mono"> 1)</samp></p>
+</div>
+<p class="nltni">is the expression that computes the desired result. Since DrRacket is fast at checking these kinds of guesses, plug it in and click <i class="calibre6">RUN</i>. If the examples-turned-into-tests pass, think through the expression to convince yourself it works for all lists; otherwise add more example rows to the table until you have a different idea.</p>
+<div class="figure">
+<figure class="img"><a id="fig54" class="calibre5"></a><img src="../images/00190.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig54" class="calibre5">Figure 54</a>:</span> <span>Turning a template into a function, the table method</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig55" class="calibre5"></a><img src="../images/00191.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig55" class="calibre5">Figure 55</a>:</span> <span>Tabulating arguments, intermediate values, and results</span></p></figcaption>
+</figure>
+</div>
+<p class="nltni">The table also points out that some selector expressions in the template are possibly irrelevant for the actual definition. Here <samp class="mono">(first alos)</samp> is not needed to compute the final answer—which is quite a contrast to <samp class="mono">contains-flatt?</samp>, which uses both expressions from the template.</p>
+<p class="nltni">As you work your way through the rest of this book, keep in mind that, in many cases, the combination step can be expressed with BSL’s primitives, say, <samp class="mono">+</samp>, <samp class="mono">and</samp>, or <samp class="mono">cons</samp>. In some cases, though, you may have to make a wish, that is, design an auxiliary function. Finally, in yet other cases, you may need nested conditions.</p>
+<p class="nlf">6. Finally, make sure to turn all examples into tests, that these tests pass, and that running them covers all the pieces of the function.</p>
+<p class="nltni">Here are our examples for <samp class="mono">how-many</samp> turned into tests:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">(check-expect (how-many</samp><samp class="mono"> '()) 0)</samp> <br class="calibre4"/><samp class="mono">(check-expect (how-many</samp><samp class="mono"> (cons "a"</samp><samp class="mono"> '())) 1)</samp> <br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (how-many</samp><samp class="mono"> (cons "b"</samp><samp class="mono"> (cons "a"</samp><samp class="mono"> '()))) 2)</samp></p>
+</div>
+<p class="nltni">Remember, it is best to formulate examples directly as tests, and BSL allows this. Doing so also helps if you need to resort to the table-based guessing approach of the preceding step.</p>
+<p class="stx"><a id="rfig56" href="part0007_split_007.html#fig56" class="calibre5">Figure 56</a> summarizes the design recipe of this section in a tabular format. The first column names the steps of the design recipe, and the second the expected results of each step. In the third column, we describe the activities that get you there. The figure is tailored to the kind of self-referential list definitions we use in this chapter. As always, practice helps you master the process, so we strongly recommend that you tackle the following exercises, which ask you to apply the recipe to several kinds of examples.</p>
+<div class="figure">
+<figure class="img"><a id="fig56" class="calibre5"></a><img src="../images/00192.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_007.html#rfig56" class="calibre5">Figure 56</a>:</span> <span>Designing a function for self-referential data</span></p></figcaption>
+</figure>
+</div>
+<p class="marginpar">You may want to copy <a href="part0007_split_007.html#fig56" class="calibre5">figure 56</a> onto one side of an index card and write down your favorite versions of the questions and answers for this design recipe onto the back of it. Then carry it with you for future reference.</p>
+</section>
+</article>
+</div>
+</body></html>

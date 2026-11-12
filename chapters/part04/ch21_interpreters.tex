@@ -1,0 +1,246 @@
+% ==============================================================================
+% 第 21 章：解释器的精炼 (Chapter 21: Refining Interpreters)
+% ==============================================================================
+
+\chapter{解释器的精炼}
+\label{sec:ch21_interpreters}
+
+DrRacket 本身就是一个程序。它是一个极其复杂的软件，处理着许多形态各异的数据。如同大多数大型软件系统一样，DrRacket 由许多模块和函数组成：有的负责让程序员编辑文本代码，有的负责驱动交互区（Interactions Area），有的负责检查定义的语法合法性等等。
+
+在本章中，我们将向你展示如何设计\textbf{驱动交互区核心运作的函数}。毫无疑问，我们在这个综合设计项目中依然采用\term{逐步求精}。实际上，聚焦于 DrRacket 的这一核心功能本身就是逐步求精思想的体现——先实现最关键的计算核心。
+
+简而言之，交互区的核心职责是：\textbf{计算你在提示符后输入的表达式的值}。当你点击 \textsf{RUN}（运行）按钮后，交互区加载定义区中的所有常量和函数定义。随后，它随时准备接收你输入的可能引用了这些定义的表达式，计算求出该表达式的值，并将结果打印出来，而后周而复始。正因如此，人们通常将交互区称为\term{REPL}（Read-Eval-Print Loop，读取-求值-打印循环）。其中 \term{eval} 是求值器（evaluator）的缩写，在计算机科学中更通用的称谓是\term{解释器}（interpreter）。
+
+我们的精炼流程从最基础的 BSL 数值算术表达式出发；它们结构简单，不依赖复杂的环境定义，易于推演。一旦你理清了第一步，就能深刻领会“BSL 表达式自身”与其“在程序中的数据表示（AST）”之间的根本区别。随后，我们引入变量，最后一步引入函数定义与函数调用。
+
+\section{解释算术表达式 }
+\label{sec:21.1_eval_expr}
+
+我们的首要任务是建立 BSL 表达式的数据表示。换句话说，我们必须弄清楚如何将一段 BSL 表达式本身表示为 BSL 语言内部的一项数据。乍听之下这有些不可思议（用语言自身表示自身的代码），但其实非常直观。
+
+假设我们起初只想表示数字、加法与乘法。数值本身可以直接表示数值。加法表达式则是一种复合数据，因为它由两个子表达式和一个操作符组成；乘法表达式亦然。
+
+遵循第 5 章的方法，最直接的表示方式是定义两个各自拥有两个字段的结构体类型：
+
+\begin{lstlisting}[language=BSL]
+(define-struct add [left right])
+(define-struct mul [left right])
+\end{lstlisting}
+
+其语义是：\code{left} 字段保存左操作数，\code{right} 字段保存右操作数。下表列出了三组对照关系：
+\begin{center}
+\begin{tabular}{lll}
+\hline
+\textbf{BSL 代码} & \textbf{含义} & \textbf{在 BSL 中的数据表示} \\
+\hline
+\code{3} & 数值 3 & \code{3} \\
+\code{(+ 1 2)} & 加法 & \code{(make-add 1 2)} \\
+\code{(* 2 3)} & 乘法 & \code{(make-mul 2 3)} \\
+\hline
+\end{tabular}
+\end{center}
+
+对于包含嵌套子表达式的表达式，例如：
+\begin{lstlisting}[language=BSL]
+(+ (* 3 3) (* 4 4))
+\end{lstlisting}
+结构体字段可以容纳任意深度嵌套的数据表示：
+\begin{lstlisting}[language=BSL]
+(make-add (make-mul 3 3) (make-mul 4 4))
+\end{lstlisting}
+图~\ref{fig:124} 给出了更多样例对照。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00483.png}
+  \caption{在 BSL 中表示 BSL 表达式 (Representing BSL expressions in BSL)}
+  \label{fig:124}
+\end{figure}
+
+\begin{exercise}{BSL 表达式的数据定义与表示}{345}
+基于 \code{add} 与 \code{mul} 结构体，给出 BSL 算术表达式的数据定义，将此类数据命名为 \code{BSL-expr}。
+\begin{enumerate}
+  \item 将下列 BSL 表达式翻译为其数据表示：
+  \begin{itemize}
+    \item \code{(+ 10 -10)}
+    \item \code{(+ (* 20 3) 33)}
+    \item \code{(+ (* 3.14 (* 2 3)) (* 3.14 (* -1 -9)))}
+  \end{itemize}
+  \item 将下列数据表示还原为人类可读的 BSL 表达式：
+  \begin{itemize}
+    \item \code{(make-add -1 2)}
+    \item \code{(make-add (make-mul -2 -3) 33)}
+    \item \code{(make-mul (make-add 1 (make-mul 2 3)) 3.14)}
+  \end{itemize}
+\end{enumerate}
+\end{exercise}
+
+有了表达式的数据表示后，下一步是设计求值器 \code{eval-expression}。该函数接收一个 \code{BSL-expr} 并计算出它的最终数值。
+
+\begin{exercise}{表达式计算结果值的数据定义}{346}
+为 \code{BSL-expr} 求值后所产生的结果值集合制定数据定义（对于目前的纯算术表达式，该集合即为所有的数 \code{Number}）。
+\end{exercise}
+
+\begin{exercise}{设计算术求值器 eval-expression}{347}
+设计函数 \code{eval-expression}。该函数接收一个 \code{BSL-expr}，递归计算并返回其数值。
+\end{exercise}
+
+\begin{exercise}{布尔表达式的表示与求值}{348}
+设计布尔 BSL 表达式的数据表示，支持 \code{\#true}、\code{\#false}、\code{and}、\code{or} 与 \code{not}。随后设计求值函数 \code{eval-bool-expression} 计算其布尔结果。
+\end{exercise}
+
+\subsection{语法解析：从 S-表达式到解析树}
+
+直接手写层层嵌套的结构体（如 \code{make-add}、\code{make-mul}）非常繁琐。幸运的是，S-表达式提供了一种更贴近真实语法的输入方式：只需在代码前加上一个单引号，例如 \code{'(+ (* 3 3) (* 4 4))}，DrRacket 就会将其作为嵌套列表与符号读入！
+
+然而，S-表达式过于宽泛（例如 \code{"hello"} 或 \code{'(+ 1 2 3 4)} 都是 S-表达式，但不符合简单二元表达式的语法）。为了架起便捷书写与严谨内部结构体之间的桥梁，程序员发明了\term{语法解析器}（parser）。解析器负责检查输入是否合乎语法规则；若合法，则构建出内部的\term{解析树}（parse tree，即我们的结构体表示）；若不合法，则抛出语法错误。
+
+图~\ref{fig:125} 给出了一个将 S-表达式解析为 \code{BSL-expr} 的解析器 \code{parse}。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00486.png}
+  \caption{从 S-表达式到 BSL 解析树 (From S-expr to BSL-expr)}
+  \label{fig:125}
+\end{figure}
+
+\begin{exercise}{解析器 parse 的完整测试套件}{349}
+为图~\ref{fig:125} 中的 \code{parse} 编写充分的测试用例，确保在 DrRacket 运行测试时代码覆盖率达到 100\%。
+\end{exercise}
+
+\begin{exercise}{解析器的非常规设计分析}{350}
+从设计配方的角度审视图~\ref{fig:125} 的程序组织：它有哪些不同寻常之处？（例如对列表长度的检查）。
+\end{exercise}
+
+\begin{exercise}{设计直接面向 S-表达式的求值器}{351}
+设计函数 \code{interpreter-expr}。该函数接收一个 S-表达式，若 \code{parse} 将其识别为合法的 \code{BSL-expr}，则调用求值器返回其计算值；否则抛出与 \code{parse} 相同的语法错误。
+\end{exercise}
+
+\section{解释变量 }
+\label{sec:21.2_eval_variables}
+
+上一节排除了变量定义。然而在实际编程中，定义区通常包含常量定义，例如：
+\begin{lstlisting}[language=BSL]
+(define x 5)
+(define y 3)
+\end{lstlisting}
+而在交互区中，表达式往往包含这些变量名：
+\begin{replbox}
+> (+ x 3)
+8
+> (* 1/2 (* x y))
+7.5
+\end{replbox}
+
+为了支持变量，我们必须扩展数据表示：变量以符号（Symbol）表示。
+
+\begin{lstlisting}[language=BSL]
+; 一个 BSL-var-expr 是下列之一：
+; -- Number
+; -- Symbol
+; -- (make-add BSL-var-expr BSL-var-expr)
+; -- (make-mul BSL-var-expr BSL-var-expr)
+\end{lstlisting}
+
+\subsection{代换模型 }
+
+在初等代数中，求含变量表达式的值的方法是：\textbf{将所有变量替换为其所代表的具体数值}。在纯函数式语言中，这种方法完全有效。
+
+\begin{exercise}{变量代换函数 subst}{352}
+设计函数 \code{subst}。该函数接收一个 \code{BSL-var-expr ex}、一个符号 \code{x} 和一个数值 \code{v}。它生成一个新的表达式，将 \code{ex} 中所有出现的变量 \code{x} 全部替换为数值 \code{v}。
+\end{exercise}
+
+\begin{exercise}{检查表达式是否为纯数值 numeric?}{353}
+设计函数 \code{numeric?}，判断给定的 \code{BSL-var-expr} 是否已不包含任何变量（即是否蜕变为纯算术表达式 \code{BSL-expr}）。
+\end{exercise}
+
+为了支持多个常量定义，我们引入\term{关联列表}（Association List，简称 AL）来表示定义区中的所有变量与数值的绑定：
+
+\begin{lstlisting}[language=BSL]
+; 一个 AL（Association List，关联列表）是 [List-of Association]。
+; 一个 Association 是一个包含两项的列表：
+;    (list Symbol Number)
+\end{lstlisting}
+
+\begin{exercise}{变量求值器与关联列表}{354}
+设计函数 \code{eval-variable}，接收一个 \code{BSL-var-expr}。若输入满足 \code{numeric?}，则计算其值；否则报错“未绑定变量”。
+
+进而设计函数 \code{eval-variable*}。该函数接收一个表达式 \code{ex} 和一个关联列表 \code{da}（表示常量环境），依次对关联列表中的每对绑定调用 \code{subst} 进行全局代换，最后调用 \code{eval-variable} 获得计算结果。
+\end{exercise}
+
+\subsection{环境模型 }
+
+代换模型在计算开始前对整个 AST 树实施全量扫描与替换。另一种更符合现代计算机工业实现的方案是\term{环境模型}（environment model）：在求值过程中随身携带包含变量绑定的环境（即关联列表 \code{da}）。解释器每当在表达式树中遇到一个变量符号时，便即时在环境中查找该符号的值并加以使用。
+
+\begin{exercise}{基于环境模型的变量求值 eval-var-lookup}{355}
+设计函数 \code{eval-var-lookup}：
+\begin{lstlisting}[language=BSL]
+; BSL-var-expr AL -> Number
+(define (eval-var-lookup e da) ...)
+\end{lstlisting}
+该函数不采用预先代换，而是在深度优先遍历表达式树的同时“随身携带”关联列表 \code{da}。当遇到符号 \code{x} 时，使用 \code{assq} 在 \code{da} 中查找其绑定值；若未找到，则抛出未定义变量错误。
+\end{exercise}
+
+\section{解释函数 }
+\label{sec:21.3_eval_functions}
+
+掌握了常量与变量后，精炼的下一个关键目标是：\textbf{支持程序员自定义的函数及其调用}。
+
+为降低复杂度，我们首先假定定义区中的所有函数均只接收一个参数。在代数中，函数定义形如 $f(x) = e$，函数调用形如 $f(a)$。对其求值的步骤是：先求出实参 $a$ 的值，再将函数体 $e$ 中的形参 $x$ 替换为该实参值，最后对替换后的函数体求值。
+
+\begin{exercise}{包含函数调用的表达式数据定义}{356}
+扩展表达式的数据表示以支持单参函数调用。函数调用包含两项信息：被调用的函数名（Symbol）与传入的实参表达式（\code{BSL-fun-expr}）。定义结构体 \code{(define-struct app [name arg])}，并将此类扩展后的数据命名为 \code{BSL-fun-expr}。
+\end{exercise}
+
+\begin{exercise}{单函数定义的求值器 eval-definition1}{357}
+设计函数 \code{eval-definition1}，它接收四个参数：表达式 \code{ex}、函数名 \code{f}、形参名 \code{x} 以及函数体表达式 \code{b}。当遇到对 \code{f} 的调用时：
+\begin{enumerate}
+  \item 递归求出实参的值；
+  \item 将函数体 \code{b} 中的形参 \code{x} 代换为该实参值；
+  \item 递归对生成的新表达式求值。
+\end{enumerate}
+\emph{重要警示：} 这种形式的递归可能导致程序\textbf{永不终止}（例如调用递归定义自身的函数）。构造一个导致程序陷入无限循环的测试用例！
+\end{exercise}
+
+真实程序中包含多个函数定义。我们为定义区中的函数建立数据表示：
+
+\begin{exercise}{函数定义与定义区检索 lookup-def}{358}
+定义表示函数定义的结构体与数据定义 \code{BSL-fun-def}：
+\begin{lstlisting}[language=BSL]
+(define-struct fun-def [name param body])
+; 一个 BSL-fun-def 是：(make-fun-def Symbol Symbol BSL-fun-expr)
+\end{lstlisting}
+定义 \code{BSL-fun-def*} 为 \code{[List-of BSL-fun-def]}。并设计函数 \code{lookup-def}，在函数定义列表中按名字查找对应的函数定义。
+\end{exercise}
+
+\begin{exercise}{支持多函数互调的求值器 eval-function*}{359}
+设计函数 \code{eval-function*}。它接收一个表达式 \code{ex} 和一个函数定义列表 \code{da}，准确模拟 DrRacket 执行包含多函数调用的计算过程。
+\end{exercise}
+
+\section{解释所有内容 }
+\label{sec:21.4_eval_everything}
+
+现在，我们把所有的拼图碎片拼在一起，构建一个完整的微型 DrRacket 运行时内核：在定义区中同时允许自由混合常量定义与函数定义，在交互区中允许自由求值包含变量与函数调用的复杂表达式！
+
+考虑如下定义区示例：
+\begin{lstlisting}[language=BSL]
+(define close-to-pi 3.14)
+(define (area-of-circle r)
+  (* close-to-pi (* r r)))
+(define (volume-of-10-cylinder r)
+  (* 10 (area-of-circle r)))
+\end{lstlisting}
+
+\begin{exercise}{综合定义区的数据表示与查询}{360}
+为混合常量与函数的定义区制定数据定义 \code{BSL-da-all}。分别设计查询常量的函数 \code{lookup-con-def} 与查询函数的函数 \code{lookup-fun-def}。
+\end{exercise}
+
+\begin{exercise}{综合求值器 eval-all}{361}
+设计综合求值器 \code{eval-all}。该函数接收一个表达式与一个综合定义区 \code{BSL-da-all}，精确产生 DrRacket 交互区所计算出的最终结果值。
+\end{exercise}
+
+\begin{exercise}{构建完整的 BSL 解释器系统}{362}
+手写结构体 AST 极为繁琐。结合本章所学，设计高级入口函数 \code{interpreter}。它接收代表表达式的 S-表达式和代表定义列表的 S-表达式列表，自动调用相应的语法解析器将它们转化为内部解析树，再由 \code{eval-all} 执行最终求值。
+\end{exercise}
+
+至此，你已经亲手打造了一个功能完备的 BSL 语言解释器内核！这就是计算机科学中最令人心潮澎湃的里程碑：\textbf{用程序去赋予程序以生命}。

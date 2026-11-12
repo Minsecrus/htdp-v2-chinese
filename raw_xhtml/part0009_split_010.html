@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_11"><span epub:type="pagebreak" id="pg_404" title="404" class="calibre1"></span><a id="sec15-2" class="calibre16"></a>15.2 Similarities in Signatures</h2>
+<p class="tni">As it turns out, a function’s signature is key to its reuse. Hence, you must learn to formulate signatures that describe abstracts in their most general terms possible. To understand how this works, we start with a second look at signatures and from the simple—though possibly startling—insight that signatures are basically data definitions.</p>
+<p class="calibre8">Both signatures and data definitions specify a class of data; the difference is that data definitions also name the class of data while signatures don’t. Nevertheless, when you write down</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number Boolean<samp class="mono"> -&gt; </samp>String <br class="calibre4"/><samp class="mono">(define (f</samp><samp class="mono"> n b)</samp><samp class="mono"> "hello world")</samp></p>
+</div>
+<p class="tni">your first line describes an entire class of data, and your second one states that <samp class="mono">f</samp> belongs to that class. To be precise, the signature describes the class of <b class="calibre9">all functions</b> that consume a Number and a Boolean and yield a String.</p>
+<p class="calibre8">In general, the arrow notation of signatures is like the List-of notation from chapter 14.3. The latter consumes (the name of) one class of data, say X, and describes all lists of <samp class="mono">X</samp> items—without assigning it a name. The arrow notation consumes an arbitrary number of classes of data and describes collections of functions.</p>
+<p class="calibre8">What this means is that the abstraction design recipe applies to signatures, too. You compare similar signatures; you highlight the differences; and then you replace those with parameters. But the process of abstracting signatures feels more complicated than the one for functions, partly because signatures are already abstract pieces of the design recipe and partly because the arrow-based notation is much more complex than anything else we have encountered.</p>
+<p class="calibre8">Let’s start with the signatures of <samp class="mono">cf*</samp> and <samp class="mono">names</samp>:</p>
+<figure class="co"><img src="../images/00345.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The diagram is the result of the compare-and-contrast step. Comparing the two signatures shows that they differ in two places: to the left of the arrow, we see Number versus IR, and to its right, it is Number versus String.</p>
+<p class="calibre8">If we replace the two differences with some kind of parameters, say <samp class="mono">X</samp> and <samp class="mono">Y</samp>, we get the same signature:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_405" title="405"></span><samp class="mono">; [X</samp><samp class="mono"> Y] [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> [</samp>List-of<samp class="mono"> Y]</samp></p>
+</div>
+<p class="tni">The new signature starts with a sequence of variables, drawing an analogy to function definitions and the data definitions above. Roughly speaking, these variables are the parameters of the signature, like those of functions and data definitions. To make the latter concrete, the variable sequence is like <samp class="mono">ITEM</samp> in the definition of List-of or the <samp class="mono">X</samp> and <samp class="mono">Y</samp> in the definition of CP from chapter 14.3. And just like those, <samp class="mono">X</samp> and <samp class="mono">Y</samp> range over classes of values.</p>
+<p class="calibre8">An instantiation of this parameter list is the rest of the signature with the parameters replaced by the data collections: either their names or other parameters or abbreviations such as List-of from above. Thus, if you replace both <samp class="mono">X</samp> and <samp class="mono">Y</samp> with Number, you get back the signature for <samp class="mono">cf*</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of Number<samp class="mono">]</samp></p>
+</div>
+<p class="tni">If you choose IR and String, you get back the signature for <samp class="mono">names</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of IR<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of String<samp class="mono">]</samp></p>
+</div>
+<p class="tni">And that explains why we may consider this parametrized signature as an abstraction of the original signatures for <samp class="mono">cf*</samp> and <samp class="mono">names</samp>.</p>
+<p class="calibre8">Once we add the extra function parameter to these two functions, we get <samp class="mono">map1</samp>, and the signatures are as follows:</p>
+<figure class="co"><img src="../images/00346.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Again, the signatures are in pictorial form and with arrows connecting the corresponding differences. These markups suggest that the differences in the second argument—a function—are related to the differences in the original signatures. Specifically, Number and IR on the left of the new arrow refer to items on the first argument—a list—and the Number and String on the right refer to the items on the result—also a list.</p>
+<p class="calibre8">Since listing the parameters of a signature is extra work, for our purposes, we simply say that from now on all variables in signatures are parameters. Other programming languages, however, insist on explicitly listing the parameters of signatures, but in return you can articulate additional constraints in such signatures and the signatures are checked before you run the program.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_406" title="406"></span>Now let’s apply the same trick to get a signature for <samp class="mono">map1</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> Y] [</samp>List-of<samp class="mono"> X] [X</samp><samp class="mono"> -&gt; Y]</samp><samp class="mono"> -&gt; [</samp>List-of<samp class="mono"> Y]</samp></p>
+</div>
+<p class="tni">Concretely, <samp class="mono">map1</samp> consumes a list of items, all of which belong to some (yet to be determined) collection of data called X. It also consumes a function that consumes elements of <samp class="mono">X</samp> and produces elements of a second unknown collection, called <samp class="mono">Y</samp>. The result of <samp class="mono">map1</samp> is lists that contain items from <samp class="mono">Y</samp>.</p>
+<p class="calibre8">Abstracting over signatures takes practice. Here is a second pair:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>Number <br class="calibre4"/><samp class="mono">; [</samp>List-of Posn<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>Image</p>
+</div>
+<p class="tni">They are the signatures for <samp class="mono">product</samp> and <samp class="mono">image*</samp> in exercise 252. While the two signatures have some common organization, the differences are distinct. Let us first spell out the common organization in detail:</p>
+<p class="blf">•  both signatures describe one-argument functions; and</p>
+<p class="bll">•  both argument descriptions employ the List-of construction.</p>
+<p class="tni">In contrast to the first example, here one signature refers to Number twice while the second one refers to Posns and Images in analogous positions. A structural comparison shows that the first occurrence of Number corresponds to Posn and the second one to Image:</p>
+<figure class="co"><img src="../images/00347.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">To make progress on a signature for the abstraction of the two functions in exercise 252, let’s take the first two steps of the design recipe:</p>
+<figure class="co"><img src="../images/00348.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_407" title="407"></span>Since the two functions differ in two pairs of values, the revised versions consume two additional values: one is an atomic value, to be used in the base case, and the other one is a function that joins together the result of the natural recursion with the first item on the given list.</p>
+<p class="calibre8">The key is to translate this insight into two signatures for the two new functions. When you do so for <samp class="mono">pr*</samp>, you get</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] </samp>Number<samp class="mono"> [</samp>Number Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; -&gt;</samp><samp class="mono"> </samp>Number</p>
+</div>
+<p class="tni">because the result in the base case is a number and because the function for the second <samp class="mono">cond</samp> line is <samp class="mono">+</samp>. Similarly, the signature for <samp class="mono">im*</samp> is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Posn<samp class="mono">] </samp>Image<samp class="mono"> [</samp>Posn Image<samp class="mono"> -&gt; </samp>Image<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; -&gt;</samp><samp class="mono"> </samp>Image</p>
+</div>
+<p class="tni">As you can see from the function definition for <samp class="mono">im*</samp>, the base case returns an image, and the combination function is <samp class="mono">place-dot</samp>, which combines a Posn and an Image into an Image.</p>
+<p class="calibre8">Now we take the diagram from above and extend it to the signatures with the additional inputs:</p>
+<figure class="co"><img src="../images/00349.gif" alt="" class="calibre10"/></figure>
+<p class="tni">From this diagram, you can easily see that the two revised signatures share even more organization than the original two. Furthermore, the pieces that describe the base cases correspond to each other and so do the pieces of the sub-signature that describe the combination function. All in all there are six pairs of differences, but they boil down to just two:</p>
+<p class="nlf">1. some occurrences of Number correspond to Posn, and</p>
+<p class="nll">2. other occurrences of Number correspond to Image.</p>
+<p class="tni">So to abstract we need two variables, one per kind of correspondence.</p>
+<p class="calibre8">Here then is the signature for <samp class="mono">fold2</samp>, the abstraction from exercise 252:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> Y] [</samp>List-of<samp class="mono"> X] Y</samp><samp class="mono"> [X Y</samp><samp class="mono"> -&gt; Y]</samp><samp class="mono"> -&gt; Y</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_408" title="408"></span>Stop! Make sure that replacing both parameters of the signature, <samp class="mono">X</samp> and <samp class="mono">Y</samp>, with Number yields the signature for <samp class="mono">pr*</samp> and that replacing the same variables with Posn and Image, respectively, yields the signature for <samp class="mono">im*</samp>.</p>
+<p class="calibre8">The two examples illustrate how to find general signatures. In principle the process is just like the one for abstracting functions. Due to the informal nature of signatures, however, it cannot be checked with running examples the way code is checked. Here is a step-by-step formulation:</p>
+<p class="nlf">1. Given two similar function definitions, <samp class="mono">f</samp> and <samp class="mono">g</samp>, compare their signatures for similarities and differences. The goal is to discover the organization of the signature and to mark the places where one signature differs from the other. Connect the differences as pairs just like you do when you analyze function bodies.</p>
+<p class="nlf">2. Abstract <samp class="mono">f</samp> and <samp class="mono">g</samp> into <samp class="mono">f-abs</samp> and <samp class="mono">g-abs</samp>. That is, add parameters that eliminate the differences between <samp class="mono">f</samp> and <samp class="mono">g</samp>. Create signatures for <samp class="mono">f-abs</samp> and <samp class="mono">g-abs</samp>. Keep in mind what the new parameters originally stood for; this helps you figure out the new pieces of the signatures.</p>
+<p class="nlf">3. Check whether the analysis of step 1 extends to the signatures of <samp class="mono">f-abs</samp> and <samp class="mono">g-abs</samp>. If so, replace the differences with variables that range over classes of data. Once the two signatures are the same, you have a signature for the abstracted function.</p>
+<p class="nll">4. Test the abstract signature. First, ensure that suitable substitutions of the variables in the abstract signature yield the signatures of <samp class="mono">f-abs</samp> and <samp class="mono">g-abs</samp>. Second, check that the generalized signature is in sync with the code. For example, if <samp class="mono">p</samp> is a new parameter and its signature is</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">; <span><span>…</span></span></samp><samp class="mono"> [A B</samp><samp class="mono"> -&gt; C]</samp><samp class="mono"> <span><span>…</span></span></samp></samp></p>
+</div>
+<p class="nltni">then <samp class="mono">p</samp> must always be applied to two arguments, the first one from A and the second one from B. And the result of an application of <samp class="mono">p</samp> is going to be a C and should be used where elements of C are expected.</p>
+<p class="stni">As with abstracting functions, the key is to compare the concrete signatures of the examples and to determine the similarities and differences. With enough practice and intuition, you will soon be able to abstract signatures without much guidance.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_409" title="409"></span><b class="calibre9">Exercise</b> 253. Each of these signatures describes a class of functions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; </samp>Boolean<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; [</samp>Boolean String<samp class="mono"> -&gt; </samp>Boolean<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; [</samp>Number Number Number<samp class="mono"> -&gt; </samp>Number<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; [</samp>Number<samp class="mono"> -&gt; [</samp>List-of Number<samp class="mono">]]</samp> <br class="calibre4"/><samp class="mono">; [[</samp>List-of Number<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>Boolean<samp class="mono">]</samp></p>
+</div>
+<p class="tni">Describe these collections with at least one example from ISL. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 254. Formulate signatures for the following functions:</p>
+<p class="blf">•  <samp class="mono">sort-n</samp>, which consumes a list of numbers and a function that consumes two numbers (from the list) and produces a Boolean; <samp class="mono">sort-n</samp> produces a sorted list of numbers.</p>
+<p class="bll">•  <samp class="mono">sort-s</samp>, which consumes a list of strings and a function that consumes two strings (from the list) and produces a Boolean; <samp class="mono">sort-s</samp> produces a sorted list of strings.</p>
+<p class="tni">Then abstract over the two signatures, following the above steps. Also show that the generalized signature can be instantiated to describe the signature of a sort function for lists of IRs. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 255. Formulate signatures for the following functions:</p>
+<p class="blf">•  <samp class="mono">map-n</samp>, which consumes a list of numbers and a function from numbers to numbers to produce a list of numbers.</p>
+<p class="bll">•  <samp class="mono">map-s</samp>, which consumes a list of strings and a function from strings to strings and produces a list of strings.</p>
+<p class="tni">Then abstract over the two signatures, following the above steps. Also show that the generalized signature can be instantiated to describe the signature of the <samp class="mono">map1</samp> function above. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

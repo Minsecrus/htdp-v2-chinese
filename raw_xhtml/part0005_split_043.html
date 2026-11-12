@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_44"><span epub:type="pagebreak" id="pg_172" title="172" class="calibre1"></span><a id="sec5-11" class="calibre16"></a>5.11 More Virtual Pets</h2>
+<p class="tni">In this section we continue our virtual zoo project from chapter 3.7. Specifically, the goal of the exercise is to combine the cat world program with the program for managing its happiness gauge. When the combined program runs, you see the cat walking across the canvas, and, with each step, its happiness goes down. The only way to make the cat happy is to feed it (down arrow) or to pet it (up arrow). Finally, the goal of the last exercise in this section is to create another virtual, happy pet.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 88. Define a structure type that keeps track of the cat’s x-coordinate and its happiness. Then formulate a data definition for cats, dubbed <i class="calibre6">VCat</i>, including an interpretation. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 89. Design the <samp class="mono">happy-cat</samp> world program, which manages a walking cat and its happiness level. Let’s assume that the cat starts out with perfect happiness.</p>
+<p class="calibre8"><b class="calibre9">Hints</b> (1) Reuse the functions from the world programs in chapter 3.7. (2) Use structure type from the preceding exercise to represent the state of the world. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 90. Modify the <samp class="mono">happy-cat</samp> program from the preceding exercises so that it stops whenever the cat’s happiness falls to <samp class="mono">0</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 91. Extend your structure type definition and data definition from exercise 88 to include a direction field. Adjust your <samp class="mono">happy-cat</samp> program so that the cat moves in the specified direction. The program should move the cat in the current direction, and it should turn the cat around when it reaches either end of the scene. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<figure class="co"><img src="../images/00113.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">The above drawing of a chameleon is a <b class="calibre9">transparent</b> image. To insert it into DrRacket, insert it with the “Insert Image” menu item. Using this instruction preserves the transparency of the drawing’s pixels.</p>
+<p class="calibre8">When a partly transparent image is combined with a colored shape, say a rectangle, the image takes on the underlying color. In the chameleon <span epub:type="pagebreak" id="pg_173" title="173"></span>drawing, it is actually the inside of the animal that is transparent; the area outside is solid white. Try out this expression in your DrRacket:</p>
+<figure class="co"><img src="../images/00114.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><b class="calibre9">Exercise</b> 92. Design the <samp class="mono">cham</samp> program, which has the chameleon continuously walking across the canvas from left to right. When it reaches the right end of the canvas, it disappears and immediately reappears on the left. Like the cat, the chameleon gets hungry from all the walking, and, as time passes by, this hunger expresses itself as unhappiness.</p>
+<p class="calibre8">For managing the chameleon’s happiness gauge, you may reuse the happiness gauge from the virtual cat. To make the chameleon happy, you feed it (down arrow, two points only); petting isn’t allowed. Of course, like all chameleons, ours can change color, too: <samp class="mono">"r"</samp> turns it red, <samp class="mono">"b"</samp> blue, and <samp class="mono">"g"</samp> green. Add the chameleon world program to the virtual cat game and reuse functions from the latter when possible.</p>
+<p class="calibre8">Start with a data definition, <i class="calibre6">VCham</i>, for representing chameleons. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 93. Copy your solution to exercise 92 and modify the copy so that the chameleon walks across a tricolor background. Our solution uses these colors:</p>
+<figure class="co"><img src="../images/00115.gif" alt="" class="calibre10"/></figure>
+<p class="tni">but you may use any colors. Observe how the chameleon changes colors to blend in as it crosses the border between two colors.</p>
+<p class="marginpar">Have some Italian pizza when you’re done.</p>
+<p class="calibre8"><b class="calibre9">Note</b> When you watch the animation carefully, you see the chameleon riding on a white rectangle. If you know how to use image editing software, modify the picture so that the white rectangle is invisible. Then the chameleon will really blend in. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

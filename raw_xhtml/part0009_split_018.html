@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_19"><a id="sec16-5" class="calibre16"></a>16.5 Using Abstractions, by Example</h2>
+<p class="tni">Now that you understand <samp class="mono">local</samp>, you can easily use the abstractions from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>. Let’s look at examples, starting with this one:</p>
+<div class="ex">
+<p class="exf"><span epub:type="pagebreak" id="pg_429" title="429"></span><b class="calibre9">Sample Problem</b> Design <samp class="mono">add-3-to-all</samp>. The function consumes a list of Posns and adds <samp class="mono">3</samp> to the x-coordinates of each.</p>
+</div>
+<p class="tni">If we follow the design recipe and take the problem statement as a purpose statement, we can quickly step through the first three steps:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Posn<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of Posn<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; adds</samp><samp class="mono"> 3 to</samp><samp class="mono"> each x-coordinate</samp><samp class="mono"> on the</samp><samp class="mono"> given list</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono">  (add-3-to-all</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (list</samp><samp class="mono"> (make-posn 3</samp><samp class="mono"> 1) (make-posn</samp><samp class="mono"> 0 0)))</samp> <br class="calibre4"/><samp class="mono">  (list</samp><samp class="mono"> (make-posn 6</samp><samp class="mono"> 1) (make-posn</samp><samp class="mono"> 3 0)))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (add-3-to-all</samp><samp class="mono"> lop) '())</samp></p>
+</div>
+<p class="tni">While you can run the program, doing so signals a failure in the one test case because the function returns the default value <samp class="mono">'()</samp>.</p>
+<p class="calibre8">At this point, we stop and ask what kind of function we are dealing with. Clearly, <samp class="mono">add-3-to-all</samp> is a list-processing function. The question is whether it is like any of the functions in <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>. The signature tells us that <samp class="mono">add-3-to-all</samp> is a list-processing function that consumes and produces a list. In the two figures, we have several functions with similar signatures: <samp class="mono">map</samp>, <samp class="mono">filter</samp>, and <samp class="mono">sort</samp>.</p>
+<p class="calibre8">The purpose statement and example also tell you that <samp class="mono">add-3-to-all</samp> deals with each Posn separately and assembles the results into a single list. Some reflection says that also confirms that the resulting list contains as many items as the given list. All this thinking points to one function—<samp class="mono">map</samp>—because the point of <samp class="mono">filter</samp> is to drop items from the list and <samp class="mono">sort</samp> has an extremely specific purpose.</p>
+<p class="calibre8">Here is <samp class="mono">map</samp>’s signature again:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X</samp><samp class="mono"> Y] [X</samp><samp class="mono"> -&gt; Y]</samp><samp class="mono"> [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> [</samp>List-of<samp class="mono"> Y]</samp></p>
+</div>
+<p class="tni">It tells us that <samp class="mono">map</samp> consumes a function from <samp class="mono">X</samp> to <samp class="mono">Y</samp> and a list of <samp class="mono">X</samp>s. Given that <samp class="mono">add-3-to-all</samp> consumes a list of Posns, we know that <samp class="mono">X</samp> stands for <samp class="mono">Posn</samp>. Similarly, <samp class="mono">add-3-to-all</samp> is to produce a list of Posns, and this means we replace <samp class="mono">Y</samp> with Posn.</p>
+<p class="calibre8">From the analysis of the signature, we conclude that <samp class="mono">map</samp> can do the job of <samp class="mono">add-3-to-all</samp> when given the right function from Posns to Posns. With <samp class="mono">local</samp>, we can express this idea as a template for <samp class="mono">add-3-to-all</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_430" title="430"></span><img src="../images/00375.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Doing so reduces the problem to defining a function on Posns.</p>
+<p class="calibre8">Given the example for <samp class="mono">add-3-to-all</samp> and the abstract example for <samp class="mono">map</samp>, you can actually imagine how the evaluation proceeds:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(add-3-to-all (list</samp><samp class="mono"> (make-posn 3</samp><samp class="mono"> 1) (make-posn</samp><samp class="mono"> 0 0)))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(map fp</samp><samp class="mono"> (list (make-posn</samp><samp class="mono"> 3 1)</samp><samp class="mono"> (make-posn 0</samp><samp class="mono"> 0)))</samp> <br class="calibre4"/><samp class="mono">==</samp> <br class="calibre4"/><samp class="mono">(list (fp</samp><samp class="mono"> (make-posn 3</samp><samp class="mono"> 1)) (fp</samp><samp class="mono"> (make-posn 0</samp><samp class="mono"> 0)))</samp></p>
+</div>
+<p class="tni">And that shows how <samp class="mono">fp</samp> is applied to every single Posn on the given list, meaning it is its job to add <samp class="mono">3</samp> to the x-coordinate.</p>
+<p class="calibre8">From here, it is straightforward to wrap up the definition:</p>
+<figure class="co"><img src="../images/00376.gif" alt="" class="calibre10"/></figure>
+<p class="tni">We chose <samp class="mono">add-3-to-1</samp> as the name for the local function because the name tells you what it computes. It adds <samp class="mono">3</samp> to the x-coordinate of one Posn.</p>
+<p class="calibre8">You may now think that using abstractions is hard. Keep in mind, though, that this first example spells out every single detail and that it does so because we wish to teach you how to pick the proper abstraction. Let’s take a look at a second example a bit more quickly:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that eliminates all Posns with y-coordinates larger than <samp class="mono">100</samp> from some given list.</p>
+</div>
+<p class="tni">The first two steps of the design recipe yield this:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Posn<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of Posn<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; eliminates</samp><samp class="mono"> </samp>Posns<samp class="mono"> whose y-coordinate</samp><samp class="mono"> is &gt;</samp><samp class="mono"> 100</samp> <br class="calibre4"/><samp class="mono">(check-expect</samp> <br class="calibre4"/><samp class="mono"> (keep-good (list</samp><samp class="mono"> (make-posn 0</samp><samp class="mono"> 110) (make-posn</samp><samp class="mono"> 0 60)))</samp> <br class="calibre4"/><samp class="mono"> (list (make-posn</samp><samp class="mono"> 0 60)))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (keep-good</samp><samp class="mono"> lop) '())</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_431" title="431"></span>By now you may have guessed that this function is like <samp class="mono">filter</samp>, whose purpose is to separate the “good” from the “bad.”</p>
+<p class="calibre8">With <samp class="mono">local</samp> thrown in, the next step is also straightforward:</p>
+<figure class="co"><img src="../images/00377.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The <samp class="mono">local</samp> function definition introduces the helper function needed for <samp class="mono">filter</samp>, and the body of the <samp class="mono">local</samp> expression applies <samp class="mono">filter</samp> to this local function and the given list. The local function is called <samp class="mono">good?</samp> because <samp class="mono">filter</samp> retains all those items of <samp class="mono">lop</samp> for which <samp class="mono">good?</samp> produces <samp class="mono">#true</samp>.</p>
+<p class="calibre8">Before you read on, analyze the signature of <samp class="mono">filter</samp> and <samp class="mono">keep-good</samp> and determine why the helper function consumes individual Posns and produces Booleans.</p>
+<p class="calibre8">Putting all of our ideas together yields this definition:</p>
+<figure class="co"><img src="../images/00378.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Explain the definition of <samp class="mono">good?</samp> and simplify it.</p>
+<p class="calibre8">Before we spell out a design recipe, let’s deal with one more example:</p>
+<div class="ex">
+<p class="exf"><b class="calibre9">Sample Problem</b> Design a function that determines whether any of a list of Posns is close to some given position <samp class="mono">pt</samp> where “close” means a distance of at most <samp class="mono">5</samp> pixels.</p>
+</div>
+<p class="tni">This problem clearly consists of two distinct parts: one concerns processing the list and the other one calls for a function that determines whether the <span epub:type="pagebreak" id="pg_432" title="432"></span>distance between a point and <samp class="mono">pt</samp> is “close.” Since this second part is unrelated to the reuse of abstractions for list traversals, we assume the existence of an appropriate function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Posn Posn Number<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> the distance</samp><samp class="mono"> between p</samp><samp class="mono"> and q</samp><samp class="mono"> less than</samp><samp class="mono"> d</samp> <br class="calibre4"/><samp class="mono">(define (close-to</samp><samp class="mono"> p q</samp><samp class="mono"> d) <span>…</span>)</samp></p>
+</div>
+<p class="tni">You should complete this definition on your own.</p>
+<p class="calibre8">As required by the problem statement, the function consumes two arguments: the list of Posns and the “given” point <samp class="mono">pt</samp>. It produces a Boolean:</p>
+<figure class="co"><img src="../images/00379.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The signature differentiates this example from the preceding ones.</p>
+<p class="calibre8">The Boolean range also gives away a clue with respect to <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>. Only two functions in this list produce Boolean values—<samp class="mono">andmap</samp> and <samp class="mono">ormap</samp>—and they must be primary candidates for defining <samp class="mono">close?</samp>’s body. While the explanation of <samp class="mono">andmap</samp> says that some property must hold for every item on the given list, the purpose statement for <samp class="mono">ormap</samp> tells us that it looks for only <b class="calibre9">one</b> such item. Given that <samp class="mono">close?</samp> just checks whether one of the Posns is close to <samp class="mono">pt</samp>, we should try <samp class="mono">ormap</samp> first.</p>
+<p class="calibre8">Let’s apply our standard “trick” of adding a <samp class="mono">local</samp> whose body uses the chosen abstraction on some locally defined function and the given list:</p>
+<figure class="co"><img src="../images/00380.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_433" title="433"></span>Following the description of <samp class="mono">ormap</samp>, the local function consumes one item of the list at a time. This accounts for the Posn part of its signature. Also, the local function is expected to produce <samp class="mono">#true</samp> or <samp class="mono">#false</samp>, and <samp class="mono">ormap</samp> checks these results until it finds <samp class="mono">#true</samp>.</p>
+<p class="calibre8">Here is a comparison of the signature of <samp class="mono">ormap</samp> and <samp class="mono">close?</samp>, starting with the former:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [X]</samp><samp class="mono"> [X -&gt;</samp><samp class="mono"> Boolean] [</samp>List-of<samp class="mono"> X] -&gt;</samp><samp class="mono"> </samp>Boolean</p>
+</div>
+<p class="tni">In our case, the list argument is a list of Posns. Hence X stands for Posn, which explains what <samp class="mono">is-one-close?</samp> consumes. Furthermore, it determines that the result of the local function must be Boolean so that it can work as the first argument to <samp class="mono">ormap</samp>.</p>
+<p class="calibre8">The rest of the work requires just a bit more thinking. While <samp class="mono">is-one-close?</samp> consumes one argument—a Posn—the <samp class="mono">close-to</samp> function consumes three: two Posns and a “tolerance” value. While the argument of <samp class="mono">is-one-close?</samp> is one of the two Posns, it is also obvious that the other one is <samp class="mono">pt</samp>, the argument of <samp class="mono">close?</samp> itself. Naturally the “tolerance” argument is <samp class="mono">5</samp>, as stated in the problem:</p>
+<figure class="co"><img src="../images/00381.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Note two properties of this definition. First, we stick to the rule that constants deserve definitions. Second, the reference to <samp class="mono">pt</samp> in <samp class="mono">is-one-close?</samp> signals that this Posn stays the same for the entire traversal of <samp class="mono">lop</samp>.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

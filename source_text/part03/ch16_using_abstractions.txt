@@ -1,0 +1,713 @@
+# Chapter 16: Using Abstractions / 第 16 章：运用抽象
+
+<h1>
+16 Using Abstractions
+</h1>
+
+<P>
+Once you have abstractions, you should use them when possible. They create single points of control, and they are a work-saving device. More precisely, the use of an abstraction helps readers of your code to understand your intentions. If the abstraction is well-known and built into the language or comes with its standard libraries, it signals more clearly what your function does than custom-designed code.
+</P>
+
+<P>
+This chapter is all about the reuse of existing ISL abstractions. It starts with a section on existing ISL abstractions, some of which you have seen under false names. The remaining sections are about reusing such abstractions. One key ingredient is a new syntactic construct, local, for defining functions and variables (and even structure types) locally within a function. An auxiliary ingredient, introduced in the last section, is the lambda construct for creating nameless functions; lambda is a convenience but inessential to the idea of reusing abstract functions.
+</P>
+
+<h2>
+16.1 Existing Abstractions
+</h2>
+
+<P>
+ISL provides a number of abstract functions for processing natural numbers and lists. Figure 95 collects the header material for the most important ones. The first one processes natural numbers and builds lists:
+</P>
+
+<CODE>
+> (build-list 3 add1) (list 1 2 3)
+</CODE>
+
+<P>
+The next three process lists and produce lists:
+</P>
+
+<CODE>
+> (filter odd? (list 1 2 3 4 5)) (list 1 3 5) > (sort (list 3 2 1 4 5) >) (list 5 4 3 2 1) > (map add1 (list 1 2 2 3 3 3)) (list 2 3 3 4 4 4)
+</CODE>
+
+<P>
+In contrast, andmap and ormap reduce lists to a Boolean:
+</P>
+
+<CODE>
+> (andmap odd? (list 1 2 3 4 5)) #false > (ormap odd? (list 1 2 3 4 5)) #true
+</CODE>
+
+<FIGURE src="images/00353.png">
+Figure 95: ISL’s abstract functions for list processing (1)
+</FIGURE>
+
+<P>
+Hence, this kind of computation is called a reduction.
+</P>
+
+<P>
+The two functions in figure 96, foldr and foldl, are extremely powerful. Both reduce lists to values. The sample computations explain the abstract examples in the headers of foldr and foldl via an application of the functions to +, 0, and a short list. As you can see, foldr processes the list values from right to left and foldl from left to right. While for some functions the direction makes no difference, this isn’t true in general.
+</P>
+
+<FIGURE src="images/00354.png">
+Figure 96: ISL’s abstract functions for list processing (2)
+</FIGURE>
+
+<MARGIN_NOTE>
+Mathematics calls functions associative if the order makes no difference. ISL’s = is associative on integers but not on inexacts. See below.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 256. Explain the following abstract function:
+</EXERCISE>
+
+<CODE>
+; [X] [X -> Number] [NEList-of X] -> X ; finds the (first) item in lx that maximizes f ; if (argmax f (list x-1 … x-n)) == x-i, ; then (>= (f x-i) (f x-1)), (>= (f x-i) (f x-2)), … (define (argmax f lx) …)
+</CODE>
+
+<P>
+Use it on concrete examples in ISL. Can you articulate an analogous purpose statement for argmin?
+</P>
+
+<P>
+Figure 97 illustrates the power of composing the functions from figures 95 and 96. Its main function is listing. The purpose is to create a string from a list of addresses. Its purpose statement suggests three tasks and thus the design of three functions:
+</P>
+
+<P>
+1. one that extracts the first names from the given list of Addr;
+</P>
+
+<P>
+2. one that sorts these names in alphabetical order; and
+</P>
+
+<P>
+3. one that concatenates the strings from step 2.
+</P>
+
+<FIGURE src="images/00355.png">
+Figure 97: Creating a program with abstractions
+</FIGURE>
+
+<P>
+Before you read on, you may wish to execute this plan. That is, design all three functions and then compose them in the sense of chapter 11.2 to obtain your own version of listing.
+</P>
+
+<P>
+In the new world of abstractions, it is possible to design a single function that achieves the same goal. Take a close look at the innermost expression of listing in figure 97:
+</P>
+
+<CODE>
+(map address-first-name l)
+</CODE>
+
+<P>
+By the purpose statement of map, it applies address-first-name to every single instance of address, producing a list of first names as strings. Here is the immediately surrounding expression:
+</P>
+
+<CODE>
+(sort … string<?)
+</CODE>
+
+<P>
+The dots represent the result of the map expression. Since the latter supplies a list of strings, the sort expression produces a sorted list of first names. And that leaves us with the outermost expression:
+</P>
+
+<CODE>
+(foldr string-append-with-space " " …)
+</CODE>
+
+<P>
+This one reduces the sorted list of first names to a single string, using a function named string-append-with-space. With such a suggestive name, you can easily imagine now that this reduction concatenates all the strings in the desired way—even if you do not quite understand how the combination of foldr and string-append-with-space works.
+</P>
+
+<EXERCISE>
+Exercise 257. You can design build-list and foldl with the design recipes that you know, but they are not going to be like the ones that ISL provides. For example, the design of your own foldl function requires a use of the list reverse function:
+</EXERCISE>
+
+<FIGURE src="images/00356.png">
+
+</FIGURE>
+
+<P>
+Design build-l*st, which works just like build-list. Hint Recall the add-at-end function from exercise 193. Note on Design Part VI covers the concepts needed to design these functions from scratch.
+</P>
+
+<h2>
+16.2 Local Definitions
+</h2>
+
+<P>
+Let’s take a second look at figure 97. The string-append-with-space function clearly plays a subordinate role and has no use outside of this narrow context. Furthermore, the organization of the function body does not reflect the three tasks identified above.
+</P>
+
+<P>
+Almost all programming languages support some way for stating these kinds of relationships as a part of a program. The idea is called a local definition, also called a private definition. In ISL, local expressions introduce locally defined functions, variables, and structure types.
+</P>
+
+<P>
+This section introduces the mechanics of local. In general, a local expression has this shape:
+</P>
+
+<CODE>
+(local (def …)     ; --- IN ---     body-expression)
+</CODE>
+
+<P>
+The evaluation of such an expression proceeds like the evaluation of a complete program. First, the definitions are set up, which may involve the evaluation of the right-hand side of a constant definition. Just as with the top-level definitions that you know and love, the definitions in a local expression may refer to each other. They may also refer to parameters of the surrounding function. Second, the body-expression is evaluated and it becomes the result of the local expression. It is often helpful to separate the local defs from the body-expression with a comment; as indicated, we may use –- IN –- because the word suggests that the definitions are available in a certain expression.
+</P>
+
+<P>
+Figure 98 shows a revision of figure 97 using local. The body of the listing.v2 function is now a local expression, which consists of two pieces: a sequence of definitions and a body expression. The sequence of local definitions looks exactly like a sequence in DrRacket’s definitions area.
+</P>
+
+<FIGURE src="images/00357.png">
+Figure 98: Organizing a function with local
+</FIGURE>
+
+<P>
+In this example, the sequence of definitions consists of four pieces: three constant definitions and a single function definition. Each constant definition represents one of the three planning tasks. The function definition is a renamed version of string-append-with-space; it is used with foldr to implement the third task. The body of local is just the name of the third task.
+</P>
+
+<MARGIN_NOTE>
+Since the names are visible only within the local expression, shortening the name is fine.
+</MARGIN_NOTE>
+
+<P>
+The visually most appealing difference concerns the overall organization. It clearly brings across that the function achieves three tasks and in which order. As a matter of fact, this example demonstrates a general principle of readability:
+</P>
+
+<P>
+Use local to reformulate deeply nested expressions. Use well-chosen names to express what the expressions compute.
+</P>
+
+<P>
+Future readers appreciate it because they can comprehend the code by looking at just the names and the body of the local expression.
+</P>
+
+<P>
+Note on Organization A local expression is really just an expression. It may show up wherever a regular expression shows up. Hence it is possible to indicate precisely where an auxiliary function is needed. Consider this reorganization of the local expression of listing.v2:
+</P>
+
+<FIGURE src="images/00358.png">
+
+</FIGURE>
+
+<P>
+It consists of exactly three definitions, suggesting it takes three computation steps. The third definition consists of a local expression on the right-hand side, which expresses that helper is really just needed for the third step.
+</P>
+
+<P>
+Whether you want to express relationships among the pieces of a program with such precision depends on two constraints: the programming language and how long the code is expected to live. Some languages cannot even express the idea that helper is useful for the third step only. Then again, you need to balance the time it takes to create the program and the expectation that you or someone needs to revisit it and comprehend the code again. The preference of the Racket team is to err on the side of future developers because the team members know that no program is ever finished and all programs will need fixing. End
+</P>
+
+<P>
+Figure 99 presents a second example. The organization of this function definition informs the reader that sort-cmp calls on two auxiliary functions: isort and insert. By locality, it becomes obvious that the adjective “sorted” in the purpose statement of insert refers to isort. In other words, insert is useful in this context only; a programmer should not try to use it elsewhere, out of context. While this constraint is already important in the original definition of the sort-cmp function, a local expression expresses it as part of the program.
+</P>
+
+<FIGURE src="images/00359.png">
+Figure 99: Organizing interconnected function definitions with local
+</FIGURE>
+
+<P>
+Another important aspect of this reorganization of sort-cmp’s definition concerns the visibility of cmp, the second function parameter. The locally defined functions can refer to cmp because it is defined in the context of the definitions. By not passing around cmp from isort to insert (or back), the reader can immediately infer that cmp remains the same throughout the sorting process.
+</P>
+
+<EXERCISE>
+Exercise 258. Use a local expression to organize the functions for drawing a polygon in figure 73. If a globally defined function is widely useful, do not make it local.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 259. Use a local expression to organize the functions for rearranging words from chapter 12.4.
+</EXERCISE>
+
+<P>
+Our final example of local’s usefulness concerns performance. Consider the definition of inf in figure 89. It contains two copies of
+</P>
+
+<CODE>
+(inf (rest l))
+</CODE>
+
+<P>
+which is the natural recursion in the second cond line. Depending on the outcome of the question, the expression is evaluated twice. Using local to name this expression yields an improvement to the function’s readability as well as to its performance.
+</P>
+
+<P>
+Figure 100 displays the revised version. Here the local expression shows up in the middle of a cond expression. It defines a constant whose value is the result of a natural recursion. Now recall that the evaluation of a local expression evaluates the definitions once before proceeding to the body, meaning (inf (rest l)) is evaluated once while the body of the local expression refers to the result twice. Thus, local saves the re-evaluation of (inf (rest l)) at each stage in the computation.
+</P>
+
+<FIGURE src="images/00360.png">
+Figure 100: Using local may improve performance
+</FIGURE>
+
+<EXERCISE>
+Exercise 260. Confirm the insight about the performance of inf.v2 by repeating the performance experiment of exercise 238.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 261. Consider the function definition in figure 101. Both clauses in the nested cond expression extract the first item from an-inv and both compute (extract1 (rest an-inv)). Use local to name this expression. Does this help increase the speed at which the function computes its result? Significantly? A little bit? Not at all?
+</EXERCISE>
+
+<FIGURE src="images/00361.png">
+Figure 101: A function on inventories, see exercise 261
+</FIGURE>
+
+<h2>
+16.3 Local Definitions Add Expressive Power
+</h2>
+
+<P>
+The third and last example illustrates how local adds expressive power to BSL and BSL+. Chapter 12.8 presents the design of a world program that simulates how a finite state machine recognizes sequences of keystrokes. While the data analysis leads in a natural manner to the data definitions in figure 82, an attempt to design the main function of the world program fails. Specifically, even though the given finite state machine remains the same over the course of the simulation, the state of the world must include it so that the program can transition from one state to the next when the player presses a key.
+</P>
+
+<P>
+Figure 102 shows an ISL solution to the problem. It uses local function definitions and can thus equate the state of the world with the current state of the finite state machine. Specifically, simulate locally defines the key-event handler, which consumes only the current state of the world and the KeyEvent that represents the player’s keystroke. Because this locally defined function can refer to the given finite state machine fsm, it is possible to find the next state in the transition table—even though the transition table is not an argument to this function.
+</P>
+
+<FIGURE src="images/00362.png">
+Figure 102: Power from local function definitions
+</FIGURE>
+
+<P>
+As the figure also shows, all other functions are defined in parallel to the main function. This includes the function find, which performs the actual search in the transition table. The key improvement over BSL is that a locally defined function can reference both parameters to the function and globally defined auxiliary functions.
+</P>
+
+<P>
+In short, this program organization signals to a future reader exactly the insights that the data analysis stage of the design recipe for world programs finds. First, the given representation of the finite state machine remains unchanged. Second, what changes over the course of the simulation is the current state of the finite machine.
+</P>
+
+<P>
+The lesson is that the chosen programming language affects a programmer’s ability to express solutions, as well as a future reader’s ability to recognize the design insight of the original creator.
+</P>
+
+<EXERCISE>
+Exercise 262. Design the function identityM, which creates diagonal squares of 0s and 1s:
+</EXERCISE>
+
+<MARGIN_NOTE>
+Linear algebra calls these squares identity matrices.
+</MARGIN_NOTE>
+
+<CODE>
+> (identityM 1) (list (list 1)) > (identityM 3) (list (list 1 0 0) (list 0 1 0) (list 0 0 1))
+</CODE>
+
+<P>
+Use the structural design recipe and exploit the power of local.
+</P>
+
+<h2>
+16.4 Computing with local
+</h2>
+
+<P>
+ISL’s local expression calls for the first rule of calculation that is truly beyond pre-algebra knowledge. The rule is relatively simple but quite unusual. It’s best illustrated with some examples. We start with a second look at this definition:
+</P>
+
+<FIGURE src="images/00363.png">
+
+</FIGURE>
+
+<P>
+Now suppose we wish to calculate what DrRacket might produce for
+</P>
+
+<CODE>
+(simulate AN-FSM A-STATE)
+</CODE>
+
+<P>
+where AN-FSM and A-STATE are unknown values. Using the usual substitution rule, we proceed as follows:
+</P>
+
+<FIGURE src="images/00364.png">
+
+</FIGURE>
+
+<P>
+This is the body of simulate with all occurrences of fsm and s replaced by the argument values AN-FSM and A-STATE, respectively.
+</P>
+
+<P>
+At this point we are stuck because the expression is a local expression, and we don’t know how to calculate with it. So here we go. To deal with a local expression in a program evaluation, we proceed in two steps:
+</P>
+
+<P>
+1. We rename the locally defined constants and functions to use names that aren’t used elsewhere in the program.
+</P>
+
+<P>
+2. We lift the definitions in the local expression to the top level and evaluate the body of the local expression next.
+</P>
+
+<P>
+Stop! Don’t think. Accept the two steps for now.
+</P>
+
+<P>
+Let’s apply these two steps to our running example, one at a time:
+</P>
+
+<FIGURE src="images/00365.png">
+
+</FIGURE>
+
+<P>
+Our choice is to append “-1” to the end of the function name. If this variant of the name already exists, we use “-2” instead, and so on. So here is the result of step 2:
+</P>
+
+<FIGURE src="images/00366.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+We use ⊕ to indicate that the step produces two pieces.
+</MARGIN_NOTE>
+
+<P>
+The result is an ordinary program: some globally defined constants and functions followed by an expression. The normal rules apply, and there is nothing else to say.
+</P>
+
+<P>
+At this point, it is time to rationalize the two steps. For the renaming step, we use a variant of the inf function from figure 100. Clearly,
+</P>
+
+<CODE>
+(inf (list 2 1 3)) == 1
+</CODE>
+
+<P>
+The question is whether you can show the calculations that DrRacket performs to determine this result.
+</P>
+
+<P>
+The first step is straightforward:
+</P>
+
+<FIGURE src="images/00367.png">
+
+</FIGURE>
+
+<P>
+We substitute (list 2 1 3) for l.
+</P>
+
+<P>
+Since the list isn’t empty, we skip the steps for evaluating the conditional and focus on the next expression to be evaluated:
+</P>
+
+<FIGURE src="images/00368.png">
+
+</FIGURE>
+
+<P>
+Applying the two steps for the rule of local yields two parts: the local definition lifted to the top and the body of the local expression. Here is how we write this down:
+</P>
+
+<FIGURE src="images/00369.png">
+
+</FIGURE>
+
+<P>
+Curiously, the next expression we need to evaluate is the right-hand side of a constant definition in a local expression. But the point of computing is that you can replace expressions with their equivalents wherever you want:
+</P>
+
+<FIGURE src="images/00370.png">
+
+</FIGURE>
+
+<P>
+Once again, we skip the conditional steps and focus on the else clause, which is also a local expression. Indeed it is another variant of the local expression in the definition of inf, with a different list value substituted for the parameter:
+</P>
+
+<FIGURE src="images/00371.png">
+
+</FIGURE>
+
+<P>
+Because it originates from the same local expression in inf, it uses the same name for the constant, smallest-in-rest. If we didn’t rename local definitions before lifting them, we would introduce two conflicting definitions for the same name, and conflicting definitions are catastrophic for mathematical calculations.
+</P>
+
+<P>
+Here is how we continue:
+</P>
+
+<FIGURE src="images/00372.png">
+
+</FIGURE>
+
+<P>
+The key is that we now have two definitions generated from one and the same local expression in the function definition. As a matter of fact we get one such definition per item in the given list (minus 1).
+</P>
+
+<EXERCISE>
+Exercise 263. Use DrRacket’s stepper to study the steps of this calculation in detail.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 264. Use DrRacket’s stepper to calculate out how it evaluates
+</EXERCISE>
+
+<CODE>
+(sup (list 2 1 3))
+</CODE>
+
+<P>
+where sup is the function from figure 89 equipped with local.
+</P>
+
+<P>
+For the explanation of the lifting step, we use a toy example that gets to the heart of the issue, namely, that functions are now values:
+</P>
+
+<CODE>
+((local ((define (f x) (+ (* 4 (sqr x)) 3))) f)  1)
+</CODE>
+
+<P>
+Deep down we know that this is equivalent to (f 1) where
+</P>
+
+<CODE>
+(define (f x) (+ (* 4 (sqr x)) 3))
+</CODE>
+
+<P>
+but the rules of pre-algebra don’t apply. The key is that functions can be the result of expressions, including local expressions. And the best way to think of this is to move such local definitions to the top and to deal with them like ordinary definitions. Doing so renders the definition visible for every step of the calculation. By now you also understand that the renaming step makes sure that the lifting of definitions does not accidentally conflate names or introduce conflicting definitions.
+</P>
+
+<P>
+Here are the first two steps of the calculation:
+</P>
+
+<FIGURE src="images/00373.png">
+
+</FIGURE>
+
+<P>
+Remember that the second step of the local rule replaces the local expression with its body. In this case, the body is just the name of the function, and its surrounding is an application to 1. The rest is arithmetic:
+</P>
+
+<CODE>
+(f-1 1)  == (+ (* 4 (sqr 1)) 3) == 7
+</CODE>
+
+<EXERCISE>
+Exercise 265. Use DrRacket’s stepper to fill in any gaps above.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 266. Use DrRacket’s stepper to find out how ISL evaluates
+</EXERCISE>
+
+<FIGURE src="images/00374.png">
+
+</FIGURE>
+
+<P>
+to 5.
+</P>
+
+<h2>
+16.5 Using Abstractions, by Example
+</h2>
+
+<P>
+Now that you understand local, you can easily use the abstractions from figures 95 and 96. Let’s look at examples, starting with this one:
+</P>
+
+<P>
+Sample Problem Design add-3-to-all. The function consumes a list of Posns and adds 3 to the x-coordinates of each.
+</P>
+
+<P>
+If we follow the design recipe and take the problem statement as a purpose statement, we can quickly step through the first three steps:
+</P>
+
+<CODE>
+; [List-of Posn] -> [List-of Posn] ; adds 3 to each x-coordinate on the given list (check-expect   (add-3-to-all     (list (make-posn 3 1) (make-posn 0 0)))   (list (make-posn 6 1) (make-posn 3 0))) (define (add-3-to-all lop) '())
+</CODE>
+
+<P>
+While you can run the program, doing so signals a failure in the one test case because the function returns the default value '().
+</P>
+
+<P>
+At this point, we stop and ask what kind of function we are dealing with. Clearly, add-3-to-all is a list-processing function. The question is whether it is like any of the functions in figures 95 and 96. The signature tells us that add-3-to-all is a list-processing function that consumes and produces a list. In the two figures, we have several functions with similar signatures: map, filter, and sort.
+</P>
+
+<P>
+The purpose statement and example also tell you that add-3-to-all deals with each Posn separately and assembles the results into a single list. Some reflection says that also confirms that the resulting list contains as many items as the given list. All this thinking points to one function—map—because the point of filter is to drop items from the list and sort has an extremely specific purpose.
+</P>
+
+<P>
+Here is map’s signature again:
+</P>
+
+<CODE>
+; [X Y] [X -> Y] [List-of X] -> [List-of Y]
+</CODE>
+
+<P>
+It tells us that map consumes a function from X to Y and a list of Xs. Given that add-3-to-all consumes a list of Posns, we know that X stands for Posn. Similarly, add-3-to-all is to produce a list of Posns, and this means we replace Y with Posn.
+</P>
+
+<P>
+From the analysis of the signature, we conclude that map can do the job of add-3-to-all when given the right function from Posns to Posns. With local, we can express this idea as a template for add-3-to-all:
+</P>
+
+<FIGURE src="images/00375.png">
+
+</FIGURE>
+
+<P>
+Doing so reduces the problem to defining a function on Posns.
+</P>
+
+<P>
+Given the example for add-3-to-all and the abstract example for map, you can actually imagine how the evaluation proceeds:
+</P>
+
+<CODE>
+(add-3-to-all (list (make-posn 3 1) (make-posn 0 0))) == (map fp (list (make-posn 3 1) (make-posn 0 0))) == (list (fp (make-posn 3 1)) (fp (make-posn 0 0)))
+</CODE>
+
+<P>
+And that shows how fp is applied to every single Posn on the given list, meaning it is its job to add 3 to the x-coordinate.
+</P>
+
+<P>
+From here, it is straightforward to wrap up the definition:
+</P>
+
+<FIGURE src="images/00376.png">
+
+</FIGURE>
+
+<P>
+We chose add-3-to-1 as the name for the local function because the name tells you what it computes. It adds 3 to the x-coordinate of one Posn.
+</P>
+
+<P>
+You may now think that using abstractions is hard. Keep in mind, though, that this first example spells out every single detail and that it does so because we wish to teach you how to pick the proper abstraction. Let’s take a look at a second example a bit more quickly:
+</P>
+
+<P>
+Sample Problem Design a function that eliminates all Posns with y-coordinates larger than 100 from some given list.
+</P>
+
+<P>
+The first two steps of the design recipe yield this:
+</P>
+
+<CODE>
+; [List-of Posn] -> [List-of Posn] ; eliminates Posns whose y-coordinate is > 100 (check-expect  (keep-good (list (make-posn 0 110) (make-posn 0 60)))  (list (make-posn 0 60))) (define (keep-good lop) '())
+</CODE>
+
+<P>
+By now you may have guessed that this function is like filter, whose purpose is to separate the “good” from the “bad.”
+</P>
+
+<P>
+With local thrown in, the next step is also straightforward:
+</P>
+
+<FIGURE src="images/00377.png">
+
+</FIGURE>
+
+<P>
+The local function definition introduces the helper function needed for filter, and the body of the local expression applies filter to this local function and the given list. The local function is called good? because filter retains all those items of lop for which good? produces #true.
+</P>
+
+<P>
+Before you read on, analyze the signature of filter and keep-good and determine why the helper function consumes individual Posns and produces Booleans.
+</P>
+
+<P>
+Putting all of our ideas together yields this definition:
+</P>
+
+<FIGURE src="images/00378.png">
+
+</FIGURE>
+
+<P>
+Explain the definition of good? and simplify it.
+</P>
+
+<P>
+Before we spell out a design recipe, let’s deal with one more example:
+</P>
+
+<P>
+Sample Problem Design a function that determines whether any of a list of Posns is close to some given position pt where “close” means a distance of at most 5 pixels.
+</P>
+
+<P>
+This problem clearly consists of two distinct parts: one concerns processing the list and the other one calls for a function that determines whether the distance between a point and pt is “close.” Since this second part is unrelated to the reuse of abstractions for list traversals, we assume the existence of an appropriate function:
+</P>
+
+<CODE>
+; Posn Posn Number -> Boolean ; is the distance between p and q less than d (define (close-to p q d) …)
+</CODE>
+
+<P>
+You should complete this definition on your own.
+</P>
+
+<P>
+As required by the problem statement, the function consumes two arguments: the list of Posns and the “given” point pt. It produces a Boolean:
+</P>
+
+<FIGURE src="images/00379.png">
+
+</FIGURE>
+
+<P>
+The signature differentiates this example from the preceding ones.
+</P>
+
+<P>
+The Boolean range also gives away a clue with respect to figures 95 and 96. Only two functions in this list produce Boolean values—andmap and ormap—and they must be primary candidates for defining close?’s body. While the explanation of andmap says that some property must hold for every item on the given list, the purpose statement for ormap tells us that it looks for only one such item. Given that close? just checks whether one of the Posns is close to pt, we should try ormap first.
+</P>
+
+<P>
+Let’s apply our standard “trick” of adding a local whose body uses the chosen abstraction on some locally defined function and the given list:
+</P>
+
+<FIGURE src="images/00380.png">
+
+</FIGURE>
+
+<P>
+Following the description of ormap, the local function consumes one item of the list at a time. This accounts for the Posn part of its signature. Also, the local function is expected to produce #true or #false, and ormap checks these results until it finds #true.
+</P>
+
+<P>
+Here is a comparison of the signature of ormap and close?, starting with the former:
+</P>
+
+<CODE>
+; [X] [X -> Boolean] [List-of X] -> Boolean
+</CODE>
+
+<P>
+In our case, the list argument is a list of Posns. Hence X stands for Posn, which explains what is-one-close? consumes. Furthermore, it determines that the result of the local function must be Boolean so that it can work as the first argument to ormap.
+</P>
+
+<P>
+The rest of the work requires just a bit more thinking. While is-one-close? consumes one argument—a Posn—the close-to function consumes three: two Posns and a “tolerance” value. While the argument of is-one-close? is one of the two Posns, it is also obvious that the other one is pt, the argument of close? itself. Naturally the “tolerance” argument is 5, as stated in the problem:
+</P>
+
+<FIGURE src="images/00381.png">
+
+</FIGURE>
+
+<P>
+Note two properties of this definition. First, we stick to the rule that constants deserve definitions. Second, the reference to pt in is-one-close? signals that this Posn stays the same for the entire traversal of lop.
+</P>

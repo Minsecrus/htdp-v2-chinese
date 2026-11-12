@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_8"><a id="sec26-2" class="calibre16"></a>26.2 Termination</h2>
+<p class="tni">Generative recursion adds an entirely new aspect to computations: non-termination. A function such as <samp class="mono">bundle</samp> may never produce a value or signal an error for certain inputs. Exercise 421 asks what the result of <samp class="mono">(bundle '("a" "b" "c") 0)</samp> is, and here is an explanation of why it does not have a result:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_618" title="618"></span><img src="../images/00592.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The calculation shows how evaluating <samp class="mono">(bundle '("a" "b" "c") 0)</samp> requires having a result for the very same expression. In the context of ISL+ this means the evaluation does not stop. Computer scientists say that <samp class="mono">bundle</samp> does not <i class="calibre6">terminate</i> when the second argument is <samp class="mono">0</samp>; they also say that the function <i class="calibre6">loops</i> or that the computation is stuck in an <i class="calibre6">infinite loop</i>.</p>
+<p class="calibre8">Contrast this insight with the designs presented in the first four parts. Every function designed according to the recipe either produces an answer or raises an error signal for every input. After all, the recipe dictates that each natural recursion consumes an immediate piece of the input, not the input itself. Because data is constructed in a hierarchical manner, input shrinks at every stage. Eventually the function is applied to an atomic piece of data, and the recursion stops.</p>
+<p class="calibre8">This reminder also explains why generative recursive functions may diverge. According to the design recipe for generative recursion, an algorithm may generate new problems without any limitations. If the design recipe required a guarantee that the new problems were “smaller” than the given one, it would terminate. But, imposing such a restriction would needlessly complicate the design of functions such as <samp class="mono">bundle</samp>.</p>
+<p class="marginpar">The theory of computation actually shows that we must lift these restrictions eventually.</p>
+<p class="calibre8">In this book, we therefore keep the first six steps of the design recipe mostly intact and supplement them with a seventh step: the <i class="calibre6">termination argument</i>. <a id="rfig151" href="part0013_split_007.html#fig151" class="calibre5">Figure 151</a> presents the first part of the design recipe for generative recursion, and <a id="rfig152" href="part0013_split_007.html#fig152" class="calibre5">figure 152</a> the second one. They show the design recipe in the conventional tabular form. The unmodified steps come with a dash in the <b class="calibre9">activity</b> column. Others come with comments on how the design recipe for generative recursion differs from the one for structural recursion. The last row in <a href="part0013_split_007.html#fig152" class="calibre5">figure 152</a> is completely new.</p>
+<div class="figure">
+<figure class="img"><a id="fig151" class="calibre5"></a><img src="../images/00593.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_007.html#rfig151" class="calibre5">Figure 151</a>:</span> <span>Designing algorithms (part 1)</span></p></figcaption>
+</figure>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig152" class="calibre5"></a><img src="../images/00594.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_007.html#rfig152" class="calibre5">Figure 152</a>:</span> <span>Designing algorithms (part 2)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">A termination argument comes in one of two forms. The first one argues why each recursive call works on a problem that is smaller than the given one. Often this argument is straightforward; on rare occasions, you will need to work with a mathematician to prove a theorem for such arguments. The second kind illustrates with an example that the function may not terminate. Ideally it should also describe the class of data for which the function may loop. In rare cases, you may not be able to make either argument because computer science does not know enough yet.</p>
+<p class="marginpar">You cannot define a predicate for this class; otherwise you could modify the function and ensure that it always terminates.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_619" title="619"></span>Let’s illustrate the two kinds of termination arguments with examples. For the <samp class="mono">bundle</samp> function, it suffices to warn readers about chunk size <samp class="mono">0</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of 1String<samp class="mono">] </samp>N<samp class="mono"> -&gt; [</samp>List-of String<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; bundles</samp><samp class="mono"> sub-sequences of</samp><samp class="mono"> s into</samp><samp class="mono"> strings of</samp><samp class="mono"> length n</samp> <br class="calibre4"/><samp class="mono">;</samp><span class="calibre9"> termination</span><samp class="mono"> (bundle s</samp><samp class="mono"> 0) loops</samp><samp class="mono"> unless s</samp><samp class="mono"> is '()</samp> <br class="calibre4"/><samp class="mono">(define (bundle</samp><samp class="mono"> s n)</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<p class="tni">In this case, it is possible to define a predicate that precisely describes when <samp class="mono">bundle</samp> terminates. For <samp class="mono">quick-sort&lt;</samp>, the key observation is that each recursive use of <samp class="mono">quick-sort&lt;</samp> receives a list that is shorter than <samp class="mono">alon</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; [</samp>List-of Number<samp class="mono">] -&gt;</samp><samp class="mono"> [</samp>List-of Number<samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">; creates</samp><samp class="mono"> a sorted</samp><samp class="mono"> variant of</samp><samp class="mono"> alon</samp> <br class="calibre4"/><samp class="mono">;</samp><span class="calibre9"> termination</span><samp class="mono"> both recursive</samp><samp class="mono"> calls to</samp><samp class="mono"> quick-sort&lt;</samp> <br class="calibre4"/><samp class="mono">; receive</samp><samp class="mono"> list that</samp><samp class="mono"> miss the</samp><samp class="mono"> pivot item</samp> <br class="calibre4"/><samp class="mono">(define (quick-sort&lt;</samp><samp class="mono"> alon) <span>…</span>)</samp></p>
+</div>
+<p class="tni">In one case, the list consists of the numbers that are strictly smaller than the pivot; the other one is for numbers strictly larger.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 433. Develop a checked version of <samp class="mono">bundle</samp> that is guaranteed to terminate for all inputs. It may signal an error for those cases where the original version loops. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_620" title="620"></span><b class="calibre9">Exercise</b> 434. Consider the following definition of <samp class="mono">smallers</samp>, one of the two “problem generators” for <samp class="mono">quick-sort&lt;</samp>:</p>
+<figure class="co"><img src="../images/00595.gif" alt="" class="calibre10"/></figure>
+<p class="tni">What can go wrong when this version is used with the <samp class="mono">quick-sort&lt;</samp> definition from chapter 26.2? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 435. When you worked on exercise 430 or exercise 428, you may have produced looping solutions. Similarly, exercise 434 actually reveals how brittle the termination argument is for <samp class="mono">quick-sort&lt;</samp>. In all cases, the argument relies on the idea that <samp class="mono">smallers</samp> and <samp class="mono">largers</samp> produce lists that are maximally as long as the given list, and on our understanding that neither includes the given pivot in the result.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_621" title="621"></span>Based on this explanation, modify the definition of <samp class="mono">quick-sort&lt;</samp> so that both functions receive lists that are shorter than the given one. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 436. Formulate a termination argument for <samp class="mono">food-create</samp> from exercise 432. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" id="5N3C0-3ff7fa1de4e14a1eaa161451695ae206" class="calibre">
+<div class="body">
+<article epub:type="part" role="main">
+<section epub:type="division">
+<h1 class="head3" id="calibre_pb_8"><b class="calibre9">Structure Type Definitions</b></h1>
+<p class="tni">As you can imagine, <samp class="mono">define-struct</samp> is the most complex BSL construct. We have therefore saved its explanation for last. Here is the grammar:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="monospace-italic">definition</samp><samp class="mono"> =</samp><samp class="mono"> <span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"> | (define-struct</samp><samp class="mono"> </samp><samp class="monospace-italic">name</samp><samp class="mono"> [</samp><samp class="monospace-italic">name</samp><samp class="mono"> <span>…</span>])</samp></p>
+</div>
+<p class="tni">A structure type definition is a third form of definition. The keyword distinguishes it from both function and constant definitions.</p>
+<p class="calibre8">Here is a simple example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct point</samp><samp class="mono"> [x y</samp><samp class="mono"> z])</samp></p>
+</div>
+<p class="tni">Since <samp class="mono">point</samp>, <samp class="mono">x</samp>, <samp class="mono">y</samp>, and <samp class="mono">z</samp> are variables and the parentheses are placed according to the grammatical pattern, it is a proper definition of a structure type. In contrast, these two parenthesized sentences</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct [point</samp><samp class="mono"> x y</samp><samp class="mono"> z])</samp> <br class="calibre4"/><samp class="mono">(define-struct point</samp><samp class="mono"> x y</samp><samp class="mono"> z)</samp></p>
+</div>
+<p class="tni">are illegal definitions because <samp class="mono">define-struct</samp> is not followed by a single variable name and a sequence of variables in parentheses.</p>
+<p class="calibre8">While the syntax of <samp class="mono">define-struct</samp> is straightforward, its meaning is difficult to spell out with evaluation rules. As mentioned several times, a <samp class="mono">define-struct</samp> definition defines several functions at once: a constructor, several selectors, and a predicate. Thus the evaluation of</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct c</samp><samp class="mono"> [s-1 <span>…</span></samp><samp class="mono"> s-n])</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_218" title="218"></span>introduces the following functions into the program:</p>
+<p class="nlf">1. <samp class="mono">make-c</samp>: a <i class="calibre6">constructor</i>;</p>
+<p class="nlf">2. <samp class="mono">c-s-1<span>…</span> c-s-n</samp>: a series of <i class="calibre6">selectors</i>; and</p>
+<p class="nll">3. <samp class="mono">c?</samp>: a <i class="calibre6">predicate</i>.</p>
+<p class="tni">These functions have the same status as <samp class="mono">+</samp>, <samp class="mono">-</samp>, or <samp class="mono">*</samp>. Before we can understand the rules that govern these new functions, however, we must return to the definition of values. After all, one purpose of a <samp class="mono">define-struct</samp> is to introduce a class of values that is distinct from all existing values.</p>
+<p class="calibre8">Simply put, the use of <samp class="mono">define-struct</samp> extends the universe of values. To start with, it now also contains structures, which compound several values into one. When a program contains a <samp class="mono">define-struct</samp> definition, its evaluation modifies the definition of values:</p>
+<div class="ex">
+<p class="exf">A <samp class="monospace-italic">value</samp> is one of: a <samp class="monospace-italic">number</samp>, a <samp class="monospace-italic">Boolean</samp>, a <samp class="monospace-italic">string</samp>, an <samp class="monospace-italic">image</samp>,</p>
+<p class="ex-bl">•  or a structure value:</p>
+<div class="alltt-l1">
+<p class="code-new"><samp class="mono">(make-c _value-1</samp><samp class="mono"> <span>…</span> _value-n)</samp></p>
+</div>
+<p class="ex-bltni">assuming a structure type <samp class="mono">c</samp> is defined.</p>
+</div>
+<p class="tni">For example, the definition of <samp class="mono">point</samp> adds values of this shape:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-point 1</samp><samp class="mono"> 2 -1)</samp> <br class="calibre4"/><samp class="mono">(make-point "one"</samp><samp class="mono"> "hello" "world")</samp> <br class="calibre4"/><samp class="mono">(make-point 1</samp><samp class="mono"> "one" (make-point</samp><samp class="mono"> 1 2</samp><samp class="mono"> -1))</samp> <br class="calibre4"/><samp class="mono"><span>…</span></samp></p>
+</div>
+<p class="calibre8">Now we are in a position to understand the evaluation rules of the new functions. If <samp class="mono">c-s-1</samp> is applied to a <samp class="mono">c</samp> structure, it returns the first component of the value. Similarly, the second selector extracts the second component, the third selector the third component, and so on. The relationship between the new data constructor and the selectors is best characterized with <i class="calibre6">n</i> equations added to BSL’s rules:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(c-s-1 (make-c</samp><samp class="mono"> V-1 <span>…</span></samp><samp class="mono"> V-n)) ==</samp><samp class="mono"> V-1</samp> <br class="calibre4"/><samp class="mono">(c-s-n (make-c</samp><samp class="mono"> V-1 <span>…</span></samp><samp class="mono"> V-n)) ==</samp><samp class="mono"> V-n</samp></p>
+</div>
+<p class="tni">For our running example, we get the specific equations</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_219" title="219"></span><samp class="mono">(point-x (make-point</samp><samp class="mono"> V U</samp><samp class="mono"> W)) ==</samp><samp class="mono"> V</samp> <br class="calibre4"/><samp class="mono">(point-y (make-point</samp><samp class="mono"> V U</samp><samp class="mono"> W)) ==</samp><samp class="mono"> U</samp> <br class="calibre4"/><samp class="mono">(point-z (make-point</samp><samp class="mono"> V U</samp><samp class="mono"> W)) ==</samp><samp class="mono"> W</samp></p>
+</div>
+<p class="tni">When DrRacket sees <samp class="mono">(point-y (make-point 3 4 5))</samp>, it replaces the expression with <samp class="mono">4</samp> while <samp class="mono">(point-x (make-point (make-point 1 2 3) 4 5))</samp> evaluates to <samp class="mono">(make-point 1 2 3)</samp>.</p>
+<p class="calibre8">The predicate <samp class="mono">c?</samp> can be applied to any value. It returns <samp class="mono">#true</samp> if the value is of kind <samp class="mono">c</samp> and <samp class="mono">#false</samp> otherwise. We can translate both parts into two equations:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(c? (make-c</samp><samp class="mono"> V-1 <span>…</span></samp><samp class="mono"> V-n)) ==</samp><samp class="mono"> #true</samp> <br class="calibre4"/><samp class="mono">(c? V)</samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  ==</samp><samp class="mono"> #false</samp></p>
+</div>
+<p class="tni">if <samp class="mono">V</samp> is a value not constructed with <samp class="mono">make-c</samp>. Again, the equations are best understood in terms of our example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(point? (make-point</samp><samp class="mono"> U V</samp><samp class="mono"> W)) ==</samp><samp class="mono"> #true</samp> <br class="calibre4"/><samp class="mono">(point? X)</samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">  ==</samp><samp class="mono"> #false</samp></p>
+</div>
+<p class="tni">if <samp class="mono">X</samp> is a value but not a <samp class="mono">point</samp> structure.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 125. Discriminate the legal from the illegal sentences:</p>
+<p class="nlf">1. <samp class="mono">(define-struct oops [])</samp></p>
+<p class="nlf">2. <samp class="mono">(define-struct child [parents dob date])</samp></p>
+<p class="nll">3. <samp class="mono">(define-struct (child person) [dob date])</samp></p>
+<p class="tni">Explain why the sentences are legal or illegal. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 126. Identify the <samp class="monospace-italic">value</samp>s among the following expressions, assuming the definitions area contains these structure type definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct point</samp><samp class="mono"> [x y</samp><samp class="mono"> z])</samp> <br class="calibre4"/><samp class="mono">(define-struct none</samp><samp class="mono">  [])</samp></p>
+</div>
+<p class="nlf">1. <samp class="mono">(make-point 1 2 3)</samp></p>
+<p class="nlf">2. <samp class="mono">(make-point (make-point 1 2 3) 4 5)</samp></p>
+<p class="nlf">3. <samp class="mono">(make-point (+ 1 2) 3 4)</samp></p>
+<p class="nlf">4. <samp class="mono">(make-none)</samp></p>
+<p class="nll"><span epub:type="pagebreak" id="pg_220" title="220"></span>5. <samp class="mono">(make-point (point-x (make-point 1 2 3)) 4 5)</samp></p>
+<p class="tni">Explain why the expressions are values or not. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 127. Suppose the program contains</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct ball</samp><samp class="mono"> [x y</samp><samp class="mono"> speed-x speed-y])</samp></p>
+</div>
+<p class="tni">Predict the results of evaluating the following expression:</p>
+<p class="nlf">1. <samp class="mono">(number? (make-ball 1 2 3 4))</samp></p>
+<p class="nlf">2. <samp class="mono">(ball-speed-y (make-ball (+ 1 2) (+ 3 3) 2 3))</samp></p>
+<p class="nlf">3. <samp class="mono">(ball-y (make-ball (+ 1 2) (+ 3 3) 2 3))</samp></p>
+<p class="nlf">4. <samp class="mono">(ball-x (make-posn 1 2))</samp></p>
+<p class="nll">5. <samp class="mono">(ball-speed-y 5)</samp></p>
+<p class="tni">Check your predictions in the interactions area and with the stepper. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</article>
+</div>
+</body></html>

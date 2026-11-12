@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_4"><a id="sec19-1" class="calibre16"></a>19.1 Trees</h2>
+<p class="tni">All of us have a family tree. One way to draw a family tree is to add an element every time a child is born and to connect the elements of the father and mother. For those people whose parents are unknown, there is no connection to draw. The result is an <i class="calibre6">ancestor family tree</i> because, given any person, the tree points to all of the person’s known ancestors.</p>
+<p class="calibre8"><a id="rfig111" href="part0011_split_003.html#fig111" class="calibre5">Figure 111</a> displays a three-tier family tree. Gustav is the child of Eva and Fred, while Eva is the child of Carl and Bettina. In addition to people’s names and family relationships, the tree also records years of birth and eye colors. Based on this sketch, you can easily imagine a family tree reaching back many generations and one that records other kinds of information.</p>
+<div class="figure">
+<figure class="img"><a id="fig111" class="calibre5"></a><img src="../images/00450.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_003.html#rfig111" class="calibre5">Figure 111</a>:</span> <span>A family tree</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Once a family tree is large, it makes sense to represent it as data and to design programs that process this kind of data. Given that a point in a family tree combines five pieces of information—the father, the mother, the name, the birth date, and the eye color—we should define a structure type:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_489" title="489"></span><samp class="mono">(define-struct child</samp><samp class="mono"> [father mother</samp><samp class="mono"> name date</samp><samp class="mono"> eyes])</samp></p>
+</div>
+<p class="tni">The structure type definition calls a data definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Child</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp></p>
+<p class="code-new"><samp class="mono">;</samp><samp class="mono">  </samp><samp class="mono"> (make-child </samp>Child  Child String N String<samp class="mono">)</samp></p>
+</div>
+<p class="tni">While this data definition looks straightforward, it is also useless. It refers to itself, but, because it doesn’t have any clauses, there is no way to create a proper instance Child. Roughly, we would have to write</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-child (make-child</samp><samp class="mono"> (make-child <span>…</span>)</samp><samp class="mono"> <span>…</span>) <span>…</span>)</samp></p>
+</div>
+<p class="tni">without end. To avoid such pointless data definitions, we demand that a self-referential data definition have several clauses and that at least one of them does not refer back to the data definition.</p>
+<p class="calibre8">Let’s postpone the data definition for a moment, and experiment instead. Suppose we are about to add a child to an existing family tree and that we already have representations for the parents. In that case, we can simply construct a new <samp class="mono">child</samp> structure. For example, to represent Adam in a program that already represents Carl and Bettina, it suffices to add the following <samp class="mono">child</samp> structure:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define Adam</samp> <br class="calibre4"/><samp class="mono">  (make-child</samp><samp class="mono"> Carl Bettina</samp><samp class="mono"> "Adam" 1950</samp><samp class="mono"> "hazel"))</samp></p>
+</div>
+<p class="tni">assuming <samp class="mono">Carl</samp> and <samp class="mono">Bettina</samp> stand for representations of Adam’s parents.</p>
+<p class="calibre8">Then again, a person’s parents may be unknown, like Bettina’s in the family tree of <a href="part0011_split_003.html#fig111" class="calibre5">figure 111</a>. Yet, even then, we must fill the corresponding parent field(s) in the <samp class="mono">child</samp> representation. Whatever data we choose, it must signal an absence of information. On the one hand, we could use <samp class="mono">#false</samp>, <samp class="mono">"none"</samp>, or <samp class="mono">'()</samp> from the pool of existing values. On the other hand, we should really say that the information is missing from a family tree. We can achieve this objective best with the introduction of a structure type with an appropriate name:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct no-parent</samp><samp class="mono"> [])</samp></p>
+</div>
+<p class="tni">Now, to construct a <samp class="mono">child</samp> structure for Bettina, we say</p>
+<figure class="co"><img src="../images/00451.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_490" title="490"></span>Of course, if only one piece of information is missing, we fill just that field with this special value.</p>
+<p class="calibre8">Our experimentation suggests two insights. First, we are <b class="calibre9">not</b> looking for a data definition that describes how to generate instances of <samp class="mono">child</samp> structures but for a data definition that describes how to represent family trees. Second, the data definition consists of two clauses, one for the variant describing unknown family trees and another one for known family trees:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct no-parent</samp><samp class="mono"> []) <br class="calibre4"/>(define-struct</samp><samp class="mono"> child [father</samp><samp class="mono"> mother</samp> <samp class="mono">name date</samp><samp class="mono"> eyes]) <br class="calibre4"/>;</samp><samp class="mono"> An </samp><span class="calibre6">FT</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">family tree</span><samp class="mono">)</samp> <samp class="mono">is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- (make-no-parent)</samp><samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (make-child </samp>FT FT String N String<samp class="mono">)</samp></p>
+</div>
+<p class="tni">Since the “no parent” tree is going to show up a lot in our programs, we define <samp class="mono">NP</samp> as a short-hand and revise the data definition a bit:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define NP</samp><samp class="mono"> (make-no-parent)) <br class="calibre4"/>;</samp><samp class="mono"> An </samp><span class="calibre6">FT</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- NP</samp><samp class="mono"> ;</samp> <br class="calibre4"/><samp class="mono">-- (make-child</samp><samp class="mono"> </samp>FT FT String N String<samp class="mono">)</samp></p>
+</div>
+<p class="calibre8">Following the design recipe from chapter 9, we use the data definition to create examples of family trees. Specifically, we translate the family tree in <a href="part0011_split_003.html#fig111" class="calibre5">figure 111</a> into our data representation. The information for Carl is easy to translate into data:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-child NP</samp><samp class="mono"> NP "Carl"</samp><samp class="mono"> 1926 "green")</samp></p>
+</div>
+<p class="tni">Bettina and Fred are represented with similar instances of <samp class="mono">child</samp>. The case for Adam calls for nested children, one for Carl and one for Bettina:</p>
+<figure class="co"><img src="../images/00452.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Since the records for Carl and Bettina are also needed to construct the records for Dave and Eva, it is better to introduce definitions that name specific instances of <samp class="mono">child</samp> and to use the variable names elsewhere. <a id="rfig112" href="part0011_split_003.html#fig112" class="calibre5">Figure 112</a> illustrates this approach for the complete data representation of the <span epub:type="pagebreak" id="pg_491" title="491"></span>family tree from <a href="part0011_split_003.html#fig111" class="calibre5">figure 111</a>. Take a close look; the tree serves as our running example for the following design exercise.</p>
+<div class="figure">
+<figure class="img"><a id="fig112" class="calibre5"></a><img src="../images/00453.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_003.html#rfig112" class="calibre5">Figure 112</a>:</span> <span>A data representation of the sample family tree</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Instead of designing a concrete function on family trees, let’s first look at the generic organization of such a function. That is, let’s work through the design recipe as much as possible without having a concrete task in mind. We start with the header material, that is, step 2 of the recipe:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>FT<samp class="mono"> -&gt; ???</samp><samp class="mono"> <br class="calibre4"/>; <span>…</span></samp><br class="calibre4"/><samp class="mono">(define (fun-FT</samp><samp class="mono"> an-ftree) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Even though we aren’t stating the purpose of the function, we do know that it consumes a family tree and that this form of data is the main input. The “???” in the signature says that we don’t know what kind of data the function produces; the “<span>⋯</span>” remind us that we don’t know its purpose.</p>
+<p class="calibre8">The lack of purpose means we cannot make up functional examples. Nevertheless, we can exploit the organization of the data definition for <samp class="mono">FT</samp> to design a template. Since it consists of two clauses, the template must consist of a <samp class="mono">cond</samp> expression with two clauses:</p>
+<figure class="co"><img src="../images/00454.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_492" title="492"></span>In case the argument to <samp class="mono">fun-FT</samp> satisfies <samp class="mono">no-parent?</samp>, the structure contains no additional data, so the first clause is complete. For the second clause, the input contains five pieces of data, which we indicate with five selectors in the template:</p>
+<div class="verbatim">
+<figure class="co"><img src="../images/00455.gif" alt="" class="calibre10"/></figure>
+</div>
+<p class="calibre8">The last addition to templates concerns self-references. If a data definition refers to itself, the function is likely to recur and templates indicate so with suggestive natural recursions. The definition for FT has two self-references, and the template therefore needs two such recursions:</p>
+<figure class="co"><img src="../images/00456.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Specifically, <samp class="mono">fun-FT</samp> is applied to the data representation for fathers and mothers in the second <samp class="mono">cond</samp> clause because the second clause of the data definition contains corresponding self-references.</p>
+<p class="calibre8">Let’s now turn to a concrete example, the <samp class="mono">blue-eyed-child?</samp> function. Its purpose is to determine whether any <samp class="mono">child</samp> structure in a given family tree has blue eyes. You may copy, paste, and rename <samp class="mono">fun-FT</samp> to get its template; we replace “???” with Boolean and add a purpose statement:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_493" title="493"></span><img src="../images/00457.gif" alt="" class="calibre10"/></figure>
+<p class="tni">When you work in this fashion, you must replace the template’s generic name with a specific one.</p>
+<p class="calibre8">Checking with our recipe, we realize that we need to backtrack and develop some examples before we move on to the definition step. If we start with Carl, the first person in the family tree, we see that Carl’s family tree does not contain a <samp class="mono">child</samp> with a <samp class="mono">"blue"</samp> eye color. Specifically, the <samp class="mono">child</samp> representing Carl says the eye color is <samp class="mono">"green"</samp>; given that Carl’s ancestor trees are empty, they cannot possibly contain a <samp class="mono">child</samp> with <samp class="mono">"blue"</samp> eye color:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (blue-eyed-child?</samp><samp class="mono"> Carl) #false)</samp></p>
+</div>
+<p class="tni">In contrast, <samp class="mono">Gustav</samp> contains a <samp class="mono">child</samp> for <samp class="mono">Eva</samp> who does have blue eyes:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (blue-eyed-child?</samp><samp class="mono"> Gustav) #true)</samp></p>
+</div>
+<p class="calibre8">Now we are ready to define the actual function. The function distinguishes between two cases: a <samp class="mono">no-parent</samp> and a <samp class="mono">child</samp>. For the first case, the answer should be obvious even though we haven’t made up any examples. Since the given family tree does not contain any <samp class="mono">child</samp> whatsoever, it cannot contain one with <samp class="mono">"blue"</samp> as the eye color. Hence the result in the first <samp class="mono">cond</samp> clause is <samp class="mono">#false</samp>.</p>
+<p class="calibre8">For the second <samp class="mono">cond</samp> clause, the design requires a lot more work. Again following the design recipe, we first remind ourselves what the expressions in the template accomplish:</p>
+<p class="nlf">1. according to the purpose statement for the function,</p>
+<div class="verbatim">
+<p class="code-ls"><samp class="mono"><samp class="mono">(blue-eyed-child? (child-father</samp><samp class="mono"> an-ftree))</samp></samp></p>
+</div>
+<p class="nltni">determines whether some <samp class="mono">child</samp> in the father’s FT has <samp class="mono">"blue"</samp> eyes;</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_494" title="494"></span>2. likewise, <samp class="mono">(blue-eyed-child? (child-mother an-ftree))</samp> determines whether someone in the mother’s FT has blue eyes; and</p>
+<p class="nll">3. the selector expressions <samp class="mono">(child-name an-ftree)</samp>, <samp class="mono">(child-date an-ftree)</samp>, and <samp class="mono">(child-eyes an-ftree)</samp> extract the name, birth date, and eye color from the given <samp class="mono">child</samp> structure, respectively.</p>
+<p class="tni">Now we just need to figure out how to combine these expressions.</p>
+<p class="calibre8">Clearly, if the <samp class="mono">child</samp> structure contains <samp class="mono">"blue"</samp> in the <samp class="mono">eyes</samp> field, the function’s answer is <samp class="mono">#true</samp>. Next, the expressions concerning names and birth dates are useless, which leaves us with the recursive calls. As stated, <samp class="mono">(blue-eyed-child? (child-father an-ftree))</samp> traverses the tree on the father’s side, while the mother’s side of the family tree is processed with <samp class="mono">(blue-eyed-child? (child-mother an-ftree))</samp>. If either of these expressions returns <samp class="mono">#true</samp>, <samp class="mono">an-ftree</samp> contains a <samp class="mono">child</samp> with <samp class="mono">"blue"</samp> eyes.</p>
+<p class="calibre8">Our analysis suggests that the result should be <samp class="mono">#true</samp> if one of the following three expressions is <samp class="mono">#true</samp>:</p>
+<p class="blf">•  <samp class="mono">(string=? (child-eyes an-ftree) "blue")</samp></p>
+<p class="blf">•  <samp class="mono">(blue-eyed-child? (child-father an-ftree))</samp></p>
+<p class="bll">•  <samp class="mono">(blue-eyed-child? (child-mother an-ftree))</samp></p>
+<p class="tni">which, in turn, means we need to combine these expressions with <samp class="mono">or</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(or (string=?</samp><samp class="mono"> (child-eyes an-ftree)</samp><samp class="mono"> "blue")</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (blue-eyed-child?</samp><samp class="mono"> (child-father an-ftree))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (blue-eyed-child?</samp><samp class="mono"> (child-mother an-ftree)))</samp></p>
+</div>
+<p class="tni"><a id="rfig113" href="part0011_split_003.html#fig113" class="calibre5">Figure 113</a> pulls everything together in a single definition.</p>
+<div class="figure">
+<figure class="img"><a id="fig113" class="calibre5"></a><img src="../images/00458.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_003.html#rfig113" class="calibre5">Figure 113</a>:</span> <span>Finding a blue-eyed child in an ancestor tree</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Since this function is the very first one to use two recursions, we simulate the stepper’s action for <samp class="mono">(blue-eyed-child? Carl)</samp> to give you an impression of how it all works:</p>
+
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(blue-eyed-child? Carl)</samp><br class="calibre4"/><samp class="mono"> == <br class="calibre4"/>(blue-eyed-child?</samp> <br class="calibre4"/><samp class="mono">  (make-child</samp><samp class="mono"> NP NP</samp><samp class="mono"> "Carl" 1926</samp><samp class="mono"> "green"))</samp></p>
+</div>
+<p class="tni">Let’s act as if <samp class="mono">NP</samp> were a value and let’s use <samp class="mono">carl</samp> as an abbreviation for the instance of <samp class="mono">child</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_495" title="495"></span><img src="../images/00459.gif" alt="" class="calibre10"/></figure>
+<p class="tni">After dropping the first <samp class="mono">cond</samp> line, it’s time to replace <samp class="mono">carl</samp> with its value and to perform the three auxiliary calculations in <a id="rfig114" href="part0011_split_003.html#fig114" class="calibre5">figure 114</a>. Using these to replace equals with equals, the rest of the computation is explained easily:</p>
+<figure class="co"><img src="../images/00460.gif" alt="" class="calibre10"/></figure>
+<div class="figure">
+<figure class="img"><a id="fig114" class="calibre5"></a><img src="../images/00461.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0011_split_003.html#rfig114" class="calibre5">Figure 114</a>:</span> <span>Calculating with trees</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">While we trust that you have seen such auxiliary calculations in your mathematics courses, you also need to understand that the stepper would <b class="calibre9">not</b> <span epub:type="pagebreak" id="pg_496" title="496"></span>perform such calculations; instead it works out only those calculations that are absolutely needed.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 310. Develop <samp class="mono">count-persons</samp>. The function consumes a family tree and counts the <samp class="mono">child</samp> structures in the tree. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 311. Develop the function <samp class="mono">average-age</samp>. It consumes a family tree and the current year. It produces the average age of all <samp class="mono">child</samp> structures in the family tree. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 312. Develop the function <samp class="mono">eye-colors</samp>, which consumes a family tree and produces a list of all eye colors in the tree. An eye color may occur more than once in the resulting list. <b class="calibre9">Hint</b> Use <samp class="mono">append</samp> to concatenate the lists resulting from the recursive calls. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 313. Suppose we need the function <samp class="mono">blue-eyed-ancestor?</samp>, which is like <samp class="mono">blue-eyed-child?</samp> but responds with <samp class="mono">#true</samp> only when a proper ancestor, not the given <samp class="mono">child</samp> itself, has blue eyes.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_497" title="497"></span>Although the goals clearly differ, the signatures are the same:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>FT<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono"> (define (blue-eyed-ancestor?</samp> <samp class="mono">an-ftree) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Stop! Formulate a purpose statement for the function.</p>
+<p class="calibre8">To appreciate the difference, we take a look at Eva:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (blue-eyed-child?</samp><samp class="mono"> Eva) #true)</samp></p>
+</div>
+<p class="tni">Eva is blue-eyed, but has no blue-eyed ancestor. Hence,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (blue-eyed-ancestor?</samp><samp class="mono"> Eva) #false)</samp></p>
+</div>
+<p class="tni">In contrast, Gustav is Eva’s son and does have a blue-eyed ancestor:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-expect (blue-eyed-ancestor?</samp><samp class="mono"> Gustav) #true)</samp></p>
+</div>
+<p class="calibre8">Now suppose a friend comes up with this solution:</p>
+<figure class="co"><img src="../images/00462.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Explain why this function fails one of its tests. What is the result of <samp class="mono">(blue-eyed-ancestor? A)</samp> no matter which <samp class="mono">A</samp> you choose? Can you fix your friend’s solution? <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

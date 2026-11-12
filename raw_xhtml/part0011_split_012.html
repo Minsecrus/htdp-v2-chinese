@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_13"><a id="sec20-3" class="calibre16"></a>20.3 Refining Functions</h2>
+<p class="tni">To make the following exercises somewhat realistic, DrRacket comes with the <i class="calibre6">dir.rkt</i> library from the first edition of this book. This teachpack introduces the two structure type definitions from model 3, though without the <i class="calibre6">.v3</i> suffix. Furthermore, the teachpack provides a function that creates representations of directory trees on your computer:</p>
+<p class="marginpar">Add <samp class="monospace-margin">(require htdp/dir)</samp> to the definitions area.</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>String<samp class="mono"> -&gt; </samp>Dir.v3<samp class="mono"> <br class="calibre4"/>; creates</samp><samp class="mono"> a representation</samp><samp class="mono"> of</samp> <samp class="mono">the a-path</samp><samp class="mono"> directory <br class="calibre4"/>(define</samp><samp class="mono"> (create-dir a-path)</samp><samp class="mono"> <span>…</span>)</samp></p>
+</div>
+<p class="tni">For example, if you open DrRacket and enter the following three lines into the definitions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define O</samp><samp class="mono"> (create-dir "/Users/<span>…</span>"))</samp><samp class="mono"> ; on</samp><samp class="mono"> OS X</samp><samp class="mono"> <br class="calibre4"/>(define L</samp> <samp class="mono">(create-dir "/var/log/"))</samp><samp class="mono"> ; on</samp><samp class="mono"> Linux <br class="calibre4"/>(define</samp><samp class="mono"> W (create-dir</samp> <samp class="mono">"C:\\</samp><samp class="mono">Users</samp><samp class="mono">\\<span>…</span>")) ;</samp><samp class="mono"> on Windows</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_521" title="521"></span>you get data representations of directories on your computer after you <b class="calibre9">save</b> and then run the program. Indeed, you could use <samp class="mono">create-dir</samp> to map the entire file system on your computer to an instance of Dir.v3.</p>
+<p class="calibre8"><b class="calibre9">Warnings</b> (1) For large directory trees, DrRacket may need a lot of time to build a representation. Use <samp class="mono">create-dir</samp> on small directory trees first. (2) Do <b class="calibre9">not</b> define your own <i class="calibre6">dir</i> structure type. The teachpack already defines them, and you must not define a structure type twice.</p>
+<p class="calibre8">Although <samp class="mono">create-dir</samp> delivers only a representation of a directory tree, it is sufficiently realistic to give you a sense of what it is like to design programs at that level. The following exercises illustrate this point. They use <i class="calibre6">Dir</i> to refer to the generic idea of a data representation for directory trees. Use the simplest data definition of <i class="calibre6">Dir</i> that allows you to complete the respective exercise. Feel free to use the data definition from exercise 337 and the functions from <a href="part0009_split_014.html#fig95" class="calibre5">figures 95</a> and <a href="part0009_split_014.html#fig96" class="calibre5">96</a>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 338. Use <samp class="mono">create-dir</samp> to turn some of your directories into ISL+ data representations. Then use <samp class="mono">how-many</samp> from exercise 336 to count how many files they contain. Why are you confident that <samp class="mono">how-many</samp> produces correct results for these directories? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 339. Design <samp class="mono">find?</samp>. The function consumes a <i class="calibre6">Dir</i> and a file name and determines whether or not a file with this name occurs in the directory tree. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 340. Design the function <samp class="mono">ls</samp>, which lists the names of all files and directories in a given <i class="calibre6">Dir</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 341. Design <samp class="mono">du</samp>, a function that consumes a <i class="calibre6">Dir</i> and computes the total size of all the files in the entire directory tree. Assume that storing a directory in a <i class="calibre6">Dir</i> structure costs <samp class="mono">1</samp> file storage unit. In the real world, a directory is basically a special file, and its size depends on how large its associated directory is. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The remaining exercises rely on the notion of a path, which for our purposes is a list of names:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">Path</span><samp class="mono"> is [</samp>List-of String<samp class="mono">]. <br class="calibre4"/>;</samp> <span class="calibre9">interpretation</span> <samp class="mono">directions</samp><samp class="mono"> into a</samp><samp class="mono"> directory tree</samp></p>
+</div>
+<p class="tni">Take a second look at <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a>. In that diagram, the path from <samp class="mono">TS</samp> to <samp class="mono">part1</samp> is <samp class="mono">(list "TS" "Text" "part1")</samp>. Similarly, the path from <samp class="mono">TS</samp> to <samp class="mono">Code</samp> is <samp class="mono">(list "TS" "Libs" "Code")</samp>.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 342. Design <samp class="mono">find</samp>. The function consumes a directory <samp class="mono">d</samp> and a file name <samp class="mono">f</samp>. If <samp class="mono">(find? d f)</samp> is <samp class="mono">#true</samp>, <samp class="mono">find</samp> produces a path to a file with name <samp class="mono">f</samp>; otherwise it produces <samp class="mono">#false</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_522" title="522"></span><b class="calibre9">Hint</b> While it is tempting to first check whether the file name occurs in the directory tree, you have to do so for every single sub-directory. Hence it is better to combine the functionality of <samp class="mono">find?</samp> and <samp class="mono">find</samp>.</p>
+<p class="calibre8"><b class="calibre9">Challenge</b> The <samp class="mono">find</samp> function discovers only one of the two files named <samp class="mono">read!</samp> in <a href="part0011_split_010.html#fig123" class="calibre5">figure 123</a>. Design <samp class="mono">find-all</samp>, which generalizes <samp class="mono">find</samp> and produces the list of all paths that lead to <samp class="mono">f</samp> in <samp class="mono">d</samp>. What should <samp class="mono">find-all</samp> produce when <samp class="mono">(find? d f)</samp> is <samp class="mono">#false</samp>? Is this part of the problem really a challenge compared to the basic problem? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 343. Design the function <samp class="mono">ls-R</samp>, which lists the paths to <b class="calibre9">all</b> files contained in a given <i class="calibre6">Dir</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 344. Redesign <samp class="mono">find-all</samp> from exercise 342 using <samp class="mono">ls-R</samp> from exercise 343. This is design by composition, and if you solved the challenge part of exercise 342 your new function can find directories, too. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

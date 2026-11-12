@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_16"><a id="sec2-5" class="calibre16"></a>2.5 Programs</h2>
+<p class="tni">You are ready to create simple programs. From a coding perspective, a program is just a bunch of function and constant definitions. Usually one function is singled out as the “main” function, and this main function tends to compose others. From the perspective of launching a program, however, there are two distinct kinds:</p>
+<p class="blf">•  a <i class="calibre6">batch program</i> consumes all of its inputs at once and computes its result. Its main function is the composition of auxiliary functions, which may refer to additional auxiliary functions, and so on. When we launch a batch program, the operating system calls the main function on its inputs and waits for the program’s output.</p>
+<p class="blf">•  an <i class="calibre6">interactive program</i> consumes some of its inputs, computes, produces some output, consumes more input, and so on. When an input shows up, we speak of an <i class="calibre6">event</i>, and we create interactive programs as <i class="calibre6">event-driven</i> programs. The main function of such an event-driven program uses an expression to describe which functions to call for which kinds of events. These functions are called <i class="calibre6">event handlers</i>.</p>
+<p class="myitemizeitem">When we launch an interactive program, the main function informs the operating system of this description. As soon as input events happen, the operating system calls the matching event handler. Similarly, the operating system knows from the description when and how to present the results of these function calls as output.</p>
+<p class="stni">This book focuses mostly on programs that interact via <i class="calibre6">graphical user interfaces (GUI)</i>; there are other kinds of interactive programs, and you will get to know those as you continue to study computer science.</p>
+<p class="calibre8"><b class="calibre9">Batch Programs</b> As mentioned, a batch program consumes all of its inputs at once and computes the result from these inputs. Its main function <span epub:type="pagebreak" id="pg_65" title="65"></span>expects some arguments, hands them to auxiliary functions, receives results from those, and composes these results into its own final answer.</p>
+<p class="calibre8">Once programs are created, we want to use them. In DrRacket, we launch batch programs in the interactions area so that we can watch the program at work.</p>
+<p class="calibre8">Programs are even more useful if they can retrieve the input from some file and deliver the output to some other file. Indeed, the name “batch program” dates to the early days of computing when a program read a file (or several files) from a batch of punch cards and placed the result in some other file(s), also a batch of cards. Conceptually, a batch program reads the input file(s) at once and also produces the result file(s) all at once.</p>
+<p class="calibre8">We create such file-based batch programs with the <i class="calibre6">2htdp/batch-io</i> library, which adds two functions to our vocabulary (among others):</p>
+<p class="blf">•  <samp class="mono">read-file</samp>, which reads the content of an entire file as a string, and</p>
+<p class="bll">•  <samp class="mono">write-file</samp>, which creates a file from a given string.</p>
+<p class="tni">These functions write strings to files and read strings from them:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (write-file "sample.dat" "212")<br class="calibre4"/>"sample.dat"<br class="calibre4"/>&gt; (read-file "sample.dat")<br class="calibre4"/>"212"</samp></p>
+</div>
+<p class="marginpar">Before you evaluate these expressions, save the definitions area in a file.</p>
+<p class="calibre8">After the first interaction the file named <samp class="mono">"sample.dat"</samp> contains</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">212</samp></p>
+</div>
+<p class="tni">The result of <samp class="mono">write-file</samp> is an acknowledgment that it has placed the string in the file. If the file already exists, it replaces its content with the given string; otherwise, it creates a file and makes the given string its content. The second interaction, <samp class="mono">(read-file "sample.dat")</samp>, produces <samp class="mono">"212"</samp> because it turns the content of <samp class="mono">"sample.dat"</samp> into a String.</p>
+<p class="calibre8">For pragmatic reasons, <samp class="mono">write-file</samp> also accepts <samp class="mono">'stdout</samp>, a special kind of token, as the first argument. It then displays the resulting file content in the current interactions area, for example:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (write-file 'stdout "212\n")<br class="calibre4"/>212<br class="calibre4"/>'stdout</samp></p>
+</div>
+<p class="marginpar">The names <samp class="monospace-margin">'stdout</samp> and <samp class="monospace-margin">'stdin</samp> are short for standard output device and standard input device, respectively.</p>
+<p class="tni">By analogy, <samp class="mono">read-file</samp> accepts <samp class="mono">'stdin</samp> in lieu of a file name and then reads input from the current interactions area.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_66" title="66"></span>Let’s illustrate the creation of a batch program with a simple example. Suppose we wish to create a program that converts a temperature measured on a Fahrenheit thermometer into a Celsius temperature. Don’t worry, this question isn’t a test about your physics knowledge; here is the conversion formula:</p>
+<figure class="co"><img src="../images/00050.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">This book is not about memorizing facts, but we do expect you to know where to find them. Do you know where to find out how temperatures are converted?</p>
+<p class="calibre8">Naturally, in this formula <i class="calibre6">f</i> is the Fahrenheit temperature and <i class="calibre6">C</i> is the Celsius temperature. While this formula might be good enough for a pre-algebra textbook, a mathematician or a programmer would write <i class="calibre6">C</i>(<i class="calibre6">f</i> ) on the left side of the equation to remind readers that <i class="calibre6">f</i> is a given value and <i class="calibre6">C</i> is computed from <i class="calibre6">f</i>.</p>
+<p class="calibre8">Translating this formula into BSL is straightforward:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define (C</samp><samp class="mono"> f)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> 5/9 (-</samp><samp class="mono"> f 32)))</samp></samp></p>
+</div>
+<p class="tni">Recall that <samp class="mono">5/9</samp> is a number, a rational fraction to be precise, and that <i class="calibre6">C</i> depends on the given <i class="calibre6">f</i>, which is what the function notation expresses.</p>
+<p class="calibre8">Launching this batch program in the interactions area works as usual:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (C</samp><samp class="mono"> 32)</samp> <br class="calibre4"/><samp class="mono">0</samp> <br class="calibre4"/><samp class="mono">&gt; (C</samp><samp class="mono"> 212)</samp> <br class="calibre4"/><samp class="mono">100</samp> <br class="calibre4"/><samp class="mono">&gt; (C</samp><samp class="mono"> -40)</samp> <br class="calibre4"/><samp class="mono">-40</samp></samp></p>
+</div>
+<p class="tni">But suppose we wish to use this function as part of a program that reads the Fahrenheit temperature from a file, converts this number into a Celsius temperature, and then creates another file that contains the result.</p>
+<p class="calibre8">Once we have the conversion formula in BSL, creating the main function means composing <samp class="mono">C</samp> with existing primitive functions:</p>
+<figure class="co"><img src="../images/00051.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_67" title="67"></span>We call the main function <samp class="mono">convert</samp>. It consumes two file names: <samp class="mono">in</samp> for the file where the Fahrenheit temperature is found and <samp class="mono">out</samp> for where we want the Celsius result. A composition of five functions computes <samp class="mono">convert</samp>’s result. Let’s step through <samp class="mono">convert</samp>’s body carefully:</p>
+<p class="nlf">1. <samp class="mono">(read-file in)</samp> retrieves the content of the named file as a string;</p>
+<p class="nlf">2. <samp class="mono">string-&gt;number</samp> turns this string into a number;</p>
+<p class="nlf">3. <samp class="mono">C</samp> interprets the number as a Fahrenheit temperature and converts it into a Celsius temperature;</p>
+<p class="nlf">4. <samp class="mono">number-&gt;string</samp> consumes this Celsius temperature and turns it into a string; and</p>
+<p class="nll">5. <samp class="mono">(write-file out<span>…</span>)</samp> places this string into the file named <samp class="mono">out</samp>.</p>
+<p class="tni">This long list of steps might look overwhelming, and it doesn’t even include the <samp class="mono">string-append</samp> part. Stop! Explain</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(string-append <span>…</span> "\n")</samp></p>
+</div>
+<p class="calibre8">In contrast, the average function composition in a pre-algebra course involves two functions, possibly three. Keep in mind, though, that programs accomplish a real-world purpose while exercises in algebra merely illustrate the idea of function composition.</p>
+<p class="calibre8">At this point, we can experiment with <samp class="mono">convert</samp>. To start with, we use <samp class="mono">write-file</samp> to create an input file for <samp class="mono">convert</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (write-file</samp><samp class="mono"> "sample.dat" "212")</samp> <br class="calibre4"/><samp class="mono">"sample.dat"</samp> <br class="calibre4"/><samp class="mono">&gt; (convert</samp><samp class="mono"> "sample.dat" 'stdout)</samp> <br class="calibre4"/><samp class="mono">100</samp> <br class="calibre4"/><samp class="mono">'stdout</samp> <br class="calibre4"/><samp class="mono">&gt; (convert</samp><samp class="mono"> "sample.dat" "out.dat")</samp> <br class="calibre4"/><samp class="mono">"out.dat"</samp> <br class="calibre4"/><samp class="mono">&gt; (read-file</samp><samp class="mono"> "out.dat")</samp> <br class="calibre4"/><samp class="mono">"100"</samp></samp></p>
+</div>
+<p class="marginpar">You can also create <samp class="monospace-italic">"sample.dat"</samp> with a file editor.</p>
+<p class="tni">For the first interaction, we use <samp class="mono">'stdout</samp> so that we can view what <samp class="mono">convert</samp> outputs in DrRacket’s interactions area. For the second one, <samp class="mono">convert</samp> is given the name <samp class="mono">"out.dat"</samp>. As expected, the call to <samp class="mono">convert</samp> returns <span epub:type="pagebreak" id="pg_68" title="68"></span>this string; from the description of <samp class="mono">write-file</samp> we also know that it deposited a Fahrenheit temperature in the file. Here we read the content of this file with <samp class="mono">read-file</samp>, but you could also view it with a text editor.</p>
+<p class="calibre8">In addition to running the batch program, it is also instructive to step through the computation. Make sure that the file <samp class="mono">"sample.dat"</samp> exists and contains just a number, then click the <i class="calibre6">STEP</i> button in DrRacket. Doing so opens another window in which you can peruse the computational process that the call to the main function of a batch program triggers. You will see that the process follows the above outline.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 31. Recall the <samp class="mono">letter</samp> program from chapter 2.3. Here is how to launch the program and have it write its output to the interactions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (write-file<br class="calibre4"/>   'stdout<br class="calibre4"/>   (letter "Matthew" "Fisler" "Felleisen"))<br class="calibre4"/>Dear Matthew,<br class="calibre4"/><br class="calibre4"/>We have discovered that all people with the<br class="calibre4"/>last name Fisler have won our lottery. So,<br class="calibre4"/>Matthew, hurry and pick up your prize.<br class="calibre4"/><br class="calibre4"/>Sincerely,<br class="calibre4"/><br class="calibre4"/>Felleisen<br class="calibre4"/>'stdout</samp></p>
+</div>
+<p class="tni">Of course, programs are useful because you can launch them for many different inputs. Run <samp class="mono">letter</samp> on three inputs of your choice.</p>
+<p class="calibre8">Here is a letter-writing batch program that reads names from three files and writes a letter to one:</p>
+<figure class="co"><img src="../images/00052.gif" alt="" class="calibre10"/></figure>
+<p class="tni">The function consumes four strings: the first three are the names of input files and the last one serves as an output file. It uses the first three to read one string each from the three named files, hands these strings to <samp class="mono">letter</samp>, <span epub:type="pagebreak" id="pg_69" title="69"></span>and eventually writes the result of this function call into the file named by <samp class="mono">out</samp>, the fourth argument to <samp class="mono">main</samp>.</p>
+<p class="calibre8">Create appropriate files, launch <samp class="mono">main</samp>, and check whether it delivers the expected letter in a given file. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Interactive Programs</b> Batch programs are a staple of business uses of computers, but the programs people encounter now are interactive. In this day and age, people mostly interact with desktop applications via a keyboard and a mouse. Furthermore, interactive programs can also react to computer-generated events, for example, clock ticks or the arrival of a message from some other computer.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 32. Most people no longer use desktop computers just to run applications but also employ cell phones, tablets, and their cars’ information control screen. Soon people will use wearable computers in the form of intelligent glasses, clothes, and sports gear. In the somewhat more distant future, people may come with built-in bio computers that directly interact with body functions. Think of ten different forms of events that software applications on such computers will have to deal with. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">The purpose of this section is to introduce the mechanics of writing <b class="calibre9">interactive</b> BSL programs. Because many of the project-style examples in this book are interactive programs, we introduce the ideas slowly and carefully. You may wish to return to this section when you tackle some of the interactive programming projects; a second or third reading may clarify some of the advanced aspects of the mechanics.</p>
+<p class="calibre8">By itself, a raw computer is a useless piece of physical equipment. It is called <i class="calibre6">hardware</i> because you can touch it. This equipment becomes useful once you install <i class="calibre6">software</i>, that is, a suite of programs. Usually the first piece of software to be installed on a computer is an <i class="calibre6">operating system</i>. It has the task of managing the computer for you, including connected devices such as the monitor, the keyboard, the mouse, the speakers, and so on. The way it works is that when a user presses a key on the keyboard, the operating system runs a function that processes keystrokes. We say that the keystroke is a <i class="calibre6">key event</i>, and the function is an <i class="calibre6">event handler</i>. In the same vein, the operating system runs an event handler for clock ticks, for mouse actions, and so on. Conversely, after an event handler is done with its work, the operating system may have to change the image on the screen, ring a bell, print a document, or perform a similar action. To accomplish these tasks, it also runs functions that translate the operating system’s data into sounds, images, actions on the printer, and so on.</p>
+<p class="calibre8">Naturally, different programs have different needs. One program may interpret keystrokes as signals to control a nuclear reactor; another passes <span epub:type="pagebreak" id="pg_70" title="70"></span>them to a word processor. To make a general-purpose computer work on these radically different tasks, different programs install different event handlers. That is, a rocket-launching program uses one kind of function to deal with clock ticks while an oven’s software uses a different kind.</p>
+<p class="calibre8">Designing an interactive program requires a way to designate some function as the one that takes care of keyboard events, another function for dealing with clock ticks, a third one for presenting some data as an image, and so forth. It is the task of an interactive program’s main function to communicate these designations to the operating system, that is, the software platform on which the program is launched.</p>
+<p class="calibre8">DrRacket is a small operating system, and BSL is one of its programming languages. The latter comes with the <i class="calibre6">2htdp/universe</i> library, which provides <samp class="mono">big-bang</samp>, a mechanism for telling the operating system which function deals with which event. In addition, <samp class="mono">big-bang</samp> keeps track of the <i class="calibre6">state of the program</i>. To this end, it comes with one required sub-expression, whose value becomes the <i class="calibre6">initial state</i> of the program. Otherwise <samp class="mono">big-bang</samp> consists of one required clause and many optional clauses. The required <samp class="mono">to-draw</samp> clause tells DrRacket how to render the state of the program, including the initial one. Each of the other, optional clauses tells the operating system that a certain function takes care of a certain event. Taking care of an event in BSL means that the function consumes the state of the program and a description of the event, and that it produces the next state of the program. We therefore speak of the <i class="calibre6">current state</i> of the program.</p>
+<p class="calibre8"><b class="calibre9">Terminology</b> In a sense, a <samp class="mono">big-bang</samp> expression describes how a program connects with a small segment of the world. This world might be a game that the program’s users play, an animation that the user watches, or a text editor that the user employs to manipulate some notes. Programming language researchers therefore often say that <samp class="mono">big-bang</samp> is a description of a small world: its initial state, how states are transformed, how states are rendered, and how <samp class="mono">big-bang</samp> may determine other attributes of the current state. In this spirit, we also speak of the <i class="calibre6">state of the world</i> and even call <samp class="mono">big-bang</samp> programs <i class="calibre6">world programs</i>. <b class="calibre9">End</b></p>
+<p class="calibre8">Let’s study this idea step-by-step, starting with this definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (number-&gt;square s)<br class="calibre4"/>  (square s "solid" "red"))</samp></p>
+</div>
+<p class="tni">The function consumes a positive number and produces a solid red square of that size. After clicking <i class="calibre6">RUN</i>, experiment with the function, like this:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_71" title="71"></span><img src="../images/00053.gif" alt="" class="calibre10"/></figure>
+<p class="tni">It behaves like a batch program, consuming a number and producing an image, which DrRacket renders for you.</p>
+<p class="calibre8">Now try the following <samp class="mono">big-bang</samp> expression in the interactions area:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (big-bang 100 [to-draw number-&gt;square])</samp></p>
+</div>
+<p class="tni">A separate window appears, and it displays a 100 × 100 red square. In addition, the DrRacket interactions area does not display another prompt; it is as if the program keeps running, and this is indeed the case. To stop the program, click on DrRacket’s <i class="calibre6">STOP</i> button or the window’s <i class="calibre6">CLOSE</i> button:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (big-bang 100 [to-draw number-&gt;square])<br class="calibre4"/>100</samp></p>
+</div>
+<p class="tni">When DrRacket stops the evaluation of a <samp class="mono">big-bang</samp> expression, it returns the current state, which in this case is just the initial state: <samp class="mono">100</samp>.</p>
+<p class="calibre8">Here is a more interesting <samp class="mono">big-bang</samp> expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (big-bang 100<br class="calibre4"/>    [to-draw number-&gt;square]<br class="calibre4"/>    [on-tick sub1]<br class="calibre4"/>    [stop-when zero?])</samp></p>
+</div>
+<p class="tni">This <samp class="mono">big-bang</samp> expression adds two optional clauses to the previous one: the <samp class="mono">on-tick</samp> clause tells DrRacket how to deal with clock ticks and the <samp class="mono">stop-when</samp> clause says when to stop the program. We read it as follows, starting with <samp class="mono">100</samp> as the initial state:</p>
+<p class="nlf">1. every time the clock ticks, subtract <samp class="mono">1</samp> from the current state;</p>
+<p class="nlf">2. then check whether <samp class="mono">zero?</samp> is true of the new state and if so, stop; and</p>
+<p class="nll">3. every time an event handler returns a value, use <samp class="mono">number-&gt;square</samp> to render it as an image.</p>
+<p class="tni"><span epub:type="pagebreak" id="pg_72" title="72"></span>Now hit the “return” key and observe what happens. Eventually the evaluation of the expressions terminates and DrRacket displays <samp class="mono">0</samp>.</p>
+<p class="calibre8">The <samp class="mono">big-bang</samp> expression keeps track of the current state. Initially this state is <samp class="mono">100</samp>. Every time the clock ticks, it calls the clock-tick handler and gets a new state. Hence, the state of <samp class="mono">big-bang</samp> changes as follows:</p>
+<div class="verbatim">
+<p class="code-c"><samp class="mono">100, 99, 98,<span>…</span>, 2, 1, 0</samp></p>
+</div>
+<p class="tni">When the state’s value becomes <samp class="mono">0</samp>, the evaluation is done. For every other state—from <samp class="mono">100</samp> to <samp class="mono">1</samp>—<samp class="mono">big-bang</samp> translates the state into an image, using <samp class="mono">number-&gt;square</samp> as the <samp class="mono">to-draw</samp> clause tells it to. Hence, the window displays a red square that shrinks from 100 × 100 pixels to 1 × 1 pixel over 100 clock ticks.</p>
+<p class="calibre8">Let’s add a clause for dealing with key events. First, we need a function that consumes the current state and a string that describes the key event and then returns a new state:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (reset s ke)<br class="calibre4"/>  100)</samp></p>
+</div>
+<p class="tni">This function throws away its arguments and returns <samp class="mono">100</samp>, which is the initial state of the <samp class="mono">big-bang</samp> expression we wish to modify. Second, we add an <samp class="mono">on-key</samp> clause to the <samp class="mono">big-bang</samp> expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (big-bang 100<br class="calibre4"/>    [to-draw number-&gt;square]<br class="calibre4"/>    [on-tick sub1]<br class="calibre4"/>    [stop-when zero?]<br class="calibre4"/>    [on-key reset])</samp></p>
+</div>
+<p class="tni">Stop! Explain what happens when you hit “return”, count to 10, and finally press <samp class="mono">"a"</samp>.</p>
+<p class="calibre8">What you will see is that the red square shrinks at the rate of one pixel per clock tick. As soon as you press the <samp class="mono">"a"</samp> key, though, the red square reinflates to full size because <samp class="mono">reset</samp> is called on the current length of the square and <samp class="mono">"a"</samp> and returns <samp class="mono">100</samp>. This number becomes <samp class="mono">big-bang</samp>’s new state and <samp class="mono">number-&gt;square</samp> renders it as a full-sized red square.</p>
+<p class="calibre8">In order to understand the evaluation of <samp class="mono">big-bang</samp> expressions in general, let’s look at a schematic version:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_73" title="73"></span>(big-bang cw0<br class="calibre4"/>  [on-tick tock]<br class="calibre4"/>  [on-key ke-h]<br class="calibre4"/>  [on-mouse me-h]<br class="calibre4"/>  [to-draw render]<br class="calibre4"/>  [stop-when end?]<br class="calibre4"/>  <span>…</span>)</samp></p>
+</div>
+<p class="tni">This <samp class="mono">big-bang</samp> expression specifies three event handlers—<samp class="mono">tock</samp>, <samp class="mono">ke-h</samp>, and <samp class="mono">me-h</samp>—and a <samp class="mono">stop-when</samp> clause.</p>
+<p class="calibre8">The evaluation of this <samp class="mono">big-bang</samp> expression starts with <samp class="mono">cw0</samp>, which is usually an expression. DrRacket, our operating system, installs the value of <samp class="mono">cw0</samp> as the current state. It uses <samp class="mono">render</samp> to translate the current state into an image, which is then displayed in a separate window. Indeed, <samp class="mono">render</samp> is the <b class="calibre9">only</b> means for a <samp class="mono">big-bang</samp> expression to present data to the world.</p>
+<p class="calibre8">Here is how events are processed:</p>
+<p class="blf">•  Every time the clock ticks, DrRacket applies <samp class="mono">tock</samp> to <samp class="mono">big-bang</samp>’s current state and receives a value in response; <samp class="mono">big-bang</samp> treats this return value as the next current state.</p>
+<p class="blf">•  Every time a key is pressed, DrRacket applies <samp class="mono">ke-h</samp> to <samp class="mono">big-bang</samp>’s current state and a string that represents the key; for example, pressing the “a” key is represented with <samp class="mono">"a"</samp> and the left arrow key with <samp class="mono">"left"</samp>. When <samp class="mono">ke-h</samp> returns a value, <samp class="mono">big-bang</samp> treats it as the next current state.</p>
+<p class="bll">•  Every time a mouse enters the window, leaves it, moves, or is clicked, DrRacket applies <samp class="mono">me-h</samp> to <samp class="mono">big-bang</samp>’s current state, the event’s x- and y-coordinates, and a string that represents the kind of mouse event that happened; for example, clicking a mouse’s button is represented with <samp class="mono">"button-down"</samp>. When <samp class="mono">me-h</samp> returns a value, <samp class="mono">big-bang</samp> treats it as the next current state.</p>
+<p class="tni">All events are processed in order; if two events seem to happen at the same time, DrRacket acts as a tie-breaker and arranges them in some order.</p>
+<p class="calibre8">After an event is processed, <samp class="mono">big-bang</samp> uses both <samp class="mono">end?</samp> and <samp class="mono">render</samp> to check the current state:</p>
+<p class="blf">•  <samp class="mono">(end? cw)</samp> produces a Boolean value. If it is #<samp class="mono">#true</samp>, <samp class="mono">big-bang</samp> stops the computation immediately. Otherwise it proceeds.</p>
+<p class="bll"><span epub:type="pagebreak" id="pg_74" title="74"></span>•  <samp class="mono">(render cw)</samp> is expected to produce an image and <samp class="mono">big-bang</samp> displays this image in a separate window.</p>
+<p class="calibre8">The table in <a id="rfig13" href="part0005_split_015.html#fig13" class="calibre5">figure 13</a> concisely summarizes this process. In the first row, it lists names for the current states. The second row enumerates names for the events that DrRacket encounters: <i class="calibre6">e</i><sub class="calibre17">0</sub>, <i class="calibre6">e</i><sub class="calibre17">1</sub>, and so on. Each <i class="calibre6">e</i><sub class="calibre17"><i class="calibre6">i</i></sub> might be a clock tick, a key press, or a mouse event. The next three rows specify the result of dealing with the event:</p>
+
+
+<p class="blf">•  If <i class="calibre6">e</i><sub class="calibre17">0</sub> is a clock tick, <samp class="mono">big-bang</samp> evaluates <samp class="mono">(tock</samp> <samp class="monospace-italic">cw</samp><sub class="calibre17">0</sub><samp class="mono">)</samp> to produce <i class="calibre6">cw</i><sub class="calibre17">1</sub>.</p>
+<p class="blf">•  If <i class="calibre6">e</i><sub class="calibre17">0</sub> is a key event, <samp class="mono">(ke-h</samp> <i class="calibre6">cw</i><sub class="calibre17">0</sub> <samp class="monospace-italic">e</samp><sub class="calibre17">0</sub><samp class="mono">)</samp> is evaluated and yields <i class="calibre6">cw</i><sub class="calibre17">1</sub>. The handler must be applied to the event itself because, in general, programs are going to react to each key differently.</p>
+<p class="blf">•  If <i class="calibre6">e</i><sub class="calibre17">0</sub> is a mouse event, <samp class="mono">big-bang</samp> runs <samp class="mono">(me-h</samp> <samp class="monospace-italic">cw</samp><sub class="calibre17">0</sub> <samp class="monospace-italic">e</samp><sub class="calibre17">0</sub> <samp class="mono"><span>…</span>)</samp> to get <i class="calibre6">cw</i><sub class="calibre17">1</sub>. The call is a sketch because a mouse event <i class="calibre6">e</i><sub class="calibre17">0</sub> is really associated with several pieces of data—its nature and its coordinates—and we just wish to indicate that much.</p>
+<p class="bll">•  Finally, <samp class="mono">render</samp> turns the current state into an image, which is indicated by the last row. DrRacket displays these images in the separate window.</p>
+
+<div class="figure">
+<figure class="img"><a id="fig13" class="calibre5"></a><img src="../images/00054.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_015.html#rfig13" class="calibre5">Figure 13</a>:</span> <span>How <samp class="mono">big-bang</samp> works</span></p></figcaption>
+</figure>
+</div>
+
+
+<p class="tni">The column below <i class="calibre6">cw</i><sub class="calibre17">1</sub> shows how <i class="calibre6">cw</i><sub class="calibre17">2</sub> is generated, depending on what kind of event <i class="calibre6">e</i><sub class="calibre17">1</sub> takes place.</p>
+<p class="calibre8">Let’s interpret this table with the specific sequence of events: the user presses the “a” key, then the clock ticks, and finally the user clicks the mouse to trigger a “button down” event at position (90,100). Then, in Racket notation,</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_75" title="75"></span>1. <samp class="mono">cw1</samp> is the result of <samp class="mono">(ke-h cw0 "a")</samp>;</p>
+<p class="nlf">2. <samp class="mono">cw2</samp> is the result of <samp class="mono">(tock cw1)</samp>; and</p>
+<p class="nll">3. <samp class="mono">cw3</samp> is the result of <samp class="mono">(me-h cw2 90 100 "button-down")</samp>.</p>
+<p class="tni">We can actually express these three steps as a sequence of three definitions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define cw1 (ke-h cw0 "a"))<br class="calibre4"/>(define cw2 (tock cw1))<br class="calibre4"/>(define cw3 (me-h cw2 "button-down" 90 100))</samp></p>
+</div>
+<p class="tni">Stop! How does <samp class="mono">big-bang</samp> display each of these three states?</p>
+<p class="calibre8">Now let’s consider a sequence of three clock ticks. In that case,</p>
+<p class="nlf">1. <samp class="mono">cw1</samp> is the result of <samp class="mono">(tock cw0)</samp>;</p>
+<p class="nlf">2. <samp class="mono">cw2</samp> is the result of <samp class="mono">(tock cw1)</samp>; and</p>
+<p class="nll">3. <samp class="mono">cw3</samp> is the result of <samp class="mono">(tock cw2)</samp>.</p>
+<p class="tni">Or, reformulated in BSL:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define cw1 (tock cw0))<br class="calibre4"/>(define cw2 (tock cw1))<br class="calibre4"/>(define cw3 (tock cw2))</samp></p>
+</div>
+<p class="tni">Indeed, we can also determine <samp class="mono">cw3</samp> via a single expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(tock (tock</samp><samp class="mono"> (tock cw0)))</samp></samp></p>
+</div>
+<p class="tni">This determines the state that <samp class="mono">big-bang</samp> computes after three clock ticks. Stop! Reformulate the first sequence of events as an expression.</p>
+<p class="calibre8">In short, the sequence of events determines in which order <samp class="mono">big-bang</samp> conceptually traverses the above table of possible states to arrive at the current state for each time slot. Of course, <samp class="mono">big-bang</samp> does not touch the current state; it merely safeguards it and passes it to event handlers and other functions when needed.</p>
+<p class="calibre8">From here, it is straightforward to define a first interactive program. See <a id="rfig14" href="part0005_split_015.html#fig14" class="calibre5">figure 14</a>. The program consists of two constant definitions followed by three function definitions: <samp class="mono">main</samp>, which launches a <samp class="mono">big-bang</samp> interactive program; <samp class="mono">place-dot-at</samp>, which translates the current state into an image; and <samp class="mono">stop</samp>, which throws away its inputs and produces <samp class="mono">0</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig14" class="calibre5"></a><img src="../images/00055.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0005_split_015.html#rfig14" class="calibre5">Figure 14</a>:</span> <span>A first interactive program</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">After clicking <i class="calibre6">RUN</i>, we can ask DrRacket to evaluate applications of these handler functions. This is one way to confirm their workings:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_76" title="76"></span><img src="../images/00056.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Try now to understand how <samp class="mono">main</samp> reacts when you press a key.</p>
+<p class="calibre8">One way to find out whether your conjecture is correct is to launch the <samp class="mono">main</samp> function on some reasonable number:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (main</samp><samp class="mono"> 90)</samp></samp></p>
+</div>
+<p class="tni">Relax.</p>
+<p class="calibre8">By now, you may feel that these first two chapters are overwhelming. They introduce many new concepts, including a new language, its vocabulary, <span epub:type="pagebreak" id="pg_77" title="77"></span>its meaning, its idioms, a tool for writing down texts in this vocabulary, and a way of running these programs. Confronted with this plethora of ideas, you may wonder how one creates a program when presented with a problem statement. To answer this central question, the next chapter takes a step back and explicitly addresses the systematic design of programs. So take a breather and continue when ready.</p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

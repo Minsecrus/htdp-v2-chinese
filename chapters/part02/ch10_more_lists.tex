@@ -1,0 +1,342 @@
+% ==============================================================================
+% 第 10 章：深入探讨列表 (Chapter 10: More on Lists)
+% ==============================================================================
+
+\chapter{深入探讨列表}
+\label{sec:ch10_more_lists}
+
+列表是一种功能极其多样的通用数据结构，现如今几乎所有编程语言都提供了对其的原生支持。程序员利用列表构建庞大的企业应用、人工智能系统、分布式计算平台等。本章将展示来自真实编程世界的若干核心思想，包括：产生列表的函数、在列表中嵌套结构体的数据表示法、以及将文本文件表示为多层嵌套列表。
+
+\section{产生列表的函数}
+\label{sec:ch10_functions_produce_lists}
+
+下面是一个计算计时雇员每周薪资的简单函数：
+\begin{lstlisting}[language=BSL]
+; Number -> Number
+; 根据工作工时 h 计算薪资
+(define (wage h)
+  (* 12 h))
+\end{lstlisting}
+
+该函数消耗工作工时并输出相应工资。然而，一家希望部署自动化薪酬软件的企业对这个单人函数并不感兴趣——他们需要的是一个能够批量计算公司\textbf{所有}员工薪资的程序。
+
+我们称这个新函数为 \code{wage*}。它的任务是处理所有员工的工作工时列表，并确定每位员工应得的周薪。为简单起见，我们假设输入是一个数字列表（每个数字代表一名员工的工作小时数），期望的输出同样是一个数字列表（代表对应的每周工资）。
+
+既然输入和输出的数据定义都是已知的数字列表，我们可以立即写出函数的头部材料：
+\begin{lstlisting}[language=BSL]
+; List-of-numbers -> List-of-numbers
+; 根据每周工时列表计算对应的周薪列表
+(define (wage* whrs)
+  '())
+\end{lstlisting}
+
+接下来设计功能示例与测试用例：
+\begin{lstlisting}[language=BSL]
+(check-expect (wage* '()) '())
+(check-expect (wage* (cons 28 '())) (cons (* 12 28) '()))
+(check-expect (wage* (cons 40 (cons 28 '())))
+              (cons (* 12 40) (cons (* 12 28) '())))
+\end{lstlisting}
+
+由于 \code{wage*} 消耗的数据与第 8 章中的若干函数完全相同，而函数模板仅取决于数据定义的结构，因此我们可以直接复用列表模板：
+\begin{lstlisting}[language=BSL]
+(define (wage* whrs)
+  (cond
+    [(empty? whrs) ...]
+    [else (... (first whrs) ... (wage* (rest whrs)) ...)]))
+\end{lstlisting}
+
+现在进入函数体的组装环节：
+\begin{itemize}
+  \item 在基准情况 \code{(empty? whrs)} 下，输入为空列表，期望结果为 \code{'()}。
+  \item 在自引用分支中：
+    \begin{itemize}
+      \item \code{(first whrs)} 给出列表中第一位员工的工时；
+      \item \code{(rest whrs)} 是其余员工的工时列表；
+      \item 自然递归 \code{(wage* (rest whrs))} 已经根据函数契约计算出了其余员工的周薪列表！
+    \end{itemize}
+\end{itemize}
+
+既然已经拿到了除首位员工之外所有人的薪资列表，要得到全体员工的薪资列表，函数只需做两件事：
+\begin{enumerate}
+  \item 使用辅助函数 \code{wage} 计算第一位员工的薪资：\code{(wage (first whrs))}；
+  \item 将该薪资与剩余薪资列表用 \code{cons} 拼接在一起：
+\begin{lstlisting}[language=BSL]
+(cons (wage (first whrs)) (wage* (rest whrs)))
+\end{lstlisting}
+\end{enumerate}
+
+图~\ref{fig:wage_star_definition} 给出了完整的函数定义。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00215.png}
+  \caption{计算所有员工薪资的 wage* 函数}
+  \label{fig:wage_star_definition}
+\end{figure}
+
+\begin{exercise}{可配置的时薪常量}{161}
+将上述示例转化为测试并确保全部通过。接着修改程序，使每位员工的时薪提高至 14 美元。请重构整个程序，使得将来修改全员时薪时只需修改程序中的单处常量定义，而无需更改多处代码。
+\end{exercise}
+
+\begin{exercise}{工时欺诈校验}{162}
+正常情况下没有任何员工一周能工作超过 100 小时。为了保护公司免遭虚报欺诈，函数应当校验输入列表中没有任何一项超过 100。一旦发现超过 100 的数值，函数应立即报错。请修改图~\ref{fig:wage_star_definition} 中的函数以实现这一基础现实核查。
+\end{exercise}
+
+\begin{exercise}{华氏度转摄氏度列表 convertFC}{163}
+设计函数 \code{convertFC}：将测量得到的华氏度温度列表转换为对应的摄氏度列表。
+\end{exercise}
+
+\begin{exercise}{货币汇率转换 convert-euro}{164}
+设计函数 \code{convert-euro}：将美元金额列表转换为欧元金额列表。
+
+接着将其推广为函数 \code{convert-euro*}：消耗一个指定的汇率数值与美元列表，完成相应的欧元列表转换。
+\end{exercise}
+
+\begin{exercise}{玩具名称替换 subst-robot}{165}
+设计函数 \code{subst-robot}：消耗玩具描述字符串列表，将其中的所有 \code{"robot"} 替换为 \code{"r2d2"}，其余玩具描述保持不变。
+
+接着将其推广为通用替换函数 \code{substitute}：消耗两个字符串 \code{new} 和 \code{old} 以及一个字符串列表，将列表中所有的 \code{old} 全部替换为 \code{new}。
+\end{exercise}
+
+\section{列表中的结构体}
+\label{sec:ch10_structures_in_lists}
+
+仅用一个工时数字来表示一周的工作记录在实际应用中是远远不够的，因为打印工资单还需要员工姓名，且员工之间的时薪往往各不相同。幸运的是，列表不仅能存放原子数据，还能存放结构体！
+
+我们定义工作记录结构体 \code{work}：
+\begin{lstlisting}[language=BSL]
+(define-struct work [employee rate hours])
+; A Work 是一个结构体：
+;   (make-work String Number Number)
+; 解释：(make-work n r h) 将员工姓名 n、时薪 r 与工时 h 组合在一起
+\end{lstlisting}
+
+进而定义工作记录的列表：
+\begin{lstlisting}[language=BSL]
+; Low (List-of-works) 是以下之一：
+; -- '()
+; -- (cons Work Low)
+; 解释：表示若干员工的工作记录列表
+\end{lstlisting}
+
+现在我们来重新设计薪资计算函数，命名为 \code{wage*.v2}：
+\begin{lstlisting}[language=BSL]
+; Low -> List-of-numbers
+; 根据工作记录列表计算对应的周薪列表
+(define (wage*.v2 an-low)
+  '())
+\end{lstlisting}
+
+\begin{notebox}[设计原则：分解模板与辅助函数]
+当一个数据定义（如 \code{Low}）引用了另一个复杂数据定义（如 \code{Work}）时，最佳策略是\textbf{分别构建独立的模板与函数}，而不是将结构体的所有选择器强行堆积在列表的单个分支中。将任务合理切分给专门处理 \code{Work} 的辅助函数，能保持代码清晰、易维护且易测试。
+\end{notebox}
+
+图~\ref{fig:computing_wages_from_work_records} 展示了切分后的完整设计：由 \code{wage*.v2} 负责遍历列表，调用辅助函数 \code{wage.v2} 计算单个记录的周薪。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00222.png}
+  \caption{从工作记录计算周薪的完整程序}
+  \label{fig:computing_wages_from_work_records}
+\end{figure}
+
+\begin{exercise}{迭代细化：产生工资支票列表}{166}
+\code{wage*.v2} 消耗工作记录列表并产生数字列表。当然，函数也可以产生结构体列表。
+
+为工资支票（paycheck）开发数据表示，假设支票包含员工姓名与实发薪资金额两项信息。接着设计函数 \code{wage*.v3}：消耗 \code{Low} 并产生对应的支票列表。
+
+在真实世界中，工资支票还包含员工工号（employee number）。请为包含工号的员工信息开发数据表示，相应更新工作记录与支票的数据定义，并设计 \code{wage*.v4}。
+\end{exercise}
+
+\begin{exercise}{坐标列表求和 sum}{167}
+设计函数 \code{sum}：接收一个 \code{Posn} 列表，计算其中所有点 $x$ 坐标的总和。
+\end{exercise}
+
+\begin{exercise}{坐标平移 translate}{168}
+设计函数 \code{translate}：消耗并产生 \code{Posn} 列表。对输入中的每个 \code{(make-posn x y)}，输出列表中对应项为 \code{(make-posn x (+ y 1))}。
+\end{exercise}
+
+\begin{exercise}{合法坐标筛选 legal}{169}
+设计函数 \code{legal}：消耗并产生 \code{Posn} 列表，筛选出所有 $x$ 坐标落在 $[0, 100]$ 且 $y$ 坐标落在 $[0, 200]$ 范围内的合法点。
+\end{exercise}
+
+\begin{exercise}{电话区号批量更新 replace}{170}
+给定电话号码的数据定义：
+\begin{lstlisting}[language=BSL]
+(define-struct phone [area switch four])
+; A Phone 是一个结构体：
+;   (make-phone Three Three Four)
+; A Three 是 [100, 999] 之间的 Number。
+; A Four 是 [1000, 9999] 之间的 Number。
+\end{lstlisting}
+设计函数 \code{replace}：消耗并产生 \code{Phone} 列表，将其中的所有 713 区号替换为 281。
+\end{exercise}
+
+\section{列表嵌套列表与文件}
+\label{sec:ch10_lists_in_lists_files}
+
+在计算机系统中，文本文件不仅仅是一长串纯文本字符，它们通常具有行与单词、表格行列与单元格等多层组织结构。在 BSL 中，通过 \code{2htdp/batch-io} 教学库，我们能够将文本文件解析为多层结构：
+\begin{itemize}
+  \item \textbf{按行读取}（\code{read-lines}）：生成字符串列表，每行表示为一个字符串；
+  \item \textbf{按词读取}（\code{read-words}）：生成单词字符串列表；
+  \item \textbf{按行与词读取}（\code{read-words/line}）：生成\term{由单词列表构成的行列表}，即\textbf{列表嵌套列表}（List of lists of strings, LLS）！
+\end{itemize}
+
+图~\ref{fig:reading_files} 总结了 \code{2htdp/batch-io} 中用于读取文件的常用函数。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00227.png}
+  \caption{文件读取函数概览}
+  \label{fig:reading_files}
+\end{figure}
+
+\begin{exercise}{表示 Piet Hein 的诗歌 TTT}{171}
+给出 \code{List-of-strings} 与 \code{List-of-list-of-strings}（LLS）的数据定义，并使用 \code{read-lines}、\code{read-words} 与 \code{read-words/line} 验证皮特·海恩（Piet Hein）的短诗在不同表示下的数据形态。
+\end{exercise}
+
+以统计文本文件每行字数的任务为例，我们定义函数 \code{words-on-line}：
+\begin{lstlisting}[language=BSL]
+; LLS -> List-of-numbers
+; 计算每行中包含的单词数量
+(define (words-on-line lls)
+  (cond
+    [(empty? lls) '()]
+    [else (cons (length (first lls))
+                (words-on-line (rest lls)))]))
+\end{lstlisting}
+
+图~\ref{fig:counting_words_on_line} 展示了该函数的设计与测试。借助这一基础，我们只需将其与内置的 \code{read-words/line} 进行组合，便能一行代码写出实用的文件统计工具：
+\begin{lstlisting}[language=BSL]
+; String -> List-of-numbers
+; 统计指定文本文件各行的单词数
+(define (file-statistic file-name)
+  (words-on-line (read-words/line file-name)))
+\end{lstlisting}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00232.png}
+  \caption{统计每行字数的函数设计}
+  \label{fig:counting_words_on_line}
+\end{figure}
+
+\begin{exercise}{还原文件内容 collapse}{172}
+设计函数 \code{collapse}：将行列表还原为一个完整的长字符串，单词间以空格 \code{" "} 分隔，行间以换行符 \code{"\textbackslash n"} 分隔。
+\end{exercise}
+
+\begin{exercise}{过滤冠词程序}{173}
+设计一个程序剔除文本文件中的所有英文冠词（\code{"a"}、\code{"an"}、\code{"the"}）。程序读取指定文件，过滤冠词后输出至名为 \code{"no-articles-" + filename} 的新文件中。
+\end{exercise}
+
+\begin{exercise}{文本文件数字编码}{174}
+设计程序对文本文件进行数字编码，将单词中的每个字符编码为 0 到 256 之间的 3 位数字字符串（如图~\ref{fig:encoding_strings} 所示）。
+\end{exercise}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00234.png}
+  \caption{单字符编码函数}
+  \label{fig:encoding_strings}
+\end{figure}
+
+\begin{exercise}{模拟 Unix wc 命令}{175}
+编写 BSL 程序模拟 Unix 系统的 \code{wc} 命令行工具：统计给定文本文件中的单字符数（1Strings）、单词数与总行数。
+\end{exercise}
+
+\begin{exercise}{矩阵表示与转置 transpose}{176}
+将矩阵定义为行的列表（每行又是数字列表）：
+\begin{lstlisting}[language=BSL]
+; A Matrix 是以下之一：
+; -- (cons Row '())
+; -- (cons Row Matrix)
+; 约束：矩阵中所有行的长度必须相等
+
+; A Row 是以下之一：
+; -- '()
+; -- (cons Number Row)
+\end{lstlisting}
+图~\ref{fig:transpose_matrix} 展示了矩阵转置函数 \code{transpose} 的骨架，它依赖辅助函数 \code{first*}（提取首列）与 \code{rest*}（剔除首列）。请设计这两个辅助函数并补全测试。
+\end{exercise}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/00235.png}
+  \caption{矩阵转置函数}
+  \label{fig:transpose_matrix}
+\end{figure}
+
+\section{重温图形文本编辑器}
+\label{sec:ch10_editor_revisited}
+
+在第 5.10 节中，我们曾通过结构体设计过单行文本编辑器。现在，借助列表的力量，我们可以给出一种在算法效率和概念上都极其优雅的数据表示：
+\begin{lstlisting}[language=BSL]
+(define-struct editor [pre post])
+; An Editor 是一个结构体：
+;   (make-editor Lo1S Lo1S)
+; An Lo1S (List of 1Strings) 是以下之一：
+; -- '()
+; -- (cons 1String Lo1S)
+\end{lstlisting}
+
+\begin{notebox}[关键设计决策：逆序存储光标左侧字符]
+我们令 \code{pre} 字段以\textbf{逆序}（reverse order）存储光标左侧的字符，而 \code{post} 字段以\textbf{正序}存储光标右侧的字符！
+例如，当文本为 \code{"all|good"}（光标位于中间）时：
+\begin{lstlisting}[language=BSL]
+(make-editor (cons "l" (cons "l" (cons "a" '())))
+             (cons "g" (cons "o" (cons "o" (cons "d" '())))))
+\end{lstlisting}
+这种表示的威力在于：\textbf{所有在光标附近的编辑操作（打字、退格、左右移动）都只发生在列表的最前端（head）}！在列表前端插入或删除只需一步 \code{cons} 或 \code{first/rest}，其时间复杂度为 $O(1)$，效率极高！
+\end{notebox}
+
+为此，我们需要列表逆序函数 \code{rev}（或 BSL 内置的 \code{reverse}）：
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/00239.png}
+  \caption{rev 函数的设计推导表}
+  \label{fig:tabulating_rev}
+\end{figure}
+
+\begin{exercise}{构造编辑器状态 create-editor}{177}
+设计函数 \code{create-editor}：接收两个字符串（分别代表光标左侧和右侧的文本），构造出一个符合上述逆序约定的 \code{Editor}。
+\end{exercise}
+
+键盘事件处理函数 \code{editor-kh} 根据按键类型分发任务：
+\begin{lstlisting}[language=BSL]
+(define (editor-kh ed ke)
+  (cond
+    [(key=? ke "left") (editor-lft ed)]
+    [(key=? ke "right") (editor-rgt ed)]
+    [(key=? ke "\b") (editor-del ed)]
+    [(key=? ke "\t") ed]
+    [(key=? ke "\r") ed]
+    [(= (string-length ke) 1) (editor-ins ed ke)]
+    [else ed]))
+\end{lstlisting}
+
+\begin{exercise}{按键优先级判定}{178}
+解释为什么在 \code{editor-kh} 中必须在检查单字符之前优先处理 \code{"\textbackslash t"} 与 \code{"\textbackslash r"}？
+\end{exercise}
+
+插入字符函数 \code{editor-ins} 极为简洁明快：
+\begin{lstlisting}[language=BSL]
+; Editor 1String -> Editor
+; 在光标所在处插入单字符 k
+(define (editor-ins ed k)
+  (make-editor (cons k (editor-pre ed))
+               (editor-post ed)))
+\end{lstlisting}
+
+\begin{exercise}{光标移动与删除}{179}
+设计以下三个编辑操作函数：
+\begin{itemize}
+  \item \code{editor-lft}：光标向左移动一个字符（将 \code{pre} 的首元素转移到 \code{post} 的前端）；
+  \item \code{editor-rgt}：光标向右移动一个字符（将 \code{post} 的首元素转移到 \code{pre} 的前端）；
+  \item \code{editor-del}：退格删除光标左侧的一个字符（丢弃 \code{pre} 的首元素）。
+\end{itemize}
+\end{exercise}
+
+\begin{exercise}{文本渲染函数 editor-text}{180}
+在不使用 BSL 内置 \code{implode} 的前提下，设计将 \code{Lo1S} 转换为文本图像的 \code{editor-text} 函数。
+\end{exercise}

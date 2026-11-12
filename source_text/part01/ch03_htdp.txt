@@ -1,0 +1,937 @@
+# Chapter 3: How to Design Programs / 第 3 章：如何设计程序
+
+<h1>
+3 How to Design Programs
+</h1>
+
+<P>
+The first few chapters of this book show that learning to program requires some mastery of many concepts. On the one hand, programming needs a language, a notation for communicating what we wish to compute. The languages for formulating programs are artificial constructions, though acquiring a programming language shares some elements with acquiring a natural language. Both come with vocabulary, grammar, and an understanding of what “phrases” mean.
+</P>
+
+<P>
+On the other hand, it is critical to learn how to get from a problem statement to a program. We need to determine what is relevant in the problem statement and what can be ignored. We need to tease out what the program consumes, what it produces, and how it relates inputs to outputs. We have to know, or find out, whether the chosen language and its libraries provide certain basic operations for the data that our program is to process. If not, we might have to develop auxiliary functions that implement these operations. Finally, once we have a program, we must check whether it actually performs the intended computation. And this might reveal all kinds of errors, which we need to be able to understand and fix.
+</P>
+
+<P>
+All this sounds rather complex, and you might wonder why we don’t just muddle our way through, experimenting here and there, leaving well enough alone when the results look decent. This approach to programming, often dubbed “garage programming,” is common and succeeds on many occasions; sometimes it is the launching pad for a start-up company. Nevertheless, the start-up cannot sell the results of the “garage effort” because only the original programmers and their friends can use them.
+</P>
+
+<P>
+A good program comes with a short write-up that explains what it does, what inputs it expects, and what it produces. Ideally, it also comes with some assurance that it actually works. In the best circumstances, the program’s connection to the problem statement is evident so that a small change to the problem statement is easy to translate into a small change to the program. Software engineers call this a “programming product.”
+</P>
+
+<P>
+All this extra work is necessary because programmers don’t create programs for themselves. Programmers write programs for other programmers to read, and on occasion, people run these programs to get work done. Most programs are large, complex collections of collaborating functions, and nobody can write all these functions in a day. Programmers join projects, write code, leave projects; others take over their programs and work on them. Another difficulty is that the programmer’s clients tend to change their mind about what problem they really want solved. They usually have it almost right, but more often than not, they get some details wrong. Worse, complex logical constructions such as programs almost always suffer from human errors; in short, programmers make mistakes. Eventually someone discovers these errors and programmers must fix them. They need to reread the programs from a month ago, a year ago, or twenty years ago and change them.
+</P>
+
+<MARGIN_NOTE>
+The word “other” also includes older versions of the programmer who usually cannot recall all the thinking that the younger version put into the production of the program.
+</MARGIN_NOTE>
+
+<EXERCISE>
+Exercise 33. Research the “year 2000” problem.
+</EXERCISE>
+
+<P>
+Here we present a design recipe that integrates a step-by-step process with a way of organizing programs around problem data. For the readers who don’t like to stare at blank screens for a long time, this design recipe offers a way to make progress in a systematic manner. For those of you who teach others to design programs, the recipe is a device for diagnosing a novice’s difficulties. For others, our recipe might be something that they can apply to other areas—say, medicine, journalism, or engineering. For those who wish to become real programmers, the design recipe also offers a way to understand and work on existing programs—though not all programmers use a method like this design recipe to come up with programs. The rest of this chapter is dedicated to the first baby steps into the world of the design recipe; the following chapters and parts refine and expand the recipe in one way or another.
+</P>
+
+<h2>
+3.1 Designing Functions
+</h2>
+
+<P>
+Information and Data The purpose of a program is to describe a computational process that consumes some information and produces new information. In this sense, a program is like the instructions a mathematics teacher gives to grade school students. Unlike a student, however, a program works with more than numbers: it calculates with navigation information, looks up a person’s address, turns on switches, or inspects the state of a video game. All this information comes from a part of the real world—often called the program’s domain—and the results of a program’s computation represent more information in this domain.
+</P>
+
+<P>
+Information plays a central role in our description. Think of information as facts about the program’s domain. For a program that deals with a furniture catalog, a “table with five legs” or a “square table of two by two meters” are pieces of information. A game program deals with a different kind of domain, where “five” might refer to the number of pixels per clock tick that some object travels on its way from one part of the canvas to another. Or, a payroll program is likely to deal with “five deductions.”
+</P>
+
+<P>
+For a program to process information, it must turn it into some form of data in the programming language; then it processes the data; and once it is finished, it turns the resulting data into information again. An interactive program may even intermingle these steps, acquiring more information from the world as needed and delivering information in between.
+</P>
+
+<P>
+We use BSL and DrRacket so that you do not have to worry about the translation of information into data. In DrRacket’s BSL you can apply a function directly to data and observe what it produces. As a result, we avoid the serious chicken-and-egg problem of writing functions that convert information into data and vice versa. For simple kinds of information, designing such program pieces is trivial; for anything other than simple information, you need to know about parsing, for example, and that immediately requires a lot of expertise in program design.
+</P>
+
+<P>
+Software engineers use the slogan model-view-controller (MVC) for the way BSL and DrRacket separate data processing from parsing information into data and turning data into information. Indeed, it is now accepted wisdom that well-engineered software systems enforce this separation, even though most introductory books still comingle them. Thus, working with BSL and DrRacket allows you to focus on the design of the core of programs, and, when you have enough experience with that, you can learn to design the information-data translation parts.
+</P>
+
+<P>
+Here we use two preinstalled teachpacks to demonstrate the separation of data and information: 2htdp/batch-io and 2htdp/universe. Starting with this chapter, we develop design recipes for batch and interactive programs to give you an idea of how complete programs are designed. Do keep in mind that the libraries of full-fledged programming languages offer many more contexts for complete programs, and that you will need to adapt the design recipes appropriately.
+</P>
+
+<P>
+Given the central role of information and data, program design must start with the connection between them. Specifically, we, the programmers, must decide how to use our chosen programming language to represent the relevant pieces of information as data and how we should interpret data as information. Figure 15 explains this idea with an abstract diagram.
+</P>
+
+<FIGURE src="images/00057.png">
+Figure 15: From information to data, and back
+</FIGURE>
+
+<P>
+To make this idea concrete, let’s work through some examples. Suppose you are designing a program that consumes and produces information in the form of numbers. While choosing a representation is easy, an interpretation requires explaining what a number such as 42 denotes in the domain:
+</P>
+
+<P>
+•  42 may refer to the number of pixels from the top margin in the domain of images;
+</P>
+
+<P>
+•  42 may denote the number of pixels per clock tick that a simulation or game object moves;
+</P>
+
+<P>
+•  42 may mean a temperature, on the Fahrenheit, Celsius, or Kelvin scale for the domain of physics;
+</P>
+
+<P>
+•  42 may specify the size of some table if the domain of the program is a furniture catalog; or
+</P>
+
+<P>
+•  42 could just count the number of characters in a string.
+</P>
+
+<P>
+The key is to know how to go from numbers as information to numbers as data and vice versa.
+</P>
+
+<P>
+Since this knowledge is so important for everyone who reads the program, we often write it down in the form of comments, which we call data definitions. A data definition serves two purposes. First, it names a collection of data—a class—using a meaningful word. Second, it informs readers how to create elements of this class and how to decide whether some arbitrary piece of data belongs to the collection.
+</P>
+
+<MARGIN_NOTE>
+Computing scientists use “class” to mean something like a “mathematical set.”
+</MARGIN_NOTE>
+
+<P>
+Here is a data definition for one of the above examples:
+</P>
+
+<CODE>
+; A Temperature is a Number. ; interpretation represents Celsius degrees
+</CODE>
+
+<P>
+The first line introduces the name of the data collection, Temperature, and tells us that the class consists of all Numbers. So, for example, if we ask whether 102 is a temperature, you can respond with “yes” because 102 is a number and all numbers are temperatures. Similarly, if we ask whether "cold" is a Temperature, you will say “no” because no string belongs to Temperature. And, if we asked you to make up a sample Temperature, you might come up with something like −400.
+</P>
+
+<P>
+If you happen to know that the lowest possible temperature is approximately −274° C, you may wonder whether it is possible to express this knowledge in a data definition. Since our data definitions are really just English descriptions of classes, you may indeed define the class of temperatures in a much more accurate manner than shown here. In this book, we use a stylized form of English for such data definitions, and the next chapter introduces the style for imposing constraints such as “larger than −274.”
+</P>
+
+<P>
+So far, you have encountered the names of four classes of data: Number, String, Image, and Boolean. With that, formulating a new data definition means nothing more than introducing a new name for an existing form of data, say, “temperature” for numbers. Even this limited knowledge, though, suffices to explain the outline of our design process.
+</P>
+
+<MARGIN_NOTE>
+At this point, you may wish to reread the section on Systematic Program Design in the Preface, especially figure 1.
+</MARGIN_NOTE>
+
+<P>
+The Design Process Once you understand how to represent input information as data and to interpret output data as information, the design of an individual function proceeds according to a straightforward process:
+</P>
+
+<P>
+1. Express how you wish to represent information as data. A one-line comment suffices:
+</P>
+
+<P>
+; We use numbers to represent centimeters.
+</P>
+
+<P>
+Formulate data definitions, like the one for Temperature, for the classes of data you consider critical for the success of your program.
+</P>
+
+<P>
+2. Write down a signature, a statement of purpose, and a function header.
+</P>
+
+<P>
+A function signature is a comment that tells the readers of your design how many inputs your function consumes, from which classes they are drawn, and what kind of data it produces. Here are three examples for functions that respectively
+</P>
+
+<P>
+•  consume one String and produce a Number:
+</P>
+
+<P>
+; String -> Number
+</P>
+
+<P>
+•  consume a Temperature and produce a String:
+</P>
+
+<P>
+; Temperature -> String
+</P>
+
+<P>
+As this signature points out, introducing a data definition as an alias for an existing form of data makes it easy to read the intention behind signatures.
+</P>
+
+<P>
+Nevertheless, we recommend that you stay away from aliasing data definitions for now. A proliferation of such names can cause quite a lot of confusion. It takes practice to balance the need for new names and the readability of programs, and there are more important ideas to understand right now.
+</P>
+
+<P>
+•  consume a Number, a String, and an Image:
+</P>
+
+<P>
+; Number String Image -> Image
+</P>
+
+<P>
+Stop! What does this function produce?
+</P>
+
+<P>
+A purpose statement is a BSL comment that summarizes the purpose of the function in a single line. If you are ever in doubt about a purpose statement, write down the shortest possible answer to the question
+</P>
+
+<P>
+what does the function compute?
+</P>
+
+<P>
+Every reader of your program should understand what your functions compute without having to read the function itself.
+</P>
+
+<P>
+A multi-function program should also come with a purpose statement. Indeed, good programmers write two purpose statements: one for the reader who may have to modify the code and another one for the person who wishes to use the program but not read it.
+</P>
+
+<P>
+Finally, a header is a simplistic function definition, also called a stub. Pick one variable name for each class of input in the signature; the body of the function can be any piece of data from the output class. These three function headers match the above three signatures:
+</P>
+
+<P>
+•  (define (f a-string) 0)
+</P>
+
+<P>
+•  (define(g n) "a")
+</P>
+
+<P>
+•  (define(h num str img) (empty-scene 100 100))
+</P>
+
+<P>
+Our parameter names reflect what kind of data the parameter represents. Sometimes, you may wish to use names that suggest the purpose of the parameter.
+</P>
+
+<P>
+When you formulate a purpose statement, it is often useful to employ the parameter names to clarify what is computed. For example,
+</P>
+
+<P>
+; Number String Image -> Image ; adds  s to img, ; y pixels from the top and  10 from the left (define (add-image y s img)  (empty-scene 100 100))
+</P>
+
+<P>
+At this point, you can click the RUN button and experiment with the function. Of course, the result is always the same value, which makes these experiments quite boring.
+</P>
+
+<P>
+3. Illustrate the signature and the purpose statement with some functional examples. To construct a functional example, pick one piece of data from each input class from the signature and determine what you expect back.
+</P>
+
+<P>
+Suppose you are designing a function that computes the area of a square. Clearly this function consumes the length of the square’s side, and that is best represented with a (positive) number. Assuming you have done the first process step according to the recipe, you add the examples between the purpose statement and the header and get this:
+</P>
+
+<P>
+; Number -> Number ; computes the area of a square with side len ; given: 2, expect: 4 ; given: 7, expect: 49 (define (area-of-square len) 0)
+</P>
+
+<P>
+4. The next step is to take inventory, to understand what are the givens and what we need to compute. For the simple functions we are considering right now, we know that they are given data via parameters. While parameters are placeholders for values that we don’t know yet, we do know that it is from this unknown data that the function must compute its result. To remind ourselves of this fact, we replace the function’s body with a template.
+</P>
+
+<MARGIN_NOTE>
+We owe the term “inventory” to Stephen Bloch.
+</MARGIN_NOTE>
+
+<P>
+For now, the template contains just the parameters, so that the preceding example looks like this:
+</P>
+
+<P>
+(define (area-of-square len)    (… len …))
+</P>
+
+<P>
+The dots remind you that this isn’t a complete function, but a template, a suggestion for an organization.
+</P>
+
+<P>
+The templates of this section look boring. As soon as we introduce new forms of data, templates become interesting.
+</P>
+
+<P>
+5. It is now time to code. In general, to code means to program, though often in the narrowest possible way, namely, to write executable expressions and function definitions.
+</P>
+
+<P>
+To us, coding means to replace the body of the function with an expression that attempts to compute from the pieces in the template what the purpose statement promises. Here is the complete definition for area-of-square:
+</P>
+
+<P>
+; Number -> Number ; computes the area of a square with side  len ; given: 2, expect: 4 ; given: 7, expect: 49 (define (area-of-square len)   (sqr len))
+</P>
+
+<P>
+To complete the add-image function takes a bit more work than that: see figure 16. In particular, the function needs to turn the given string s into an image, which is then placed into the given scene.
+</P>
+
+<FIGURE src="images/00058.png">
+Figure 16: The completion of design step 5
+</FIGURE>
+
+<P>
+6. The last step of a proper design is to test the function on the examples that you worked out before. For now, testing works like this. Click the RUN button and enter function applications that match the examples in the interactions area:
+</P>
+
+<P>
+> (area-of-square 2) 4 >(area-of-square 7) 49
+</P>
+
+<P>
+The results must match the output that you expect; you must inspect each result and make sure it is equal to what is written down in the example portion of the design. If the result doesn’t match the expected output, consider the following three possibilities:
+</P>
+
+<P>
+(a) You miscalculated and determined the wrong expected output for some of the examples.
+</P>
+
+<P>
+(b) Alternatively, the function definition computes the wrong result. When this is the case, you have a logical error in your program, also known as a bug.
+</P>
+
+<P>
+(c) Both the examples and the function definition are wrong.
+</P>
+
+<P>
+When you do encounter a mismatch between expected results and actual values, we recommend that you first reassure yourself that the expected results are correct. If so, assume that the mistake is in the function definition. Otherwise, fix the example and then run the tests again. If you are still encountering problems, you may have encountered the third, somewhat rare, situation.
+</P>
+
+<h2>
+3.2 Finger Exercises: Functions
+</h2>
+
+<P>
+The first few of the following exercises are almost copies of those in chapter 2.1, though where the latter use the word “define” the exercises below use the word “design.” What this difference means is that you should work through the design recipe to create these functions and your solutions should include all relevant pieces.
+</P>
+
+<P>
+As the title of the section suggests, these exercises are practice exercises to help you internalize the process. Until the steps become second nature, never skip one because doing so leads to easily avoidable errors. There is plenty of room left in programming for complicated errors; we have no need to waste our time on silly ones.
+</P>
+
+<EXERCISE>
+Exercise 34. Design the function string-first, which extracts the first character from a non-empty string. Don’t worry about empty strings.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 35. Design the function string-last, which extracts the last character from a non-empty string.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 36. Design the function image-area, which counts the number of pixels in a given image.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 37. Design the function string-rest, which produces a string like the given one with the first character removed.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 38. Design the function string-remove-last, which produces a string like the given one with the last character removed.
+</EXERCISE>
+
+<h2>
+3.3 Domain Knowledge
+</h2>
+
+<P>
+It is natural to wonder what knowledge it takes to code up the body of a function. A little bit of reflection tells you that this step demands an appropriate grasp of the domain of the program. Indeed, there are two forms of such domain knowledge:
+</P>
+
+<P>
+1. Knowledge from external domains, such as mathematics, music, biology, civil engineering, art, and so on. Because programmers cannot know all of the application domains of computing, they must be prepared to understand the language of a variety of application areas so that they can discuss problems with domain experts. Mathematics is at the intersection of many, but not all, domains. Hence, programmers must often pick up new languages as they work through problems with domain experts.
+</P>
+
+<P>
+2. Knowledge about the library functions in the chosen programming language. When your task is to translate a mathematical formula involving the tangent function, you need to know or guess that your chosen language comes with a function such as BSL’s tan. When your task involves graphics, you will benefit from understanding the possibilities of the 2htdp/image library.
+</P>
+
+<P>
+Since you can never predict the area you will be working in, or which programming language you will have to use, it is imperative that you have a solid understanding of the full possibilities of whatever computer languages are around and suitable. Otherwise some domain expert with half-baked programming knowledge will take over your job.
+</P>
+
+<P>
+You can recognize problems that demand domain knowledge from the data definitions that you work out. As long as the data definitions use classes that exist in the chosen programming language, the definition of the function body (and program) mostly relies on expertise in the domain. Later, when we introduce complex forms of data, the design of functions demands computer science knowledge.
+</P>
+
+<h2>
+3.4 From Functions to Programs
+</h2>
+
+<P>
+Not all programs consist of a single function definition. Some require several functions; many also use constant definitions. No matter what, it is always important to design every function systematically, though global constants as well as auxiliary functions change the design process a bit.
+</P>
+
+<P>
+When you have defined global constants, your functions may use them to compute results. To remind yourself of their existence, you may wish to add these constants to your templates; after all, they belong to the inventory of things that may contribute to the function definition.
+</P>
+
+<P>
+Multi-function programs come about because interactive programs automatically need functions that handle key and mouse events, functions that render the state as music, and possibly more. Even batch programs may require several different functions because they perform several separate tasks. Sometimes the problem statement itself suggests these tasks; other times you will discover the need for auxiliary functions as you are in the middle of designing some function.
+</P>
+
+<P>
+For these reasons, we recommend keeping around a list of needed functions or a wish list. Each entry on a wish list should consist of three things: a meaningful name for the function, a signature, and a purpose statement. For the design of a batch program, put the main function on the wish list and start designing it. For the design of an interactive program, you can put the event handlers, the stop-when function, and the scene-rendering function on the list. As long as the list isn’t empty, pick a wish and design the function. If you discover during the design that you need another function, put it on the list. When the list is empty, you are done.
+</P>
+
+<MARGIN_NOTE>
+We owe the term “wish list” to John Stone.
+</MARGIN_NOTE>
+
+<h2>
+3.5 On Testing
+</h2>
+
+<P>
+Testing quickly becomes a labor-intensive chore. While it is easy to run small programs in the interactions area, doing so requires a lot of mechanical labor and intricate inspections. As programmers grow their systems, they wish to conduct many tests. Soon this labor becomes overwhelming, and programmers start to neglect it. At the same time, testing is the first tool for discovering and preventing basic flaws. Sloppy testing quickly leads to buggy functions—that is, functions with hidden problems—and buggy functions retard projects, often in multiple ways.
+</P>
+
+<P>
+Hence, it is critical to mechanize tests instead of performing them manually. Like many programming languages, BSL includes a testing facility, and DrRacket is aware of this facility. To introduce this testing facility, we take a second look at the function that converts temperatures in Fahrenheit to Celsius temperatures from chapter 2.5. Here is the definition:
+</P>
+
+<CODE>
+;  Number -> Number ; converts Fahrenheit temperatures to Celsius ; given 32, expect 0 ; given 212, expect 100 ; given $-$40, expect $-$40 define (f2c f)   (* 5/9 ($-$ f 32)))
+</CODE>
+
+<P>
+Testing the function’s examples calls for three computations and three comparisons between two numbers each. You can formulate these tests and add them to the definitions area in DrRacket:
+</P>
+
+<CODE>
+(check-expect (f2c $-$40) $-$40) (check-expect (f2c 32) 0) (check-expect (f2c 212) 100)
+</CODE>
+
+<P>
+When you now click the RUN button, you see a report from BSL that the program passed all three tests—and you have nothing else to do.
+</P>
+
+<P>
+In addition to getting tests to run automatically, the check-expect forms show another advantage when tests fail. To see how this works, change one of the above tests so that the result is wrong, for example
+</P>
+
+<CODE>
+(check-expect (f2c $-$40) 40)
+</CODE>
+
+<P>
+When you now click the RUN button, an additional window pops up. The window’s text explains that one of three tests failed. For the failed test, the window displays three pieces: the computed value, the result of the function call (−40); the expected value (40); and a hyperlink to the text of the failed test case.
+</P>
+
+<P>
+You can place check-expect specifications above or below the function definitions that they test. When you click RUN, DrRacket collects all check-expect specifications and evaluates them after all function definitions have been added to the “vocabulary” of operations. Figure 17 shows how to exploit this freedom to combine the example and test step. Instead of writing down the examples as comments, you can translate them directly into tests. When you’re all done with the design of the function, clicking RUN performs the test. And if you ever change the function for some reason, the next click retests the function.
+</P>
+
+<FIGURE src="images/00059.png">
+Figure 17: Testing in BSL
+</FIGURE>
+
+<P>
+Last but not least, check-expect also works for images. That is, you can test image-producing functions. Say you wish to design the function render, which places the image of a car, dubbed CAR, into a background scene, named BACKGROUND. For the design of this function, you may formulate the tests such as the following:
+</P>
+
+<FIGURE src="images/00060.png">
+
+</FIGURE>
+
+<P>
+Alternatively, you could write them like this:
+</P>
+
+<FIGURE src="images/00061.png">
+
+</FIGURE>
+
+<P>
+This alternative approach helps you figure out how to express the function body and is therefore preferable. One way to develop such expressions is to experiment in the interactions area.
+</P>
+
+<MARGIN_NOTE>
+For additional ways of formulating tests, see intermezzo 1.
+</MARGIN_NOTE>
+
+<P>
+Because it is so useful to have DrRacket conduct the tests and not to check everything yourself manually, we immediately switch to this style of testing for the rest of the book. This form of testing is dubbed unit testing, and BSL’s unit-testing framework is especially tuned for novice programmers. One day you will switch to some other programming language; one of your first tasks will be to figure out its unit-testing framework.
+</P>
+
+<h2>
+3.6 Designing World Programs
+</h2>
+
+<P>
+While the previous chapter introduces the 2htdp/universe library in an ad hoc way, this section demonstrates how the design recipe also helps you create world programs systematically. It starts with a brief summary of the 2htdp/universe library based on data definitions and function signatures. Then it spells out the design recipe for world programs.
+</P>
+
+<P>
+The teachpack expects that a programmer develops a data definition that represents the state of the world and a function render that knows how to create an image for every possible state of the world. Depending on the needs of the program, the programmer must then design functions that respond to clock ticks, keystrokes, and mouse events. Finally, an interactive program may need to stop when its current world belongs to a sub-class of states; end? recognizes these final states. Figure 18 spells out this idea in a schematic and simplified way.
+</P>
+
+<FIGURE src="images/00062.png">
+Figure 18: The wish list for designing world programs
+</FIGURE>
+
+<P>
+Assuming that you have a rudimentary understanding of the workings of big-bang, you can focus on the truly important problem of designing world programs. Let’s construct a concrete example for the following design recipe:
+</P>
+
+<P>
+Sample Problem Design a program that moves a car from left to right on the world canvas, three pixels per clock tick.
+</P>
+
+<P>
+For this problem statement, it is easy to imagine scenes for the domain:
+</P>
+
+<FIGURE src="images/00063.png">
+
+</FIGURE>
+
+<P>
+In this book, we often refer to the domain of an interactive big-bang program as a “world,” and we speak of designing “world programs.”
+</P>
+
+<P>
+The design recipe for world programs, like the one for functions, is a tool for systematically moving from a problem statement to a working program. It consists of three big steps and one small one:
+</P>
+
+<P>
+1. For all those properties of the world that remain the same over time and are needed to render it as an Image, introduce constants. In BSL, we specify such constants via definitions. For the purpose of world programs, we distinguish between two kinds of constants:
+</P>
+
+<P>
+(a) “Physical” constants describe general attributes of objects in the world, such as the speed or velocity of an object, its color, its height, its width, its radius, and so forth. Of course these constants don’t really refer to physical facts, but many are analogous to physical aspects of the real world.
+</P>
+
+<P>
+In the context of our sample problem, the radius of the car’s wheels and the distance between the wheels are such “physical” constants:
+</P>
+
+<P>
+(define WIDTH-OF-WORLD 200) (define WHEEL-RADIUS 5) (define WHEEL-DISTANCE (* WHEEL-RADIUS 5))
+</P>
+
+<P>
+Note how the second constant is computed from the first.
+</P>
+
+<P>
+(b) Graphical constants are images of objects in the world. The program composes them into images that represent the complete state of the world.
+</P>
+
+<MARGIN_NOTE>
+We suggest you experiment in DrRacket’s interactions area to develop such graphical constants.
+</MARGIN_NOTE>
+
+<P>
+Here are graphical constants for wheel images of our sample car:
+</P>
+
+<P>
+(define WHEEL   (circle WHEEL-RADIUS "solid" "black")) (define SPACE   (rectangle … WHEEL-RADIUS … "white")) (define BOTH-WHEELS   (beside WHEEL SPACE WHEEL))
+</P>
+
+<P>
+Graphical constants are usually computed, and the computations tend to involve physical constants and other images.
+</P>
+
+<P>
+It is good practice to annotate constant definitions with a comment that explains what they mean.
+</P>
+
+<P>
+2. Those properties that change over time—in reaction to clock ticks, keystrokes, or mouse actions—give rise to the current state of the world. Your task is to develop a data representation for all possible states of the world. The development results in a data definition, which comes with a comment that tells readers how to represent world information as data and how to interpret data as information about the world.
+</P>
+
+<P>
+Choose simple forms of data to represent the state of the world.
+</P>
+
+<P>
+For the running example, it is the car’s distance from the left margin that changes over time. While the distance to the right margin changes, too, it is obvious that we need only one or the other to create an image. A distance is measured in numbers, so the following is an adequate data definition:
+</P>
+
+<P>
+; A WorldState is a Number. ; interpretation the number of pixels between ; the left border of the scene and the car
+</P>
+
+<P>
+An alternative is to count the number of clock ticks that have passed and to use this number as the state of the world. We leave this design variant as an exercise.
+</P>
+
+<P>
+3. Once you have a data representation for the state of the world, you need to design a number of functions so that you can form a valid big-bang expression.
+</P>
+
+<P>
+To start with, you need a function that maps any given state into an image so that big-bang can render the sequence of states as images:
+</P>
+
+<P>
+; render
+</P>
+
+<P>
+Next you need to decide which kind of events should change which aspects of the world state. Depending on your decisions, you need to design some or all of the following three functions:
+</P>
+
+<P>
+; clock-tick-handler ; keystroke-handler ; mouse-event-handler
+</P>
+
+<P>
+Finally, if the problem statement suggests that the program should stop if the world has certain properties, you must design
+</P>
+
+<P>
+;  end?
+</P>
+
+<P>
+For the generic signatures and purpose statements of these functions, see figure 18. Adapt these generic purpose statements to the particular problems you solve so that readers know what they compute.
+</P>
+
+<P>
+In short, the desire to design an interactive program automatically creates several initial entries for your wish list. Work them off one by one and you get a complete world program.
+</P>
+
+<P>
+Let’s work through this step for the sample program. While big-bang dictates that we must design a rendering function, we still need to figure out whether we want any event-handling functions. Since the car is supposed to move from left to right, we definitely need a function that deals with clock ticks. Thus, we get this wish list:
+</P>
+
+<P>
+; WorldState -> Image ; places the image of the car x pixels from ; the left margin of the BACKGROUND image (define(render x)   BACKGROUND) ; WorldState -> WorldState ; adds 3 to x to move the car right (define(tock x)   x)
+</P>
+
+<P>
+Note how we tailored the purpose statements to the problem at hand, with an understanding of how big-bang will use these functions.
+</P>
+
+<P>
+4. Finally, you need a main function. Unlike all other functions, a main function for world programs doesn’t demand design or testing. Its sole reason for existing is that you can launch your world program conveniently from DrRacket’s interactions area.
+</P>
+
+<P>
+The one decision you must make concerns main’s arguments. For our sample problem, we opt for one argument: the initial state of the world. Here we go:
+</P>
+
+<FIGURE src="images/00064.png">
+
+</FIGURE>
+
+<P>
+Hence, you can launch this interactive program with
+</P>
+
+<P>
+> (main 13)
+</P>
+
+<P>
+to watch the car start at 13 pixels from the left margin. It will stop when you close big-bang’s window. Remember that big-bang returns the current state of the world when the evaluation stops.
+</P>
+
+<P>
+Naturally, you don’t have to use the name “WorldState” for the class of data that represents the states of the world. Any name will do as long as you use it consistently for the signatures of the event-handling functions. Also, you don’t have to use the names tock, end?, or render. You may name these functions whatever you like, as long as you use the same names when you write down the clauses of the big-bang expression. Lastly, you may have noticed that you may list the clauses of a big-bang expression in any order as long as you list the initial state first.
+</P>
+
+<P>
+Let’s now work through the rest of the program design process, using the design recipe for functions and other design concepts spelled out so far.
+</P>
+
+<EXERCISE>
+Exercise 39. Good programmers ensure that an image such as CAR can be enlarged or reduced via a single change to a constant definition. We started the development of our car image with a single plain definition:
+</EXERCISE>
+
+<CODE>
+(define WHEEL-RADIUS 5)
+</CODE>
+
+<MARGIN_NOTE>
+Good programmers establish a single point of control for all aspects of their programs, not just the graphical constants. Several chapters deal with this issue.
+</MARGIN_NOTE>
+
+<P>
+The definition of WHEEL-DISTANCE is based on the wheel’s radius. Hence, changing WHEEL-RADIUS from 5 to 10 doubles the size of the car image. This kind of program organization is dubbed single point of control, and good design employs this idea as much as possible.
+</P>
+
+<P>
+Develop your favorite image of an automobile so that WHEEL-RADIUS remains the single point of control.
+</P>
+
+<P>
+The next entry on the wish list is the clock tick handling function:
+</P>
+
+<CODE>
+; WorldState -> WorldState ; moves the car by 3 pixels for every clock tick (define (tock ws) ws)
+</CODE>
+
+<P>
+Since the state of the world represents the distance between the left margin of the canvas and the car, and since the car moves at three pixels per clock tick, a concise purpose statement combines these two facts into one. This also makes it easy to create examples and to define the function:
+</P>
+
+<CODE>
+; WorldState -> WorldState ; moves the car by  3 pixels for every clock tick ; examples: ;   given: 20, expect 23 ;   given: 78, expect 81 (define(tock ws)   (+ ws 3))
+</CODE>
+
+<P>
+The last design step calls for confirmation that the examples work as expected. So we click the RUN button and evaluate these expressions:
+</P>
+
+<CODE>
+> (tock 20) 23 > (tock 78) 81
+</CODE>
+
+<P>
+Since the results are as expected, the design of tock is finished.
+</P>
+
+<EXERCISE>
+Exercise 40. Formulate the examples as BSL tests, that is, using the check-expect form. Introduce a mistake. Re-run the tests.
+</EXERCISE>
+
+<P>
+Our second entry on the wish list specifies a function that translates the state of the world into an image:
+</P>
+
+<CODE>
+; WorldState -> Image ; places the car into the BACKGROUND scene, ; according to the given world state (define (render ws)   BACKGROUND)
+</CODE>
+
+<P>
+To make examples for a rendering function, we suggest arranging a table like the upper half of figure 19. It lists the given world states and the desired scenes. For your first few rendering functions, you may wish to draw these images by hand.
+</P>
+
+<FIGURE src="images/00065.png">
+Figure 19: Examples for a moving car program
+</FIGURE>
+
+<P>
+Even though this kind of image table is intuitive and explains what the running function is going to display—a moving car—it does not explain how the function creates this result. To get from here to there, we recommend writing down expressions like those in the lower half of figure 19 that create the images in the table. The capitalized names refer to the obvious constants: the image of a car, its fixed y-coordinate, and the background scene, which is currently empty.
+</P>
+
+<P>
+This extended table suggests a pattern for the formula that goes into the body of the render function:
+</P>
+
+<CODE>
+; WorldState -> Image ; places the car into the  BACKGROUND scene, ; according to the given world state (define (render ws)   place-image CAR ws Y-CAR BACKGROUND))
+</CODE>
+
+<P>
+And that is mostly all there is to designing a simple world program.
+</P>
+
+<EXERCISE>
+Exercise 41. Finish the sample problem and get the program to run. That is, assuming that you have solved exercise 39, define the constants BACKGROUND and Y-CAR. Then assemble all the function definitions, including their tests. When your program runs to your satisfaction, add a tree to the scenery. We used
+</EXERCISE>
+
+<FIGURE src="images/00066.png">
+
+</FIGURE>
+
+<P>
+to create a tree-like shape. Also add a clause to the big-bang expression that stops the animation when the car has disappeared on the right side.
+</P>
+
+<P>
+After settling on an initial data representation for world states, a careful programmer may have to revisit this fundamental design decision during the rest of the design process. For example, the data definition for the sample problem represents the car as a point. But (the image of) the car isn’t just a mathematical point without width and height. Hence, the interpretation statement—the number of pixels from the left margin—is an ambiguous statement. Does this statement measure the distance between the left margin and the left end of the car? Its center point? Or even its right end? We ignored this issue here and leave it to BSL’s image primitives to make the decision for us. If you don’t like the result, revisit the data definition above and modify it or its interpretation statement to suit your taste.
+</P>
+
+<EXERCISE>
+Exercise 42. Modify the interpretation of the sample data definition so that a state denotes the x-coordinate of the right-most edge of the car.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 43. Let’s work through the same problem statement with a time-based data definition:
+</EXERCISE>
+
+<CODE>
+; An AnimationState is a Number. ; interpretation the number of clock ticks ; since the animation started
+</CODE>
+
+<P>
+Like the original data definition, this one also equates the states of the world with the class of numbers. Its interpretation, however, explains that the number means something entirely different.
+</P>
+
+<P>
+Design the functions tock and render. Then develop a big-bang expression so that once again you get an animation of a car traveling from left to right across the world’s canvas.
+</P>
+
+<P>
+How do you think this program relates to animate from the Prologue?
+</P>
+
+<P>
+Use the data definition to design a program that moves the car according to a sine wave. (Don’t try to drive like that.)
+</P>
+
+<MARGIN_NOTE>
+Dealing with mouse movements is occasionally tricky because they aren’t exactly what they seems to be. For a first idea of why that is, read the note on “Mice and Characters” in the on-line version.
+</MARGIN_NOTE>
+
+<P>
+We end the section with an illustration of mouse event handling, which also illustrates the advantages that a separation of view and model provide. Suppose we wish to allow people to move the car through “hyperspace”:
+</P>
+
+<P>
+Sample Problem Design a program that moves a car across the world canvas, from left to right, at the rate of three pixels per clock tick. If the mouse is clicked anywhere on the canvas, the car is placed at the x-coordinate of that click.
+</P>
+
+<P>
+The bold part is the expansion of the sample problem from above.
+</P>
+
+<P>
+When we are confronted with a modified problem, we use the design process to guide us to the necessary changes. If used properly, this process naturally determines what we need to add to our existing program to cope with the expansion of the problem statement. So here we go:
+</P>
+
+<P>
+1. There are no new properties, meaning we do not need new constants.
+</P>
+
+<P>
+2. The program is still concerned with just one property that changes over time, the x-coordinate of the car. Hence, the data representation suffices.
+</P>
+
+<P>
+3. The revised problem statement calls for a mouse-event handler, without giving up on the clock-based movement of the car. Hence, we state an appropriate wish:
+</P>
+
+<P>
+; WorldState Number Number String -> WorldState ; places the car at x-mouse ; if the given me is "button-down" (define (hyper x-position-of-car x-mouse y-mouse me)   x-position-of-car)
+</P>
+
+<P>
+4. Lastly, we need to modify main to take care of mouse events. All this requires is the addition of an on-mouse clause that defers to the new entry on our wish list:
+</P>
+
+<FIGURE src="images/00067.png">
+
+</FIGURE>
+
+<P>
+After all, the modified problem calls for dealing with mouse clicks and everything else remains the same.
+</P>
+
+<P>
+The rest is a mere matter of designing one more function, and for that we use the design recipe for functions.
+</P>
+
+<P>
+An entry on the wish list covers the first two steps of the design recipe for functions. Hence, our next step is to develop some functional examples:
+</P>
+
+<CODE>
+; WorldState Number Number String -> WorldState ; places the car at x-mouse ; if the given me is "button-down" ; given: 21 10 20 "enter" ; wanted: 21 ; given: 42 10 20 "button-down" ; wanted: 10 ; given:  42 10 20 "move" ; wanted: 42 (define (hyper x-position-of-car x-mouse y-mouse me)   x-position-of-car)
+</CODE>
+
+<P>
+The examples say that if the string argument is equal to "button-down", the function returns x-mouse; otherwise it returns x-position-of-car.
+</P>
+
+<EXERCISE>
+Exercise 44. Formulate the examples as BSL tests. Click RUN and watch them fail.
+</EXERCISE>
+
+<P>
+To complete the function definition, we must appeal to your fond memories from the Prologue, specifically memories about the conditional form. Using cond, hyper is a two-line definition:
+</P>
+
+<FIGURE src="images/00068.png">
+
+</FIGURE>
+
+<MARGIN_NOTE>
+In the next chapter, we explain designing with cond in detail.
+</MARGIN_NOTE>
+
+<P>
+If you solved exercise 44, rerun the program and watch all tests succeed. Assuming the tests do succeed, evaluate
+</P>
+
+<CODE>
+(main 1)
+</CODE>
+
+<P>
+in DrRacket’s interactions area and transport your car through hyperspace.
+</P>
+
+<P>
+You may wonder why this program modification is so straightforward. There are really two reasons. First, this book and its software strictly separate the data that a program tracks—the model—and the image that it shows—the view. In particular, functions that deal with events have nothing to do with how the state is rendered. If we wish to modify how a state is rendered, we can focus on the function specified in a to-draw clause. Second, the design recipes for programs and functions organize programs in the right way. If anything changes in a problem statement, following the design recipe a second time naturally points out where the original problem solution has to change. While this may look obvious for the simple kind of problems we are dealing with now, it is critical for the kind of problems that programmers encounter in the real world.
+</P>
+
+<h2>
+3.7 Virtual Pet Worlds
+</h2>
+
+<P>
+This exercise section introduces the first two elements of a virtual pet game. It starts with just a display of a cat that keeps walking across the canvas. Of course, all the walking makes the cat unhappy and its unhappiness shows. As with all pets, you can try petting, which helps some, or you can try feeding, which helps a lot more.
+</P>
+
+<P>
+So let’s start with an image of our favorite cat:
+</P>
+
+<FIGURE src="images/00069.png">
+
+</FIGURE>
+
+<P>
+Copy the cat image and paste it into DrRacket, then give the image a name with define, just like above.
+</P>
+
+<EXERCISE>
+Exercise 45. Design a “virtual cat” world program that continuously moves the cat from left to right. Let’s call it cat-prog and let’s assume it consumes the starting position of the cat. Furthermore, make the cat move three pixels per clock tick. Whenever the cat disappears on the right, it reappears on the left. You may wish to read up on the modulo function.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 46. Improve the cat animation with a slightly different image:
+</EXERCISE>
+
+<FIGURE src="images/00070.png">
+
+</FIGURE>
+
+<P>
+Adjust the rendering function from exercise 45 so that it uses one cat image or the other based on whether the x-coordinate is odd. Read up on odd? in the HelpDesk, and use a cond expression to select cat images.
+</P>
+
+<EXERCISE>
+Exercise 47. Design a world program that maintains and displays a “happiness gauge.” Let’s call it gauge-prog, and let’s agree that the program consumes the maximum level of happiness. The gauge display starts with the maximum score, and with each clock tick, happiness decreases by -0.1; it never falls below 0, the minimum happiness score. Every time the down arrow key is pressed, happiness increases by 1/5; every time the up arrow is pressed, happiness jumps by 1/3.
+</EXERCISE>
+
+<P>
+To show the level of happiness, we use a scene with a solid, red rectangle with a black frame. For a happiness level of 0, the red bar should be gone; for the maximum happiness level of 100, the bar should go all the way across the scene.
+</P>
+
+<P>
+Note When you know enough, we will explain how to combine the gauge program with the solution of exercise 45. Then we will be able to help the cat because as long as you ignore it, it becomes less happy. If you pet the cat, it becomes happier. If you feed the cat, it becomes much, much happier. So you can see why you want to know a lot more about designing world programs than these first three chapters can tell you.
+</P>

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_22"><a id="sec11-2" class="calibre16"></a>11.2 Composing Functions</h2>
+<p class="tni">Chapter 3 explains that programs are collections of definitions: structure type definitions, data definitions, constant definitions, and function definitions. To guide the division of labor among functions, the section also suggests a rough guideline:</p>
+<div class="ex">
+<p class="exf"><i class="calibre6">Design one function per task. Formulate auxiliary function definitions for every dependency between quantities in the problem.</i></p>
+</div>
+<p class="marginpar">And don’t forget tests.</p>
+<p class="tni">This part of the book introduces another guideline on auxiliary functions:</p>
+<div class="ex">
+<p class="exf"><i class="calibre6">Design one template per data definition. Formulate auxiliary function definitions when one data definition points to a second data definition.</i></p>
+</div>
+<p class="calibre8">In this section, we take a look at one specific place in the design process that may call for additional auxiliary functions: the definition step, which creates a full-fledged definition from a template. Turning a template into a complete function definition means combining the values of the template’s sub-expressions into the final answer. As you do so, you might encounter several situations that suggest the need for auxiliary functions:</p>
+<p class="nlf">1. If the composition of values requires knowledge of a particular domain of application—for example, composing two (computer) images, accounting, music, or science—design an auxiliary function.</p>
+<p class="nlf">2. If the composition of values requires a case analysis of the available values—for example, depends on a number being positive, zero, or negative— use a <samp class="mono">cond</samp> expression. If the <samp class="mono">cond</samp> looks complex, design an auxiliary function whose arguments are the template’s expressions and whose body is the <samp class="mono">cond</samp> expression.</p>
+<p class="nlf">3. If the composition of values must process an element from a self-referential data definition—a list, a natural number, or something like those—design an auxiliary function.</p>
+<p class="nll"><span epub:type="pagebreak" id="pg_318" title="318"></span>4. If everything fails, you may need to design a <b class="calibre9">more general</b> function and define the main function as a specific use of the general function. This suggestion sounds counterintuitive, but it is called for in a remarkably large number of cases.</p>
+<p class="calibre8">The last two criteria are situations that we haven’t discussed in any detail, though examples have come up before. The next two sections illustrate these principles with additional examples.</p>
+<p class="calibre8">Before we continue, though, remember that the key to managing the design of programs is to maintain the often-mentioned</p>
+<section epub:type="division">
+<h3 class="head4"><b class="calibre9">Wish List</b></h3>
+<div class="ex">
+<p class="exf">Maintain a list of function headers that must be designed to complete a program. Writing down complete function headers ensures that you can test those portions of the programs that you have finished, which is useful even though many tests will fail. Of course, when the wish list is empty, all tests should pass and all functions should be covered by tests.</p>
+</div>
+<p class="tni">Before you put a function on the wish list, you should check whether something like the function already exists in your language’s library or whether something similar is already on the wish list. BSL, BSL+, and indeed all programming languages provide many built-in operations and many library functions. You should explore your chosen language when you have time and when you have a need, so that you know what it provides.</p>
+</section>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,363 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="frontmatter" class="calibre">
+<div id="pro" style="height:0pt"></div><div class="body">
+<section epub:type="prologue">
+<hgroup>
+<h1 class="fmh1" id="calibre_pb_2"><span epub:type="pagebreak" id="pg_3" title="3" class="calibre1"></span>P<small class="calibre7">ROLOGUE</small>: H<small class="calibre7">OW</small> <small class="calibre7">TO</small> P<small class="calibre7">ROGRAM</small></h1>
+</hgroup>
+<p class="tni">When you were a small child, your parents taught you to count and perform simple calculations with your fingers: “1 + 1 is 2”; “1 + 2 is 3”; and so on. Then they would ask “what’s 3 + 2?” and you would count off the fingers of one hand. They programmed, and you computed. And in some way, that’s really all there is to programming and computing.</p>
+<p class="marginpar">Download DrRacket from its web site.</p>
+<p class="calibre8">Now it is time to switch roles. Start DrRacket. Doing so brings up the window of <a id="rfig3" href="part0004_split_001.html#fig3" class="calibre5">figure 3</a>. Select “Choose language” from the “Language” menu, which opens a dialog listing “Teaching Languages” for “How to Design Programs.” Choose “Beginning Student” (the Beginning Student Language, or BSL) and click <i class="calibre6">OK</i> to set up DrRacket. With this task completed, <b class="calibre9">you</b> can program, and the DrRacket software becomes the child. Start with the simplest of all calculations. You type</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 1 1)</samp></p>
+</div>
+<p class="tni">into the top part of DrRacket, click <i class="calibre6">RUN</i>, and a <samp class="mono">2</samp> shows up in the bottom.</p>
+<div class="figure">
+<figure class="img"><a id="fig3" class="calibre5"></a><img src="../images/00004.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig3" class="calibre5">Figure 3</a>:</span> <span>Meet DrRacket</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">That’s how simple programming is. You ask questions as if DrRacket were a child, and DrRacket computes for you. You can also ask DrRacket to process several requests at once:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(+ 2 2)<br class="calibre4"/>(* 3 3)<br class="calibre4"/>(- 4 2)<br class="calibre4"/>(/ 6 2)</samp></p>
+</div>
+<p class="tni">After you click <i class="calibre6">RUN</i>, you see <samp class="mono">4 9 2 3</samp> in the bottom half of DrRacket, which are the expected results.</p>
+<p class="calibre8">Let’s slow down for a moment and introduce some words:</p>
+<p class="blf">•  The top half of DrRacket is called the <i class="calibre6">definitions area</i>. In this area, you create the programs, which is called <i class="calibre6">editing</i>. As soon as you add a word or change something in the definitions area, the <i class="calibre6">SAVE</i> button shows up in the top-left corner. When you click <i class="calibre6">SAVE</i> for the first <span epub:type="pagebreak" id="pg_4" title="4"></span>time, DrRacket asks you for the name of a file so that it can store your program for good. Once your definitions area is associated with a file, clicking <i class="calibre6">SAVE</i> ensures that the content of the definitions area is stored safely in the file.</p>
+<p class="blf">•  <i class="calibre6">Programs</i> consist of <i class="calibre6">expressions</i>. You have seen expressions in mathematics. For now, an expression is either a plain number or something that starts with a left parenthesis “(” and ends in a matching right parenthesis “)”—which DrRacket rewards by shading the area between the pair of parentheses.</p>
+<p class="bll">•  When you click <i class="calibre6">RUN</i>, DrRacket evaluates the expressions in the definitions area and shows their result in the <i class="calibre6">interactions area</i>. Then, DrRacket, your faithful servant, awaits your commands at the <i class="calibre6">prompt</i> (&gt;). The appearance of the prompt signals that DrRacket is waiting <span epub:type="pagebreak" id="pg_5" title="5"></span>for you to enter additional expressions, which it then evaluates like those in the definitions area:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">&gt; (+ 1 1)<br class="calibre4"/>2</samp></p>
+</div>
+<p class="myitemizeitem">Enter an expression at the prompt, hit the “return” or “enter” key on your keyboard, and watch how DrRacket responds with the result. You can do so as often as you wish:</p>
+<div class="alltt-l">
+<p class="code-new"><samp class="mono">&gt; (+ 2 2)<br class="calibre4"/>4<br class="calibre4"/>&gt; (* 3 3)<br class="calibre4"/>9<br class="calibre4"/>&gt; (- 4 2)<br class="calibre4"/>2<br class="calibre4"/>&gt; (/ 6 2)<br class="calibre4"/>3<br class="calibre4"/>&gt; (sqr 3)<br class="calibre4"/>9<br class="calibre4"/>&gt; (expt 2 3)<br class="calibre4"/>8<br class="calibre4"/>&gt; (sin 0)<br class="calibre4"/>0<br class="calibre4"/>&gt; (cos pi)<br class="calibre4"/>#i-1.0</samp></p>
+</div>
+<p class="tni">Take a close look at the last number. Its “#i” prefix is short for “I don’t really know the precise number so take that for now” or an <i class="calibre6">inexact number</i>. Unlike your calculator or other programming systems, DrRacket is honest. When it doesn’t know the exact number, it warns you with this special prefix. Later, we will show you really strange facts about “computer numbers,” and you will then truly appreciate that DrRacket issues such warnings.</p>
+<p class="calibre8">By now you might be wondering whether DrRacket can add more than two numbers at once, and yes, it can! As a matter of fact, it can do it in two different ways:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+ 2 (+ 3 4))<br class="calibre4"/>9<br class="calibre4"/>&gt; (+ 2 3 4)<br class="calibre4"/>9</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_6" title="6"></span>The first one is <i class="calibre6">nested arithmetic</i>, as you know it from school. The second one is <i class="calibre6">BSL arithmetic</i>; and the latter is natural, because in this notation you always use parentheses to group operations and numbers together.</p>
+<p class="marginpar">This book does not teach you Racket, even if the editor is called DrRacket. See the Preface, especially the section on <i class="calibre6">DrRacket and the Teaching Languages</i> for details on the choice to develop our own language.</p>
+<p class="calibre8">In BSL, every time you want to use a “calculator operation,” you write down an opening parenthesis, the operation you wish to perform, say <samp class="mono">+</samp>, the numbers on which the operation should work (separated by spaces or even line breaks), and, finally, a closing parenthesis. The items following the operation are called the <i class="calibre6">operands</i>. Nested arithmetic means that you can use an expression for an operand, which is why</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+ 2 (+ 3 4))<br class="calibre4"/>9</samp></p>
+</div>
+<p class="tni">is a fine program. You can do this as often as you wish:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+ 2 (+ (* 3 3) 4))<br class="calibre4"/>15<br class="calibre4"/>&gt; (+ 2 (+ (* 3 (/ 12 4)) 4))<br class="calibre4"/>15<br class="calibre4"/>&gt; (+ (* 5 5) (+ (* 3 (/ 12 4)) 4))<br class="calibre4"/>38</samp></p>
+</div>
+<p class="tni">There are no limits to nesting, except for your patience.</p>
+<p class="calibre8">Naturally, when DrRacket calculates for you, it uses the rules that you know and love from math. Like you, it can determine the result of an addition only when all the operands are plain numbers. If an operand is a parenthesized operator expression—something that starts with a “(” and an operation—it determines the result of that nested expression first. Unlike you, it never needs to ponder which expression to calculate first—because this first rule is the only rule there is.</p>
+<p class="calibre8">The price for DrRacket’s convenience is that parentheses have meaning. You must enter all these parentheses, and you may not enter too many. For example, while extra parentheses are acceptable to your math teacher, this is not the case for BSL. The expression <samp class="mono">(+ (1) (2))</samp> contains way too many parentheses, and DrRacket lets you know in no uncertain terms:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+ (1) (2))<br class="calibre4"/>function call:expected a function after the open parenthesis, found a number</samp></p>
+</div>
+<p class="calibre8">Once you get used to BSL programming, though, you will see that it isn’t a price at all. First, you get to use operations on several operands at once, if it is natural to do so:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_7" title="7"></span>&gt; (+ 1 2 3 4 5 6 7 8 9 0)<br class="calibre4"/>45<br class="calibre4"/>&gt; (* 1 2 3 4 5 6 7 8 9 0)<br class="calibre4"/>0 </samp></p>
+</div>
+<p class="tni">If you don’t know what an operation does for several operands, enter an example into the interactions area and hit “return”; DrRacket lets you know whether and how it works. Or use HelpDesk to read the documentation. Second, when you read programs that others write, you will never have to wonder which expressions are evaluated first. The parentheses and the nesting will immediately tell you.</p>
+<p class="marginpar">As you may have noticed, the names of operations in the on-line text are linked to the documentation in HelpDesk.</p>
+<p class="calibre8">In this context, to program is to write down comprehensible arithmetic expressions, and to compute is to determine their value. With DrRacket, it is easy to explore this kind of programming and computing.</p>
+<p class="fmh2"><a id="sec-6" class="calibre5"></a>Arithmetic and Arithmetic</p>
+<p class="tni">If programming were just about numbers and arithmetic, it would be as boring as mathematics. Fortunately, there is much more to programming than numbers: text, truths, images, and a great deal more.</p>
+<p class="marginpar">Just kidding: mathematics is a fascinating subject, but you won’t need much of it for now.</p>
+<p class="calibre8">The first thing you need to know is that in BSL, text is any sequence of keyboard characters enclosed in double quotes (<span class="colorbox"><samp class="mono">"</samp></span>). We call it a string. Thus, <samp class="mono">"hello world"</samp> is a perfectly fine string; and when DrRacket evaluates this string, it just echoes it back in the interactions area, like a number:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; "hello world"<br class="calibre4"/>"hello world"</samp></p>
+</div>
+<p class="tni">Indeed, many people’s first program is one that displays exactly this string.</p>
+<p class="calibre8">Otherwise, you need to know that in addition to an arithmetic of numbers, DrRacket also knows about an arithmetic of strings. So here are two interactions that illustrate this form of arithmetic:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string-append "hello" "world")<br class="calibre4"/>"helloworld"<br class="calibre4"/>&gt; (string-append "hello " "world")<br class="calibre4"/>"hello world"</samp></p>
+</div>
+<p class="tni">Just like <samp class="mono">+</samp>, <samp class="mono">string-append</samp> is an operation; it makes a string by adding the second to the end of the first. As the first interaction shows, it does this literally, without adding anything between the two strings: no blank <span epub:type="pagebreak" id="pg_8" title="8"></span>space, no comma, nothing. Thus, if you want to see the phrase <samp class="mono">"hello world"</samp>, you really need to add a space to one of these words somewhere; that’s what the second interaction shows. Of course, the most natural way to create this phrase from the two words is to enter</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(string-append "hello" " " "world")</samp></p>
+</div>
+<p class="tni">because <samp class="mono">string-append</samp>, like <samp class="mono">+</samp>, can handle as many operands as desired.</p>
+<p class="calibre8">You can do more with strings than append them. You can extract pieces from a string, reverse them, render all letters uppercase (or lowercase), strip blank spaces from the left and right, and so on. And best of all, you don’t have to memorize any of that. If you need to know what you can do with strings, look up the term in HelpDesk.</p>
+<p class="marginpar">Use F1 or the drop-down menu on the right to open HelpDesk. Look at the manuals for BSL and its section on pre-defined operations, especially those for strings.</p>
+<p class="calibre8">If you looked up the primitive operations of BSL, you saw that <i class="calibre6">primitive</i> (sometimes called <i class="calibre6">pre-defined</i> or <i class="calibre6">built-in</i>) operations can consume strings and produce numbers:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (+ (string-length "hello world") 20)<br class="calibre4"/>31<br class="calibre4"/>&gt; (number-&gt;string 42)<br class="calibre4"/>"42"</samp></p>
+</div>
+<p class="tni">There is also an operation that converts strings into numbers:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string-&gt;number "42")<br class="calibre4"/>42</samp></p>
+</div>
+<p class="tni">If you expected “forty-two” or something clever along those lines, sorry, that’s really not what you want from a string calculator.</p>
+<p class="calibre8">The last expression raises a question, though. What if someone uses <samp class="mono">string-&gt;number</samp> with a string that is not a number wrapped within string quotes? In that case, the operation produces a different kind of result:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (string-&gt;number "hello world")<br class="calibre4"/>#false</samp></p>
+</div>
+<p class="tni">This is neither a number nor a string; it is a Boolean. Unlike numbers and strings, Boolean values come in only two varieties: <samp class="mono">#true</samp> and <samp class="mono">#false</samp>. The first is truth, the second falsehood. Even so, DrRacket has several operations for combining Boolean values:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_9" title="9"></span>&gt; (and #true #true)<br class="calibre4"/>#true<br class="calibre4"/>&gt; (and #true #false)<br class="calibre4"/>#false<br class="calibre4"/>&gt; (or #true #false)<br class="calibre4"/>#true<br class="calibre4"/>&gt; (or #false #false)<br class="calibre4"/>#false<br class="calibre4"/>&gt; (not #false)<br class="calibre4"/>#true</samp></p>
+</div>
+<p class="tni">and you get the results that the name of the operation suggests. (Don’t know what <samp class="mono">and</samp>, <samp class="mono">or</samp>, and <samp class="mono">not</samp> compute? Easy: <samp class="mono">(and x y)</samp> is true if <samp class="mono">x</samp> and <samp class="mono">y</samp> are true; <samp class="mono">(or x y)</samp> is true if either <samp class="mono">x</samp> or <samp class="mono">y</samp> or both are true; and <samp class="mono">(not x)</samp> results in <samp class="mono">#true</samp> precisely when <samp class="mono">x</samp> is <samp class="mono">#false</samp>.)</p>
+<p class="calibre8">It is also useful to “convert” two numbers into a Boolean:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (&gt; 10 9)<br class="calibre4"/>#true<br class="calibre4"/>&gt; (&lt; -1 0)<br class="calibre4"/>#true<br class="calibre4"/>&gt; (= 42 9)<br class="calibre4"/>#false</samp></p>
+</div>
+<p class="tni">Stop! Try the following three expressions: <samp class="mono">(&gt;= 10 10)</samp>, <samp class="mono">(&lt;= -1 0)</samp>, and <samp class="mono">(string=? "design" "tinker")</samp>. This last one is different again; but don’t worry, you can do it.</p>
+<p class="calibre8">With all these new kinds of data—yes, numbers, strings, and Boolean values are data—and operations floating around, it is easy to forget some basics, like nested arithmetic:</p>
+<figure class="co"><img src="../images/00005.gif" alt="" class="calibre10"/></figure>
+<p class="tni">What is the result of this expression? How did you figure it out? All by yourself? Or did you just type it into DrRacket’s interactions area and hit the “return” key? If you did the latter, do you think you would know how to do this on your own? After all, if you can’t predict what DrRacket does for small expressions, you may not want to trust it when you submit larger tasks than that for evaluation.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_10" title="10"></span>Before we show you how to do some “real” programming, let’s discuss one more kind of data to spice things up: images. When you insert an image into the interactions area and hit “return” like this</p>
+<figure class="co"><img src="../images/00006.jpeg" alt="" class="calibre10"/></figure>
+<p class="tni">DrRacket replies with the image. In contrast to many other programming languages, BSL understands images, and it supports an arithmetic of images just as it supports an arithmetic of numbers or strings. In short, your programs can calculate with images, and you can do so in the interactions area. Furthermore, BSL programmers—like the programmers for other programming languages—create <i class="calibre6">libraries</i> that others may find helpful. Using such libraries is just like expanding your vocabularies with new words or your programming vocabulary with new primitives. We dub such libraries <i class="calibre6">teachpacks</i> because they are helpful with teaching.</p>
+<p class="marginpar">To insert images such as this rocket into DrRacket, use the <samp class="monospace-italic">Insert</samp> menu. Or, copy and paste the image from your browser into DrRacket.</p>
+<p class="calibre8">One important library—the <i class="calibre6">2htdp/image</i> library—supports operations for computing the width and height of an image:</p>
+<figure class="co"><img src="../images/00007.jpeg" alt="" class="calibre10"/></figure>
+<p class="tni">Once you have added the library to your program, clicking <i class="calibre6">RUN</i> gives you <samp class="mono">1176</samp> because that’s the area of a 28 by 42 image.</p>
+<p class="marginpar">Add <samp class="monospace-noitalic">(require 2htdp/image)</samp> to the <b class="calibre9">definitions area</b>, or select <samp class="monospace-italic">Add Teachpack</samp> from the <samp class="monospace-italic">Language</samp> menu and choose <samp class="monospace-italic">image</samp> from the <samp class="monospace-italic">Preinstalled HtDP/2e Teachpack</samp> menu.</p>
+<p class="calibre8">You don’t have to use Google to find images and insert them in your DrRacket programs with the “Insert” menu. You can also instruct DrRacket to create simple images from scratch:</p>
+<figure class="co"><img src="../images/00008.gif" alt="" class="calibre10"/></figure>
+<p class="tni">When the result of an expression is an image, DrRacket draws it into the interactions area. But otherwise, a BSL program deals with images as data that is just like numbers. In particular, BSL has operations for combining images in the same way that it has operations for adding numbers or appending strings:</p>
+<figure class="co"><img src="../images/00009.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_11" title="11"></span>Overlaying these images in the opposite order produces a solid blue square:</p>
+<figure class="co"><img src="../images/00010.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop and reflect on this last result for a moment.</p>
+<p class="calibre8">As you can see, <samp class="mono">overlay</samp> is more like <samp class="mono">string-append</samp> than <samp class="mono">+</samp>, but it does “add” images just like <samp class="mono">string-append</samp> “adds” strings and <samp class="mono">+</samp> adds numbers. Here is another illustration of the idea:</p>
+<figure class="co"><img src="../images/00011.gif" alt="" class="calibre10"/></figure>
+<p class="tni">These interactions with DrRacket don’t draw anything at all; they really just measure their width.</p>
+<p class="calibre8">Two more operations matter: <samp class="mono">empty-scene</samp> and <samp class="mono">place-image</samp>. The first creates a scene, a special kind of rectangle. The second places an image into such a scene:</p>
+<figure class="co"><img src="../images/00012.gif" alt="" class="calibre10"/></figure>
+<p class="tni">and you get this:</p>
+<figure class="co"><img src="../images/00013.gif" alt="" class="calibre10"/></figure>
+<p class="marginpar">Not quite. The image comes without a grid. We superimpose the grid on the empty scene so that you can see where exactly the green dot is placed.</p>
+<p class="tni">As you can see from this image, the origin (or (0,0)) is in the upper-left corner. Unlike in mathematics, the y-coordinate is measured <b class="calibre9">downward</b>, <span epub:type="pagebreak" id="pg_12" title="12"></span>not upward. Otherwise, the image shows what you should have expected: a solid green disk at the coordinates (50,80) in a 100 by 100 empty rectangle.</p>
+<p class="calibre8">Let’s summarize again. To program is to write down an arithmetic expression, but you’re no longer restricted to boring numbers. In BSL, arithmetic is the arithmetic of numbers, strings, Booleans, and even images. To compute, though, still means to determine the value of an expression—except that this value can be a string, a number, a Boolean, or an image.</p>
+<p class="calibre8">And now you’re ready to write programs that make rockets fly.</p>
+<p class="fmh2"><a id="sec-7" class="calibre5"></a>Inputs and Output</p>
+<p class="tni">The programs you have written so far are pretty boring. You write down an expression or several expressions; you click <i class="calibre6">RUN</i>; you see some results. If you click <i class="calibre6">RUN</i> again, you see the exact same results. As a matter of fact, you can click <i class="calibre6">RUN</i> as often as you want, and the same results show up. In short, your programs really are like calculations on a pocket calculator, except that DrRacket calculates with all kinds of data, not just numbers.</p>
+<p class="calibre8">That’s good news and bad news. It is good because programming and computing ought to be a natural generalization of using a calculator. It is bad because the purpose of programming is to deal with lots of data and to get lots of different results, with more or less the same calculations. (It should also compute these results quickly, at least faster than we can.) That is, you need to learn more still before you know how to program. No need to worry though: with all your knowledge about arithmetic of numbers, strings, Boolean values, and images, you’re almost ready to write a program that creates movies, not just some silly program for displaying “hello world” somewhere. And that’s what we’re going to do next.</p>
+<p class="calibre8">Just in case you didn’t know, a movie is a sequence of images that are rapidly displayed in order. If your algebra teachers had known about the “arithmetic of images” that you saw in the preceding section, you could have produced movies in algebra instead of boring number sequences. Well, here is one more such table:</p>
+<figure class="co"><img src="../images/00014.gif" alt="" class="calibre11"/></figure>
+<p class="tni">Your teachers would now ask you to fill in the blank, that is, replace the “?” mark with a number.</p>
+<p class="calibre8">It turns out that making a movie is no more complicated than completing a table of numbers like that. Indeed, it is all about such tables:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_13" title="13"></span><img src="../images/00015.gif" alt="" class="calibre10"/></figure>
+<p class="tni">To be concrete, your teacher should ask you here to draw the fourth image, the fifth, and the 1273rd one because a movie is just a lot of images, some 20 or 30 of them per second. So you need some 1200 to 1800 of them to make one minute’s worth of it.</p>
+<p class="calibre8">You may also recall that your teacher not only asked for the fourth or fifth number in some sequence but also for an expression that determines any element of the sequence from a given <i class="calibre6">x</i>. In the numeric example, the teacher wants to see something like this:</p>
+<figure class="co"><img src="../images/00016.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If you plug in 1, 2, 3, and so on for <i class="calibre6">x</i>, you get 1, 4, 9, and so on for <i class="calibre6">y</i>—just as the table says. For the sequence of images, you could say something like</p>
+<p class="cen"><i class="calibre6">y</i> = the image that contains a dot <i class="calibre6">x</i><sup class="calibre15">2</sup> pixels below the top.</p>
+<p class="tni">The key is that these one-liners are not just expressions but functions.</p>
+<p class="calibre8">At first glance, functions are like expressions, always with a <i class="calibre6">y</i> on the left, followed by an = sign, and an expression. They aren’t expressions, however. And the notation you often see in school for functions is utterly misleading. In DrRacket, you therefore write functions a bit differently:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (y x) (* x x))</samp></p>
+</div>
+<p class="tni">The <samp class="mono">define</samp> says “consider <samp class="mono">y</samp> a function,” which, like an expression, computes a value. A function’s value, though, depends on the value of something called the <i class="calibre6">input</i>, which we express with <samp class="mono">(y x)</samp>. Since we don’t know what this input is, we use a name to represent the input. Following the mathematical tradition, we use <samp class="mono">x</samp> here to stand in for the unknown input; but pretty soon, we will use all kinds of names.</p>
+<p class="calibre8">This second part means you must supply one number—for <samp class="mono">x</samp>—to determine a specific value for <samp class="mono">y</samp>. When you do, DrRacket plugs the value for <samp class="mono">x</samp> into the expression associated with the function. Here the expression is <samp class="mono">(* x x)</samp>. Once <samp class="mono">x</samp> is replaced with a value, say <samp class="mono">1</samp>, DrRacket can compute the result of the expressions, which is also called the <i class="calibre6">output</i> of the function.</p>
+<p class="marginpar">Mathematics also calls <i class="calibre6">y(1)</i> a function application, but your teachers forgot to tell you.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_14" title="14"></span>Click <i class="calibre6">RUN</i> and watch nothing happen. Nothing shows up in the interactions area. Nothing seems to change anywhere else in DrRacket. It is as if you hadn’t accomplished anything. But you did. You actually defined a function and informed DrRacket about its existence. As a matter of fact, the latter is now ready for you to use the function. Enter</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(y 1)</samp></p>
+</div>
+<p class="tni">at the prompt in the interactions area and watch a <samp class="mono">1</samp> appear in response. The <samp class="mono">(y 1)</samp> is called a <i class="calibre6">function application</i> in DrRacket. Try</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(y 2)</samp></p>
+</div>
+<p class="tni">and see a <samp class="mono">4</samp> pop out. Of course, you can also enter all these expressions in the definitions area and click <i class="calibre6">RUN</i>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (y x) (* x x))<br class="calibre4"/><br class="calibre4"/>(y 1)<br class="calibre4"/>(y 2)<br class="calibre4"/>(y 3)<br class="calibre4"/>(y 4)<br class="calibre4"/>(y 5)</samp></p>
+</div>
+<p class="tni">In response, DrRacket displays: <samp class="mono">1 4 9 16 25</samp>, which are the numbers from the table. Now determine the missing entry.</p>
+<p class="calibre8">What all this means for you is that functions provide a rather economic way of computing lots of interesting values with a single expression. Indeed, programs are functions; and once you understand functions well, you know almost everything there is to know about programming. Given their importance, let’s recap what we know about functions so far:</p>
+
+<p class="blf">•  First,<br class="calibre4"/><br class="calibre4"/>    <samp class="mono">(define</samp><samp class="monospace-italic"> (FunctionName InputName) BodyExpression)</samp><br class="calibre4"/><br class="calibre4"/>is a <i class="calibre6">function definition</i>. You recognize it as such because it starts with the “<samp class="mono">define</samp>” keyword. It essentially consists of three pieces: two names and an expression. The first name is the name of the function; you need it to apply the function as often as you wish. The second name—called a <i class="calibre6">parameter</i>—represents the input of the function, which is unknown until you apply the function. The expression, dubbed <i class="calibre6">body</i>, computes the output of the function for a specific input.</p>
+
+<p class="bll">•  Second,<br class="calibre4"/><br class="calibre4"/>    <span epub:type="pagebreak" id="pg_15" title="15"></span><samp class="monospace-italic">(FunctionName ArgumentExpression)</samp><br class="calibre4"/><br class="calibre4"/>is a <i class="calibre6">function application</i>. The first part tells DrRacket which function you wish to use. The second part is the input to which you want to apply the function. If you were reading a Windows or a Mac manual, it might tell you that this expression “launches” the “application” called <samp class="monospace-italic">FunctionName</samp> and that it is going to process <samp class="monospace-italic">ArgumentExpression</samp> as the input. Like all expressions, the latter is possibly a plain piece of data or a deeply nested expression.</p>
+<p class="calibre8">Functions can input more than numbers, and they can output all kinds of data, too. Our next task is to create a function that simulates the second table—the one with images of a colored dot—just like the first function simulated the numeric table. Since the creation of images from expressions isn’t something you know from high school, let’s start simply. Do you remember <samp class="mono">empty-scene</samp>? We quickly mentioned it at the end of the previous section. When you type it into the interactions area, like that:</p>
+<figure class="co"><img src="../images/00017.gif" alt="" class="calibre10"/></figure>
+<p class="tni">DrRacket produces an empty rectangle, also called a scene. You can add images to a scene with <samp class="mono">place-image</samp>:</p>
+<figure class="co"><img src="../images/00018.jpeg" alt="" class="calibre10"/></figure>
+<p class="tni">Think of the rocket as an object that is like the dot in the above table from your mathematics class. The difference is that a rocket is interesting.</p>
+<p class="calibre8">Next, you should make the rocket descend, just like the dot in the above table. From the preceding section, you know how to achieve this effect by increasing the y-coordinate that is supplied to <samp class="mono">place-image</samp>:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_16" title="16"></span><img src="../images/00019.jpeg" alt="" class="calibre10"/></figure>
+<p class="tni">All that’s needed now is to produce lots of these scenes easily and to display all of them in rapid order.</p>
+<p class="calibre8">The first goal can be achieved with a function, of course; see <a id="rfig4" href="part0004_split_001.html#fig4" class="calibre5">figure 4</a>. Yes, this is a function definition. Instead of <samp class="mono">y</samp>, it uses the name <samp class="mono">picture-of-rocket</samp>, a name that immediately tells you what the function outputs: a scene with a rocket. Instead of <samp class="mono">x</samp>, the function definition uses <samp class="mono">height</samp> for the name of its parameter, a name that suggests that it is a number and that it tells the function where to place the rocket. The body expression of the function is exactly like the series of expressions with which we just experimented, except that it uses <samp class="mono">height</samp> in place of a number. And we can easily create all of those images with this one function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_17" title="17"></span>(picture-of-rocket 0)<br class="calibre4"/>(picture-of-rocket 10)<br class="calibre4"/>(picture-of-rocket 20)<br class="calibre4"/>(picture-of-rocket 30)</samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig4" class="calibre5"></a><img src="../images/00020.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig4" class="calibre5">Figure 4</a>:</span> <span>Landing a rocket (version 1)</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Try this out in the definitions area or the interactions area; both create the expected scenes.</p>
+<p class="marginpar">In BSL, you can use all kinds of characters in names, including “-” and “.”.</p>
+<p class="calibre8">The second goal requires knowledge about one additional primitive operation from the <i class="calibre6">2htdp/universe</i> library: <samp class="mono">animate</samp>. So, click <i class="calibre6">RUN</i> and enter the following expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (animate picture-of-rocket)</samp></p>
+</div>
+<p class="tni">Stop and note that the argument expression is a function. Don’t worry for now about using functions as arguments; it works well with <samp class="mono">animate</samp>, but don’t try to define functions like <samp class="mono">animate</samp> at home just yet.</p>
+<p class="marginpar">Don’t forget to add the <i class="calibre6">2htdp/universe</i> library to your definitions area.</p>
+<p class="calibre8">As soon as you hit the “return” key, DrRacket evaluates the expression; but it does not display a result, not even a prompt. It opens another window—a <i class="calibre6">canvas</i>—and starts a clock that ticks 28 times per second. Every time the clock ticks, DrRacket applies <samp class="mono">picture-of-rocket</samp> to the number of ticks passed since this function call. The results of these function calls are displayed in the canvas, and it produces the effect of an animated movie. The simulation runs until you close the window. At that point, <samp class="mono">animate</samp> returns the number of ticks that have passed.</p>
+<p class="calibre8">The question is where the images on the window come from. The short explanation is that <samp class="mono">animate</samp> runs its operand on the numbers <samp class="mono">0</samp>, <samp class="mono">1</samp>, <samp class="mono">2</samp>, and so on, and displays the resulting images. The long explanation is this:</p>
+<p class="blf">•  <samp class="mono">animate</samp> starts a clock and counts the number of ticks;</p>
+<p class="blf">•  the clock ticks 28 times per second;</p>
+<p class="blf">•  every time the clock ticks, <samp class="mono">animate</samp> applies the function <samp class="mono">picture-of-rocket</samp> to the current clock tick; and</p>
+<p class="bll">•  the scene that this application creates is displayed on the canvas.</p>
+<p class="tni">This means that the rocket first appears at height <samp class="mono">0</samp>, then <samp class="mono">1</samp>, then <samp class="mono">2</samp>, and so on, which explains why the rocket descends from the top of the canvas to the bottom. That is, our three-line program creates some 100 pictures in about 3.5 seconds, and displaying these pictures rapidly creates the effect of a rocket descending to the ground.</p>
+<p class="marginpar">Exercise 298 explains how to design <samp class="monospace-margin">animate</samp>.</p>
+<p class="calibre8">So here is what you learned in this section. Functions are useful because they can process lots of data in a short time. You can launch a function by <span epub:type="pagebreak" id="pg_18" title="18"></span>hand on a few select inputs to ensure that it produces the proper outputs. This is called testing a function. Or, DrRacket can launch a function on lots of inputs with the help of some libraries; when you do that, you are running the function. Naturally, DrRacket can launch functions when you press a key on your keyboard or when you manipulate the mouse of your computer. To find out how, keep reading. Whatever triggers a function application isn’t important, but do keep in mind that (simple) programs are functions.</p>
+<p class="fmh2"><a id="sec-8" class="calibre5"></a>Many Ways to Compute</p>
+<p class="tni">When you evaluate <samp class="mono">(animate picture-of-rocket)</samp>, the rocket eventually disappears into the ground. That’s plain silly. Rockets in old science fiction movies don’t sink into the ground; they gracefully land on their bottoms, and the movie should end right there.</p>
+<p class="calibre8">This idea suggests that computations should proceed differently, depending on the situation. In our example, the <samp class="mono">picture-of-rocket</samp> program should work “as is” while the rocket is in flight. When the rocket’s bottom touches the bottom of the canvas, however, it should stop the rocket from descending any farther.</p>
+<p class="calibre8">In a sense, the idea shouldn’t be new to you. Even your mathematics teachers define functions that distinguish various situations:</p>
+<figure class="co"><img src="../images/00021.gif" alt="" class="calibre10"/></figure>
+<p class="tni">This <i class="calibre6">sign</i> function distinguishes three kinds of inputs: those numbers that are larger than 0, those equal to 0, and those smaller than 0. Depending on the input, the result of the function is +1, 0, or −1.</p>
+<p class="calibre8">You can define this function in DrRacket without much ado using a <samp class="mono">cond</samp>itional expression:</p>
+<figure class="co"><img src="../images/00022.gif" alt="" class="calibre10"/></figure>
+<p class="tni">After you click <i class="calibre6">RUN</i>, you can interact with <samp class="mono">sign</samp> like any other function:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_19" title="19"></span>&gt; (sign 10)<br class="calibre4"/>1<br class="calibre4"/>&gt; (sign -5)<br class="calibre4"/>-1<br class="calibre4"/>&gt; (sign 0)<br class="calibre4"/>0</samp></p>
+</div>
+<p class="marginpar">Open a new tab in DrRacket and start with a clean slate.</p>
+<p class="calibre8">In general, a <i class="calibre6">conditional expression</i> has the shape</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(cond<br class="calibre4"/>    [</samp><samp class="monospace-italic">ConditionExpression1 ResultExpression1</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">[</samp><samp class="monospace-italic">ConditionExpression2 ResultExpression2</samp><samp class="mono">]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono"><span>…</span></samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  </samp><samp class="mono">[</samp><samp class="monospace-italic">ConditionExpressionN ResultExpressionN</samp><samp class="mono">])</samp></samp></p>
+</div>
+<p class="marginpar">This is a good time to explore what the <i class="calibre6">STEP</i> button does. Add <samp class="monospace-margin">(sign -5)</samp> to the definitions area and click <i class="calibre6">STEP</i> for the above <samp class="monospace-margin">sign</samp> program. When the new window comes up, click the right and left arrows there.</p>
+<p class="tni">That is, a <samp class="mono">cond</samp>itional expression consists of as many <i class="calibre6">conditional lines</i> as needed. Each line contains two expressions: the left one is often called <i class="calibre6">condition</i>, and the right one is called <i class="calibre6">result</i>; occasionally we also use <i class="calibre6">question</i> and <i class="calibre6">answer</i>. To evaluate a <samp class="mono">cond</samp> expression, DrRacket evaluates the first condition expression, <samp class="monospace-italic">ConditionExpression1</samp>. If this yields <samp class="mono">#true</samp>, DrRacket replaces the <samp class="mono">cond</samp> expression with <samp class="monospace-italic">ResultExpression1</samp>, evaluates it, and uses the value as the result of the entire <samp class="mono">cond</samp> expression. If the evaluation of <samp class="monospace-italic">ConditionExpression1</samp> yields <samp class="mono">#false</samp>, DrRacket drops the first line and starts over. In case all condition expressions evaluate to <samp class="mono">#false</samp>, DrRacket signals an error.</p>
+<p class="calibre8">With this knowledge, you can now change the course of the simulation. The goal is to not let the rocket descend below the ground level of a 100-by-60 scene. Since the <samp class="mono">picture-of-rocket</samp> function consumes the height where it should place the rocket in the scene, a simple test comparing the given height to the maximum height appears to suffice.</p>
+<p class="calibre8">See <a id="rfig5" href="part0004_split_001.html#fig5" class="calibre5">figure 5</a> for the revised function definition. The definition uses the name <samp class="mono">picture-of-rocket.v2</samp> to distinguish the two versions. Using distinct names also allows us to use both functions in the interactions area and to compare the results. Here is how the original version works:</p>
+<figure class="co"><img src="../images/00023.gif" alt="" class="calibre10"/></figure>
+<div class="figure">
+<figure class="img"><a id="fig5" class="calibre5"></a><img src="../images/00024.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig5" class="calibre5">Figure 5</a>:</span> <span>Landing a rocket (version 2)</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">And here is the second one:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_20" title="20"></span><img src="../images/00025.gif" alt="" class="calibre10"/></figure>
+<p class="tni">No matter what number you give to <samp class="mono">picture-of-rocket.v2</samp>, if it is over <samp class="mono">60</samp>, you get the same scene. In particular, when you run</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (animate picture-of-rocket.v2)</samp></p>
+</div>
+<p class="tni">the rocket descends and sinks halfway into the ground before it stops.</p>
+<p class="calibre8">Stop! What do you think we want to see?</p>
+<p class="calibre8">Landing the rocket this far down is ugly. Then again, you know how to fix this aspect of the program. As you have seen, BSL knows an arithmetic of images. When <samp class="mono">place-image</samp> adds an image to a scene, it uses its center point as if it were the whole image, even though the image has a real height and a real width. As you may recall, you can measure the height of an image with the operation <samp class="mono">image-height</samp>. This function comes in handy here because you really want to fly the rocket only until its bottom touches the ground.</p>
+<p class="calibre8">Putting one and one together you can now figure out that</p>
+<figure class="co"><img src="../images/00026.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_21" title="21"></span>is the point at which you want the rocket to stop its descent. You could figure this out by playing with the program directly, or you can experiment in the interactions area with your image arithmetic.</p>
+<p class="calibre8">Here is a first attempt:</p>
+<figure class="co"><img src="../images/00027.jpeg" alt="" class="calibre10"/></figure>
+<p class="tni">Now replace the third argument in the above application with</p>
+<figure class="co"><img src="../images/00026.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Conduct the experiments. Which result do you like better?</p>
+<p class="calibre8">When you think and experiment along these lines, you eventually get to the program in <a id="rfig6" href="part0004_split_001.html#fig6" class="calibre5">figure 6</a>. Given some number, which represents the <samp class="mono">height</samp> of the rocket, it first tests whether the rocket’s bottom is above the ground. If it is, it places the rocket into the scene as before. If it isn’t, it places the rocket’s image so that its bottom touches the ground.</p>
+<div class="figure">
+<figure class="img"><a id="fig6" class="calibre5"></a><img src="../images/00028.jpeg" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig6" class="calibre5">Figure 6</a>:</span> <span>Landing a rocket (version 3)</span></p></figcaption>
+</figure>
+</div>
+<p class="fmh2"><a id="sec-9" class="calibre5"></a><span epub:type="pagebreak" id="pg_22" title="22"></span>One Program, Many Definitions</p>
+<p class="tni">Now suppose your friends watch the animation but don’t like the size of your canvas. They might request a version that uses <samp class="mono">200</samp>-by-<samp class="mono">400</samp> scenes. This simple request forces you to replace <samp class="mono">100</samp> with <samp class="mono">400</samp> in five places in the program and <samp class="mono">60</samp> with <samp class="mono">200</samp> in two other places—not to speak of the occurrences of <samp class="mono">50</samp>, which really means “middle of the canvas.”</p>
+<p class="calibre8">Stop! Before you read on, try to do just that so that you get an idea of how difficult it is to execute this request for a five-line program. As you read on, keep in mind that programs in the world consist of 50,000 or 500,000 or even 5,000,000 or more lines of program code.</p>
+<p class="calibre8">In the ideal program, a small request, such as changing the sizes of the canvas, should require an equally small change. The tool to achieve this simplicity with BSL is <samp class="mono">define</samp>. In addition to defining functions, you can also introduce <i class="calibre6">constant definitions</i>, which assign some name to a constant. The general shape of a constant definition is straightforward:</p>
+<div class="verbatim">
+<p class="code-c"><samp class="mono"><samp class="mono">(define </samp><samp class="monospace-italic">Name Expression</samp><samp class="mono">)</samp></samp></p>
+</div>
+<p class="tni">Thus, for example, if you write down</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define HEIGHT</samp><samp class="mono"> 60)</samp></samp></p>
+</div>
+<p class="tni">in your program, you are saying that <samp class="mono">HEIGHT</samp> always represents the number <samp class="mono">60</samp>. The meaning of such a definition is what you expect. Whenever DrRacket encounters <samp class="mono">HEIGHT</samp> during its calculations, it uses <samp class="mono">60</samp> instead.</p>
+<p class="calibre8">Now take a look at the code in <a id="rfig7" href="part0004_split_001.html#fig7" class="calibre5">figure 7</a>, which implements this simple change and also names the image of the rocket. Copy the program into DrRacket; and after clicking <i class="calibre6">RUN</i>, evaluate the following interaction:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (animate</samp><samp class="mono"> picture-of-rocket.v4)</samp></samp></p>
+</div>
+<p class="tni">Confirm that the program still functions as before.</p>
+<div class="figure">
+<figure class="img"><a id="fig7" class="calibre5"></a><img src="../images/00029.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig7" class="calibre5">Figure 7</a>:</span> <span>Landing a rocket (version 4)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">The program in <a href="part0004_split_001.html#fig7" class="calibre5">figure 7</a> consists of four definitions: one function definition and three constant definitions. The numbers <samp class="mono">100</samp> and <samp class="mono">60</samp> occur only twice—once as the value of <samp class="mono">WIDTH</samp> and once as the value of <samp class="mono">HEIGHT</samp>. You may also have noticed that it uses <samp class="mono">h</samp> instead of <samp class="mono">height</samp> for the function parameter of <samp class="mono">picture-of-rocket.v4</samp>. Strictly speaking, this change isn’t necessary because DrRacket doesn’t confuse <samp class="mono">height</samp> with <samp class="mono">HEIGHT</samp>, but we did it to avoid confusing <b class="calibre9">you</b>.</p>
+<p class="calibre8">When DrRacket evaluates <samp class="mono">(animate picture-of-rocket.v4)</samp>, it replaces <samp class="mono">HEIGHT</samp> with <samp class="mono">60</samp>, <samp class="mono">WIDTH</samp> with <samp class="mono">100</samp>, and <samp class="mono">ROCKET</samp> with the image every time it encounters these names. To experience the joys of real programmers, change the <samp class="mono">60</samp> next to <samp class="mono">HEIGHT</samp> into a <samp class="mono">400</samp> and click <i class="calibre6">RUN</i>. You see a <span epub:type="pagebreak" id="pg_23" title="23"></span>rocket descending and landing in a 100 by 400 scene. One small change did it all.</p>
+<p class="calibre8">In modern parlance, you have just experienced your first <i class="calibre6">program refactoring</i>. Every time you reorganize your program to prepare yourself for likely future change requests, you refactor your program. Put it on your resume. It sounds good, and your future employer probably enjoys reading such buzzwords, even if it doesn’t make you a good programmer. What a good programmer would never live with, however, is having a program contain the same expression three times:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(- HEIGHT</samp><samp class="mono"> (/ (image-height</samp><samp class="mono"> ROCKET) 2))</samp></samp></p>
+</div>
+<p class="tni">Every time your friends and colleagues read this program, they need to understand what this expression computes, namely, the distance between the top of the canvas and the center point of a rocket resting on the ground. Every time DrRacket computes the value of the expressions, it has to perform three steps: (1) determine the height of the image; (2) divide it by <samp class="mono">2</samp>; and (3) subtract the result from <samp class="mono">HEIGHT</samp>. And, every time, it comes up with the same number.</p>
+<p class="calibre8">This observation calls for the introduction of one more definition:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define ROCKET-CENTER-TO-TOP</samp><br class="calibre4"/>  <samp class="mono">(- HEIGHT</samp><samp class="mono"> (/ (image-height</samp><samp class="mono"> ROCKET) 2)))</samp></samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_24" title="24"></span>Now substitute <samp class="mono">ROCKET-CENTER-TO-TOP</samp> for the expression <samp class="mono">(- HEIGHT (/ (image-height ROCKET) 2))</samp> in the rest of the program. You may be wondering whether this definition should be placed above or below the definition for <samp class="mono">HEIGHT</samp>. More generally, you should be wondering whether the ordering of definitions matters. The answer is that for constant definitions, the order matters; and for function definitions, it doesn’t. As soon as DrRacket encounters a constant definition, it determines the value of the expression and then associates the name with this value. For example,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define HEIGHT</samp><samp class="mono"> (* 2</samp><samp class="mono"> CENTER))<br class="calibre4"/>(define</samp><samp class="mono"> CENTER 100)</samp></samp></p>
+</div>
+<p class="tni">causes DrRacket to complain that “<samp class="mono">CENTER</samp> is used before its definition,” when it encounters the definition for <samp class="mono">HEIGHT</samp>. In contrast,</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">(define CENTER</samp><samp class="mono"> 100)<br class="calibre4"/>(define</samp><samp class="mono"> HEIGHT (*</samp><samp class="mono"> 2 CENTER))</samp></samp></p>
+</div>
+<p class="tni">works as expected. First, DrRacket associates <samp class="mono">CENTER</samp> with <samp class="mono">100</samp>. Second, it evaluates <samp class="mono">(* 2 CENTER)</samp>, which yields <samp class="mono">200</samp>. Finally, DrRacket associates <samp class="mono">200</samp> with <samp class="mono">HEIGHT</samp>.</p>
+<p class="calibre8">While the order of constant definitions matters, it does not matter where you place constant definitions relative to function definitions. Indeed, if your program consists of many function definitions, their order doesn’t matter either, though it is good to introduce all constant definitions first, followed by the definitions of functions in decreasing order of importance. When you start writing your own multi-definition programs, you will see why this ordering matters.</p>
+<div class="calibre4">
+<p class="marginpar">The program also contains two <i class="calibre6">line comments</i>, introduced with semicolons (“;”). While DrRacket ignores such comments, people who read programs should not because comments are intended for human readers. It is a “back channel” of communication between the author of the program and all of its future readers to convey information about the program.</p>
+</div>
+<p class="calibre8">Once you eliminate all repeated expressions, you get the program in <a id="rfig8" href="part0004_split_001.html#fig8" class="calibre5">figure 8</a>. It consists of one function definition and five constant definitions. Beyond the placement of the rocket’s center, these constant definitions also factor out the image itself as well as the creation of the empty scene.</p>
+<div class="figure">
+<figure class="img"><a id="fig8" class="calibre5"></a><img src="../images/00030.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig8" class="calibre5">Figure 8</a>:</span> <span>Landing a rocket (version 5)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Before you read on, ponder the following changes to your program:</p>
+<p class="blf"><span epub:type="pagebreak" id="pg_25" title="25"></span>•  How would you change the program to create a <samp class="mono">200</samp>-by-<samp class="mono">400</samp> scene?</p>
+<p class="blf">•  How would you change the program so that it depicts the landing of a green UFO (unidentified flying object)? Drawing the UFO is easy:</p>
+<figure class="co"><img src="../images/00031.gif" alt="" class="calibre10"/></figure>
+<p class="blf">•  How would you change the program so that the background is always blue?</p>
+<p class="bll">•  How would you change the program so that the rocket lands on a flat rock bed that is 10 pixels higher than the bottom of the scene? Don’t forget to change the scenery, too.</p>
+<p class="tni">Better than pondering is doing. It’s the only way to learn. So don’t let us stop you. Just do it.</p>
+<p class="calibre8"><b class="calibre9">Magic Numbers</b> Take another look at <samp class="mono">picture-of-rocket.v5</samp>. Because we eliminated all repeated expressions, all but one number disappeared from this function definition. In the world of programming, these numbers are called <i class="calibre6">magic numbers</i>, and nobody likes them. Before you know it, you forget what role the number plays and what changes are legitimate. It is best to name such numbers in a definition.</p>
+<p class="calibre8">Here we actually know that <samp class="mono">50</samp> is our choice for an x-coordinate for the rocket. Even though <samp class="mono">50</samp> doesn’t look like much of an expression, it really is a repeated expression, too. Thus, we have two reasons to eliminate <samp class="mono">50</samp> from the function definition, and we leave it to you to do so.</p>
+<p class="fmh2"><a id="sec-10" class="calibre5"></a><span epub:type="pagebreak" id="pg_26" title="26"></span>One More Definition</p>
+<p class="tni">Recall that <samp class="mono">animate</samp> actually applies its functions to the number of clock ticks that have passed since it was first called. That is, the argument to <samp class="mono">picture-of-rocket</samp> isn’t a height but a time. Our previous definitions of <samp class="mono">picture-of-rocket</samp> use the wrong name for the argument of the function; instead of <samp class="mono">h</samp>—short for height—it ought to use <samp class="mono">t</samp> for time:</p>
+<figure class="co"><img src="../images/00032.gif" alt="" class="calibre10"/></figure>
+<p class="tni">And this small change to the definition immediately clarifies that this program uses time as if it were a distance. What a bad idea.</p>
+<p class="marginpar">Danger ahead! This section introduces one piece of knowledge from physics. If physics scares you, skip it on a first reading; programming doesn’t require physics knowledge.</p>
+<p class="calibre8">Even if you have never taken a physics course, you know that a time is not a distance. So somehow our program worked by accident. Don’t worry, though; it is all easy to fix. All you need to know is a bit of rocket science, which people like us call physics.</p>
+<p class="calibre8">Physics?!? Well, perhaps you have already forgotten what you learned in that course. Or perhaps you have never taken a course on physics because you are way too young or gentle. No worries. This happens to the best programmers all the time because they need to help people with problems in music, economics, photography, nursing, and all kinds of other disciplines. Obviously, not even programmers know everything. So they look up what they need to know. Or they talk to the right kind of people. And if you talk to a physicist, you will find out that the distance traveled is proportional to the time:</p>
+<figure class="co"><img src="../images/00033.gif" alt="" class="calibre10"/></figure>
+<p class="tni">That is, if the velocity of an object is <i class="calibre6">v</i>, then the object travels <i class="calibre6">d</i> miles (or meters or pixels or whatever) in <i class="calibre6">t</i> seconds.</p>
+<p class="calibre8">Of course, a teacher ought to show you a proper function definition:</p>
+<figure class="co"><img src="../images/00034.gif" alt="" class="calibre10"/></figure>
+<p class="tni">because this tells everyone immediately that the computation of <i class="calibre6">d</i> depends on <i class="calibre6">t</i> and that <i class="calibre6">v</i> is a constant. A programmer goes even further and uses meaningful names for these one-letter abbreviations:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><span epub:type="pagebreak" id="pg_27" title="27"></span><samp class="mono">(define V</samp><samp class="mono"> 3)</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define (distance</samp><samp class="mono"> t)</samp> <br class="calibre4"/><samp class="mono">  (*</samp><samp class="mono"> V t))</samp></samp></p>
+</div>
+<p class="tni">This program fragment consists of two definitions: a function <samp class="mono">distance</samp> that computes the distance traveled by an object traveling at a constant velocity, and a constant <samp class="mono">V</samp> that describes the velocity.</p>
+<p class="calibre8">You might wonder why <samp class="mono">V</samp> is <samp class="mono">3</samp> here. There is no special reason. We consider <samp class="mono">3</samp> pixels per clock tick a good velocity. You may not. Play with this number and see what happens with the animation.</p>
+<p class="calibre8">Now we can fix <samp class="mono">picture-of-rocket</samp> again. Instead of comparing <samp class="mono">t</samp> with a height, the function can use <samp class="mono">(distance t)</samp> to calculate how far <span epub:type="pagebreak" id="pg_28" title="28"></span>down the rocket is. The final program is displayed in <a id="rfig9" href="part0004_split_001.html#fig9" class="calibre5">figure 9</a>. It consists of two function definitions: <samp class="mono">picture-of-rocket.v6</samp> and <samp class="mono">distance</samp>. The remaining constant definitions make the function definitions readable and modifiable. As always, you can run this program with <samp class="mono">animate</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono"><samp class="mono">&gt; (animate</samp><samp class="mono"> picture-of-rocket.v6)</samp></samp></p>
+</div>
+<div class="figure">
+<figure class="img"><a id="fig9" class="calibre5"></a><img src="../images/00035.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0004_split_001.html#rfig9" class="calibre5">Figure 9</a>:</span> <span>Landing a rocket (version 6)</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">In comparison to the previous versions of <samp class="mono">picture-of-rocket</samp>, this one shows that a program may consist of several function definitions that refer to each other. Then again, even the first version used <samp class="mono">+</samp> and <samp class="mono">/</samp>—it’s just that you think of those as built into BSL.</p>
+<p class="calibre8">As you become a true-blue programmer, you will find out that programs consist of many function definitions and many constant definitions. You will also see that functions refer to each other all the time. What you really need to practice is to organize them so that you can read them easily, even months after completion. After all, an older version of you—or someone else—will want to make changes to these programs; and if you cannot understand the program’s organization, you will have a difficult time with even the smallest task. Otherwise, you mostly know what there is to know.</p>
+<p class="fmh2"><a id="sec-11" class="calibre5"></a>You Are a Programmer Now</p>
+<p class="tni">The claim that you are a programmer may have come as a surprise to you at the end of the preceding section, but it is true. You know all the mechanics that there are to know about BSL. You know that programming uses the arithmetic of numbers, strings, images, and whatever other data your chosen programming languages support. You know that programs consist of function and constant definitions. You know, because we have told you, that in the end, it’s all about organizing these definitions properly. Last but not least, you know that DrRacket and the teachpacks support lots of other functions and that DrRacket’s HelpDesk explains what these functions do.</p>
+<p class="calibre8">You might think that you still don’t know enough to write programs that react to keystrokes, mouse clicks, and so on. As it turns out, you do. In addition to the <samp class="mono">animate</samp> function, the <i class="calibre6">2htdp/universe</i> library provides other functions that hook up your programs to the keyboard, the mouse, the clock, and other moving parts in your computer. Indeed, it even supports writing programs that connect your computer with anybody else’s computer around the world. So this isn’t really a problem.</p>
+<p class="calibre8">In short, you have seen almost all the mechanics of putting together programs. If you read up on all the functions that are available, you can <span epub:type="pagebreak" id="pg_29" title="29"></span>write programs that play interesting computer games, run simulations, or keep track of business accounts. The question is whether this really means you are a programmer. Are you?</p>
+<div class="l"></div>
+<p class="tni">Stop! Don’t turn the page yet. Think!</p>
+<div class="calibre14" id="calibre_pb_3"></div>
+</section>
+</div>
+</body></html>

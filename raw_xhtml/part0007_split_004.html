@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_5"><a id="sec8-2" class="calibre16"></a>8.2 What Is '<samp class="monospace-margin1">()</samp>, What Is <samp class="monospace-margin1">cons</samp></h2>
+<p class="tni">Let’s step back for a moment and take a close look at <samp class="mono">'()</samp> and <samp class="mono">cons</samp>. As mentioned, <samp class="mono">'()</samp> is just a constant. When compared to constants such as <samp class="mono">5</samp> or <samp class="mono">"this is a string"</samp>, it looks more like a function name or a variable; but when compared with <samp class="mono">#true</samp> and <samp class="mono">#false</samp>, it should be easy to see that it really is just BSL’s representation for empty lists.</p>
+<p class="calibre8">As for our evaluation rules, <samp class="mono">'()</samp> is a new kind of atomic value, distinct from any other kind: numbers, Booleans, strings, and so on. It also isn’t a compound value, like Posns. Indeed, <samp class="mono">'()</samp> is so unique it belongs in a class of values all by itself. As such, this class of values comes with a predicate that recognizes only <samp class="mono">'()</samp> and nothing else:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Any<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> the given</samp><samp class="mono"> value '()</samp> <br class="calibre4"/><samp class="mono">(define (empty?</samp><samp class="mono"> x) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Like all predicates, <samp class="mono">empty?</samp> can be applied to any value from the universe of BSL values. It produces <samp class="mono">#true</samp> precisely when it is applied to <samp class="mono">'()</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (empty?</samp><samp class="mono"> '())</samp> <br class="calibre4"/><samp class="mono">#true</samp> <br class="calibre4"/><samp class="mono">&gt; (empty?</samp><samp class="mono"> 5)</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (empty?</samp><samp class="mono"> "hello world")</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (empty?</samp><samp class="mono"> (cons 1</samp><samp class="mono"> '()))</samp> <br class="calibre4"/><samp class="mono">#false</samp> <br class="calibre4"/><samp class="mono">&gt; (empty?</samp><samp class="mono"> (make-posn 0</samp><samp class="mono"> 0))</samp> <br class="calibre4"/><samp class="mono">#false</samp></p>
+</div>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_238" title="238"></span>Next we turn to <samp class="mono">cons</samp>. Everything we have seen so far suggests that <samp class="mono">cons</samp> is a constructor just like those introduced by structure type definitions. More precisely, <samp class="mono">cons</samp> appears to be the constructor for a two-field structure: the first one for any kind of value and the second one for any list-like value. The following definitions translate this idea into BSL:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define-struct pair</samp><samp class="mono"> [left right])</samp> <br class="calibre4"/><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">ConsPair</i><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  (make-pair</samp><samp class="mono"> </samp>Any Any<samp class="mono">).</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Any Any<samp class="mono"> -&gt; </samp>ConsPair <br class="calibre4"/><samp class="mono">(define (our-cons</samp><samp class="mono"> a-value a-list)</samp> <br class="calibre4"/><samp class="mono">  (make-pair</samp><samp class="mono"> a-value a-list))</samp></p>
+</div>
+<p class="tni">The only catch is that <samp class="mono">our-cons</samp> accepts all possible BSL values for its second argument and <samp class="mono">cons</samp> doesn’t, as the following experiment validates:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; (cons</samp><samp class="mono"> 1 2)</samp> <br class="calibre4"/><samp class="mono">cons:second argument</samp><samp class="mono"> must be</samp><samp class="mono"> a list,</samp><samp class="mono"> but received</samp><samp class="mono"> 1 and</samp><samp class="mono"> 2</samp></p>
+</div>
+<p class="tni">Put differently, <samp class="mono">cons</samp> is really a checked function, the kind discussed in chapter 6, which suggests the following refinement:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><i class="calibre6">ConsOrEmpty</i><samp class="mono"> is one</samp><samp class="mono"> of:</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> '()</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-pair </samp>Any ConsOrEmpty<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">;</samp> <b class="calibre9">interpretation</b><samp class="mono"> </samp>ConsOrEmpty<samp class="mono"> is the</samp><samp class="mono"> class of</samp> <b class="calibre9">all</b> lists <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Any Any<samp class="mono"> -&gt; </samp>ConsOrEmpty <br class="calibre4"/><samp class="mono">(define (our-cons</samp><samp class="mono"> a-value a-list)</samp> <br class="calibre4"/><samp class="mono">  (cond</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(empty?</samp><samp class="mono"> a-list) (make-pair</samp><samp class="mono"> a-value a-list)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [(pair?</samp><samp class="mono"> a-list) (make-pair</samp><samp class="mono"> a-value a-list)]</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  [else</samp><samp class="mono"> (error "cons:</samp><samp class="mono"> second argument</samp><samp class="mono"> <span>…</span>")]))</samp></p>
+</div>
+<p class="calibre8">If <samp class="mono">cons</samp> is a checked constructor function, you may be wondering how to extract the pieces from the resulting structure. After all, Chapter 5 says that programming with structures requires selectors. Since a <samp class="mono">cons</samp> structure has two fields, there are two selectors: <samp class="mono">first</samp> and <samp class="mono">rest</samp>. They are also easily defined in terms of our <samp class="mono">pair</samp> structure:</p>
+<figure class="co"><span epub:type="pagebreak" id="pg_239" title="239"></span><img src="../images/00169.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Stop! Define <samp class="mono">our-rest</samp>.</p>
+<p class="calibre8">If your program can access the structure type definition for <samp class="mono">pair</samp>, it is easy to create <samp class="mono">pair</samp>s that don’t contain <samp class="mono">'()</samp> or another <samp class="mono">pair</samp> in the <samp class="mono">right</samp> field. Whether such bad instances are created intentionally or accidentally, they tend to break functions and programs in strange ways. BSL therefore hides the actual structure type definition for <samp class="mono">cons</samp> to avoid these problems. Chapter 16.2 demonstrates one way that your programs can hide such definitions, too, but for now, you don’t need this power.</p>
+<p class="calibre8"><a id="rfig46" href="part0007_split_004.html#fig46" class="calibre5">Figure 46</a> summarizes this section. The key insight is that <samp class="mono">'()</samp> is a unique value and that <samp class="mono">cons</samp> is a checked constructor that produces list values. Furthermore, <samp class="mono">first</samp>, <samp class="mono">rest</samp>, and <samp class="mono">cons?</samp> are merely distinct names for the usual predicate and selectors. What this chapter teaches, then, is <b class="calibre9">not</b> a new way of creating data but <b class="calibre9">a new way of formulating data definitions</b>.</p>
+<div class="figure">
+<figure class="img"><a id="fig46" class="calibre5"></a><img src="../images/00170.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_004.html#rfig46" class="calibre5">Figure 46</a>:</span> <span>List primitives</span></p></figcaption>
+</figure>
+</div>
+</section>
+</section>
+</article>
+</div>
+</body></html>

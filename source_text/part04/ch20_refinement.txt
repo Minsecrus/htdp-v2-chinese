@@ -1,0 +1,257 @@
+# Chapter 20: Iterative Refinement / 第 20 章：迭代精炼
+
+<h1>
+20 Iterative Refinement
+</h1>
+
+<P>
+When you develop real-world programs, you may confront complex forms of information and the problem of representing them with data. The best strategy to approach this task is to use iterative refinement, a well-known scientific process. A scientist’s problem is to represent a part of the real world, using some form of mathematics. The result of the effort is called a model. The scientist then tests the model in many ways, in particular by predicting the outcome of experiments. If the discrepancies between the predictions and the measurements are too large, the model is refined with the goal of improving the predictions. This iterative process continues until the predictions are sufficiently accurate.
+</P>
+
+<P>
+Consider a physicist who wishes to predict a rocket’s flight path. While a “rocket as a point” representation is simple, it is also quite inaccurate, failing to account for air friction, for example. In response, the physicist may add the rocket’s rough contour and introduce the necessary mathematics to represent friction. This second model is a refinement of the first model. In general, a scientist repeats—or as programmers say, iterates—this process until the model predicts the rocket’s flight path with sufficient accuracy.
+</P>
+
+<P>
+A programmer trained in a computer science department should proceed like this physicist. The key is to find an accurate data representation of the real-world information and functions that process them appropriately. Complicated situations call for a refinement process to get to a sufficient data representation combined with the proper functions. The process starts with the essential pieces of information and adds others as needed. Sometimes a programmer must refine a model after the program has been deployed because users request additional functionality.
+</P>
+
+<P>
+So far we have used iterative refinement for you when it came to complex forms of data. This chapter illustrates iterative refinement as a principle of program development with an extended example, representing and processing (portions of) a computer’s file system. We start with a brief discussion of the file system and then iteratively develop three data representations. Along the way, we propose some programming exercises so that you see how the design recipe also helps modify existing programs.
+</P>
+
+<h2>
+20.1 Data Analysis
+</h2>
+
+<P>
+Before you turn off DrRacket, you want to make sure that all your work is safely stashed away somewhere. Otherwise you have to reenter everything when you fire up DrRacket next. So you ask your computer to save programs and data in files. A file is roughly a string.
+</P>
+
+<MARGIN_NOTE>
+A file is really a sequence of bytes, one after another. Try to define the class of files.
+</MARGIN_NOTE>
+
+<P>
+On most computer systems, files are organized in directories or folders. Roughly speaking, a directory contains some files and some more directories. The latter are called sub-directories and may contain yet more sub-directories and files. Because of the hierarchy, we speak of directory trees.
+</P>
+
+<P>
+Figure 123 contains a graphical sketch of a small directory tree, and the picture explains why computer scientists call them trees. Contrary to convention in computer science, the figure shows the tree growing upward, with a root directory named TS. The root directory contains one file, called read!, and two sub-directories, called Text and Libs, respectively. The first sub-directory, Text, contains only three files; the latter, Libs, contains only two sub-directories, each of which contains at least one file. Finally, each box has one of two annotations: a directory is annotated with DIR, and a file is annotated with a number, its size.
+</P>
+
+<FIGURE src="images/00481.png">
+Figure 123: A sample directory tree
+</FIGURE>
+
+<EXERCISE>
+Exercise 329. How many times does a file name read! occur in the directory tree TS? Can you describe the path from the root directory to the occurrences? What is the total size of all the files in the tree? What is the total size of the directory if each directory node has size 1? How many levels of directories does it contain?
+</EXERCISE>
+
+<h2>
+20.2 Refining Data Definitions
+</h2>
+
+<P>
+Exercise 329 lists some of the questions that users routinely ask about directories. To answer such questions, the computer’s operating system provides programs that can answer them. If you want to design such programs, you need to develop a data representation for directory trees.
+</P>
+
+<P>
+In this section, we use iterative refinement to develop three such data representations. For each stage, we need to decide which attributes to include and which to ignore. Consider the directory tree in figure 123 and imagine how it is created. When a user first creates a directory, it is empty. As time goes by, the user adds files and directories. In general, a user refers to files by names but mostly thinks of directories as containers.
+</P>
+
+<P>
+Model 1 Our thought experiment suggests that our first model should focus on files as atomic entities with a name and directories as containers. Here is a data definition that deals with directories as lists and files as strings, that is, their names:
+</P>
+
+<CODE>
+; A Dir.v1 (short for directory) is one of: ; -- '() ; -- (cons File.v1 Dir.v1) ; -- (cons Dir.v1 Dir.v1) ; A File.v1 is a String.
+</CODE>
+
+<P>
+The names have a .v1 suffix to distinguish them from future refinements.
+</P>
+
+<EXERCISE>
+Exercise 330. Translate the directory tree in figure 123 into a data representation according to model 1.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 331. Design the function how-many, which determines how many files a given Dir.v1 contains. Remember to follow the design recipe; exercise 330 provides you with data examples.
+</EXERCISE>
+
+<P>
+Model 2 If you solved exercise 331, you know that this first data definition is still reasonably simple. But, it also obscures the nature of directories. With this first representation, we would not be able to list all the names of the sub-directories of some given directory. To model directories in a more faithful manner than containers, we must introduce a structure type that combines a name with a container:
+</P>
+
+<CODE>
+(define-struct dir [name content])
+</CODE>
+
+<P>
+This new structure type, in turn, suggests the following revision of the data definition:
+</P>
+
+<CODE>
+; A Dir.v2 is a structure: ;   (make-dir String LOFD) ; An LOFD (short for list of files and directories) is one of: ; -- '() ; -- (cons File.v2 LOFD) ; -- (cons Dir.v2 LOFD) ; A File.v2 is a String.
+</CODE>
+
+<P>
+Note how the data definition for Dir.v2 refers to the definition for LOFDs, and the one for LOFDs refers back to that of Dir.v2. The two definitions are mutually recursive.
+</P>
+
+<EXERCISE>
+Exercise 332. Translate the directory tree in figure 123 into a data representation according to model 2.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 333. Design the function how-many, which determines how many files a given Dir.v2 contains. Exercise 332 provides you with data examples. Compare your result with that of exercise 331.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 334. Show how to equip a directory with two more attributes: size and readability. The former measures how much space the directory itself (as opposed to its content) consumes; the latter specifies whether anyone else besides the user may browse the content of the directory.
+</EXERCISE>
+
+<P>
+Model 3 Like directories, files have attributes. To introduce these, we proceed just as above. First, we define a structure for files:
+</P>
+
+<CODE>
+(define-struct file [name size content])
+</CODE>
+
+<P>
+Second, we provide a data definition:
+</P>
+
+<CODE>
+; A File.v3 is a structure: ;   (make-file String N String)
+</CODE>
+
+<P>
+As indicated by the field names, the string represents the name of the file, the natural number its size, and the string its content.
+</P>
+
+<P>
+Finally, let’s split the content field of directories into two pieces: a list of files and a list of sub-directories. This change requires a revision of the structure type definition:
+</P>
+
+<CODE>
+(define-struct dir.v3 [name dirs files])
+</CODE>
+
+<P>
+Here is the refined data definition:
+</P>
+
+<CODE>
+; A Dir.v3 is a structure: ;   (make-dir.v3 String Dir* File*) ; A Dir* is one of: ; -- '() ; -- (cons Dir.v3 Dir*) ; A File* is one of: ; -- '() ; -- (cons File.v3 File*)
+</CODE>
+
+<P>
+Following a convention in computer science, the use of * as the ending of a name suggests “many” and is a marker distinguishing the name from similar ones: File.v3 and Dir.v3.
+</P>
+
+<EXERCISE>
+Exercise 335. Translate the directory tree in figure 123 into a data representation according to model 3. Use "" for the content of files.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 336. Design the function how-many, which determines how many files a given Dir.v3 contains. Exercise 335 provides you with data examples. Compare your result with that of exercise 333.
+</EXERCISE>
+
+<P>
+Given the complexity of the data definition, contemplate how anyone can design correct functions. Why are you confident that how-many produces correct results?
+</P>
+
+<EXERCISE>
+Exercise 337. Use List-of to simplify the data definition Dir.v3. Then use ISL+’s list-processing functions from figures 95 and 96 to simplify the function definition(s) for the solution of exercise 336.
+</EXERCISE>
+
+<P>
+Starting with a simple representation of the first model and refining it step-by-step, we have developed a reasonably accurate data representation for directory trees. Indeed, this third data representation captures the nature of a directory tree much more faithfully than the first two. Based on this model, we can create a number of other functions that users expect from a computer’s operating system.
+</P>
+
+<h2>
+20.3 Refining Functions
+</h2>
+
+<P>
+To make the following exercises somewhat realistic, DrRacket comes with the dir.rkt library from the first edition of this book. This teachpack introduces the two structure type definitions from model 3, though without the .v3 suffix. Furthermore, the teachpack provides a function that creates representations of directory trees on your computer:
+</P>
+
+<MARGIN_NOTE>
+Add (require htdp/dir) to the definitions area.
+</MARGIN_NOTE>
+
+<CODE>
+; String -> Dir.v3 ; creates a representation of the a-path directory (define (create-dir a-path) …)
+</CODE>
+
+<P>
+For example, if you open DrRacket and enter the following three lines into the definitions area:
+</P>
+
+<CODE>
+(define O (create-dir "/Users/…")) ; on OS X (define L (create-dir "/var/log/")) ; on Linux (define W (create-dir "C:\\Users\\…")) ; on Windows
+</CODE>
+
+<P>
+you get data representations of directories on your computer after you save and then run the program. Indeed, you could use create-dir to map the entire file system on your computer to an instance of Dir.v3.
+</P>
+
+<P>
+Warnings (1) For large directory trees, DrRacket may need a lot of time to build a representation. Use create-dir on small directory trees first. (2) Do not define your own dir structure type. The teachpack already defines them, and you must not define a structure type twice.
+</P>
+
+<P>
+Although create-dir delivers only a representation of a directory tree, it is sufficiently realistic to give you a sense of what it is like to design programs at that level. The following exercises illustrate this point. They use Dir to refer to the generic idea of a data representation for directory trees. Use the simplest data definition of Dir that allows you to complete the respective exercise. Feel free to use the data definition from exercise 337 and the functions from figures 95 and 96.
+</P>
+
+<EXERCISE>
+Exercise 338. Use create-dir to turn some of your directories into ISL+ data representations. Then use how-many from exercise 336 to count how many files they contain. Why are you confident that how-many produces correct results for these directories?
+</EXERCISE>
+
+<EXERCISE>
+Exercise 339. Design find?. The function consumes a Dir and a file name and determines whether or not a file with this name occurs in the directory tree.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 340. Design the function ls, which lists the names of all files and directories in a given Dir.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 341. Design du, a function that consumes a Dir and computes the total size of all the files in the entire directory tree. Assume that storing a directory in a Dir structure costs 1 file storage unit. In the real world, a directory is basically a special file, and its size depends on how large its associated directory is.
+</EXERCISE>
+
+<P>
+The remaining exercises rely on the notion of a path, which for our purposes is a list of names:
+</P>
+
+<CODE>
+; A Path is [List-of String]. ; interpretation directions into a directory tree
+</CODE>
+
+<P>
+Take a second look at figure 123. In that diagram, the path from TS to part1 is (list "TS" "Text" "part1"). Similarly, the path from TS to Code is (list "TS" "Libs" "Code").
+</P>
+
+<EXERCISE>
+Exercise 342. Design find. The function consumes a directory d and a file name f. If (find? d f) is #true, find produces a path to a file with name f; otherwise it produces #false.
+</EXERCISE>
+
+<P>
+Hint While it is tempting to first check whether the file name occurs in the directory tree, you have to do so for every single sub-directory. Hence it is better to combine the functionality of find? and find.
+</P>
+
+<P>
+Challenge The find function discovers only one of the two files named read! in figure 123. Design find-all, which generalizes find and produces the list of all paths that lead to f in d. What should find-all produce when (find? d f) is #false? Is this part of the problem really a challenge compared to the basic problem?
+</P>
+
+<EXERCISE>
+Exercise 343. Design the function ls-R, which lists the paths to all files contained in a given Dir.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 344. Redesign find-all from exercise 342 using ls-R from exercise 343. This is design by composition, and if you solved the challenge part of exercise 342 your new function can find directories, too.
+</EXERCISE>

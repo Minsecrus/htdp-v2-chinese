@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<h1 class="head" id="calibre_pb_34"><a id="sec13" class="calibre16"></a>13 Summary</h1>
+<p class="tni">This second part of the book is about the design of programs that deal with arbitrarily large data. As you can easily imagine, software is particularly useful when it is used on information that comes without prespecified size limits, meaning “arbitrarily large data” is a critical step on your way to <span epub:type="pagebreak" id="pg_368" title="368"></span>becoming a real programmer. In this spirit, we suggest that you take away three lessons:</p>
+<p class="nlf">1. This part <b class="calibre9">refines the design recipe</b> to deal with self-references and cross-references in data definitions. The occurrence of the former calls for the design of recursive functions, and the occurrence of the latter calls for auxiliary functions.</p>
+<p class="nlf">2. Complex problems call for a <b class="calibre9">decomposition</b> into separate problems. When you decompose a problem, you need two pieces: functions that solve the separate problems and data definitions that compose these separate solutions into a single one. To ensure that the composition works after you have spent time on the separate programs, you need to formulate your “wishes” together with the required data definitions.</p>
+<p class="nltni">A decomposition-composition design is especially useful when the problem statement implicitly or explicitly mentions auxiliary tasks, when the coding step for a function calls for a traversal of an(other) arbitrarily large piece of data, and—perhaps surprisingly—when a general problem is somewhat easier to solve than the specific one described in the problem statement.</p>
+<p class="nll">3. <b class="calibre9">Pragmatics matter.</b> If you wish to design <samp class="mono">big-bang</samp> programs, you need to understand its various clauses and what they accomplish. Or, if your task is to design programs that solve mathematical problems, you had better make sure you know which mathematical operations the chosen language and its libraries offer.</p>
+<p class="tni">While this part mostly focuses on lists as a good example of arbitrarily large data—because they are practically useful in languages such as Haskell, Lisp, ML, Racket, and Scheme—the ideas apply to all kinds of such data: files, file folders, databases, and the like.</p>
+<p class="calibre8">Part IV continues the exploration of “large” structured data and demonstrates how the design recipe scales to the most complex kind of data. In the meantime, the next part takes care of an important worry you should have at this point, namely, that a programmer’s work is all about creating the same kind of programs over and over and over again.</p>
+</section>
+</article>
+</div>
+</body></html>

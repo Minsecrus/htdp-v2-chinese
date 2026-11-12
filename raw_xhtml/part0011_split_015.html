@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_16"><span epub:type="pagebreak" id="pg_526" title="526" class="calibre1"></span><a id="sec21-2" class="calibre16"></a>21.2 Interpreting Variables</h2>
+<p class="tni">Since the first section ignores constant definitions, an expression does not have a value if it contains a variable. Indeed, unless we know what <samp class="mono">x</samp> stands for, it makes no sense to evaluate <samp class="mono">(+ 3 x)</samp>. Hence, one first refinement of the evaluator is to add variables to the expressions that we wish to evaluate. The assumption is that the definitions area contains a definition such as</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define x</samp><samp class="mono"> 5)</samp></p>
+</div>
+<p class="tni">and that programmers evaluate expressions containing <samp class="mono">x</samp> in the interactions area:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_527" title="527"></span><samp class="mono">&gt; x</samp> <br class="calibre4"/><samp class="mono">5</samp> <br class="calibre4"/><samp class="mono">&gt; (+</samp><samp class="mono"> x 3)</samp> <br class="calibre4"/><samp class="mono">8</samp> <br class="calibre4"/><samp class="mono">&gt; (*</samp><samp class="mono"> 1/2 (*</samp><samp class="mono"> x 3))</samp> <br class="calibre4"/><samp class="mono">7.5</samp></p>
+</div>
+<p class="tni">Indeed, you could imagine a second definition, say <samp class="mono">(define y 3)</samp>, and interactions that involve two variables:</p>
+<figure class="co"><img src="../images/00487.gif" alt="" class="calibre10"/></figure>
+<p class="calibre8">The preceding section implicitly proposes symbols as representations for variables. After all, if you were to choose quoted S-expressions to represent expressions with variables, symbols would appear naturally:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">&gt; 'x</samp> <br class="calibre4"/><samp class="mono">'x</samp> <br class="calibre4"/><samp class="mono">&gt; '(*</samp><samp class="mono"> 1/2 (*</samp><samp class="mono"> x 3))</samp> <br class="calibre4"/><samp class="mono">(list '*</samp><samp class="mono"> 0.5 (list</samp><samp class="mono"> '* 'x</samp><samp class="mono"> 3))</samp></p>
+</div>
+<p class="tni">One obvious alternative is a string, so that <samp class="mono">"x"</samp> would represent <samp class="mono">x</samp>, but this book is not about designing interpreters, so we stick with symbols. From this decision, it follows how to modify the data definition from exercise 345:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; A</samp><samp class="mono"> </samp><span class="calibre6">BSL-var-expr</span><samp class="mono"> is one</samp><samp class="mono"> of: <br class="calibre4"/>;</samp><samp class="mono"> -- </samp>Number<samp class="mono"> <br class="calibre4"/>; --</samp> Symbol<samp class="mono"> <br class="calibre4"/>; --</samp><samp class="mono"> (make-add </samp>BSL-var-expr BSL-var-expr<samp class="mono">)</samp> <br class="calibre4"/><samp class="mono">; --</samp><samp class="mono"> (make-mul </samp>BSL-var-expr BSL-var-expr<samp class="mono">)</samp></p>
+</div>
+<p class="tni">We simply add one clause to the data definition.</p>
+<p class="calibre8">As for data examples, the following table shows some BSL expressions with variables and their BSL-var-expr representation:</p>
+<figure class="co"><img src="../images/00488.gif" alt="" class="calibre10"/></figure>
+<p class="tni"><span epub:type="pagebreak" id="pg_528" title="528"></span>They are all taken from the interactions above, meaning you know the results when <samp class="mono">x</samp> is <samp class="mono">5</samp> and <samp class="mono">y 3</samp>.</p>
+<p class="calibre8">One way to determine the value of variable expressions is to replace all variables with the values that they represent. This is the way you know from mathematics classes in school, and it is a perfectly fine way.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 352. Design <samp class="mono">subst</samp>. The function consumes a BSL-var-expr <samp class="mono">ex</samp>, a Symbol <samp class="mono">x</samp>, and a Number <samp class="mono">v</samp>. It produces a BSL-var-expr like <samp class="mono">ex</samp> with all occurrences of <samp class="mono">x</samp> replaced by <samp class="mono">v</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 353. Design the <samp class="mono">numeric?</samp> function. It determines whether a BSL-var-expr is also a BSL-expr. Here we assume that your solution to exercise 345 is the definition for BSL-var-expr without Symbols. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 354. Design <samp class="mono">eval-variable</samp>. The checked function consumes a <samp class="mono">BSL-var-expr</samp> and determines its value if <samp class="mono">numeric?</samp> yields true for the input. Otherwise it signals an error.</p>
+<p class="calibre8">In general, a program defines many constants in the definitions area, and expressions contain more than one variable. To evaluate such expressions, we need a representation of the definitions area when it contains a series of constant definitions. For this exercise we use association lists:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">AL</span><samp class="mono"> (short for</samp><samp class="mono"> </samp><span class="calibre6">association list</span><samp class="mono">) is</samp> <samp class="mono">[</samp>List-of Association<samp class="mono">]. <br class="calibre4"/>;</samp><samp class="mono"> An </samp><span class="calibre6">Association</span><samp class="mono"> is a</samp> <samp class="mono">list of</samp><samp class="mono"> two items:</samp><samp class="mono"> <br class="calibre4"/>; </samp><samp class="mono">  </samp><samp class="mono"> (cons </samp>Symbol<samp class="mono"> (cons</samp> Number<samp class="mono"> '())).</samp></p>
+</div>
+<p class="tni">Make up elements of AL.</p>
+<p class="calibre8">Design <samp class="mono">eval-variable*</samp>. The function consumes a BSL-var-expr <samp class="mono">ex</samp> and an association list <samp class="mono">da</samp>. Starting from <samp class="mono">ex</samp>, it iteratively applies <samp class="mono">subst</samp> to all associations in <samp class="mono">da</samp>. If <samp class="mono">numeric?</samp> holds for the result, it determines its value; otherwise it signals the same error as <samp class="mono">eval-variable</samp>. <b class="calibre9">Hint</b> Think of the given BSL-var-expr as an atomic value and traverse the given association list instead. We provide this hint because the creation of this function requires a little design knowledge from chapter 23. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"> </p>
+<p class="calibre8"> </p>
+<p class="calibre8"><b class="calibre9">An environment model</b> Exercise 354 relies on the mathematical understanding of constant definitions. If a name is defined to stand for some value, all occurrences of the name can be replaced with the value. Substitution performs this replacement once and for all before the evaluation process even starts.</p>
+<p class="calibre8">An alternative approach, dubbed the <i class="calibre6">environment model</i>, is to look up the value of a variable when needed. The evaluator starts processing the <span epub:type="pagebreak" id="pg_529" title="529"></span>expression immediately but also carries along the representation of the definitions area. Every time the evaluator encounters a variable, it looks in the definitions area for its value and uses it.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 355. Design <samp class="mono">eval-var-lookup</samp>. This function has the same signature as <samp class="mono">eval-variable*</samp>:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>BSL-var-expr AL<samp class="mono"> -&gt; </samp>Number<samp class="mono"> <br class="calibre4"/>(define</samp> <samp class="mono">(eval-var-lookup e</samp><samp class="mono"> da) <span>…</span>)</samp></p>
+</div>
+<p class="tni">Instead of using substitution, the function traverses the expression in the manner that the design recipe for BSL-var-expr suggests. As it descends the expression, it “carries along” <samp class="mono">da</samp>. When it encounters a symbol <samp class="mono">x</samp>, it uses <samp class="mono">assq</samp> to look up the value of <samp class="mono">x</samp> in the association list. If there is no value, <samp class="mono">eval-var-lookup</samp> signals an error. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

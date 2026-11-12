@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_14"><span epub:type="pagebreak" id="pg_278" title="278" class="calibre1"></span><a id="sec9-6" class="calibre16"></a>9.6 A Note on Lists and Sets</h2>
+<p class="tni">This book relies on your intuitive understanding of <i class="calibre6">sets</i> as collections of BSL values. Chapter 5.7 specifically says that a data definition introduces a name for a set of BSL values. There is one question that this book consistently asks about sets, and it is whether some element is in some given set. For example, <samp class="mono">4</samp> is in Number, while <samp class="mono">"four"</samp> is not. The book also shows how to use a data definition to check whether some value is a member of some named set and how to use some of the data definitions to generate sample elements of sets, but these two procedures are about data definitions, not sets per se.</p>
+<p class="calibre8">At the same time, lists represent collections of values. Hence you might be wondering what the difference between a list and a set is or whether this is a needless distinction. If so, this section is for you.</p>
+<p class="calibre8">Right now the primary difference between sets and lists is that the former is a concept we use to discuss steps in the design of code and the latter is one of many forms of data in BSL, our chosen programming language. The two ideas live at rather different levels in our conversations. However, given that a data definition introduces a data representation of actual information inside of BSL and given that sets are collections of information, you may now ask yourself how sets are represented inside of BSL as data.</p>
+<div class="calibre4">
+<p class="marginpar">Most full-fledged languages directly support data representations of both lists and sets.</p>
+</div>
+<p class="calibre8">While lists have a special status in BSL, sets don’t, but at the same time sets somewhat resemble lists. The key difference is the kind of functions a program normally uses with either form of data. BSL provides several basic constants and functions for lists—say, <samp class="mono">empty</samp>, <samp class="mono">empty?</samp>, <samp class="mono">cons</samp>, <samp class="mono">cons?</samp>, <samp class="mono">first</samp>, <samp class="mono">rest</samp>—and some functions that you could define yourself—for example, <samp class="mono">member?</samp>, <samp class="mono">length</samp>, <samp class="mono">remove</samp>, <samp class="mono">reverse</samp>, and so on. Here is an example of a function you can define but does not come with BSL</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>List-of-string String<samp class="mono"> -&gt; </samp>N <br class="calibre4"/><samp class="mono">; determines</samp><samp class="mono"> how often</samp><samp class="mono"> s occurs</samp><samp class="mono"> in los</samp> <br class="calibre4"/><samp class="mono">(define (count</samp><samp class="mono"> los s)</samp> <br class="calibre4"/><samp class="mono">  0)</samp></p>
+</div>
+<p class="tni">Stop! Finish the design of this function.</p>
+<p class="calibre8">Let’s proceed in a straightforward and possibly naive manner and say sets are basically lists. And, to simplify further, let’s focus on lists of numbers in this section. If we now accept that it merely matters whether a number is a part of a set or not, it is almost immediately clear that we can use lists in <b class="calibre9">two</b> different ways to represent sets.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_279" title="279"></span><a id="rfig62" href="part0007_split_013.html#fig62" class="calibre5">Figure 62</a> displays the two data definitions. Both basically say that a set is represented as a list of numbers. The difference is that the definition on the right comes with the constraint that no number may occur more than once on the list. After all, the key question we ask about a set is whether some number is in the set or not, and whether it is in a set once, twice, or three times makes no difference.</p>
+<div class="figure">
+<figure class="img"><a id="fig62" class="calibre5"></a><img src="../images/00210.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_013.html#rfig62" class="calibre5">Figure 62</a>:</span> <span>Two data representations for sets</span></p></figcaption>
+</figure>
+</div>
+<p class="calibre8">Regardless of which definition you choose, you can already define two important notions:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Son <br class="calibre4"/><samp class="mono">(define es</samp><samp class="mono"> '())</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; </samp>Number Son<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; is</samp><samp class="mono"> x in</samp><samp class="mono"> s</samp> <br class="calibre4"/><samp class="mono">(define (in?</samp><samp class="mono"> x s)</samp> <br class="calibre4"/><samp class="mono">  (member?</samp><samp class="mono"> x s))</samp></p>
+</div>
+<p class="tni">The first one is the <b class="calibre9">empty set</b>, which in both cases is represented by the empty list. The second one is a membership test.</p>
+<p class="calibre8">One way to build larger sets is to use <samp class="mono">cons</samp> and the above definitions. Say we wish to build a representation of the set that contains <samp class="mono">1</samp>, <samp class="mono">2</samp>, and <samp class="mono">3</samp>. Here is one such representation:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons 1</samp><samp class="mono"> (cons 2</samp><samp class="mono"> (cons 3</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">And it works for both data representations. But, is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(cons 2</samp><samp class="mono"> (cons 1</samp><samp class="mono"> (cons 3</samp><samp class="mono"> '())))</samp></p>
+</div>
+<p class="tni">really not a representation of the same set? Or how about</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_280" title="280"></span><samp class="mono">(cons 1</samp><samp class="mono"> (cons 2</samp><samp class="mono"> (cons 1</samp><samp class="mono"> (cons 3</samp><samp class="mono"> '()))))</samp></p>
+</div>
+<p class="tni">The answer has to be affirmative as long as the primary concern is whether a number is in a set or not. Still, while the order of <samp class="mono">cons</samp> cannot matter, the constraint in the right-hand data definition rules out the last list as a Son.R because it contains <samp class="mono">1</samp> twice.</p>
+<p class="calibre8">The difference between the two data definitions shows up when we design functions. Say we want a function that removes a number from a set. Here is a wish-list entry that applies to both representations:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>Number Son<samp class="mono"> -&gt; </samp>Son <br class="calibre4"/><samp class="mono">; subtracts</samp><samp class="mono"> x from</samp><samp class="mono"> s</samp> <br class="calibre4"/><samp class="mono">(define (set-</samp><samp class="mono"> x s)</samp> <br class="calibre4"/><samp class="mono">  s)</samp></p>
+</div>
+<p class="tni">The purpose statement uses the word “subtract” because this is what logicians and mathematicians use when they work with sets.</p>
+<p class="calibre8"><a id="rfig63" href="part0007_split_013.html#fig63" class="calibre5">Figure 63</a> shows the results. The two columns differ in two points:</p>
+<p class="nlf">1. The test on the left uses a list that contains <samp class="mono">1</samp> twice, while the one on the right represents the same set with a single <samp class="mono">cons</samp>.</p>
+<p class="nll">2. Because of these differences, the <samp class="mono">set-</samp> on the left must use <samp class="mono">remove-all</samp>, while the one on the right gets away with <samp class="mono">remove</samp>.</p>
+<div class="figure">
+<figure class="img"><a id="fig63" class="calibre5"></a><img src="../images/00211.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0007_split_013.html#rfig63" class="calibre5">Figure 63</a>:</span> <span>Functions for the two data representations of sets</span></p></figcaption>
+</figure>
+</div>
+<p class="tni">Stop! Copy the code into the DrRacket definitions area and make sure the tests pass. Then read on and experiment with the code as you do.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_281" title="281"></span>An unappealing aspect of <a href="part0007_split_013.html#fig63" class="calibre5">figure 63</a> is that the tests use <samp class="mono">es</samp>, a plain list, as the expected result. This problem may seem minor at first glance. Consider the following example, however:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(set- 1</samp><samp class="mono"> set123)</samp></p>
+</div>
+<p class="tni">where <samp class="mono">set123</samp> represents the set containing <samp class="mono">1</samp>, <samp class="mono">2</samp>, and <samp class="mono">3</samp> in one of two ways:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define set123-version1</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> 1 (cons</samp><samp class="mono"> 2 (cons</samp><samp class="mono"> 3 '()))))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define set123-version2</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> 1 (cons</samp><samp class="mono"> 3 (cons</samp><samp class="mono"> 2 '()))))</samp></p>
+</div>
+<p class="tni">Regardless of which representation we choose, <samp class="mono">(set- 1 set123)</samp> evaluates to one of these two lists:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define set23-version1</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> 2 (cons</samp><samp class="mono"> 3 '())))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define set23-version2</samp> <br class="calibre4"/><samp class="mono">  (cons</samp><samp class="mono"> 3 (cons</samp><samp class="mono"> 2 '())))</samp></p>
+</div>
+<p class="tni">But we cannot predict which of those two <samp class="mono">set-</samp> produces.</p>
+<p class="calibre8">For the simple case of two alternatives, it is possible to use the <samp class="mono">check-member-of</samp> testing facility as follows:</p>
+<figure class="co"><img src="../images/00212.gif" alt="" class="calibre10"/></figure>
+<p class="tni">If the expected set contains three elements, there are six possible variations, not including representations with repetitions, which the left-hand data definition allows.</p>
+<p class="calibre8">Fixing this problem calls for the combination of two ideas. First, recall that <samp class="mono">set-</samp> is really about ensuring that the given element does not occur in the result. It is an idea that our way of turning the examples into tests does not bring across. Second, with BSL’s <samp class="mono">check-satisfied</samp> testing facility, it is possible to state precisely this idea.</p>
+<p class="calibre8">Intermezzo 1 briefly mentions <samp class="mono">check-satisfied</samp>, but, in a nutshell, the facility determines whether an expression satisfies a certain property. A property is a function from values to Boolean. In our specific case, we wish to state that <samp class="mono">1</samp> is not a member of some set:</p>
+<div class="verbatim">
+<p class="code-new"><span epub:type="pagebreak" id="pg_282" title="282"></span><samp class="mono">; </samp>Son<samp class="mono"> -&gt; </samp>Boolean <br class="calibre4"/><samp class="mono">; #true</samp><samp class="mono"> if 1</samp><samp class="mono"> a member</samp><samp class="mono"> of s;</samp><samp class="mono"> #false otherwise</samp> <br class="calibre4"/><samp class="mono">(define (not-member-1?</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (not</samp><samp class="mono"> (in? 1</samp><samp class="mono"> s)))</samp></p>
+</div>
+<p class="tni">Using <samp class="mono">not-member-1?</samp>, we can formulate the test case as follows:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(check-satisfied (set-</samp><samp class="mono"> 1 set123)</samp><samp class="mono"> not-member-1?)</samp></p>
+</div>
+<p class="tni">and this variant clearly states what the function is supposed to accomplish. Better yet, this formulation simply does not depend on how the input or output set is represented.</p>
+<p class="calibre8">In sum, lists and sets are related in that both are about collections of values, but they also differ strongly:</p>
+<figure class="table-small">
+<table class="calibre29">
+<tr class="calibre12">
+<td class="tch1"><p class="crt">property</p></td>
+<td class="tch1"/>
+<td class="tch1"><p class="crt">lists</p></td>
+<td class="tch1"/>
+<td class="tch1"><p class="crt">sets</p></td>
+</tr>
+<tr class="calibre12">
+<td class="rule" colspan="5"/>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt">membership</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">one among many</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">critical</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt">ordering</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">critical</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">irrelevant</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt"># of occurrences</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">sensible</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">irrelevant</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"><p class="crt">size</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">finite but arbitrary</p></td>
+<td class="tb"/>
+<td class="tb"><p class="crt">finite or infinite</p></td>
+</tr>
+<tr class="calibre12">
+<td class="tb"/>
+</tr>
+</table>
+</figure>
+<p class="tni">The last row in this table presents a new idea, though an obvious one, too. Many of the sets mentioned in this book are infinitely large, for example, Number, String, and also List-of-strings. In contrast, a list is <b class="calibre9">always</b> finite though it may contain an arbitrarily large number of items.</p>
+<p class="calibre8">In sum, this section explains the essential differences between sets and lists and how to represent finite sets with finite lists in two different ways. BSL is not expressive enough to represent infinite sets; exercise 299 introduces a completely different representation of sets, a representation that can cope with infinite sets, too. The question of how actual programming languages represent sets is beyond the scope of this book, however.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 160. Design the functions <samp class="mono">set+.L</samp> and <samp class="mono">set+.R</samp>, which create a set by adding a number <samp class="mono">x</samp> to some given set <samp class="mono">s</samp> for the left-hand and right-hand data definition, respectively. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><span epub:type="pagebreak" id="pg_615" title="615" class="calibre1"></span><a id="sec26-1" class="calibre16"></a>26.1 Adapting the Design Recipe</h2>
+<p class="tni">Let’s examine the six general steps of our structural design recipe in light of the examples in the preceding chapter:</p>
+<p class="blf">•  As before, we must represent the problem information as data in our chosen programming language. The choice of a <b class="calibre9">data representation</b> for a problem affects our thinking about the computational process, so some planning ahead is necessary. Alternatively, be prepared to backtrack and to explore different data representations. Regardless, we must analyze the problem information and define data collections.</p>
+<p class="blf">•  We also need a signature, a function header, and a purpose statement. Since the generative step has no connection to the structure of the data definition, the purpose statement must go beyond <b class="calibre9">what</b> the function is to compute and also explain <b class="calibre9">how</b> the function computes its result.</p>
+<p class="blf">•  It is useful to explain the “how” with function examples, the way we explained <samp class="mono">bundle</samp> and <samp class="mono">quick-sort&lt;</samp> in the previous chapter. That is, while function examples in the structural world merely specify which output the function is to produce for which input, the purpose of examples in the world of generative recursion is to explain the underlying idea behind the computational process.</p>
+<p class="myitemizeitem">For <samp class="mono">bundle</samp>, the examples specify how the function acts in general and in certain boundary cases. For <samp class="mono">quick-sort&lt;</samp>, the example in <a href="part0013_split_004.html#fig148" class="calibre5">figure 148</a> illustrates how the function partitions the given list with respect to the pivot item. By adding such worked examples to the purpose statement, we—the designers—gain an improved understanding of the desired process, and we communicate this understanding to future readers of this code.</p>
+<p class="bll">•  Our discussion suggests a general template for algorithms. Roughly speaking, the design of an algorithm distinguishes two kinds of problems: those that are <i class="calibre6">trivially solvable</i> and those that are not. If a given problem is trivially solvable, an algorithm produces the matching solution. For example, the problems of sorting an empty list or a one-item list are trivially solvable. A list with many items is a nontrivial problem. For these nontrivial problems, algorithms commonly generate new problems of the same kind as the given one, solve those recursively, and combine the solutions into an overall solution.</p>
+<p class="marginpar">For this part of the book, “trivial” is a technical term.</p>
+<p class="myitemizeitem"><span epub:type="pagebreak" id="pg_616" title="616"></span>Based on this sketch, all algorithms have roughly this organization:</p>
+<figure class="co"><img src="../images/00590.gif" alt="" class="calibre10"/></figure>
+<p class="myitemizeitem">The original problem is occasionally needed to combine the solutions for the newly generated problems, which is why it is handed over to <samp class="mono">combine-solutions</samp>.</p>
+<p class="blf">•  This template is only a suggestive blueprint, not a definitive shape. Each piece of the template is to remind us to think about the following four questions:</p>
+<p class="blf-sub"><b class="calibre9">–</b> What is a trivially solvable problem?</p>
+<div class="half"></div>
+<p class="bl-sub"><b class="calibre9">–</b> How are trivial solutions solved?</p>
+<div class="half"></div>
+<p class="bl-sub"><b class="calibre9">–</b> How does the algorithm generate new problems that are more easily solvable than the original one? Is there one new problem that we generate or are there several?</p>
+<div class="half"></div>
+<p class="bll-sub"><b class="calibre9">–</b> Is the solution of the given problem the same as the solution of (one of) the new problems? Or, do we need to combine the solutions to create a solution for the original problem? And, if so, do we need anything from the original problem data?</p>
+<p class="myitemizeitem">To define the algorithm as a function, we must express the answers to these four questions as functions and expressions in terms of the chosen data representation.</p>
+<p class="myitemizeitem">For this step, the table-driven attempt from chapter 9 might help again. Reconsider the <samp class="mono">quick-sort&lt;</samp> example from chapter 26.2. The central idea behind <samp class="mono">quick-sort&lt;</samp> is to divide a given list into a list <span epub:type="pagebreak" id="pg_617" title="617"></span>of smaller items and larger items and to sort those separately. <a id="rfig150" href="part0013_split_006.html#fig150" class="calibre5">Figure 150</a> spells out how some simple numeric examples work out for the nontrivial cases. From these examples it is straightforward to guess that the answer to the fourth question is to append the sorted list of smaller numbers, the pivot number, and the sorted list of larger numbers, which can easily be translated into code.</p>
+<div class="figure">
+<figure class="img"><a id="fig150" class="calibre5"></a><img src="../images/00591.gif" alt="" class="calibre11"/>
+<figcaption><p class="cap"><span><a href="part0013_split_006.html#rfig150" class="calibre5">Figure 150</a>:</span> <span>The table-based guessing approach for combining solutions</span></p></figcaption>
+</figure>
+</div>
+<p class="bll">•  Once the function is complete, it is time to test it. As before, the goal of testing is to discover and eliminate bugs.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 431. Answer the four key questions for the <samp class="mono">bundle</samp> problem and the first three questions for the <samp class="mono">quick-sort&lt;</samp> problem. How many instances of <samp class="mono">generate-problem</samp> are needed? <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 432. Exercise 219 introduces the function <samp class="mono">food-create</samp>, which consumes a Posn and produces a randomly chosen Posn that is guaranteed to be distinct from the given one. First reformulate the two functions as a single definition, using <samp class="mono">local</samp>; then justify the design of <samp class="mono">food-create</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

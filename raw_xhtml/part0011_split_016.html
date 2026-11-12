@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_17"><a id="sec21-3" class="calibre16"></a>21.3 Interpreting Functions</h2>
+<p class="tni">At this point, you understand how to evaluate BSL programs that consist of constant definitions and variable expressions. Naturally you want to add function definitions so that you know—at least in principle—how to deal with all of BSL.</p>
+<p class="calibre8">The goal of this section is to refine the evaluator of chapter 21.2 so that it can cope with functions. Since function definitions show up in the definitions area, another way to describe the refined evaluator is to say that it simulates DrRacket when the definitions area contains a number of function definitions and a programmer enters an expression in the interactions area that contains uses of these functions.</p>
+<p class="calibre8">For simplicity, let’s assume that all functions in the definitions area consume one argument and that there is only one such definition. The necessary domain knowledge dates back to school where you learned that <i class="calibre6">f</i> (<i class="calibre6">x</i>) <i class="calibre6">= e</i> represents the definition of function <i class="calibre6">f</i>, that <i class="calibre6">f</i> (<i class="calibre6">a</i>) represents the application of <i class="calibre6">f</i> to <i class="calibre6">a</i>, and that to evaluate the latter, you substitute <i class="calibre6">a</i> for <i class="calibre6">x</i> in <i class="calibre6">e</i>. As it turns out, the evaluation of function applications in a language such as BSL works mostly like that, too.</p>
+<p class="calibre8">Before tackling the following exercises, you may wish to refresh your knowledge of the terminology concerning functions as presented in intermezzo 1. Most of the time, algebra courses gloss over this aspect of mathematics, but a precise use and understanding of terminology is needed when you wish to solve these problems.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 356. Extend the data representation of chapter 21.2 to include the application of a programmer-defined function. Recall that a function <span epub:type="pagebreak" id="pg_530" title="530"></span>application consists of two pieces: a name and an expression. The former is the name of the function that is applied; the latter is the argument.</p>
+<p class="calibre8">Represent these expressions: <samp class="mono">(k (+ 1 1))</samp>, <samp class="mono">(* 5 (k (+ 1 1)))</samp>, <samp class="mono">(* (i 5) (k (+ 1 1)))</samp>. We refer to this newly defined class of data as <i class="calibre6">BSL-fun-expr</i>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 357. Design <samp class="mono">eval-definition1</samp>. The function consumes four arguments:</p>
+<p class="nlf">1. a BSL-fun-expr <samp class="mono">ex</samp>;</p>
+<p class="nlf">2. a symbol <samp class="mono">f</samp>, which represents a function name;</p>
+<p class="nlf">3. a symbol <samp class="mono">x</samp>, which represents the functions’s parameter; and</p>
+<p class="nll">4. a BSL-fun-expr <samp class="mono">b</samp>, which represents the function’s body.</p>
+<p class="tni">It determines the value of <samp class="mono">ex</samp>. When <samp class="mono">eval-definition1</samp> encounters an application of <samp class="mono">f</samp> to some argument, it</p>
+<p class="nlf">1. evaluates the argument,</p>
+<p class="nlf">2. substitutes the value of the argument for <samp class="mono">x</samp> in <samp class="mono">b</samp>; and</p>
+<p class="nll">3. finally evaluates the resulting expression with <samp class="mono">eval-definition1</samp>.</p>
+<p class="tni">Here is how to express the steps as code, assuming <samp class="mono">arg</samp> is the argument of the function application:</p>
+<figure class="co"><img src="../images/00489.gif" alt="" class="calibre10"/></figure>
+<p class="tni">Notice that this line uses a form of recursion that has not been covered. The proper design of such functions is discussed in part V.</p>
+<p class="calibre8">If <samp class="mono">eval-definition1</samp> encounters a variable, it signals the same error as <samp class="mono">eval-variable</samp> from exercise 354. It also signals an error for function applications that refer to a function name other than <samp class="mono">f</samp>.</p>
+<p class="calibre8"><b class="calibre9">Warning</b> The use of this uncovered form of recursion introduces a new element into your computations: non-termination. That is, a program may run forever instead of delivering a result or signaling an error. If you followed the design recipes of the first four parts, you cannot write down such programs. For fun, construct an input for <samp class="mono">eval-definition1</samp> that causes it to run forever. Use <i class="calibre6">STOP</i> to terminate the program. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_531" title="531"></span>For an evaluator that mimics the interactions area, we need a representation of the definitions area. We assume that it is a list of definitions.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 358. Provide a structure type and a data definition for function definitions. Recall that such a definition has three essential attributes:</p>
+<p class="nlf">1. the function’s name, which is represented with a symbol;</p>
+<p class="nlf">2. the function’s parameter, which is also a name; and</p>
+<p class="nll">3. the function’s body, which is a variable expression.</p>
+<p class="tni">We use <i class="calibre6">BSL-fun-def</i> to refer to this class of data.</p>
+<p class="calibre8">Use your data definition to represent these BSL function definitions:</p>
+<p class="nlf">1. <samp class="mono">(define (f x) (+ 3 x))</samp></p>
+<p class="nlf">2. <samp class="mono">(define (g y) (f (* 2 y)))</samp></p>
+<p class="nll">3. <samp class="mono">(define (h v) (+ (f v) (g v)))</samp></p>
+<p class="calibre8">Next, define the class <i class="calibre6">BSL-fun-def*</i> to represent a definitions area that consists of a number of one-argument function definitions. Translate the definitions area that defines <samp class="mono">f</samp>, <samp class="mono">g</samp>, and <samp class="mono">h</samp> into your data representation and name it <samp class="mono">da-fgh</samp>.</p>
+<p class="calibre8">Finally, work on the following wish:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">; </samp>BSL-fun-def* Symbol<samp class="mono"> -&gt; </samp>BSL-fun-def<samp class="mono"> <br class="calibre4"/>; retrieves</samp> <samp class="mono">the definition</samp><samp class="mono"> of f</samp><samp class="mono"> in da</samp><samp class="mono"> <br class="calibre4"/>; signals</samp><samp class="mono"> an error</samp><samp class="mono"> if there</samp><samp class="mono"> is none</samp> <br class="calibre4"/><samp class="mono">(check-expect (lookup-def</samp><samp class="mono"> da-fgh 'g)</samp><samp class="mono"> g) <br class="calibre4"/>(define</samp><samp class="mono"> (lookup-def da</samp><samp class="mono"> f)</samp> <samp class="mono"><span>…</span>)</samp></p>
+</div>
+<p class="tni">Looking up a definition is needed for the evaluation of applications. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 359. Design <samp class="mono">eval-function*</samp>. The function consumes <samp class="mono">ex</samp>, a BSL-fun-expr, and <samp class="mono">da</samp>, a BSL-fun-def* representation of a definitions area. It produces the result that DrRacket shows if you evaluate <samp class="mono">ex</samp> in the interactions area, assuming the definitions area contains <samp class="mono">da</samp>.</p>
+<p class="calibre8">The function works like <samp class="mono">eval-definition1</samp> from exercise 357. For an application of some function <samp class="mono">f</samp>, it</p>
+<p class="nlf">1. evaluates the argument;</p>
+<p class="nlf">2. looks up the definition of <samp class="mono">f</samp> in the BSL-fun-def representation of <samp class="mono">da</samp>, which comes with a parameter and a body;</p>
+<p class="nlf"><span epub:type="pagebreak" id="pg_532" title="532"></span>3. substitutes the value of the argument for the function parameter in the function’s body; and</p>
+<p class="nll">4. evaluates the new expression via recursion.</p>
+<p class="tni">Like DrRacket, <samp class="mono">eval-function*</samp> signals an error when it encounters a variable or function name without definition in the definitions area. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

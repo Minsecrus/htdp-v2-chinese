@@ -1,0 +1,501 @@
+# Chapter 26: Designing Algorithms / 第 26 章：设计算法
+
+<h1>
+26 Designing Algorithms
+</h1>
+
+<P>
+The overview for this part already explains that the design of generative recursion functions is more ad hoc than structural design. As the first chapter shows, two generative recursions can radically differ in how they process functions. Both bundle and quick-sort< process lists, but while the former at least respects the sequencing in the given list, the latter rearranges its given list at will. The question is whether a single design recipe can help with the creation of such widely differing functions.
+</P>
+
+<P>
+The first section shows how to adapt the process dimension of the design recipe to generative recursion. The second section homes in on another new phenomenon: an algorithm may fail to produce an answer for some of its inputs. Programmers must therefore analyze their programs and supplement the design information with a comment on termination. The remaining sections contrast structural and generative recursion.
+</P>
+
+<h2>
+26.1 Adapting the Design Recipe
+</h2>
+
+<P>
+Let’s examine the six general steps of our structural design recipe in light of the examples in the preceding chapter:
+</P>
+
+<P>
+•  As before, we must represent the problem information as data in our chosen programming language. The choice of a data representation for a problem affects our thinking about the computational process, so some planning ahead is necessary. Alternatively, be prepared to backtrack and to explore different data representations. Regardless, we must analyze the problem information and define data collections.
+</P>
+
+<P>
+•  We also need a signature, a function header, and a purpose statement. Since the generative step has no connection to the structure of the data definition, the purpose statement must go beyond what the function is to compute and also explain how the function computes its result.
+</P>
+
+<P>
+•  It is useful to explain the “how” with function examples, the way we explained bundle and quick-sort< in the previous chapter. That is, while function examples in the structural world merely specify which output the function is to produce for which input, the purpose of examples in the world of generative recursion is to explain the underlying idea behind the computational process.
+</P>
+
+<P>
+For bundle, the examples specify how the function acts in general and in certain boundary cases. For quick-sort<, the example in figure 148 illustrates how the function partitions the given list with respect to the pivot item. By adding such worked examples to the purpose statement, we—the designers—gain an improved understanding of the desired process, and we communicate this understanding to future readers of this code.
+</P>
+
+<P>
+•  Our discussion suggests a general template for algorithms. Roughly speaking, the design of an algorithm distinguishes two kinds of problems: those that are trivially solvable and those that are not. If a given problem is trivially solvable, an algorithm produces the matching solution. For example, the problems of sorting an empty list or a one-item list are trivially solvable. A list with many items is a nontrivial problem. For these nontrivial problems, algorithms commonly generate new problems of the same kind as the given one, solve those recursively, and combine the solutions into an overall solution.
+</P>
+
+<MARGIN_NOTE>
+For this part of the book, “trivial” is a technical term.
+</MARGIN_NOTE>
+
+<P>
+Based on this sketch, all algorithms have roughly this organization:
+</P>
+
+<FIGURE src="images/00590.png">
+
+</FIGURE>
+
+<P>
+The original problem is occasionally needed to combine the solutions for the newly generated problems, which is why it is handed over to combine-solutions.
+</P>
+
+<P>
+•  This template is only a suggestive blueprint, not a definitive shape. Each piece of the template is to remind us to think about the following four questions:
+</P>
+
+<P>
+– What is a trivially solvable problem?
+</P>
+
+<P>
+– How are trivial solutions solved?
+</P>
+
+<P>
+– How does the algorithm generate new problems that are more easily solvable than the original one? Is there one new problem that we generate or are there several?
+</P>
+
+<P>
+– Is the solution of the given problem the same as the solution of (one of) the new problems? Or, do we need to combine the solutions to create a solution for the original problem? And, if so, do we need anything from the original problem data?
+</P>
+
+<P>
+To define the algorithm as a function, we must express the answers to these four questions as functions and expressions in terms of the chosen data representation.
+</P>
+
+<P>
+For this step, the table-driven attempt from chapter 9 might help again. Reconsider the quick-sort< example from chapter 26.2. The central idea behind quick-sort< is to divide a given list into a list of smaller items and larger items and to sort those separately. Figure 150 spells out how some simple numeric examples work out for the nontrivial cases. From these examples it is straightforward to guess that the answer to the fourth question is to append the sorted list of smaller numbers, the pivot number, and the sorted list of larger numbers, which can easily be translated into code.
+</P>
+
+<FIGURE src="images/00591.png">
+Figure 150: The table-based guessing approach for combining solutions
+</FIGURE>
+
+<P>
+•  Once the function is complete, it is time to test it. As before, the goal of testing is to discover and eliminate bugs.
+</P>
+
+<EXERCISE>
+Exercise 431. Answer the four key questions for the bundle problem and the first three questions for the quick-sort< problem. How many instances of generate-problem are needed?
+</EXERCISE>
+
+<EXERCISE>
+Exercise 432. Exercise 219 introduces the function food-create, which consumes a Posn and produces a randomly chosen Posn that is guaranteed to be distinct from the given one. First reformulate the two functions as a single definition, using local; then justify the design of food-create.
+</EXERCISE>
+
+<h2>
+26.2 Termination
+</h2>
+
+<P>
+Generative recursion adds an entirely new aspect to computations: non-termination. A function such as bundle may never produce a value or signal an error for certain inputs. Exercise 421 asks what the result of (bundle '("a" "b" "c") 0) is, and here is an explanation of why it does not have a result:
+</P>
+
+<FIGURE src="images/00592.png">
+
+</FIGURE>
+
+<P>
+The calculation shows how evaluating (bundle '("a" "b" "c") 0) requires having a result for the very same expression. In the context of ISL+ this means the evaluation does not stop. Computer scientists say that bundle does not terminate when the second argument is 0; they also say that the function loops or that the computation is stuck in an infinite loop.
+</P>
+
+<P>
+Contrast this insight with the designs presented in the first four parts. Every function designed according to the recipe either produces an answer or raises an error signal for every input. After all, the recipe dictates that each natural recursion consumes an immediate piece of the input, not the input itself. Because data is constructed in a hierarchical manner, input shrinks at every stage. Eventually the function is applied to an atomic piece of data, and the recursion stops.
+</P>
+
+<P>
+This reminder also explains why generative recursive functions may diverge. According to the design recipe for generative recursion, an algorithm may generate new problems without any limitations. If the design recipe required a guarantee that the new problems were “smaller” than the given one, it would terminate. But, imposing such a restriction would needlessly complicate the design of functions such as bundle.
+</P>
+
+<MARGIN_NOTE>
+The theory of computation actually shows that we must lift these restrictions eventually.
+</MARGIN_NOTE>
+
+<P>
+In this book, we therefore keep the first six steps of the design recipe mostly intact and supplement them with a seventh step: the termination argument. Figure 151 presents the first part of the design recipe for generative recursion, and figure 152 the second one. They show the design recipe in the conventional tabular form. The unmodified steps come with a dash in the activity column. Others come with comments on how the design recipe for generative recursion differs from the one for structural recursion. The last row in figure 152 is completely new.
+</P>
+
+<FIGURE src="images/00593.png">
+Figure 151: Designing algorithms (part 1)
+</FIGURE>
+
+<FIGURE src="images/00594.png">
+Figure 152: Designing algorithms (part 2)
+</FIGURE>
+
+<P>
+A termination argument comes in one of two forms. The first one argues why each recursive call works on a problem that is smaller than the given one. Often this argument is straightforward; on rare occasions, you will need to work with a mathematician to prove a theorem for such arguments. The second kind illustrates with an example that the function may not terminate. Ideally it should also describe the class of data for which the function may loop. In rare cases, you may not be able to make either argument because computer science does not know enough yet.
+</P>
+
+<MARGIN_NOTE>
+You cannot define a predicate for this class; otherwise you could modify the function and ensure that it always terminates.
+</MARGIN_NOTE>
+
+<P>
+Let’s illustrate the two kinds of termination arguments with examples. For the bundle function, it suffices to warn readers about chunk size 0:
+</P>
+
+<CODE>
+; [List-of 1String] N -> [List-of String] ; bundles sub-sequences of s into strings of length n ; termination (bundle s 0) loops unless s is '() (define (bundle s n) …)
+</CODE>
+
+<P>
+In this case, it is possible to define a predicate that precisely describes when bundle terminates. For quick-sort<, the key observation is that each recursive use of quick-sort< receives a list that is shorter than alon:
+</P>
+
+<CODE>
+; [List-of Number] -> [List-of Number] ; creates a sorted variant of alon ; termination both recursive calls to quick-sort< ; receive list that miss the pivot item (define (quick-sort< alon) …)
+</CODE>
+
+<P>
+In one case, the list consists of the numbers that are strictly smaller than the pivot; the other one is for numbers strictly larger.
+</P>
+
+<EXERCISE>
+Exercise 433. Develop a checked version of bundle that is guaranteed to terminate for all inputs. It may signal an error for those cases where the original version loops.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 434. Consider the following definition of smallers, one of the two “problem generators” for quick-sort<:
+</EXERCISE>
+
+<FIGURE src="images/00595.png">
+
+</FIGURE>
+
+<P>
+What can go wrong when this version is used with the quick-sort< definition from chapter 26.2?
+</P>
+
+<EXERCISE>
+Exercise 435. When you worked on exercise 430 or exercise 428, you may have produced looping solutions. Similarly, exercise 434 actually reveals how brittle the termination argument is for quick-sort<. In all cases, the argument relies on the idea that smallers and largers produce lists that are maximally as long as the given list, and on our understanding that neither includes the given pivot in the result.
+</EXERCISE>
+
+<P>
+Based on this explanation, modify the definition of quick-sort< so that both functions receive lists that are shorter than the given one.
+</P>
+
+<EXERCISE>
+Exercise 436. Formulate a termination argument for food-create from exercise 432.
+</EXERCISE>
+
+<h2>
+26.3 Structural versus Generative Recursion
+</h2>
+
+<P>
+The template for algorithms is so general that it includes structurally recursive functions. Consider the left side of figure 153. This template is specialized to deal with one trivial clause and one generative step. If we replace trivial? with empty? and generate with rest, we get a template for list-processing functions; see the right side of figure 153.
+</P>
+
+<FIGURE src="images/00596.png">
+Figure 153: From generative to structural recursion
+</FIGURE>
+
+<EXERCISE>
+Exercise 437. Define solve and combine-solutions so that
+</EXERCISE>
+
+<P>
+•  special computes the length of its input,
+</P>
+
+<P>
+•  special negates each number on the given list of numbers, and
+</P>
+
+<P>
+•  special uppercases the given list of strings.
+</P>
+
+<P>
+What do you conclude from these exercises?
+</P>
+
+<P>
+Now you may wonder whether there is a real difference between structural recursive design and the one for generative recursion. Our answer is “it depends.” Of course, we could say that all functions using structural recursion are just special cases of generative recursion. This “everything is equal” attitude, however, is of no help if we wish to understand the process of designing functions. It confuses two kinds of design that require different forms of knowledge and that have different consequences. One relies on a systematic data analysis and not much more; the other requires a deep, often mathematical, insight into the problem-solving process itself. One leads programmers to naturally terminating functions; the other requires a termination argument. Conflating these two approaches is unhelpful.
+</P>
+
+<h2>
+26.4 Making Choices
+</h2>
+
+<P>
+When you interact with a function f that sorts lists of numbers, it is impossible for you to know whether f is sort< or quick-sort<. The two functions behave in an observably equivalent way. This raises the question of which of the two a programming language should provide. More generally, when we can design a function using structural recursion and generative recursion, we must figure out which one to pick.
+</P>
+
+<MARGIN_NOTE>
+Observable equivalence is a central concept from the study of programming languages.
+</MARGIN_NOTE>
+
+<P>
+To illustrate the consequences of this choice, we discuss a classical example from mathematics: the problem of finding the greatest common divisor (gcd) of two positive natural numbers. All such numbers have 1 as divisor in common. On occasion—say, 2 and 3—this is also the only common divisor. Both 6 and 25 are numbers with several divisors:
+</P>
+
+<MARGIN_NOTE>
+John Stone suggested the greatest common divisor as a suitable example.
+</MARGIN_NOTE>
+
+<P>
+•  6 is evenly divisible by 1, 2, 3, and 6;
+</P>
+
+<P>
+•  25 is evenly divisible by 1, 5, and 25.
+</P>
+
+<P>
+And yet, their greatest common divisor is 1. In contrast, 18 and 24 have many common divisors and their greatest common divisor is 6:
+</P>
+
+<P>
+•  18 is evenly divisible by 1, 2, 3, 6, 9, and 18;
+</P>
+
+<P>
+•  24 is evenly divisible by 1, 2, 3, 4, 6, 8, 12, and 24.
+</P>
+
+<P>
+Completing the first three steps of the design recipe is straightforward:
+</P>
+
+<CODE>
+; N[>= 1] N[>= 1] -> N ; finds the greatest common divisor of n and m (check-expect (gcd 6 25) 1) (check-expect (gcd 18 24) 6) (define (gcd n m) 42)
+</CODE>
+
+<P>
+The signature specifies the inputs as natural numbers greater than or equal to 1.
+</P>
+
+<P>
+From here we design both a structural and a generative recursive solution. Since this part of the book is about generative recursion, we merely present a structural solution in figure 154 and leave the design ideas to exercises. Just note that (= (remainder n i) (remainder m i) 0) encodes the idea that both n and m are “evenly divisible” by i.
+</P>
+
+<FIGURE src="images/00597.png">
+Figure 154: Finding the greatest common divisor via structural recursion
+</FIGURE>
+
+<EXERCISE>
+Exercise 438. In your words: how does greatest-divisor-<= work? Use the design recipe to find the right words. Why does the locally defined greatest-divisor-<= recur on (min n m)?
+</EXERCISE>
+
+<P>
+Although the design of gcd-structural is rather straightforward, it is also naive. It simply tests for every number between the smaller of n and m and 1 whether it divides both n and m evenly and returns the first such number. For small n and m, this works just fine. Consider the following example, however:
+</P>
+
+<CODE>
+(gcd-structural 101135853 45014640)
+</CODE>
+
+<P>
+The result is 177. To get there, gcd-structural checks the “evenly divisible” condition for 45014640, that is, it checks 45014640 - 177 remainders. Checking that many remainders—twice!—is a large effort, and even reasonably fast computers need time to complete this task.
+</P>
+
+<EXERCISE>
+Exercise 439. Copy gcd-structural into DrRacket and evaluate
+</EXERCISE>
+
+<CODE>
+(time (gcd-structural 101135853 45014640))
+</CODE>
+
+<P>
+in the interactions area.
+</P>
+
+<P>
+Since mathematicians recognized the inefficiency of this structural function a long time ago, they studied the problem of finding divisors in depth. The essential insight is that
+</P>
+
+<P>
+for two natural numbers, L for large and S for small, the greatest common divisor is equal to the greatest common divisor of S and the remainder of L divided by S.
+</P>
+
+<P>
+Here is how we can articulate this insight as an equation:
+</P>
+
+<CODE>
+(gcd L S) == (gcd S (remainder L S))
+</CODE>
+
+<P>
+Since (remainder L S) is smaller than both L and S, the right-hand side use of gcd consumes S first.
+</P>
+
+<P>
+Here is how this insight applies to our small example:
+</P>
+
+<P>
+•  The given numbers are 18 and 24.
+</P>
+
+<P>
+•  According to the insight, they have the same gcd as 18 and 6.
+</P>
+
+<P>
+•  And these two have the same greatest common divisor as 6 and 0.
+</P>
+
+<P>
+Now we seem stuck because 0 is unexpected. But, 0 can be evenly divided by every number, meaning we have found our answer: 6.
+</P>
+
+<P>
+Working through the example not only validates the basic insight but also suggests how to turn the insight into an algorithm:
+</P>
+
+<P>
+•  when the smaller of the numbers is 0, we face a trivial case;
+</P>
+
+<P>
+•  the larger of the two numbers is the solution in the trivial case;
+</P>
+
+<P>
+•  generating a new problem requires one remainder operation; and
+</P>
+
+<P>
+•  the above equation tells us that the answer to the newly generated problem is also the answer to the originally given problem.
+</P>
+
+<P>
+In short, the answers for the four design-recipe questions fall out.
+</P>
+
+<P>
+Figure 155 presents the definition of the algorithm. The local definition introduces the workhorse of the function: clever-gcd. Its first cond line discovers the trivial case by comparing smaller to 0 and produces the matching solution. The generative step uses smaller as the new first argument and (remainder large small) as the new second argument to clever-gcd.
+</P>
+
+<FIGURE src="images/00598.png">
+Figure 155: Finding the greatest common divisor via generative recursion
+</FIGURE>
+
+<P>
+If we now use gcd-generative with our above example,
+</P>
+
+<CODE>
+(gcd-generative 101135853 45014640)
+</CODE>
+
+<P>
+we see that the response is nearly instantaneous. A hand-evaluation shows that clever-gcd recurs only nine times before it produces the solution:
+</P>
+
+<CODE>
+… == (clever-gcd 101135853 45014640) == (clever-gcd 45014640 11106573) == (clever-gcd 11106573 588348) == (clever-gcd 588348 516309) == (clever-gcd 516309 72039) == (clever-gcd 72039 12036) == (clever-gcd 12036 11859) == (clever-gcd 11859 177) == (clever-gcd 177 0)
+</CODE>
+
+<P>
+This also means that it checks only nine remainder conditions, clearly a much smaller effort than gcd-structural expends.
+</P>
+
+<EXERCISE>
+Exercise 440. Copy gcd-generative into the definitions area of DrRacket and evaluate
+</EXERCISE>
+
+<CODE>
+(time (gcd-generative 101135853 45014640))
+</CODE>
+
+<P>
+in the interactions area.
+</P>
+
+<P>
+You may now think that generative recursion design has discovered a much faster solution to the gcd problem, and you may conclude that generative recursion is always the right way to go. This judgment is too rash for three reasons. First, even a well-designed algorithm isn’t always faster than an equivalent structurally recursive function. For example, quick-sort< wins only for large lists; for small ones, the standard sort< function is faster. Worse, a badly designed algorithm can wreak havoc on the performance of a program. Second, it is typically easier to design a function using the recipe for structural recursion. Conversely, designing an algorithm requires an idea of how to generate new problems, a step that often requires some deep insight. Finally, programmers who read functions can easily understand structurally recursive functions, even without much documentation. The generative step of an algorithm, though, is based on a “eureka!” and, without a good explanation, is difficult to understand for future readers—and that includes older versions of yourself.
+</P>
+
+<P>
+Experience shows that most functions in a program employ structural design; only a few exploit generative recursion. When we encounter a situation where a design could use the recipe for either structural or generative recursion, the best approach is to start with a structural version. If the result turns out to be too slow for the task at hand—and only then—it is time to explore the use of generative recursion.
+</P>
+
+<EXERCISE>
+Exercise 441. Evaluate
+</EXERCISE>
+
+<CODE>
+(quick-sort< (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14))
+</CODE>
+
+<P>
+by hand. Show only those lines that introduce a new recursive call to quick-sort<. How many recursive applications of quick-sort< are required? How many recursive applications of the append function? Suggest a general rule for a list of length n.
+</P>
+
+<P>
+Evaluate
+</P>
+
+<CODE>
+(quick-sort< (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14))
+</CODE>
+
+<P>
+by hand. How many recursive applications of quick-sort< are required? How many recursive applications of append? Does this contradict the first part of the exercise?
+</P>
+
+<EXERCISE>
+Exercise 442. Add sort< and quick-sort< to the definitions area. Run tests on the functions to ensure that they work on basic examples. Also develop create-tests, a function that creates large test cases randomly. Then explore how fast each works on various lists.
+</EXERCISE>
+
+<P>
+Does the experiment confirm the claim that the plain sort< function often wins over quick-sort< for short lists and vice versa?
+</P>
+
+<P>
+Determine the cross-over point. Use it to build a clever-sort function that behaves like quick-sort< for large lists and like sort< for lists below this cross-over point. Compare with exercise 427.
+</P>
+
+<EXERCISE>
+Exercise 443. Given the header material for gcd-structural, a naive use of the design recipe might use the following template or some variant:
+</EXERCISE>
+
+<FIGURE src="images/00599.png">
+
+</FIGURE>
+
+<P>
+Why is it impossible to find a divisor with this strategy?
+</P>
+
+<EXERCISE>
+Exercise 444. Exercise 443 means that the design for gcd-structural calls for some planning and a design-by-composition approach.
+</EXERCISE>
+
+<MARGIN_NOTE>
+Ideally, you should use sets not lists.
+</MARGIN_NOTE>
+
+<P>
+The very explanation of “greatest common denominator” suggests a two-stage approach. First design a function that can compute the list of divisors of a natural number. Second, design a function that picks the largest common number in the list of divisors of n and the list of divisors of m. The overall function would look like this:
+</P>
+
+<CODE>
+(define (gcd-structural S L)   (largest-common (divisors S S) (divisors S L))) ; N[>= 1] N[>= 1] -> [List-of N] ; computes the divisors of l smaller or equal to k (define (divisors k l)   '()) ; [List-of N] [List-of N] -> N ; finds the largest number common to both k and l (define (largest-common k l)   1)
+</CODE>
+
+<P>
+Why do you think divisors consumes two numbers? Why does it consume S as the first argument in both uses?
+</P>

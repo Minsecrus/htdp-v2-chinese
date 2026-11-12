@@ -1,0 +1,1245 @@
+# Chapter 4: Intervals, Enumerations, and Itemizations / 第 4 章：区间、枚举与分类
+
+<h1>
+4 Intervals, Enumerations, and Itemizations
+</h1>
+
+<P>
+At the moment, you have four choices to represent information as data: numbers, strings, images, and Boolean values. For many problems this is enough, but there are many more for which these four collections of data in BSL (or other programming languages) don’t suffice. Actual designers need additional ways of representing information as data.
+</P>
+
+<P>
+At a minimum, good programmers must learn to design programs with restrictions on these built-in collections. One way to restrict is to enumerate a bunch of elements from a collection and to say that these are the only ones that are going to be used for some problem. Enumerating elements works only when there is a finite number of them. To accommodate collections with “infinitely” many elements, we introduce intervals, which are collections of elements that satisfy a specific property.
+</P>
+
+<MARGIN_NOTE>
+Infinite may just mean “so large that enumerating the elements is entirely impractical.”
+</MARGIN_NOTE>
+
+<P>
+Defining enumerations and intervals means distinguishing among different kinds of elements. To distinguish in code requires conditional functions, that is, functions that choose different ways of computing results depending on the value of some argument. Both “Many Ways to Compute” and chapter 1.6 illustrate with examples of how to write such functions. Neither section uses design, however. Both just present some new construct in your favorite programming language (that’s BSL), and offer some examples on how to use it.
+</P>
+
+<P>
+In this chapter, we discuss a general design for enumerations and intervals, new forms of data descriptions. We start with a second look at the cond expression. Then we go through three different kinds of data descriptions: enumerations, intervals, and itemizations. An enumeration lists every single piece of data that belongs to it, while an interval specifies a range of data. The last one, itemizations, mixes the first two, specifying ranges in one clause of its definition and specific pieces of data in another. The chapter ends with the general design strategy for such situations.
+</P>
+
+<h2>
+4.1 Programming with Conditionals
+</h2>
+
+<P>
+Recall the brief introduction to conditional expressions in the Prologue. Since cond is the most complicated expression form in this book, let’s take a close look at its general shape:
+</P>
+
+<CODE>
+(cond   [ConditionExpression1 ResultExpression1]   [ConditionExpression2 ResultExpression2]   …   [ConditionExpressionN ResultExpressionN])
+</CODE>
+
+<MARGIN_NOTE>
+Brackets make cond lines stand out. It is fine to use (…) in place of […].
+</MARGIN_NOTE>
+
+<P>
+A cond expression starts with (cond, its keyword, and ends in ). Following the keyword, a programmer writes as many cond lines as needed; each cond line consists of two expressions, enclosed in opening and closing brackets: [ and ].
+</P>
+
+<P>
+A cond line is also known as a cond clause.
+</P>
+
+<P>
+Here is a function definition that uses a conditional expression:
+</P>
+
+<CODE>
+(define (next traffic-light-state)   (cond     [(string=? "red" traffic-light-state) "green"]     [(string=? "green" traffic-light-state) "yellow"]     [(string=? "yellow" traffic-light-state) "red"]))
+</CODE>
+
+<P>
+Like the mathematical example in the Prologue, this example illustrates the convenience of using cond expressions. In many problem contexts, a function must distinguish several different situations. With a cond expression, you can use one line per possibility and thus remind the reader of the code for the different situations from the problem statement.
+</P>
+
+<P>
+A note on pragmatics: Contrast cond expressions with if expressions from chapter 1.6. The latter distinguish one situation from all others. As such, if expressions are much less suited for multi-situation contexts; they are best used when all we wish to say is “one or the other.” We therefore always use cond for situations when we wish to remind the reader of our code that some distinct situations come directly from data definitions. For other pieces of code, we use whatever construct is most convenient.
+</P>
+
+<P>
+When the conditions get too complex in a cond expression, you occasionally wish to say something like “in all other cases.” For these kinds of problems, cond expressions permit the use of the else keyword for the very last cond line:
+</P>
+
+<CODE>
+(cond   [ConditionExpression1 ResultExpression1]   [ConditionExpression2 ResultExpression2]   …   [else DefaultResultExpression])
+</CODE>
+
+<P>
+If you make the mistake of using else in some other cond line, BSL in DrRacket signals an error:
+</P>
+
+<CODE>
+> (cond     [(> x 0) 10]     [else 20]     [(< x 10) 30]) cond:found an else clause that isn't the last clause in its cond expression
+</CODE>
+
+<P>
+That is, BSL rejects grammatically incorrect phrases because it makes no sense to figure out what such a phrase might mean.
+</P>
+
+<P>
+Imagine designing a function that, as part of a game-playing program, computes some award at the end of the game. Here is its header:
+</P>
+
+<CODE>
+; A PositiveNumber is a Number greater than/equal to 0. ; PositiveNumber -> String ; computes the reward level from the given score s
+</CODE>
+
+<P>
+And here are two variants for a side-by-side comparison:
+</P>
+
+<FIGURE src="images/00071.png">
+
+</FIGURE>
+
+<P>
+The variant on the left uses a cond with three full-fledged conditions; on the right, the function comes with an else clause. To formulate the last condition for the function on the left, you must calculate that (< 20 s) holds because
+</P>
+
+<P>
+•  s is in PositiveNumber
+</P>
+
+<P>
+•  (<= 0 s 10) is #false
+</P>
+
+<P>
+•  (and (< 10 s) (<= s 20)) evaluates to #false as well.
+</P>
+
+<P>
+While the calculation looks simple in this case, it is easy to make small mistakes and to introduce bugs into your program. It is therefore better to formulate the function definition as shown on the right, if you know that you want the exact opposite—called the complement—of all previous conditions in a cond.
+</P>
+
+<h2>
+4.2 Computing Conditionally
+</h2>
+
+<P>
+From reading the “Many Ways to Compute” and chapter 1.6, you roughly know how DrRacket evaluates conditional expressions. Let’s go over the idea a bit more precisely for cond expressions. Take another look at this definition:
+</P>
+
+<CODE>
+(define (reward s)   (cond     [(<= 0 s 10) "bronze"]     [(and (< 10 s) (<= s 20)) "silver"]     [else "gold"]))
+</CODE>
+
+<P>
+This function consumes a numeric score—a positive number—and produces a color.
+</P>
+
+<P>
+Just looking at the cond expression, you cannot predict which of the three cond clauses is going to be used. And that is the point of a function. The function deals with many different inputs, for example, 2, 3, 7, 18, 29. For each of these inputs, it may have to proceed in a different manner. Differentiating among the varying classes of inputs is the purpose of the cond expression.
+</P>
+
+<P>
+Take, for example
+</P>
+
+<CODE>
+(reward 3)
+</CODE>
+
+<P>
+You know that DrRacket replaces function applications with the function’s body after substituting the argument for the parameter. Hence,
+</P>
+
+<CODE>
+(reward 3) ; say ''equals'' == (cond   [(<= 0 3 10) "bronze"]   [(and (< 10 3) (<= 3 20)) "silver"]   [else "gold"])
+</CODE>
+
+<P>
+At this point, DrRacket evaluates one condition at a time. For the first one to evaluate to #true, it continues with the result expression:
+</P>
+
+<CODE>
+(reward 3) == (cond   [(<= 0 3 10) "bronze"]   [(and (< 10 3) (<= 3 20)) "silver"]   [else "gold"]) == (cond   [#true "bronze"]   [(and (< 10 3) (<= 3 20)) "silver"]   [else "gold"]) == "bronze"
+</CODE>
+
+<P>
+Here the first condition holds because 3 is between 0 and 10.
+</P>
+
+<P>
+Here is a second example:
+</P>
+
+<CODE>
+(reward 21) == (cond   [(<= 0 21 10) "bronze"]   [(and (< 10 21) (<= 21 20)) "silver"]   [else "gold"]) == (cond   [#false "bronze"]   [(and (< 10 21) (<= 21 20)) "silver"]   [else "gold"]) == (cond   [(and (< 10 21) (<= 21 20)) "silver"]   [else "gold"])
+</CODE>
+
+<P>
+Note how the first condition evaluated to #false this time, and as mentioned in “Many Ways to Compute” the entire cond clause is dropped. The rest of the calculation proceeds as expected:
+</P>
+
+<CODE>
+(cond   [(and (< 10 21) (<= 21 20)) "silver"]   [else "gold"]) == (cond   [(and #true (<= 21 20)) "silver"]   [else "gold"]) == (cond   [(and #true #false) "silver"]   [else "gold"]) == (cond   [#false "silver"]   [else "gold"]) == (cond   [else "gold"]) == "gold"
+</CODE>
+
+<P>
+Like the first condition, the second one also evaluates to #false and thus the calculation proceeds to the third cond line. The else tells DrRacket to replace the entire cond expression with the answer from this clause.
+</P>
+
+<EXERCISE>
+Exercise 48. Enter the definition of reward followed by (reward 18) into the definitions area of DrRacket and use the stepper to find out how DrRacket evaluates applications of the function.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 49. A cond expression is really just an expression and may therefore show up in the middle of another expression:
+</EXERCISE>
+
+<CODE>
+(- 200 (cond [(> y 200) 0] [else y]))
+</CODE>
+
+<P>
+Use the stepper to evaluate the expression for y as 100 and 210.
+</P>
+
+<P>
+Nesting cond expressions can eliminate common expressions. Consider the function for launching a rocket, repeated in figure 20. Both branches of the cond expression have the same shape except as indicated with …:
+</P>
+
+<CODE>
+(place-image ROCKET X … MTSCN)
+</CODE>
+
+<FIGURE src="images/00072.jpeg">
+Figure 20: Recall from “One Program, Many Definitions”
+</FIGURE>
+
+<P>
+Reformulate create-rocket-scene.v5 to use a nested expression; the resulting function mentions place-image only once.
+</P>
+
+<h2>
+4.3 Enumerations
+</h2>
+
+<P>
+Not all strings represent mouse events. If you looked in HelpDesk when the last section introduced the on-mouse clause for big-bang, you found out that only six strings are used to notify programs of mouse events:
+</P>
+
+<CODE>
+; A MouseEvt is one of these Strings: ; -- "button-down" ; -- "button-up" ; -- "drag" ; -- "move" ; -- "enter" ; -- "leave"
+</CODE>
+
+<P>
+The interpretation of these strings is quite obvious. One of the first two strings shows up when the computer user clicks the mouse button or releases it. In contrast, the third and fourth are about moving the mouse and possibly holding down the mouse button at the same time. Finally, the last two strings represent the events of a mouse moving over the edge of the canvas: either going into the canvas from the outside or exiting the canvas.
+</P>
+
+<P>
+More importantly, the data definition for representing mouse events as strings looks quite different from the data definitions we have seen so far. It is called an enumeration, and it is a data representation in which every possibility is listed. It should not come as a surprise that enumerations are common. Here is a simple one:
+</P>
+
+<CODE>
+; A TrafficLight is one of the following Strings: ; -- "red" ; -- "green" ; -- "yellow" ; interpretation the three strings represent the three ; possible states that a traffic light may assume
+</CODE>
+
+<P>
+It is a simplistic representation of the states that a traffic light can take on. Unlike others, this data definition also uses a slightly different phrase to explain what the term TrafficLight means, but this is an inessential difference.
+</P>
+
+<MARGIN_NOTE>
+We call it “simplistic” because it does not include the “off” state, the “blinking red” state, or the “blinking yellow” state.
+</MARGIN_NOTE>
+
+<P>
+Programming with enumerations is mostly straightforward. When a function’s input is a class of data whose description spells out its elements on a case-by-case basis, the function should distinguish just those cases and compute the result on a per-case basis. For example, if you wanted to define a function that computes the next state of a traffic light, given the current state as an element of TrafficLight, you would come up with a definition like this one:
+</P>
+
+<CODE>
+; TrafficLight -> TrafficLight ; yields the next state given current state s (check-expect (traffic-light-next "red") "green") (define (traffic-light-next s)   (cond     [(string=? "red" s) "green"]     [(string=? "green" s) "yellow"]     [(string=? "yellow" s) "red"]))
+</CODE>
+
+<P>
+Because the data definition for TrafficLight consists of three distinct elements, the traffic-light-next function naturally distinguishes between three different cases. For each case, the result expression is just another string, the one that corresponds to the next case.
+</P>
+
+<EXERCISE>
+Exercise 50. If you copy and paste the above function definition into the definitions area of DrRacket and click RUN, DrRacket highlights two of the three cond lines. This coloring tells you that your test cases do not cover the full conditional. Add enough tests to make DrRacket happy.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 51. Design a big-bang program that simulates a traffic light for a given duration. The program renders the state of a traffic light as a solid circle of the appropriate color, and it changes state on every clock tick. What is the most appropriate initial state? Ask your engineering friends.
+</EXERCISE>
+
+<P>
+The main idea of an enumeration is that it defines a collection of data as a finite number of pieces of data. Each item explicitly spells out which piece of data belongs to the class of data that we are defining. Usually, the piece of data is just shown as is; on some occasions, the item of an enumeration is an English sentence that describes a finite number of elements of pieces of data with a single phrase.
+</P>
+
+<P>
+Here is an important example:
+</P>
+
+<CODE>
+; A 1String is a String of length 1, ; including ; -- "\\" (the backslash), ; -- " " (the space bar), ; -- "\t" (tab), ; -- "\r" (return), and ; -- "\b" (backspace). ; interpretation represents keys on the keyboard
+</CODE>
+
+<P>
+You know that such a data definition is proper if you can describe all of its elements with a BSL test. In the case of 1String, you can find out whether some string s belongs to the collection with
+</P>
+
+<CODE>
+(= (string-length s) 1)
+</CODE>
+
+<P>
+An alternative way to check that you have succeeded is to enumerate all the members of the collection of data that you wish to describe:
+</P>
+
+<CODE>
+; A 1String is one of: ; -- "q" ; -- "w" ; -- "e" ; -- "r" ; … ; -- "\t" ; -- "\r" ; -- "\b"
+</CODE>
+
+<P>
+If you look at your keyboard, you find ←, ↑, and similar labels. Our chosen programming language, BSL, uses its own data definition to represent this information. Here is an excerpt:
+</P>
+
+<CODE>
+; A KeyEvent is one of: ; -- 1String ; -- "left" ; -- "right" ; -- "up" ; -- …
+</CODE>
+
+<MARGIN_NOTE>
+You know where to find the full definition.
+</MARGIN_NOTE>
+
+<P>
+The first item in this enumeration describes the same bunch of strings that 1String describes. The clauses that follow enumerate strings for special key events, such as pressing one of the four arrow keys or releasing a key.
+</P>
+
+<P>
+At this point, we can actually design a key-event handler systematically. Here is a sketch:
+</P>
+
+<CODE>
+; WorldState KeyEvent -> … (define (handle-key-events w ke)   (cond     [(= (string-length ke) 1) …]     [(string=? "left" ke) …]     [(string=? "right" ke) …]     [(string=? "up" ke) …]     [(string=? "down" ke) …]     …))
+</CODE>
+
+<P>
+This event-handling function uses a cond expression, and for each line in the enumeration of the data definition, there is one cond line. The condition in the first cond line identifies the KeyEvents identified in the first line of the enumeration, the second cond clause corresponds to the second data enumeration line, and so on.
+</P>
+
+<P>
+When programs rely on data definitions that come with the chosen programming language (such as BSL) or its libraries (such as the 2htdp/universe library), it is common that they use only a part of the enumeration. To illustrate this point, let us look at a representative problem.
+</P>
+
+<P>
+Sample Problem Design a key-event handler that moves a red dot left or right on a horizontal line in response to pressing the left and right arrow keys.
+</P>
+
+<P>
+Figure 21 presents two solutions to this problem. The function on the left is organized according to the basic idea of using one cond clause per line in the data definition of the input, KeyEvent. In contrast, the right-hand side displays a version that uses the three essential lines: two for the keys that matter and one for everything else. The reordering is appropriate because only two of the cond-lines are relevant, and they can be cleanly separated from other lines. Naturally, this kind of rearrangement is done after the function is designed properly.
+</P>
+
+<FIGURE src="images/00073.png">
+Figure 21: Conditional functions and special enumerations
+</FIGURE>
+
+<h2>
+4.4 Intervals
+</h2>
+
+<P>
+Imagine yourself responding to the following sample design task:
+</P>
+
+<P>
+Sample Problem Design a program that simulates the descent of a UFO.
+</P>
+
+<P>
+After a bit of thinking, you could come up with something like figure 22. Stop! Study the definitions and replace the dots before you read on.
+</P>
+
+<FIGURE src="images/00074.png">
+Figure 22: UFO, descending
+</FIGURE>
+
+<P>
+Before you release this “game” program, however, you may wish to add the display of the status line to the canvas:
+</P>
+
+<P>
+Sample Problem Add a status line. It says “descending” when the UFO’s height is above one third of the height of the canvas. It switches to "closing in" below that. And finally, when the UFO has reached the bottom of the canvas, the status notifies the player that the UFO has “landed.”
+</P>
+
+<P>
+You are free to use appropriate colors for the status line.
+</P>
+
+<P>
+In this case, we don’t have a finite enumeration of distinct elements or distinct sub-classes of data. After all, conceptually, the interval between 0 and HEIGHT (for some number greater than 0) contains an infinite number of numbers and a large number of integers. Therefore we use intervals to superimpose some organization on the generic data definition, which just uses “numbers” to describe the class of coordinates.
+</P>
+
+<P>
+An interval is a description of a class of numbers via boundaries. The simplest interval has two boundaries: left and right. If the left boundary is to be included in the interval, we say it is closed on the left. Similarly, a right-closed interval includes its right boundary. Finally, if an interval does not include a boundary, it is said to be open at that boundary.
+</P>
+
+<P>
+Pictures of, and notations for, intervals use brackets for closed boundaries and parentheses for open boundaries. Here are four such intervals:
+</P>
+
+<P>
+•  [3,5] is a closed interval:
+</P>
+
+<FIGURE src="images/00075.png">
+
+</FIGURE>
+
+<P>
+•  (3,5] is a left-open interval:
+</P>
+
+<FIGURE src="images/00076.png">
+
+</FIGURE>
+
+<P>
+•  [3,5) is a right-open interval:
+</P>
+
+<FIGURE src="images/00077.png">
+
+</FIGURE>
+
+<P>
+•  and (3,5) is an open interval:
+</P>
+
+<FIGURE src="images/00078.png">
+
+</FIGURE>
+
+<EXERCISE>
+Exercise 52. Which integers are contained in the four intervals above?
+</EXERCISE>
+
+<P>
+The interval concept helps us formulate a data definition that captures the revised problem statement better than the “numbers”-based definition:
+</P>
+
+<CODE>
+; A WorldState falls into one of three intervals: ; -- between 0 and CLOSE ; -- between CLOSE and HEIGHT ; -- below HEIGHT
+</CODE>
+
+<P>
+Specifically, there are three intervals, which we may picture as follows:
+</P>
+
+<FIGURE src="images/00079.png">
+
+</FIGURE>
+
+<P>
+What you see is the standard number line, turned vertical and broken into intervals. Each interval starts with an angular downward-pointing bracket () and ends with an upward-pointing bracket (). The picture identifies three intervals in this manner:
+</P>
+
+<P>
+•  the upper interval goes from 0 to CLOSE;
+</P>
+
+<P>
+•  the middle one starts at CLOSE and reaches HEIGHT; and
+</P>
+
+<P>
+•  the lower, invisible interval is just a single line at HEIGHT.
+</P>
+
+<MARGIN_NOTE>
+On a plain number line, the last interval starts at HEIGHT and goes on forever.
+</MARGIN_NOTE>
+
+<P>
+Visualizing the data definition in this manner helps with the design of functions in two ways. First, it immediately suggests how to pick examples. Clearly we want the function to work inside of all the intervals, and we want the function to work properly at the ends of each interval. Second, the image tells us that we need to formulate a condition that determines whether or not some “point” is within one of the intervals.
+</P>
+
+<P>
+Putting the two together also raises a question, namely, how exactly the function deals with the end points. In the context of our example, two points on the number line belong to two intervals: CLOSE belongs to both the upper interval and the middle one, while HEIGHT seems to fall into both the middle one and the lowest one. Such overlaps usually cause problems for programs, and they ought to be avoided.
+</P>
+
+<P>
+BSL functions avoid them naturally due to the way cond expressions are evaluated. Consider this natural organization of a function that consumes elements of WorldState:
+</P>
+
+<CODE>
+; WorldState -> WorldState (define (f y)   (cond     [(<= 0 y CLOSE) …]     [(<= CLOSE y HEIGHT) …]     [(>= y HEIGHT) …]))
+</CODE>
+
+<P>
+The three cond lines correspond to the three intervals. Each condition identifies those values of y that are in between the limits of the intervals. Due to the way cond lines are checked one by one, however, a y value of CLOSE makes BSL pick the first cond line, and a y value of HEIGHT triggers the evaluation of the second ResultExpression.
+</P>
+
+<P>
+If we wanted to make this choice obvious and immediate for every reader of our code, we would use different conditions:
+</P>
+
+<CODE>
+; WorldState -> WorldState (define (g y)   (cond     [(<= 0 y CLOSE) …]     [(and (< CLOSE y) (<= y HEIGHT)) …]     [(> y HEIGHT) …]))
+</CODE>
+
+<P>
+Note how the second cond line uses and to combine a strictly-less check with a less-than-or-equal check instead of f’s <= with three arguments.
+</P>
+
+<P>
+Given all that, we can complete the definition of the function that adds the requested status line to our UFO animation; see figure 23 for the complete definition. The function uses a cond expression to distinguish the three intervals. In each cond clause, the ResultExpression uses render (from figure 22) to create the image with the descending UFO and then places an appropriate text at position (10,10) with place-image.
+</P>
+
+<FIGURE src="images/00082.png">
+Figure 23: Rendering with a status line
+</FIGURE>
+
+<P>
+To run this version, you need to change main from figure 22 a bit:
+</P>
+
+<FIGURE src="images/00083.png">
+
+</FIGURE>
+
+<P>
+One aspect of this function definition might disturb you, and to clarify why, let’s refine the sample problem from above just a tiny bit:
+</P>
+
+<P>
+Sample Problem Add a status line, positioned at (20,20), that says “descending” when the UFO’s height is above one third of the height of the canvas. ⋯
+</P>
+
+<P>
+This could be the response of a client who has watched your animation for a first time.
+</P>
+
+<P>
+At this point, you have no choice but to change the function render/status at six distinct places because you have three copies of one external piece of information: the location of the status line. To avoid multiple changes for a single element, programmers try to avoid copies. You have two choices to fix this problem. The first one is to use constant definitions, which you might recall from early chapters. The second one is to think of the cond expression as an expression that may appear anywhere in a function, including in the middle of some other expression; see figure 24 and compare with figure 23. In this revised definition of render/status, the cond expression is the first argument to place-image. As you can see, its result is always a text image that is placed at position (20,20) into the image created by (render y).
+</P>
+
+<FIGURE src="images/00084.png">
+Figure 24: Rendering with a status line, revised
+</FIGURE>
+
+<h2>
+4.5 Itemizations
+</h2>
+
+<P>
+An interval distinguishes different sub-classes of numbers, which, in principle, is an infinitely large class. An enumeration spells out item for item the useful elements of an existing class of data. Some data definitions need to include elements from both. They use itemizations, which generalize intervals and enumerations. They allow the combination of any already-defined data classes with each other and with individual pieces of data.
+</P>
+
+<P>
+Consider the following example, a rewrite of an important data definition from chapter 4.3:
+</P>
+
+<CODE>
+; A KeyEvent is one of: ; -- 1String ; -- "left" ; -- "right" ; -- "up" ; -- …
+</CODE>
+
+<P>
+In this case, the KeyEvent data definition refers to the 1String data definition. Since functions that deal with KeyEvents often deal with 1Strings separately from the rest and do so with auxiliary functions, we now have a convenient way to express signatures for these functions, too.
+</P>
+
+<P>
+The description of the string->number primitive employs the idea of an itemization in a sophisticated way. Its signature is
+</P>
+
+<CODE>
+; String -> NorF ; converts the given string into a number; ; produces #false if impossible (define (string->number s) (… s …))
+</CODE>
+
+<P>
+meaning that the result signature names a simple class of data:
+</P>
+
+<CODE>
+; An NorF is one of: ; -- #false ; -- a Number
+</CODE>
+
+<P>
+This itemization combines one piece of data (#false) with a large, and distinct, class of data (Number).
+</P>
+
+<P>
+Now imagine a function that consumes the result of string->number and adds 3, dealing with #false as if it were 0:
+</P>
+
+<CODE>
+; NorF -> Number ; adds 3 to the given number; 3 otherwise (check-expect (add3 #false) 3) (check-expect (add3 0.12) 3.12) (define (add3 x)   (cond     [(false? x) 3]     [else (+ x 3)]))
+</CODE>
+
+<P>
+As above, the function’s body consists of a cond expression with as many clauses as there are items in the enumeration of the data definition. The first cond clause recognizes when the function is applied to #false; the corresponding result is 3 as requested. The second clause is about numbers and adds 3 as required.
+</P>
+
+<P>
+Let’s study a somewhat more purposeful design task:
+</P>
+
+<P>
+Sample Problem Design a program that launches a rocket when the user of your program presses the space bar. The program first displays the rocket sitting at the bottom of the canvas. Once launched, it moves upward at three pixels per clock tick.
+</P>
+
+<P>
+This revised version suggests a representation with two classes of states:
+</P>
+
+<CODE>
+; An LR (short for launching rocket) is one of: ; -- "resting" ; -- NonnegativeNumber ; interpretation "resting" represents a grounded rocket ; a number denotes the height of a rocket in flight
+</CODE>
+
+<P>
+While the interpretation of "resting" is obvious, the interpretation of numbers is ambiguous in its notion of height:
+</P>
+
+<P>
+1. the word “height” could refer to the distance between the ground and the rocket’s point of reference, say, its center; or
+</P>
+
+<P>
+2. it could mean the distance between the top of the canvas and the reference point.
+</P>
+
+<P>
+Either one works fine. The second one uses the conventional computer meaning of the word “height.” It is thus slightly more convenient for functions that translate the state of the world into an image, and we therefore choose to interpret the number in that spirit.
+</P>
+
+<P>
+To drive home this choice, exercise 57 below asks you to solve the exercises of this section using the first interpretation of height.
+</P>
+
+<EXERCISE>
+Exercise 53. The design recipe for world programs demands that you translate information into data and vice versa to ensure a complete understanding of the data definition. It’s best to draw some world scenarios and to represent them with data and, conversely, to pick some data examples and to draw pictures that match them. Do so for the LR definition, including at least HEIGHT and 0 as examples.
+</EXERCISE>
+
+<P>
+In reality, rocket launches come with countdowns:
+</P>
+
+<P>
+Sample Problem Design a program that launches a rocket when the user presses the space bar. At that point, the simulation starts a countdown for three ticks, before it displays the scenery of a rising rocket. The rocket should move upward at a rate of three pixels per clock tick.
+</P>
+
+<P>
+Following the program design recipe, we first collect constants:
+</P>
+
+<CODE>
+(define HEIGHT 300) ; distances in pixels (define WIDTH 100) (define YDELTA 3) (define BACKG (empty-scene WIDTH HEIGHT)) (define ROCKET (rectangle 5 30 "solid" "red")) (define CENTER (/ (image-height ROCKET) 2))
+</CODE>
+
+<P>
+While WIDTH and HEIGHT describe the dimensions of the canvas and the background scene, YDELTA describes how fast the rocket moves along the y-axis, as specified in the problem statement. The CENTER constant is the computed center of the rocket.
+</P>
+
+<P>
+Next we turn to the development of a data definition. This revision of the problem clearly calls for three distinct sub-classes of states:
+</P>
+
+<CODE>
+; An LRCD (for launching rocket countdown) is one of: ; -- "resting" ; -- a Number between -3 and -1 ; -- a NonnegativeNumber ; interpretation a grounded rocket, in countdown mode, ; a number denotes the number of pixels between the ; top of the canvas and the rocket (its height)
+</CODE>
+
+<P>
+The second, new sub-class of data—three negative numbers—represents the world after the user pressed the space bar and before the rocket lifts off.
+</P>
+
+<P>
+At this point, we write down our wish list for a function that renders states as images and for any event-handling functions that we may need:
+</P>
+
+<CODE>
+; LRCD -> Image ; renders the state as a resting or flying rocket (define (show x)   BACKG) ; LRCD KeyEvent -> LRCD ; starts the countdown when space bar is pressed, ; if the rocket is still resting (define (launch x ke)   x) ; LRCD -> LRCD ; raises the rocket by YDELTA, ; if it is moving already (define (fly x)   x)
+</CODE>
+
+<P>
+Remember that the design recipe for world programs dictates these signatures, though the choice of names for the data collection and the event handlers are ours. Also, we have specialized the purpose statements to fit our problem statement.
+</P>
+
+<P>
+From here, we use the design recipe for functions to create complete definitions for all three of them, starting with examples for the first one:
+</P>
+
+<FIGURE src="images/00085.png">
+
+</FIGURE>
+
+<P>
+As before in this chapter, we make one test per sub-class in the data definition. The first example shows the resting state, the second the middle of a countdown, and the last one the rocket in flight. Furthermore, we express the expected values as expressions that draw appropriate images. We used DrRacket’s interactions area to create these images; what would you do?
+</P>
+
+<P>
+A close look at the examples reveals that making examples also means making choices. Nothing in the problem statement actually demands how exactly the rocket is displayed before it is launched, but doing so is natural. Similarly, nothing says to display a number during the countdown, yet it adds a nice touch. Lastly, if you solved exercise 53 you also know that 0 and HEIGHT are special points for the third clause of the data definition.
+</P>
+
+<P>
+In general, intervals deserve special attention when you make up examples, that is, they deserve at least three kinds of examples: one from each end and another one from inside. Since the second sub-class of LRCD is a (finite) interval and the third one is a half-open interval, let’s take a look at their end points:
+</P>
+
+<P>
+•  Clearly, (show -3) and (show -1) must produce images like the one for (show -2). After all, the rocket still rests on the ground, even if the countdown numbers differ.
+</P>
+
+<P>
+•  The case for (show HEIGHT) is different. According to our agreement, the value HEIGHT represents the state when the rocket has just been launched. Pictorially this means the rocket is still resting on the ground. Based on the last test case above, here is the test case that expresses this insight:
+</P>
+
+<P>
+(check-expect  (show HEIGHT)  (place-image ROCKET 10 HEIGHT BACKG))
+</P>
+
+<P>
+Except that if you evaluate the “expected value” expression by itself in DrRacket’s interactions area, you see that the rocket is halfway underground. This shouldn’t be the case, of course, meaning that we need to adjust this test case and the above:
+</P>
+
+<P>
+(check-expect  (show HEIGHT)  (place-image ROCKET 10 (- HEIGHT CENTER) BACKG)) (check-expect  (show 53)  (place-image ROCKET 10 (- 53 CENTER) BACKG))
+</P>
+
+<P>
+•  Finally, determine the result you now expect from (show 0). It is a simple but revealing exercise.
+</P>
+
+<P>
+Following the precedents in this chapter, show uses a cond expression to deal with the three clauses of the data definition:
+</P>
+
+<CODE>
+(define (show x)   (cond     [(string? x) …]     [(<= -3 x -1) …]     [(>= x 0) …]))
+</CODE>
+
+<P>
+Each clause identifies the corresponding sub-class with a precise condition: (string? x) picks the first sub-class, which consists of just one element, the string "resting"; (<= -3 x -1) completely describes the second sub-class of data; and (>= x 0) is a test for all non-negative numbers.
+</P>
+
+<EXERCISE>
+Exercise 54. Why is (string=? "resting" x) incorrect as the first condition in show? Conversely, formulate a completely accurate condition, that is, a Boolean expression that evaluates to #true precisely when x belongs to the first sub-class of LRCD.
+</EXERCISE>
+
+<P>
+Combining the examples and the above skeleton of the show function yields a complete definition in a reasonably straightforward manner:
+</P>
+
+<FIGURE src="images/00086.png">
+
+</FIGURE>
+
+<P>
+Indeed, this way of defining functions is highly effective and is an essential element of the full-fledged design approach in this book.
+</P>
+
+<EXERCISE>
+Exercise 55. Take another look at show. It contains three instances of an expression with the approximate shape:
+</EXERCISE>
+
+<CODE>
+(place-image ROCKET 10 (- … CENTER) BACKG)
+</CODE>
+
+<P>
+This expression appears three times in the function: twice to draw a resting rocket and once to draw a flying rocket. Define an auxiliary function that performs this work and thus shorten show. Why is this a good idea? You may wish to reread the Prologue.
+</P>
+
+<P>
+Let’s move on to the second function, which deals with the key event to launch the rocket. We have its header material, so we formulate examples as tests:
+</P>
+
+<CODE>
+(check-expect (launch "resting" " ") -3) (check-expect (launch "resting" "a") "resting") (check-expect (launch -3 " ") -3) (check-expect (launch -1 " ") -1) (check-expect (launch 33 " ") 33) (check-expect (launch 33 "a") 33)
+</CODE>
+
+<P>
+An inspection of these six examples shows that the first two are about the first sub-class of LRCD, the third and fourth concern the countdown, and the last two are about key events when the rocket is already in the air.
+</P>
+
+<P>
+Since writing down the sketch of a cond expression worked well for the design of the show function, we do it again:
+</P>
+
+<CODE>
+(define (launch x ke)   (cond     [(string? x) …]     [(<= -3 x -1) …]     [(>= x 0) …]))
+</CODE>
+
+<P>
+Looking back at the examples suggests that nothing changes when the world is in a state that is represented by the second or third sub-class of data. Meaning, launch should produce x when this happens:
+</P>
+
+<CODE>
+(define (launch x ke)   (cond     [(string? x) …]     [(<= -3 x -1) x]     [(>= x 0) x]))
+</CODE>
+
+<P>
+Finally, the first example identifies the exact case when the launch function produces a new world state:
+</P>
+
+<CODE>
+(define (launch x ke)   (cond     [(string? x) (if (string=? " " ke) -3 x)]     [(<= -3 x -1) x]     [(>= x 0) x]))
+</CODE>
+
+<P>
+Specifically, when the state of the world is "resting" and the user presses the space bar, the function starts the countdown with −3.
+</P>
+
+<P>
+Copy the code into the definitions area of DrRacket and ensure that the above definitions work. At that point, you may wish to add a function for running the program:
+</P>
+
+<CODE>
+; LRCD -> LRCD (define (main1 s)   (big-bang s     [to-draw show]     [on-key launch]))
+</CODE>
+
+<P>
+This function does not specify what to do when the clock ticks; after all, we haven’t designed fly yet. Still, with main1 it is possible to run this incomplete version of the program and to check that you can start the countdown. What would you provide as the argument in a call to main1?
+</P>
+
+<P>
+The design of fly—the clock-tick handler—proceeds just like the design of the preceding two functions, and figure 25 displays the result of the design process. Once again the key is to cover the space of possible input data with a goodly bunch of examples, especially for the two intervals. These examples ensure that the countdown and the transition from the countdown to the liftoff work properly.
+</P>
+
+<FIGURE src="images/00087.png">
+Figure 25: Launching a countdown and a liftoff
+</FIGURE>
+
+<EXERCISE>
+Exercise 56. Define main2 so that you can launch the rocket and watch it lift off. Read up on the on-tick clause to determine the length of one tick and how to change it.
+</EXERCISE>
+
+<P>
+If you watch the entire launch, you will notice that once the rocket reaches the top something curious happens. Explain. Add a stop-when clause to main2 so that the simulation of the liftoff stops gracefully when the rocket is out of sight.
+</P>
+
+<P>
+The solution of exercise 56 yields a complete, working program, but one that behaves a bit strangely. Experienced programmers tell you that using negative numbers to represent the countdown phase is too “brittle.” The next chapter introduces the means to provide a good data definition for this problem. Before we go there, however, the next section spells out in detail how to design programs that consume data described by itemizations.
+</P>
+
+<EXERCISE>
+Exercise 57. Recall that the word “height” forced us to choose one of two possible interpretations. Now that you have solved the exercises in this section, solve them again using the first interpretation of the word. Compare and contrast the solutions.
+</EXERCISE>
+
+<h2>
+4.6 Designing with Itemizations
+</h2>
+
+<P>
+Designing with Itemizations
+</P>
+
+<P>
+What the preceding three sections have clarified is that the design of functions can—and must—exploit the organization of the data definition. Specifically, if a data definition singles out certain pieces of data or specifies ranges of data, then the creation of examples and the organization of the function reflect these cases and ranges.
+</P>
+
+<P>
+In this section, we refine the design recipe of chapter 3.4 so that you can proceed in a systematic manner when you encounter problems concerning functions that consume itemizations, including enumerations and intervals. To keep the explanation grounded, we illustrate the six design steps with the following, somewhat simplistic, example:
+</P>
+
+<P>
+Sample Problem The state of Tax Land has created a three-stage sales tax to cope with its budget deficit. Inexpensive items, those costing less than $1,000, are not taxed. Luxury items, with a price of more than $10,000, are taxed at the rate of eight percent (8.00%). Everything in between comes with a five percent (5.00%) markup.
+</P>
+
+<P>
+Design a function for a cash register that, given the price of an item, computes the sales tax.
+</P>
+
+<P>
+Keep this problem in mind as we revise the steps of the design recipe:
+</P>
+
+<P>
+1. When the problem statement distinguishes different classes of input information, you need carefully formulated data definitions.
+</P>
+
+<P>
+A data definition must use distinct clauses for each sub-class of data or in some cases just individual pieces of data. Each clause specifies a data representation for a particular sub-class of information. The key is that each sub-class of data is distinct from every other class, so that our function can proceed by analyzing disjoint cases.
+</P>
+
+<P>
+Our sample problem deals with prices and taxes, which are usually positive numbers. It also clearly distinguishes three ranges:
+</P>
+
+<P>
+; A Price falls into one of three intervals: ; --- 0 through 1000 ; --- 1000 through 10000 ; --- 10000 and above. ; interpretation the price of an item
+</P>
+
+<P>
+Do you understand how these ranges relate to the original problem?
+</P>
+
+<P>
+2. As far as the signature, purpose statement, and function header are concerned, you proceed as before.
+</P>
+
+<P>
+Here is the material for our running example:
+</P>
+
+<P>
+; Price -> Number ; computes the amount of tax charged for p (define (sales-tax p) 0)
+</P>
+
+<MARGIN_NOTE>
+Developers in the real world do not use plain numbers in the chosen programming language for representing amounts of money. See intermezzo 4 for some problems with numbers.
+</MARGIN_NOTE>
+
+<P>
+3. For functional examples, however, it is imperative that you pick at least one example from each sub-class in the data definition. Also, if a sub-class is a finite range, be sure to pick examples from the boundaries of the range and from its interior.
+</P>
+
+<P>
+Since our sample data definition involves three distinct intervals, let’s pick all boundary examples and one price from inside each interval and determine the amount of tax for each: 0, 537, 1000, 1282, 10000, and 12017.
+</P>
+
+<P>
+Stop! Try to calculate the tax for each of these prices.
+</P>
+
+<P>
+Here is our first attempt, with rounded tax amounts:
+</P>
+
+<FIGURE src="images/00088.png">
+
+</FIGURE>
+
+<P>
+The question marks point out that the problem statement uses the vague phrase “those costing less than $1,000” and “more than $10,000” to specify the tax table. While a programmer may jump to the conclusion that these words mean “strictly less” or “strictly more,” the lawmakers may have meant to say “less than or equal to” or “more than or equal to,” respectively. Being skeptical, we decide here that Tax Land legislators always want more money to spend, so the tax rate for $1,000 is 5% and the rate for $10,000 is 8%. A programmer at a tax company would have to ask a tax-law specialist.
+</P>
+
+<P>
+Now that we have figured out how the boundaries are to be interpreted in the domain, we could refine the data definition. We trust you can do this on your own.
+</P>
+
+<P>
+Before we go, let’s turn some of the examples into test cases:
+</P>
+
+<P>
+(check-expect (sales-tax 537) 0) (check-expect (sales-tax 1000) (* 0.05 1000)) (check-expect (sales-tax 12017) (* 0.08 12017))
+</P>
+
+<P>
+Take a close look. Instead of just writing down the expected result, we write down how to compute the expected result. This makes it easier later to formulate the function definition.
+</P>
+
+<P>
+Stop! Write down the remaining test cases. Think about why you may need more test cases than sub-classes in the data definition.
+</P>
+
+<P>
+4. The biggest novelty is the conditional template. In general,
+</P>
+
+<P>
+the template mirrors the organization of sub-classes with a cond.
+</P>
+
+<P>
+This slogan means two concrete things. First, the function’s body must be a conditional expression with as many clauses as there are distinct sub-classes in the data definition. If the data definition mentions three distinct sub-classes of input data, you need three cond clauses; if it has seventeen sub-classes, the cond expression contains seventeen clauses. Second, you must formulate one condition expression per cond clause. Each expression involves the function parameter and identifies one of the sub-classes of data in the data definition:
+</P>
+
+<P>
+(define (sales-tax p)   (cond     [(and (<= 0 p) (< p 1000)) …]     [(and (<= 1000 p) (< p 10000)) …]     [(>= p 10000) …]))
+</P>
+
+<P>
+5. When you have finished the template, you are ready to define the function. Given that the function body already contains a schematic cond expression, it is natural to start from the various cond lines. For each cond line, you may assume that the input parameter meets the condition and so you exploit the corresponding test cases. To formulate the corresponding result expression, you write down the computation for this example as an expression that involves the function parameter. Ignore all other possible kinds of input data when you work on one line; the other cond clauses take care of those.
+</P>
+
+<P>
+(define (sales-tax p)   (cond     [(and (<= 0 p) (< p 1000)) 0]     [(and (<= 1000 p) (< p 10000)) (* 0.05 p)]     [(>= p 10000) (* 0.08 p)]))
+</P>
+
+<P>
+6. Finally, run the tests and ensure that they cover all cond clauses.
+</P>
+
+<P>
+What do you do when one of your test cases fails? Review the end of chapter 3.1 concerning test failures.
+</P>
+
+<EXERCISE>
+Exercise 58. Introduce constant definitions that separate the intervals for low prices and luxury prices from the others so that the legislators in Tax Land can easily raise the taxes even more.
+</EXERCISE>
+
+<h2>
+4.7 Finite State Worlds
+</h2>
+
+<P>
+With the design knowledge in this chapter, you can develop a complete simulation of American traffic lights. When such a light is green and it is time to stop the traffic, the light turns yellow, and, after that, it turns red. When the light is red and it is time to get the traffic going, the light simply switches to green.
+</P>
+
+<P>
+The left-hand side of Figure 26 summarizes this description as a state transition diagram. Such a diagram consists of states and arrows that connect these states. Each state depicts a traffic light in one particular configuration: red, yellow, or green. Each arrow shows how the world can change, from which state it can transition to another state. Our sample diagram contains three arrows, because there are three possible ways in which the traffic light can change. Labels on the arrows indicate the reason for changes; a traffic light transitions from one state to another as time passes.
+</P>
+
+<FIGURE src="images/00089.png">
+Figure 26: How a traffic light functions
+</FIGURE>
+
+<P>
+In many situations, state transition diagrams have only a finite number of states and arrows. Computer scientists call such diagrams finite state machines (FSM), also known as finite state automata (FSA). Despite their simplicity, FSMs/FSAs play an important role in computer science.
+</P>
+
+<P>
+To create a world program for an FSA, we must first pick a data representation for the possible “states of the world,” which, according to chapter 3.6, represents those aspects of the world that may change in some ways as opposed to those that remain the same. In the case of our traffic light, what changes is the color of the light, that is, which bulb is turned on. The size of the bulbs, their arrangement (horizontal or vertical), and other aspects don’t change. Since there are only three states, we reuse the string-based data definition of TrafficLight from above.
+</P>
+
+<P>
+The right-hand side of figure 26 is a diagrammatic interpretation of the TrafficLight data definition. Like the diagram in figure 26, it consists of three states, arranged in such a way that it is easy to view each data element as a representation of a concrete configuration. Also, the arrows are now labeled with tick to suggest that our world program uses the passing of time as the trigger that changes the state of the traffic light. If we wanted to simulate a manually operated light, we might choose transitions based on keystrokes.
+</P>
+
+<P>
+Now that we know how to represent the states of our world, how to go from one to the next, and that the state changes at every tick of the clock, we can write down the signature, a purpose statement, and a stub for the two functions we must design:
+</P>
+
+<CODE>
+; TrafficLight -> TrafficLight ; yields the next state, given current state cs (define (tl-next cs) cs) ; TrafficLight -> Image ; renders the current state cs as an image (define (tl-render current-state)   (empty-scene 90 30))
+</CODE>
+
+<P>
+Preceding sections use the names render and next to name the functions that translate a state of the world into an image and that deal with clock ticks. Here we prefix these names with some syllable that suggests to which world the functions belong. Because the specific functions have appeared before, we leave them as exercises.
+</P>
+
+<EXERCISE>
+Exercise 59. Finish the design of a world program that simulates the traffic light FSA. Here is the main function:
+</EXERCISE>
+
+<CODE>
+; TrafficLight -> TrafficLight ; simulates a clock-based American traffic light (define (traffic-light-simulation initial-state)   (big-bang initial-state     [to-draw tl-render]     [on-tick tl-next 1]))
+</CODE>
+
+<P>
+The function’s argument is the initial state for the big-bang expression, which tells DrRacket to redraw the state of the world with tl-render and to handle clock ticks with tl-next. Also note that it informs the computer that the clock should tick once per second.
+</P>
+
+<P>
+Complete the design of tl-render and tl-next. Start with copying TrafficLight, tl-next, and tl-render into DrRacket’s definitions area.
+</P>
+
+<P>
+Here are some test cases for the design of the latter:
+</P>
+
+<FIGURE src="images/00090.png">
+
+</FIGURE>
+
+<P>
+Your function may use these images directly. If you decide to create images with the functions from the 2htdp/image library, design an auxiliary function for creating the image of a one-color bulb. Then read up on the place-image function, which can place bulbs into a background scene.
+</P>
+
+<EXERCISE>
+Exercise 60. An alternative data representation for a traffic light program may use numbers instead of strings:
+</EXERCISE>
+
+<CODE>
+; An N-TrafficLight is one of: ; -- 0 interpretation the traffic light shows red ; -- 1 interpretation the traffic light shows green ; -- 2 interpretation the traffic light shows yellow
+</CODE>
+
+<P>
+It greatly simplifies the definition of tl-next:
+</P>
+
+<CODE>
+; N-TrafficLight -> N-TrafficLight ; yields the next state, given current state cs (define (tl-next-numeric cs) (modulo (+ cs 1) 3))
+</CODE>
+
+<P>
+Reformulate tl-next’s tests for tl-next-numeric.
+</P>
+
+<P>
+Does the tl-next function convey its intention more clearly than the tl-next-numeric function? If so, why? If not, why not?
+</P>
+
+<EXERCISE>
+Exercise 61. As chapter 3.4 says, programs must define constants and use names instead of actual constants. In this spirit, a data definition for traffic lights must use constants, too:
+</EXERCISE>
+
+<CODE>
+(define RED 0) would use. (define GREEN 1) (define YELLOW 2) ; An S-TrafficLight is one of: ; -- RED ; -- GREEN ; -- YELLOW
+</CODE>
+
+<MARGIN_NOTE>
+This form of data definition is what a seasoned designer would use.
+</MARGIN_NOTE>
+
+<P>
+If the names are chosen properly, the data definition does not need an interpretation statement.
+</P>
+
+<P>
+Figure 27 displays two different functions that switch the state of a traffic light in a simulation program. Which of the two is properly designed using the recipe for itemization? Which of the two continues to work if you change the constants to the following
+</P>
+
+<CODE>
+(define RED "red") (define GREEN "green") (define YELLOW "yellow")
+</CODE>
+
+<FIGURE src="images/00091.png">
+Figure 27: A symbolic traffic light
+</FIGURE>
+
+<P>
+Does this help you answer the questions?
+</P>
+
+<P>
+Aside The equal? function in figure 27 compares two arbitrary values, regardless of what these values are. Equality is a complicated topic in the world of programming. End
+</P>
+
+<P>
+Here is another finite state problem that introduces a few additional complications:
+</P>
+
+<P>
+Sample Problem Design a world program that simulates the working of a door with an automatic door closer. If this kind of door is locked, you can unlock it with a key. An unlocked door is closed, but someone pushing at the door opens it. Once the person has passed through the door and lets go, the automatic door takes over and closes the door again. When a door is closed, it can be locked again.
+</P>
+
+<P>
+To tease out the essential elements, we again draw a transition diagram; see the left-hand side of figure 27. Like the traffic light, the door has three distinct states: locked, closed, and open. Locking and unlocking are the activities that cause the door to transition from the locked to the closed state and vice versa. As for opening an unlocked door, we say that one needs to push the door open. The remaining transition is unlike the others because it doesn’t require any activities by anyone or anything else. Instead, the door closes automatically over time. The corresponding transition arrow is labeled with *time* to emphasize this.
+</P>
+
+<P>
+Following our recipe, we start with a translation of the three real-world states into BSL data:
+</P>
+
+<CODE>
+(define LOCKED "locked")    ; A DoorState is one of: (define CLOSED "closed")    ; -- LOCKED (define OPEN "open")        ; -- CLOSED                             ; -- OPEN
+</CODE>
+
+<P>
+We also keep in mind the lesson of exercise 61, namely, that it is best to define symbolic constants and formulate data definitions in terms of such constants.
+</P>
+
+<P>
+The next step of a world design demands that we translate the chosen actions in our domain—the arrows in the left-hand diagram—into interactions with the computer that the 2htdp/universe library can deal with. Our pictorial representation of the door’s states and transitions, specifically the arrow from open to closed, suggests the use of clock ticks. For the other arrows, we could use either key presses or mouse clicks. Let’s use three keystrokes: "u" for unlocking the door, "l" for locking it, and the space bar " " for pushing it open. The right-hand-side diagram of figure 28 expresses these choices graphically; it translates the state-machine diagram from the world of information into the world of data in BSL.
+</P>
+
+<FIGURE src="images/00092.png">
+Figure 28: A transition diagram for a door with an automatic closer
+</FIGURE>
+
+<P>
+Once we have decided to use the passing of time for one action and key presses for the others, we must design functions that render the current state of the world—represented as DoorState—and that transform it into the next state of the world. And that, of course, amounts to a wish list of big-bang functions:
+</P>
+
+<P>
+•  door-closer, which closes the door during one tick;
+</P>
+
+<P>
+•  door-action, which acts on it in response to pressing a key; and
+</P>
+
+<P>
+•  door-render, which translates the current state into an image.
+</P>
+
+<P>
+Stop! Formulate appropriate signatures.
+</P>
+
+<P>
+We start with door-closer. Since door-closer acts as the on-tick handler, we get its signature from our choice of DoorState as the collection of world states:
+</P>
+
+<CODE>
+; DoorState -> DoorState ; closes an open door over the period of one tick (define (door-closer state-of-door) state-of-door)
+</CODE>
+
+<P>
+Making up examples is trivial when the world can only be in one of three states. Here we use a table to express the basic idea, just like in some of the mathematical examples given above:
+</P>
+
+<FIGURE src="images/">
+
+</FIGURE>
+
+<P>
+Stop! Express these examples as BSL tests.
+</P>
+
+<P>
+The template step demands a conditional with three clauses:
+</P>
+
+<CODE>
+(define (door-closer state-of-door)   (cond     [(string=? LOCKED state-of-door) …]     [(string=? CLOSED state-of-door) …]     [(string=? OPEN state-of-door) …]))
+</CODE>
+
+<P>
+and the process of turning this template into a function definition is dictated by the examples:
+</P>
+
+<CODE>
+(define (door-closer state-of-door)   (cond     [(string=? LOCKED state-of-door) LOCKED]     [(string=? CLOSED state-of-door) CLOSED]     [(string=? OPEN state-of-door) CLOSED]))
+</CODE>
+
+<P>
+Don’t forget to run your tests.
+</P>
+
+<P>
+The second function, door-action, takes care of the remaining three arrows of the diagram. Functions that deal with keyboard events consume both a world and a key event, meaning the signature is as follows:
+</P>
+
+<CODE>
+; DoorState KeyEvent -> DoorState ; turns key event k into an action on state s (define (door-action s k)   s)
+</CODE>
+
+<P>
+We once again present the examples in tabular form:
+</P>
+
+<FIGURE src="images/">
+
+</FIGURE>
+
+<P>
+The examples combine information from our drawing with the choices we made about mapping actions to keyboard events. Unlike the table of examples for traffic light, this table is incomplete. Think of some other examples; then consider why our table suffices.
+</P>
+
+<P>
+From here, it is straightforward to create a complete design:
+</P>
+
+<FIGURE src="images/00093.png">
+
+</FIGURE>
+
+<P>
+Note the use of and to combine two conditions: one concerning the current state of the door and the other concerning the given key event.
+</P>
+
+<P>
+Lastly, we need to render the state of the world as a scene:
+</P>
+
+<FIGURE src="images/00094.png">
+
+</FIGURE>
+
+<P>
+This simplistic function uses large text. Here is how we run it all:
+</P>
+
+<CODE>
+; DoorState -> DoorState ; simulates a door with an automatic door closer (define (door-simulation initial-state)   (big-bang initial-state    [on-tick door-closer]    [on-key door-action]    [to-draw door-render]))
+</CODE>
+
+<P>
+Now it is time for you to collect the pieces and run them in DrRacket to see whether it all works.
+</P>
+
+<EXERCISE>
+Exercise 62. During a door simulation the “open” state is barely visible. Modify door-simulation so that the clock ticks once every three seconds. Rerun the simulation.
+</EXERCISE>

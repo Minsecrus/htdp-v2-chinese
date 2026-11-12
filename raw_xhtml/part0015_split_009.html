@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_10"><span epub:type="pagebreak" id="pg_725" title="725" class="calibre1"></span><a id="sec32-4" class="calibre16"></a>32.4 A Graphical Editor, with Mouse</h2>
+<p class="tni">Chapter 5.10 introduces the notion of a one-line editor and presents a number of exercises on creating a graphical editor. Recall that a graphical editor is an interactive program that interprets key events as editing actions on a string. In particular, when a user presses the left or right arrow keys, the cursor moves left or right; similarly, pressing the delete key removes a 1String from the edited text. The editor program uses a data representation that combines two strings in a structure. Chapter 10.4 resumes these exercises and shows how the same program can greatly benefit from a different data structure, one that combines two strings.</p>
+<p class="calibre8">Neither of these sections deals with mouse actions for navigation, even though all modern applications support this functionality. The basic difficulty with mouse events is to place the cursor at the appropriate spot. Since the program deals with a single line of text, a mouse click at (<i class="calibre6">x,y</i>) clearly aims to place the cursor between the letters that are visible at or around the <i class="calibre6">x</i> position. This section fills the gap.</p>
+<p class="calibre8">Recall the relevant definitions from chapter 10.4:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define FONT-SIZE</samp><samp class="mono"> 11)</samp> <br class="calibre4"/><samp class="mono">(define FONT-COLOR</samp><samp class="mono"> "black")</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">; [</samp>List-of 1String<samp class="mono">] -&gt;</samp><samp class="mono"> </samp>Image <br class="calibre4"/><samp class="mono">; renders</samp><samp class="mono"> a string</samp><samp class="mono"> as an</samp><samp class="mono"> image for</samp><samp class="mono"> the editor</samp> <br class="calibre4"/><samp class="mono">(define (editor-text</samp><samp class="mono"> s)</samp> <br class="calibre4"/><samp class="mono">  (text</samp><samp class="mono"> (implode s)</samp><samp class="mono"> FONT-SIZE FONT-COLOR))</samp> <br class="calibre4"/><br class="calibre4"/><samp class="mono">(define-struct editor</samp><samp class="mono"> [pre post])</samp> <br class="calibre4"/><samp class="mono">; An</samp><samp class="mono"> </samp><span class="calibre6">Editor</span><samp class="mono"> is a</samp><samp class="mono"> structure:</samp> <br class="calibre4"/><samp class="mono">; </samp><samp class="mono">  </samp><samp class="mono"> (make-editor [</samp>List-of 1String<samp class="mono">] [</samp>List-of 1String<samp class="mono">])</samp> <br class="calibre4"/><span class="calibre9">; interpretation</span><samp class="mono"> if (make-editor</samp><samp class="mono"> p s)</samp><samp class="mono"> is the</samp><samp class="mono"> state of</samp> <br class="calibre4"/><samp class="mono">; an</samp><samp class="mono"> interactive editor,</samp><samp class="mono"> (reverse p)</samp><samp class="mono"> corresponds to</samp> <br class="calibre4"/><samp class="mono">; the</samp><samp class="mono"> text to</samp><samp class="mono"> the left</samp><samp class="mono"> of the</samp><samp class="mono"> cursor and</samp><samp class="mono"> s to</samp><samp class="mono"> the</samp> <br class="calibre4"/><samp class="mono">; text</samp><samp class="mono"> on the</samp><samp class="mono"> right</samp></p>
+</div>
+<p class="calibre8"><b class="calibre9">Exercise</b> 508. Design <samp class="mono">split-structural</samp> using the structural design recipe. The function consumes a list of 1Strings <samp class="mono">ed</samp> and a natural number <samp class="mono">x</samp>; the former represents the complete string in some Editor and the latter the x-coordinate of the mouse click. The function produces</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(make-editor p</samp><samp class="mono"> s)</samp></p>
+</div>
+<p class="tni"><span epub:type="pagebreak" id="pg_726" title="726"></span>such that (1) <samp class="mono">p</samp> and <samp class="mono">s</samp> make up <samp class="mono">ed</samp> and (2) <i class="calibre6">x</i> is larger than the image of <samp class="mono">p</samp> and smaller than the image of <samp class="mono">p</samp> extended with the first 1String on <samp class="mono">s</samp> (if any).</p>
+<p class="calibre8">Here is the first condition expressed with an ISL+ expression:</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(string=? (string-append</samp><samp class="mono"> p s)</samp><samp class="mono"> ed)</samp></p>
+</div>
+<p class="tni">The second one is</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(&lt;= (image-width</samp><samp class="mono"> (editor-text p))</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  x</samp> <br class="calibre4"/><samp class="mono">  </samp><samp class="mono">  (image-width</samp><samp class="mono"> (editor-text (append</samp><samp class="mono"> p (first</samp><samp class="mono"> s)))))</samp></p>
+</div>
+<p class="tni">assuming <samp class="mono">(cons? s)</samp>.</p>
+<p class="calibre8"><b class="calibre9">Hints</b> (1) The x-coordinate measures the distance from the left. Hence the function must check whether smaller and smaller prefixes of <samp class="mono">ed</samp> fit into the given width. The first one that doesn’t fit corresponds to the <samp class="mono">pre</samp> field of the desired Editor, the remainder of <samp class="mono">ed</samp> to the <samp class="mono">post</samp> field.</p>
+<p class="calibre8">(2) Designing this function calls for thoroughly developing examples and tests. See chapter 4. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 509. Design the function <samp class="mono">split</samp>. Use the accumulator design recipe to improve on the result of exercise 508. After all, the hints already point out that when the function discovers the correct split point, it needs both parts of the list, and one part is obviously lost due to recursion. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8">Once you have solved this exercise, equip the <samp class="mono">main</samp> function of chapter 10.4 with a clause for mouse clicks. As you experiment with moving the cursor via mouse clicks, you will notice that it does not exactly behave like applications that you use on your other devices—even though <samp class="mono">split</samp> passes all its tests.</p>
+<p class="calibre8">Graphical programs, like editors, call for experimentation to come up with the best “look and feel” experiences. In this case, your editor is too simplistic with its placement of the cursor. After the applications on your computer determine the split point, they also determine which letter division is closer to the x-coordinate and place the cursor there.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 510. Many operating systems come with the <samp class="mono">fmt</samp> program, which can rearrange the words in a file so that all lines in the resulting file have a maximal width. As a widely used program, <samp class="mono">fmt</samp> supports a range of related functions. This exercise focuses on its core functionality.</p>
+<p class="calibre8">Design the program <samp class="mono">fmt</samp>. It consumes a natural number <samp class="mono">w</samp>, the name of an input file <samp class="mono">in-f</samp>, and the name of an output file <samp class="mono">out-f</samp>—in the same sense as <samp class="mono">read-file</samp> from the <i class="calibre6">2htdp/batch-io</i> library. Its purpose is to read all the words from the <samp class="mono">in-f</samp>, to arrange these words in the given order into lines of maximal width <samp class="mono">w</samp>, and to write these lines to <samp class="mono">out-f</samp>. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>

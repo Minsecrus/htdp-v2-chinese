@@ -1,0 +1,873 @@
+# Chapter 22: Project: The Commerce of XML / 第 22 章：项目：XML 应用
+
+<h1>
+22 Project: The Commerce of XML
+</h1>
+
+<P>
+XML is a widely used data language. One use concerns message exchanges between programs running on different computers. For example, when you point your web browser at a web site, you are connecting a program on your computer to a program on another computer, and the latter sends XML data to the former. Once the browser receives the XML data, it renders it as an image on your computer’s monitor.
+</P>
+
+<P>
+The following comparison illustrates this idea with a concrete example:
+</P>
+
+<FIGURE src="images/00491.png">
+
+</FIGURE>
+
+<P>
+On the left, you see a piece of XML data that a web site may send to your web browser. On the right, you see how one popular browser renders this snippet graphically.
+</P>
+
+<MARGIN_NOTE>
+If you think XML is too old-fashioned for 2018, feel free to redo the exercise for JSON or some other modern data exchange format. The design principles remain the same.
+</MARGIN_NOTE>
+
+<P>
+This chapter explains the basics of processing XML as another design exercise concerning intertwined data definitions and iterative refinement. The next section starts with an informal comparison of S-expressions and XML data and uses it to formulate a full-fledged data definition. The remaining sections explain with examples how to process an S-expression of XML data.
+</P>
+
+<h2>
+22.1 XML as S-expressions
+</h2>
+
+<P>
+The most basic piece of XML data looks like this:
+</P>
+
+<CODE>
+<machine> </machine>
+</CODE>
+
+<P>
+It is called an element and “machine” is the name of the element. The two parts of the element are like parentheses that delimit the content of an element. When there is no content between the two parts—other than white space—XML allows a short-hand:
+</P>
+
+<CODE>
+<machine />
+</CODE>
+
+<P>
+But, as far as we are concerned here, this short-hand is equivalent to the explicitly bracketed version.
+</P>
+
+<MARGIN_NOTE>
+Racket’s xml library represents XML with structures as well as S-expressions.
+</MARGIN_NOTE>
+
+<P>
+From an S-expression perspective, an XML element is a named pair of parentheses that surround some content. And indeed, representing the above with an S-expression is quite natural:
+</P>
+
+<CODE>
+'(machine)
+</CODE>
+
+<P>
+This piece of data has the opening and closing parentheses, and it comes with space to embed content.
+</P>
+
+<P>
+Here is a piece of XML data with content:
+</P>
+
+<CODE>
+<machine><action /></machine>
+</CODE>
+
+<P>
+Remember that the <action /> part is a short-hand, meaning we are really looking at this piece of data:
+</P>
+
+<CODE>
+<machine><action></action></machine>
+</CODE>
+
+<P>
+In general, the content of an XML element is a series of XML elements:
+</P>
+
+<CODE>
+<machine><action /><action /><action /></machine>
+</CODE>
+
+<P>
+Stop! Expand the short-hand for <action /> before you continue.
+</P>
+
+<P>
+The S-expression representation continues to look simple. Here is the first one:
+</P>
+
+<CODE>
+'(machine (action))
+</CODE>
+
+<P>
+And this is the representation for the second one:
+</P>
+
+<CODE>
+'(machine (action) (action) (action))
+</CODE>
+
+<P>
+When you look at the piece of XML data with a sequence of three <action /> elements as its content, you realize that you may wish to distinguish such elements from each other. To this end, XML elements come with attributes. For example,
+</P>
+
+<CODE>
+<machine initial="red"></machine>
+</CODE>
+
+<P>
+is the “machine” element equipped with one attribute whose name is “initial” and whose value is “red” between string quotes. Here is a complex XML element with nested elements that have attributes, too:
+</P>
+
+<CODE>
+<machine initial="red">   <action state="red"    next="green" />   <action state="green"  next="yellow" />   <action state="yellow" next="red" /> </machine>
+</CODE>
+
+<P>
+We use blanks, indentation, and line breaks to make the element readable, but this white space has no meaning for our XML data here.
+</P>
+
+<MARGIN_NOTE>
+XML is 40 years younger than S-expressions.
+</MARGIN_NOTE>
+
+<P>
+Naturally, S-expressions for these “machine” elements look much like their XML cousins:
+</P>
+
+<CODE>
+'(machine ((initial "red")))
+</CODE>
+
+<P>
+To add attributes to an element, we use a list of lists where each of the latter contains two items: a symbol and a string. The symbol represents the name of the attribute and the string its value. This idea naturally applies to complex forms of XML data, too:
+</P>
+
+<FIGURE src="images/00492.png">
+
+</FIGURE>
+
+<P>
+For now note how the attributes are marked by two opening parentheses and the remaining list of (representations of) XML elements has one opening parenthesis.
+</P>
+
+<P>
+You may recall the idea from intermezzo 2, which uses S-expressions to represent XHTML, a special dialect of XML. In particular, the intermezzo shows how easily a programmer can write down nontrivial XML data and even templates of XML representations using backquote and unquote. Of course, chapter 21.1 points out that you need a parser to determine whether any given S-expression is a representation of XML data, and a parser is a complex and unusual kind of function.
+</P>
+
+<P>
+Nevertheless, we choose to go with a representation of XML based on S-expressions to demonstrate the usefulness of this old, poetic idea in practical terms. We proceed gradually to work out a data definition, putting iterative refinement to work. Here is a first attempt:
+</P>
+
+<CODE>
+; An Xexpr.v0 (short for X-expression) is a one-item list: ;   (cons Symbol '())
+</CODE>
+
+<P>
+This is the “named parentheses” idea from the beginning of this section. Equipping this element representation with content is easy:
+</P>
+
+<CODE>
+; An Xexpr.v1 is a list: ;    (cons Symbol [List-of Xexpr.v1])
+</CODE>
+
+<P>
+The symbolic name becomes the first item on a list that otherwise consists of XML element representatives.
+</P>
+
+<P>
+The last refinement step is to add attributes. Since the attributes in an XML element are optional, the revised data definition has two clauses:
+</P>
+
+<CODE>
+; An Xexpr.v2 is a list: ; -- (cons Symbol Body) ; -- (cons Symbol (cons [List-of Attribute] Body)) ; where Body is short for [List-of Xexpr.v2] ; An Attribute is a list of two items: ;    (cons Symbol (cons String '()))
+</CODE>
+
+<EXERCISE>
+Exercise 363. All elements of Xexpr.v2 start with a Symbol, but some are followed by a list of attributes and some by just a list of Xexpr.v2s. Reformulate the definition of Xexpr.v2 to isolate the common beginning and highlight the different kinds of endings.
+</EXERCISE>
+
+<P>
+Eliminate the use of List-of from Xexpr.v2.
+</P>
+
+<EXERCISE>
+Exercise 364. Represent this XML data as elements of Xexpr.v2:
+</EXERCISE>
+
+<P>
+1. <transition from="seen-e" to="seen-f" />
+</P>
+
+<P>
+2. <ul><li><word /><word /></li><li><word /></li></ul>
+</P>
+
+<P>
+Which one could be represented in Xexpr.v0 or Xexpr.v1?
+</P>
+
+<EXERCISE>
+Exercise 365. Interpret the following elements of Xexpr.v2 as XML data:
+</EXERCISE>
+
+<P>
+1. '(server ((name "example.org")))
+</P>
+
+<P>
+2. '(carcas (board (grass)) (player ((name "sam"))))
+</P>
+
+<P>
+3. '(start)
+</P>
+
+<P>
+Which ones are elements of Xexpr.v0 or Xexpr.v1?
+</P>
+
+<P>
+Roughly speaking, X-expressions simulate structures via lists. The simulation is convenient for programmers; it asks for the least amount of keyboard typing. For example, if an X-expression does not come with an attribute list, it is simply omitted. This choice of data representation represents a trade-off between authoring such expressions manually and processing them automatically. The best way to deal with the latter problem is to provide functions that make X-expressions look like structures, especially functions that access the quasi-fields:
+</P>
+
+<P>
+•  xexpr-name, which extracts the tag of the element representation;
+</P>
+
+<P>
+•  xexpr-attr, which extracts the list of attributes; and
+</P>
+
+<P>
+•  xexpr-content, which extracts the list of content elements.
+</P>
+
+<P>
+Once we have these functions, we can use lists to represent XML yet that act as if they were instances of a structure type.
+</P>
+
+<P>
+These functions parse S-expressions, and parsers are tricky to design. So let’s design them carefully, starting with some data examples:
+</P>
+
+<FIGURE src="images/00493.png">
+
+</FIGURE>
+
+<P>
+The first definition introduces a list of attributes, which is reused twice in the construction of X-expressions. The definition of e0 reminds us that an X-expression may not come with either attributes or content. You should be able to explain why e2 and e3 are basically equivalent.
+</P>
+
+<P>
+Next we formulate a signature, a purpose statement, and a header:
+</P>
+
+<CODE>
+; Xexpr.v2 -> [List-of Attribute] ; retrieves the list of attributes of xe (define (xexpr-attr xe) '())
+</CODE>
+
+<P>
+Here we focus on xexpr-attr; we leave the other two as exercises.
+</P>
+
+<P>
+Making up functional examples requires a decision concerning the extraction of attributes from X-expressions without any. While our chosen representation completely omits missing attributes, we must supply '() for the structure-based representation of XML. The function therefore produces '() for such X-expressions:
+</P>
+
+<FIGURE src="images/00494.png">
+
+</FIGURE>
+
+<P>
+It is time to develop the template. Since the data definition for Xexpr.v2 is complex, we proceed slowly, step-by-step. First, while the data definition distinguishes two kinds of X-expressions, both clauses describe data constructed by consing a symbol onto a list. Second, what differentiates the two clauses is the rest of the list and especially the optional presence of a list of attributes. Let’s translate these two insights into a template:
+</P>
+
+<FIGURE src="images/00495.png">
+
+</FIGURE>
+
+<P>
+The local definition chops off the name of the X-expression and leaves the remainder of the list, which may or may not start with a list of attributes. The key is that it is just a list, and the two cond clauses indicate so. Third, this list is not defined via a self-reference but as the optional cons of some attributes onto a possibly empty list of X-expressions. In other words, we still need to distinguish the two usual cases and extract the usual pieces:
+</P>
+
+<FIGURE src="images/00496.png">
+
+</FIGURE>
+
+<P>
+At this point, we can already see that recursion is not needed for the task at hand. So, we switch to the fifth step of the design recipe. Clearly, there are no attributes if the given X-expression comes with nothing but a name. In the second clause, the question is whether the first item on the list is a list of attributes or just an Xexpr.v2. Because this sounds complicated, we make a wish:
+</P>
+
+<CODE>
+; [List-of Attribute] or Xexpr.v2 -> ??? ;  determines whether x is an element of [List-of Attribute] ; #false otherwise (define (list-of-attributes? x)   #false)
+</CODE>
+
+<P>
+With this function, it is straightforward to finish xexpr-attr; see figure 126. If the first item is a list of attributes, the function produces it; otherwise there are no attributes.
+</P>
+
+<FIGURE src="images/00497.png">
+Figure 126: The complete definition of xexpr-attr
+</FIGURE>
+
+<P>
+For the design of list-of-attributes?, we proceed in the same manner and get this definition:
+</P>
+
+<FIGURE src="images/00498.png">
+
+</FIGURE>
+
+<P>
+We skip the details of the design process because they are unremarkable. What is remarkable is the signature of this function. Instead of specifying a single data definition as possible inputs, the signature combines two data definitions separated by the English word “or.” In ISL+ such an informal signature with a definite meaning is acceptable on occasion.
+</P>
+
+<EXERCISE>
+Exercise 366. Design xexpr-name and xexpr-content.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 367. The design recipe calls for a self-reference in the template for xexpr-attr. Add this self-reference to the template and then explain why the finished parsing function does not contain it.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 368. Formulate a data definition that replaces the informal “or” signature for the definition of the list-of-attributes? function.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 369. Design find-attr. The function consumes a list of attributes and a symbol. If the attributes list associates the symbol with a string, the function retrieves this string; otherwise it returns #false. Look up assq and use it to define the function.
+</EXERCISE>
+
+<P>
+For the remainder of this chapter, Xexpr refers to Xexpr.v2. Also, we assume xexpr-name, xexpr-attr, and xexpr-content are defined. Finally, we use find-attr from exercise 369 to retrieve attribute values.
+</P>
+
+<h2>
+22.2 Rendering XML Enumerations
+</h2>
+
+<P>
+XML is actually a family of languages. People define dialects for specific channels of communication. For example, XHTML is the language for sending web content in XML format. In this section, we illustrate how to design a rendering function for a small snippet of XHTML, specifically the enumerations from the beginning of this chapter.
+</P>
+
+<P>
+The ul tag surrounds a so-called unordered HTML list. Each item of this list is tagged with li, which tends to contain words but also other elements, even enumerations. With “unordered” HTML means is that each item is to be rendered with a leading bullet instead of a number.
+</P>
+
+<P>
+Since Xexpr does not come with plain strings, it is not immediately obvious how to represent XHTML enumerations in a subset. One option is to refine the data representation one more time, so that an Xexpr could be a String. Another option is to introduce a representation for text:
+</P>
+
+<CODE>
+; An XWord is '(word ((text String))).
+</CODE>
+
+<P>
+Here, we use this second option; Racket, the language from which the teaching languages are derived, offers libraries that include String in Xexpr.
+</P>
+
+<EXERCISE>
+Exercise 370. Make up three examples for XWords. Design word?, which checks whether some ISL+ value is in XWord, and word-text, which extracts the value of the only attribute of an instance of XWord.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 371. Refine the definition of Xexpr so that you can represent XML elements, including items in enumerations, that are plain strings.
+</EXERCISE>
+
+<P>
+Given the representation of words, representing an XHTML-style enumeration of words is straightforward:
+</P>
+
+<CODE>
+; An XEnum.v1 is one of: ; -- (cons 'ul [List-of XItem.v1]) ; -- (cons 'ul (cons Attributes [List-of XItem.v1])) ; An XItem.v1 is one of: ; -- (cons 'li (cons XWord '())) ; -- (cons 'li (cons Attributes (cons XWord '())))
+</CODE>
+
+<P>
+For completeness, the data definition includes attribute lists, even though they do not affect rendering.
+</P>
+
+<P>
+Stop! Argue that every element of XEnum.v1 is also in XExpr.
+</P>
+
+<P>
+Here is a sample element of XEnum.v1:
+</P>
+
+<FIGURE src="images/00499.png">
+
+</FIGURE>
+
+<P>
+It corresponds to the inner enumeration of the example from the beginning of the chapter. Rendering it with help from the 2htdp/image library should yield an image like this:
+</P>
+
+<FIGURE src="images/00500.png">
+
+</FIGURE>
+
+<P>
+The radius of the bullet and the distance between the bullet and the text are matters of aesthetics; here the idea matters.
+</P>
+
+<MARGIN_NOTE>
+We developed these expressions in the interactions area. What would you do?
+</MARGIN_NOTE>
+
+<P>
+To create this kind of image, you might use this ISL+ program:
+</P>
+
+<FIGURE src="images/00501.png">
+
+</FIGURE>
+
+<P>
+assuming BT is a rendering of a bullet.
+</P>
+
+<P>
+Now let’s design the function carefully. Since the data representation requires two data definitions, the design recipe tells you that you must design two functions in parallel. A second look reveals, however, that in this particular case the second data definition is disconnected from the first one, meaning we can deal with it separately.
+</P>
+
+<P>
+Furthermore, the definition for XItem.v1 consists of two clauses, meaning the function itself should consist of a cond with two clauses. The point of viewing XItem.v1 as a sub-language of Xexpr, however, is to think of these two clauses in terms of Xexpr selector functions, in particular, xexpr-content. With this function we can extract the textual part of an item, regardless of whether it comes with attributes or not:
+</P>
+
+<CODE>
+; XItem.v1 -> Image ; renders an item as a "word" prefixed by a bullet (define (render-item1 i)   (… (xexpr-content i) …))
+</CODE>
+
+<P>
+In general, xexpr-content extracts a list of Xexpr; in this specific case, the list contains exactly one XWord, and this word contains one text:
+</P>
+
+<FIGURE src="images/00502.png">
+
+</FIGURE>
+
+<P>
+From here, it is straightforward:
+</P>
+
+<FIGURE src="images/00503.png">
+
+</FIGURE>
+
+<P>
+After extracting the text to be rendered in the item, it is simply a question of rendering it as text and equipping it with a leading bullet; see the examples above for how you might discover this last step.
+</P>
+
+<EXERCISE>
+Exercise 372. Before you read on, equip the definition of render-item1 with tests. Make sure to formulate these tests in such a way that they don’t depend on the BT constant. Then explain how the function works; keep in mind that the purpose statement explains what it does.
+</EXERCISE>
+
+<P>
+Now we can focus on the design of a function that renders an enumeration. Using the example from above, the first two design steps are easy:
+</P>
+
+<CODE>
+; XEnum.v1 -> Image ; renders a simple enumeration as an image (check-expect (render-enum1 e0) e0-rendered) (define (render-enum1 xe) empty-image)
+</CODE>
+
+<P>
+The key step is the development of a template. According to the data definition, an element of XEnum.v1 contains one interesting piece of data, namely, the (representation of the) XML elements. The first item is always 'ul, so there is no need to extract it, and the second, optional item is a list of attributes, which we ignore. With this in mind, the first template draft looks just like the one for render-item1:
+</P>
+
+<CODE>
+(define (render-enum1 xe)   (… (xexpr-content xe) …)) ; [List-of XItem.v1]
+</CODE>
+
+<P>
+While the data-oriented design recipe tells you that you should design a separate function whenever you encounter a complex form of data, the abstraction-based design recipe from part III tells you to reuse an existing abstraction, say, a list-processing function from figures 95 and 96, when possible. Given that render-enum1 is supposed to process a list and create a single image from it, the only two list-processing abstractions whose signatures fit the bill are foldr and foldl. If you also study their purpose statements, you see a pattern that is like the e0-rendered example above, especially for foldr. Let’s try to use it, following the reuse design recipe:
+</P>
+
+<FIGURE src="images/00504.png">
+
+</FIGURE>
+
+<P>
+From the type matching, you also know that:
+</P>
+
+<P>
+1. the first argument to foldr must be a two-argument function;
+</P>
+
+<P>
+2. the second argument must be an image; and
+</P>
+
+<P>
+3. the last argument is the list representing XML content.
+</P>
+
+<P>
+Naturally empty-image is the correct starting point.
+</P>
+
+<P>
+This design-by-reuse focuses our attention on the function to be “folded” over the list. It turns one item and the image that foldr has created so far into another image. The signature for deal-with-one articulates this insight. Since the first argument is an XItem.v1, render-item1 is the function that renders it. This yields two images that must be combined: the image of the first item and the image of the rest of the items. To stack them, we use above:
+</P>
+
+<FIGURE src="images/00505.png">
+
+</FIGURE>
+
+<P>
+Flat enumerations are common, but they are also a simple approximation of the full-fledged case. In the real world, web browsers must cope with arbitrarily nested enumerations that arrive over the web. In XML and its web browser dialect XHTML, nesting is straightforward. Any element may show up as the content of any other element. To represent this relationship in our limited XHTML representation, we say that an item is either a word or another enumeration. Figure 127 displays the second revision of the data definition. It includes a revision of the data definition for enumerations so that the first definition refers to the correct form of item.
+</P>
+
+<FIGURE src="images/00506.png">
+Figure 127: A realistic data representation of XML enumerations
+</FIGURE>
+
+<MARGIN_NOTE>
+Are you wondering whether arbitrary nesting is the correct way to think about this problem? If so, develop a data definition that allows only three levels of nesting and then use it.
+</MARGIN_NOTE>
+
+<P>
+The next question is how this change to the data definition affects the rendering functions. Put differently, we need to revise render-enum1 and render-item1 so that they can cope with XEnum.v2 and XItem.v2, respectively. Software engineers face these kinds of questions all the time, and it is another situation where the design recipe shines.
+</P>
+
+<P>
+Figure 128 shows the complete answer. Since the change is confined to the data definitions for XItem.v2, it should not come as a surprise that the change to the rendering program shows up in the function for rendering items. While render-item1 does not need to distinguish between different forms of XItem.v1, render-item is forced to use a cond because XItem.v2 lists two different kinds of items. Given that this data definition is close to one from the real world, the distinguishing characteristic is not something simple—like '() vs cons—but a specific piece of the given item. If the item’s content is a Word, the rendering function proceeds as before. Otherwise, the item contains an enumeration, in which case render-item uses render-enum to deal with the data, because the data definition for XItem.v2 refers back to XEnum.v2 precisely at this point.
+</P>
+
+<FIGURE src="images/00507.png">
+Figure 128: Refining functions to match refinements of data definitions
+</FIGURE>
+
+<EXERCISE>
+Exercise 373. Figure 128 is missing test cases. Develop test cases for all the functions.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 374. The data definitions in figure 127 use list. Rewrite them so they use cons. Then use the recipe to design the rendering functions for XEnum.v2 and XItem.v2 from scratch. You should come up with the same definitions as in figure 128.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 375. The wrapping of cond with
+</EXERCISE>
+
+<CODE>
+(beside/align 'center BT …)
+</CODE>
+
+<P>
+may surprise you. Edit the function definition so that the wrap-around appears once in each clause. Why are you confident that your change works? Which version do you prefer?
+</P>
+
+<EXERCISE>
+Exercise 376. Design a program that counts all "hello"s in an instance of XEnum.v2.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 377. Design a program that replaces all "hello"s with "bye" in an enumeration.
+</EXERCISE>
+
+<h2>
+22.3 Domain-Specific Languages
+</h2>
+
+<P>
+Engineers routinely build large software systems that require a configuration for specific contexts before they can be run. This configuration task tends to fall to systems administrators who must deal with many different software systems. The word “configuration” refers to the data that the main function needs when the program is launched. In a sense a configuration is just an addition argument, though it is usually so complex that program designers prefer a different mechanism for handing it over.
+</P>
+
+<P>
+Since software engineers cannot assume that systems administrators know every programming language, they tend to devise simple, special-purpose configuration languages. These special languages are also known as domain-specific languages (DSL). Developing these DSLs around a common core, say the well-known XML syntax, simplifies life for systems administrators. They can write small XML “programs” and thus configure the systems they must launch.
+</P>
+
+<MARGIN_NOTE>
+Because configurations abstract a program over various pieces of data, Paul Hudak argued in the 1990s that DSLs are the ultimate abstractions, that is, that they generalize the ideas of part III to perfection.
+</MARGIN_NOTE>
+
+<P>
+While the construction of a DSL is often considered a task for an advanced programmer, you are actually in a position already to understand, appreciate, and implement a reasonably complex DSL. This section explains how it all works. It first reacquaints you with finite state machines (FSMs). Then it shows how to design, implement, and program a DSL for configuring a system that simulates arbitrary FSMs.
+</P>
+
+<P>
+Finite State Machines Remembered The theme of finite state machines is an important one in computing, and this book has presented it several times. Here we reuse the example from chapter 12.8 as the component for which we wish to design and implement a configuration DSL.
+</P>
+
+<P>
+For convenience, figure 129 presents the entire code again, though reformulated using just lists and using the full power of ISL+. The program consists of two data definitions, one data example, and two function definitions: simulate and find. Unlike the related programs in preceding chapters, this one represents a transition as a list of two items: the current state and the next one.
+</P>
+
+<FIGURE src="images/00508.png">
+Figure 129: Finite state machines, revisited
+</FIGURE>
+
+<P>
+The main function, simulate, consumes a transition table and an initial state; it then evaluates a big-bang expression, which reacts to each key event with a state transition. The states are displayed as colored squares. The to-draw and on-key clauses are specified with lambda expressions that consume the current state, plus the actual key event, and that produce an image or the next state, respectively.
+</P>
+
+<P>
+As its signature shows, the auxiliary find function is completely independent of the FSM application. It consumes a list of two-item lists and an item, but the actual nature of the items is specified via parameters. In the context of this program, X and Y represent FSM-States, meaning find consumes a transition table together with a state and produces a state. The function body uses the built-in assoc function to perform most of the work. Look up the documentation for assoc so that you understand why the body of local uses an if expression.
+</P>
+
+<EXERCISE>
+Exercise 378. Modify the rendering function so that it overlays the name of the state onto the colored square.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 379. Formulate test cases for find.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 380. Reformulate the data definition for 1Transition so that it is possible to restrict transitions to certain keystrokes. Try to formulate the change so that find continues to work without change. What else do you need to change to get the complete program to work? Which part of the design recipe provides the answer(s)? See exercise 229 for the original exercise statement.
+</EXERCISE>
+
+<P>
+Configurations The FSM simulation function uses two arguments, which jointly describe a machine. Rather than teach a potential “customer” how to open an ISL+ program in DrRacket and launch a function of two arguments, the “seller” of simulate may wish to supplement this product with a configuration component.
+</P>
+
+<P>
+A configuration component consists of two parts. The first one is a widely used simple language that customers use to formulate the initial arguments for a component’s main function(s). The second one is a function that translates what customers say into a function call for the main function. For the FSM simulator, we must agree on how we represent finite state machines in XML. By judicious planning, chapter 22.1 presents a series of machine examples that look just right for the task. Recall the final machine example in this section:
+</P>
+
+<CODE>
+<machine initial="red">   <action state="red"    next="green" />   <action state="green"  next="yellow" />   <action state="yellow" next="red" /> </machine>
+</CODE>
+
+<P>
+Compare it to the transition table fsm-traffic from Xexpr representation of this example:
+</P>
+
+<FIGURE src="images/00509.png">
+
+</FIGURE>
+
+<P>
+What we are still lacking is a general data definition that describes all possible Xexpr representations of FSMs:
+</P>
+
+<FIGURE src="images/00510.png">
+
+</FIGURE>
+
+<P>
+Like XEnum.v2, XMachine describes a subset of all Xexpr. Thus, when we design functions that process this new form of data, we may continue to use the generic Xexpr functions to access pieces.
+</P>
+
+<EXERCISE>
+Exercise 381. The definitions of XMachine and X1T use quote, which is highly inappropriate for novice program designers. Rewrite them first to use list and then cons.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 382. Formulate an XML configuration for the BW machine, which switches from white to black and back for every key event. Translate the XML configuration into an XMachine representation. See exercise 227 for an implementation of the machine as a program.
+</EXERCISE>
+
+<P>
+Before we dive into the translation part of the configuration problem, let’s spell it out:
+</P>
+
+<P>
+Sample Problem Design a program that uses an XMachine configuration to run simulate.
+</P>
+
+<P>
+While this problem is specific to our case, it is easy to imagine a generalization for similar systems, and we encourage you to do so.
+</P>
+
+<P>
+The problem statement suggests a complete outline:
+</P>
+
+<CODE>
+; XMachine -> FSM-State ; simulates an FSM via the given configuration (define (simulate-xmachine xm)   (simulate … …))
+</CODE>
+
+<P>
+Following the problem statement, our function calls simulate with two to-be-determined arguments. What we need to complete the definition are two pieces: an initial state and a transition table. These two pieces are part of xm, and we are best off wishing for appropriate functions:
+</P>
+
+<P>
+•  xm-state0 extracts the initial state from the given XMachine:
+</P>
+
+<P>
+(check-expect (xm-state0 xm0) "red")
+</P>
+
+<P>
+•  xm->transitions translates the embedded list of X1Ts into a list of 1Transitions:
+</P>
+
+<P>
+(check-expect (xm->transitions xm0) fsm-traffic)
+</P>
+
+<P>
+Since XMachine is a subset of Xexpr, defining xm-state0 is straightforward. Given that the initial state is specified as an attribute, xm-state0 extracts the list of attributes using xexpr-attr and then retrieves the value of the 'initial attribute.
+</P>
+
+<P>
+Let’s then turn to xm->transitions, which translates the transitions inside of an XMachine configuration into a transition table:
+</P>
+
+<CODE>
+; XMachine -> [List-of 1Transition] ; extracts & translates the transition table from xm (define (xm->transitions xm) '())
+</CODE>
+
+<P>
+The name of the function prescribes the signature and suggests a purpose statement. Our purpose statement describes a two-step process: (1) extract the Xexpr representation of the transitions and (2) translate them into an instance of [List-of 1Transition].
+</P>
+
+<P>
+While the extraction part obviously uses xexpr-content to get the list, the translation part calls for some more analysis. If you look back to the data definition of XMachine, you see that the content of the Xexpr is a list of X1Ts. The signature tells us that the transition table is a list of 1Transitions. Indeed, it is quite obvious that each item in the former list is translated into one item of the latter, which suggests a use of map:
+</P>
+
+<FIGURE src="images/00511.png">
+
+</FIGURE>
+
+<P>
+As you can see, we follow the design ideas of chapter 16.5 and formulate the function as a local whose body uses map. Defining xaction->action is again just a matter of extracting the appropriate values from an Xexpr.
+</P>
+
+<P>
+Figure 130 displays the complete solution. Here the translation from the DSL to a proper function call is as large as the original component. This is not the case for real-world systems; the DSL component tends to be a small fraction of the overall product, which is why the approach is so popular.
+</P>
+
+<FIGURE src="images/00512.png">
+Figure 130: Interpreting a DSL program
+</FIGURE>
+
+<EXERCISE>
+Exercise 383. Run the code in figure 130 with the BW Machine configuration from exercise 382.
+</EXERCISE>
+
+<h2>
+22.4 Reading XML
+</h2>
+
+<P>
+Systems administrators expect that sophisticated applications read configuration programs from a file or possibly from some place on the web. In ISL+ your programs can retrieve (some) XML information. Figure 132 shows the relevant excerpt from the teachpack. For consistency, the figure uses the suffix .v3 for its XML representation, including those data definitions for which there is no version 2:
+</P>
+
+<CODE>
+; An Xexpr.v3 is one of: ; -- Symbol ; --  String ; -- Number ; -- (cons Symbol (cons Attribute*.v3 [List-of Xexpr.v3])) ; --  (cons Symbol [List-of Xexpr.v3]) ; ; An Attribute*.v3 is a [List-of Attribute.v3]. ; ; An Attribute.v3 is a list of two items: ;   (list Symbol String)
+</CODE>
+
+<MARGIN_NOTE>
+This section uses 2htdp/batch-io 2htdp/universe, and 2htdp/image libraries.
+</MARGIN_NOTE>
+
+<P>
+Assume we have the file in figure 131. If the 2htdp/batch-io library is required, a program can read the element with read-plain-xexpr. The function retrieves the XML element in a format that matches the XMachine data definition. A function for retrieving XML elements from the web is also available in the teachpack. Try this in DrRacket:
+</P>
+
+<FIGURE src="images/00513.png">
+
+</FIGURE>
+
+<FIGURE src="images/00514.png">
+Figure 131: A file with a machine configuration
+</FIGURE>
+
+<P>
+If your computer is connected to the web, this expression retrieves our standard machine configuration.
+</P>
+
+<P>
+Reading files or web pages introduces an entirely novel idea into our computational model. As intermezzo 1 explains, a BSL program is evaluated in the same manner in which you evaluate variable expressions in algebra. Function definitions are also treated just like in algebra. Indeed, most algebra courses introduce conditional function definitions, meaning cond does not pose any challenges either. Finally, while ISL+ introduces functions as values, the evaluation model remains fundamentally the same.
+</P>
+
+<P>
+One essential property of this computational model is that no matter how often you call a function f on some argument(s) a…
+</P>
+
+<CODE>
+(f a …)
+</CODE>
+
+<P>
+the answer remains the same. The introduction of read-file, read-xexpr, and their relatives destroys this property, however. The problem is that files and web sites may change over time so that every time a program reads files or web sites it may get a new result.
+</P>
+
+<P>
+Consider the idea of looking up the stock price of a company. Point your browser to google.com/finance or any other such financial web site and enter the name of your favorite company, say, Ford. In response, the site will display the current price of the company’s stock and other information—for example, how much the price has changed since the last time it was posted, the current time, and many other facts and ads. The important point is that as you reload this page over the course of a day or a week, some of the information on this web page will change.
+</P>
+
+<P>
+An alternative to looking up such company information manually is to write a small program that retrieves such information on a regular basis, say, every 15 seconds. With ISL you can write a world program that performs this task. You would launch it like this:
+</P>
+
+<CODE>
+> (stock-alert "Ford")
+</CODE>
+
+<P>
+to see a world window that displays an image like the following:
+</P>
+
+<FIGURE src="images/00515.png">
+
+</FIGURE>
+
+<P>
+To develop such a program requires skills beyond normal program design. First, you need to investigate how the web site formats its information. In the case of Google’s financial service page, an inspection of the web source code shows the following pattern near the top:
+</P>
+
+<CODE>
+<meta content="17.09" itemprop="price" /> <meta content="+0.07" itemprop="priceChange" /> <meta content="0.41" itemprop="priceChangePercent" /><meta content="2013-08-12T16:59:06Z" itemprop="quoteTime" /><meta content="NYSE real-time data" itemprop="dataSource" />
+</CODE>
+
+<P>
+If we had a function that could search an Xexpr.v3 and extract (the representation of XML) meta elements with the attribute value "price" and "priceChange", the rest of stock-alert would be straightforward.
+</P>
+
+<P>
+Figure 133 displays the core of the program. The design of get is left to the exercises because its workings are all about intertwined data.
+</P>
+
+<P>
+As the figure shows, the main function defines two local ones: a clock-tick handler and a rendering function. The big-bang specification requests that the clock tick every 15 seconds. When the clock ticks, ISL+ applies retrieve-stock-data to the current world, which it ignores. Instead, the function visits the web site via read-xexpr/web and extracts the appropriate information with get. Thus, the new world is created from newly available information on the web, not some local data.
+</P>
+
+<EXERCISE>
+Exercise 384. Figure 133 mentions read-xexpr/web. See figure 132 for its signature and purpose statement and then read its documentation to determine the difference to its “plain” relative.
+</EXERCISE>
+
+<FIGURE src="images/00516.png">
+Figure 132: Reading X-expressions
+</FIGURE>
+
+<P>
+Figure 133 is also missing several important pieces, in particular the interpretation of data and purpose statements for all the locally defined functions. Formulate the missing pieces so that you get to understand the program.
+</P>
+
+<FIGURE src="images/00517.png">
+Figure 133: Web data as an event
+</FIGURE>
+
+<EXERCISE>
+Exercise 385. Look up the current stock price for your favorite company at Google’s financial service page. If you don’t favor a company, pick Ford. Then save the source code of the page as a file in your working directory. Use read-xexpr in DrRacket to view the source as an Xexpr.v3.
+</EXERCISE>
+
+<EXERCISE>
+Exercise 386. Here is the get function:
+</EXERCISE>
+
+<FIGURE src="images/00518.png">
+
+</FIGURE>
+
+<P>
+It assumes the existence of get-xexpr, a function that searches an arbitrary Xexpr.v3 for the desired attribute and produces [Maybe String].
+</P>
+
+<P>
+Formulate test cases that look for other values than "F" and that force get to signal an error.
+</P>
+
+<P>
+Design get-xexpr. Derive functional examples for this function from those for get. Generalize these examples so that you are confident get-xexpr can traverse an arbitrary Xexpr.v3. Finally, formulate a test that uses the web data saved in exercise 385.
+</P>

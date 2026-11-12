@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">
+  <head>
+    <title>How to Design Programs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body epub:type="bodymatter" class="calibre">
+<div class="body">
+<article epub:type="chapter" role="main">
+<section epub:type="division">
+<section epub:type="division">
+<h2 class="head1" id="calibre_pb_7"><span epub:type="pagebreak" id="pg_392" title="392" class="calibre1"></span><a id="sec14-4" class="calibre16"></a>14.4 Functions Are Values</h2>
+<p class="tni">The functions in this part stretch our understanding of program evaluation. It is easy to understand how functions consume more than numbers, say strings or images. Structures and lists are a bit of a stretch, but they are finite “things” in the end. Function-consuming functions, however, are strange. Indeed, the very idea violates the first intermezzo in two ways: (1) the names of primitives and functions are used as arguments in applications, and (2) parameters are used in the function position of applications.</p>
+<p class="calibre8">Spelling out the problem tells you how the ISL grammar differs from BSL’s. First, our expression language should include the names of functions and primitive operations in the definition. Second, the first position in an application should allow things other than function names and primitive operations; at a minimum, it must allow variables and function parameters.</p>
+<p class="calibre8">The changes to the grammar seem to demand changes to the evaluation rules, but all that changes is the set of values. Specifically, to accommodate functions as arguments of functions, the simplest change is to say that functions and primitive operations <b class="calibre9">are</b> values.</p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 243. Assume the definitions area in DrRacket contains</p>
+<div class="verbatim">
+<p class="code-new"><samp class="mono">(define (f</samp><samp class="mono"> x) x)</samp></p>
+</div>
+<p class="tni">Identify the values among the following expressions:</p>
+<p class="nlf">1. <samp class="mono">(cons f '())</samp></p>
+<p class="nlf">2. <samp class="mono">(f f)</samp></p>
+<p class="nll">3. <samp class="mono">(cons f (cons 10 (cons (f 10) '())))</samp></p>
+<p class="tni">Explain why they are (not) values. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 244. Argue why the following sentences are now legal:</p>
+<p class="nlf">1. <samp class="mono">(define (f x) (x 10))</samp></p>
+<p class="nlf">2. <samp class="mono">(define (f x) (x f))</samp></p>
+<p class="nll">3. <samp class="mono">(define (f x y) (x 'a y 'b))</samp></p>
+<p class="tni">Explain your reasoning. <img class="inline" src="../images/00038.gif" alt=""/></p>
+<p class="calibre8"><b class="calibre9">Exercise</b> 245. Develop the <samp class="mono">function=at-1.2-3-and-5.775?</samp> function. Given two functions from numbers to numbers, the function determines whether the two produce the same results for <samp class="mono">1.2</samp>, <samp class="mono">3</samp>, and -5<samp class="mono">.775</samp>.</p>
+<p class="calibre8"><span epub:type="pagebreak" id="pg_393" title="393"></span>Mathematicians say that two functions are equal if they compute the same result when given the same input—for all possible inputs.</p>
+<p class="calibre8">Can we hope to define <samp class="mono">function=?</samp>, which determines whether two functions from numbers to numbers are equal? If so, define the function. If not, explain why and consider the implication that you have encountered the first easily definable idea for which you cannot define a function. <img class="inline" src="../images/00038.gif" alt=""/></p>
+</section>
+</section>
+</article>
+</div>
+</body></html>
