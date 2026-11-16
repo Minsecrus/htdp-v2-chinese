@@ -239,7 +239,20 @@ cons: second argument must be a list, but received 1 and 2
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{images/00170.png}
+  \begin{stepperbox}[unbreakable]
+    \centering
+    \scriptsize
+    \begin{tabular}{ll}
+      \toprule
+      \texttt{'()} & a special value, mostly to represent the empty list \\
+      \texttt{empty?} & a predicate to recognize \texttt{'()} and nothing else \\
+      \texttt{cons} & a checked constructor to create two-field instances \\
+      \texttt{first} & the selector to extract the last item added \\
+      \texttt{rest} & the selector to extract the extended list \\
+      \texttt{cons?} & a predicate to recognize instances of \texttt{cons} \\
+      \bottomrule
+    \end{tabular}
+  \end{stepperbox}
   \caption{列表基本原语}
   \label{fig:list_primitives}
 \end{figure}
@@ -340,7 +353,22 @@ cons: second argument must be a list, but received 1 and 2
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00176.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; List-of-names -> Boolean
+; determines whether "Flatt" occurs on alon
+(check-expect
+  (contains-flatt? (cons "X" (cons "Y" (cons "Z" '()))))
+  #false)
+(check-expect
+  (contains-flatt? (cons "A" (cons "Flatt" (cons "C" '()))))
+  #true)
+(define (contains-flatt? alon)
+  (cond
+    [(empty? alon) #false]
+    [(cons? alon)
+     (or (string=? (first alon) "Flatt")
+         (contains-flatt? (rest alon)))]))
+\end{lstlisting}
   \caption{搜索列表}
   \label{fig:searching_a_list}
 \end{figure}
@@ -398,7 +426,18 @@ BSL 实际上内置了 \code{member?} 函数，它接受两个值并检查第一
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00179.png}
+  \begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(contains-flatt? (cons "Flatt" (cons "C" '())))
+==
+(cond
+  [\hl{(empty? (cons "Flatt" (cons "C" \textquotesingle())))} #false]
+  [(cons? (cons "Flatt" (cons "C" '())))
+   (or
+     (string=? (first (cons "Flatt" (cons "C" '()))) "Flatt")
+     (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))])
+\end{Verbatim}
+  \end{stepperbox}
   \caption{列表计算步骤 1}
   \label{fig:computing_with_lists_step1}
 \end{figure}
@@ -407,7 +446,30 @@ BSL 实际上内置了 \code{member?} 函数，它接受两个值并检查第一
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00180.png}
+  \begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+...
+==
+(cond
+  [\hl{\#false} #false]
+  [(cons? (cons "Flatt" (cons "C" '())))
+   (or (string=? (first (cons "Flatt" (cons "C" '()))) "Flatt")
+       (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))])
+==
+(cond
+  [\hl{(cons? (cons "Flatt" (cons "C" \textquotesingle())))}
+   (or (string=? (first (cons "Flatt" (cons "C" '()))) "Flatt")
+       (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))])
+==
+(cond
+  [\hl{\#true}
+   (or (string=? (first (cons "Flatt" (cons "C" '()))) "Flatt")
+       (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))])
+==
+(or (string=? \hl{(first (cons "Flatt" (cons "C" \textquotesingle())))} "Flatt")
+    (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))
+\end{Verbatim}
+  \end{stepperbox}
   \caption{列表计算步骤 2}
   \label{fig:computing_with_lists_step2}
 \end{figure}
@@ -421,7 +483,16 @@ BSL 实际上内置了 \code{member?} 函数，它接受两个值并检查第一
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00181.png}
+  \begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+...
+==
+(or \hl{(string=? "Flatt" "Flatt")}
+    (contains-flatt? (rest (cons "Flatt" (cons "C" '())))))
+== \hl{(or \#true (contains-flatt? ...))}
+== #true
+\end{Verbatim}
+  \end{stepperbox}
   \caption{列表计算步骤 3}
   \label{fig:computing_with_lists_step3}
 \end{figure}

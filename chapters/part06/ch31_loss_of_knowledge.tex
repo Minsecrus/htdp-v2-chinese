@@ -38,7 +38,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00715.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Number] -> [List-of Number]
+; converts a list of relative to absolute distances
+; the first number represents the distance to the origin
+
+(check-expect (relative->absolute '(50 40 70 30 30))
+              '(50 90 160 190 220))
+
+(define (relative->absolute l)
+  (cond
+    [(empty? l) '()]
+    [else (local ((define rest-of-l
+                    (relative->absolute (rest l)))
+                  (define adjusted
+                    (add-to-each (first l) rest-of-l)))
+            (cons (first l) adjusted))]))
+
+; Number [List-of Number] -> [List-of Number]
+; adds n to each number on l
+
+(check-expect (cons 50 (add-to-each 50 '(40 110 140 170)))
+              '(50 90 160 190 220))
+
+(define (add-to-each n l)
+  (cond
+    [(empty? l) '()]
+    [else (cons (+ (first l) n) (add-to-each n (rest l)))]))
+\end{lstlisting}
   \caption{将相对距离转换为绝对距离（结构型递归版本）}
   \label{fig:177}
 \end{figure}
@@ -153,7 +180,26 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00720.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Number] -> [List-of Number]
+; converts a list of relative to absolute distances
+; the first number represents the distance to the origin
+
+(check-expect (relative->absolute.v2 '(50 40 70 30 30))
+              '(50 90 160 190 220))
+
+(define (relative->absolute.v2 l0)
+  (local (
+    ; [List-of Number] Number -> [List-of Number]
+    (define (relative->absolute/a l accu-dist)
+      (cond
+        [(empty? l) '()]
+        [else
+          (local ((define accu (+ (first l) accu-dist)))
+            (cons accu
+                  (relative->absolute/a (rest l) accu)))])))
+    (relative->absolute/a l0 0)))
+\end{lstlisting}
   \caption{使用累加器转换相对距离}
   \label{fig:178}
 \end{figure}
@@ -251,7 +297,31 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00724.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Node Node SimpleGraph -> Boolean
+; is there a path from origin to destination in sg
+
+(check-expect (path-exists? 'A 'E a-sg) #true)
+(check-expect (path-exists? 'A 'F a-sg) #false)
+
+(define (path-exists? origin destination sg)
+  (cond
+    [(symbol=? origin destination) #t]
+    [else (path-exists? (neighbor origin sg)
+                        destination
+                        sg)]))
+
+; Node SimpleGraph -> Node
+; determine the node that is connected to a-node in sg
+(check-expect (neighbor 'A a-sg) 'B)
+(check-error (neighbor 'G a-sg) "neighbor: not a node")
+(define (neighbor a-node sg)
+  (cond
+    [(empty? sg) (error "neighbor: not a node")]
+    [else (if (symbol=? (first (first sg)) a-node)
+              (second (first sg))
+              (neighbor a-node (rest sg)))]))
+\end{lstlisting}
   \caption{在简单图中寻找路径（初始生成型递归版本）}
   \label{fig:180}
 \end{figure}
@@ -305,7 +375,23 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00726.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Node Node SimpleGraph -> Boolean
+; is there a path from origin to destination in sg
+
+(check-expect (path-exists.v2? 'A 'E a-sg) #true)
+(check-expect (path-exists.v2? 'A 'F a-sg) #false)
+
+(define (path-exists.v2? origin destination sg)
+  (local (; Node Node SimpleGraph [List-of Node] -> Boolean
+          (define (path-exists?/a origin seen)
+            (cond
+              [(symbol=? origin destination) #t]
+              [(member? origin seen) #f]
+              [else (path-exists?/a (neighbor origin sg)
+                                    (cons origin seen))])))
+    (path-exists?/a origin '())))
+\end{lstlisting}
   \caption{使用累加器在简单图中寻找路径}
   \label{fig:181}
 \end{figure}

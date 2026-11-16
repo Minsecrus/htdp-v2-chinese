@@ -15,9 +15,12 @@
 
 请观察以下两个函数定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00418.png}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (f \hl{x}) (+ (* \hl{x} \hl{x}) 25))
+(define (g x) (+ (f (+ x 1)) (f (- x 1))))
+\end{Verbatim}
+\end{stepperbox}
 
 显而易见，函数 \code{f} 中出现的 \code{x} 与函数 \code{g} 中出现的 \code{x} 完全没有任何关系。我们可以系统性地将 \code{f} 中阴影标记的 \code{x} 全部替换为 \code{y}，函数计算出的结果依然毫无二致。简而言之，阴影标记的 \code{x} 仅在 \code{f} 的定义内部拥有意义，而在其他任何地方均不存在。
 
@@ -64,9 +67,19 @@ x: this variable is not defined
 \begin{exercise}{绘制词法绑定箭头}{300}
 考虑以下简单的 ISL+ 程序：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00421.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (p1 x y)
+  (+ (* x y)
+     (+ (* 2 x)
+        (+ (* 2 y) 22))))
+
+(define (p2 x)
+  (+ (* 55 x) (+ x 11)))
+
+(define (p3 x)
+  (+ (p1 x 0)
+     (+ (p1 x 1) (p2 x))))
+\end{lstlisting}
 
 从 \code{p1} 的参数 \code{x} 出发，绘制箭头指向其管辖的所有约束出现。再从 \code{p1} 本身出发，绘制箭头指向所有调用 \code{p1} 的位置。在 DrRacket 中使用“Check Syntax”功能验证你的答案。
 \end{exercise}
@@ -81,44 +94,94 @@ x: this variable is not defined
 
 由于作用域是一个连续的代码文本区域，计算机科学家常用\term{作用域轮廓框}（scope boxes）来直观界定范围：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00423.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (f x)
+  \hl{(+ (* 2 x) 10)})
+\end{Verbatim}
+\end{stepperbox}
 
 对于 \code{local}，方框则包裹住整个 \code{local} 表达式：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00424.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (f z)
+  \hl{(local ((define (f x) (+ x (* x x) 55)) }
+  \hl{        (define (g y) (+ (f y) 10)))      }
+  \hl{  (f z))                                  })
+\end{Verbatim}
+\end{stepperbox}
 
 借助方框图，我们可以轻易理解当内部局部定义重用了外层的变量名时所发生的\term{变量遮蔽}（shadowing）与\term{作用域空洞}（holes in scope）：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00425.png}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (a-function y)
+  \hl{(local ((define (f z y) (+ (* x y) (+ x y)))   }
+  \hl{        (define (g z)                           }
+  \hl{          \kern\string-0.6pt\hld{(local ((define (f x) (+ (* x x) 55)) }\kern\string-0.6pt }
+  \hl{          \kern\string-0.6pt\hld{        (define (g y) (+ (f y) 10)))  }\kern\string-0.6pt }
+  \hl{          \kern\string-0.6pt\hld{  (f z))                              }\kern\string-0.6pt)}
+  \hl{        (define (h x) (f x (g x))))              }
+  \hl{  (h y))                                        })
+\end{Verbatim}
+\end{stepperbox}
 
 灰色框表示内层 \code{f} 的作用域，白色框表示外层 \code{f} 的作用域。落在灰色框内部的调用一律指向内层定义；只有落在白框且在灰框之外的调用才指向外层定义。灰色框相当于在外层作用域中挖出了一个“空洞”。
 
 在参数命名中同样可能产生空洞：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00426.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (f x)
+  \hl{(local ((define (g x)    }
+  \hl{          \kern\string-0.6pt\hld{(+ x (* x 2))}\kern\string-0.6pt))}
+  \hl{  (g x))                 })
+\end{Verbatim}
+\end{stepperbox}
 
 总体而言，程序的词法作用域始终构成了一套层次分明、逐步嵌套的几何轮廓体系。
 
 \begin{exercise}{为排序程序绘制词法作用域轮廓框}{301}
 在图~\ref{fig:105} 中，为 \code{sort} 和 \code{alon} 的每个绑定出现画出作用域方框，并画出从引用指向绑定的箭头。然后在图~\ref{fig:106} 的变体上重复此练习。除了变量名称不同之外，这两个函数的行为有何区别？
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00427.png}
-  \captionof{figure}{练习 301 的词法作用域轮廓 (版本 1)}\label{fig:105}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (insertion-sort alon)
+  (local ((define (sort alon)
+            (cond
+              [(empty? alon) '()]
+              [else
+               (add (first alon) (sort (rest alon)))]))
+          (define (add an alon)
+            (cond
+              [(empty? alon) (list an)]
+              [else
+               (cond
+                 [(> an (first alon)) (cons an alon)]
+                 [else (cons (first alon)
+                             (add an (rest alon)))])])))
+    (sort alon)))
+\end{lstlisting}
+\captionof{figure}{练习 301 的词法作用域轮廓 (版本 1)}\label{fig:105}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00428.png}
-  \captionof{figure}{练习 301 的词法作用域轮廓 (版本 2)}\label{fig:106}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (sort alon)
+  (local ((define (sort alon)
+            (cond
+              [(empty? alon) '()]
+              [else
+               (add (first alon) (sort (rest alon)))]))
+          (define (add an alon)
+            (cond
+              [(empty? alon) (list an)]
+              [else
+               (cond
+                 [(> an (first alon)) (cons an alon)]
+                 [else (cons (first alon)
+                             (add an (rest alon)))])])))
+    (sort alon)))
+\end{lstlisting}
+\captionof{figure}{练习 301 的词法作用域轮廓 (版本 2)}\label{fig:106}
 \end{exercise}
 
 \begin{exercise}{常量的自引用陷阱}{302}
@@ -138,9 +201,25 @@ x: this variable is not defined
 \begin{exercise}{lambda 表达式中的绑定分析}{303}
 在以下三个 \code{lambda} 表达式中，分别从阴影标记的 \code{x} 出发，绘制箭头指向其真正的绑定出现：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00430.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+1.  (lambda (x y)
+      (+ \hl{x} (* x y)))
+
+2.  (lambda (x y)
+      (+ \hl{x}
+         (local ((define x (* y y)))
+           (+ (* 3 \hl{x})
+              (/ 1 x)))))
+
+3.  (lambda (x y)
+      (+ \hl{x}
+         ((lambda (x)
+            (+ (* 3 \hl{x})
+               (/ 1 x)))
+          (* y y))))
+\end{Verbatim}
+\end{stepperbox}
 
 并为每个作用域绘制方框及必要的空洞。
 \end{exercise}
@@ -162,10 +241,26 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 图~\ref{fig:107} 给出了扩展的 for 推导式文法：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00431.png}
-  \captionof{figure}{ISL+ 拓展的 for 推导式文法}\label{fig:107}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+\makebox[3.6em][r]{\textit{expr}} = ...
+\makebox[3.6em][r]{} | (for/list (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/list (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for/and (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/and (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for/or (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/or (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for/sum (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/sum (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for/product (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/product (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for/string (\textit{clause} \textit{clause} ...) \textit{expr})
+\makebox[3.6em][r]{} | (for*/string (\textit{clause} \textit{clause} ...) \textit{expr})
+
+\makebox[3.6em][r]{\textit{clause}} = [\textit{variable} \textit{expr}]
+\end{Verbatim}
+\end{stepperbox}
+\captionof{figure}{ISL+ 拓展的 for 推导式文法}\label{fig:107}
 
 文法清晰地呈现出成对出现的六组循环构造：\code{for} 与 \code{for*}，分别对应于 \code{list}、\code{and}、\code{or}、\code{sum}、\code{product} 和 \code{string}。
 
@@ -187,14 +282,19 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 这直接等价于 \code{(build-list 10 (lambda (i) i))}！
 
 两个序列的并行拉链组合（zip）：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00433.png}
-\end{center}
+\begin{replbox}
+> (for/list ([i 2] [j '(a b)])
+    (list i j))
+(list (list 0 'a) (list 1 'b))
+\end{replbox}
 对比纯函数式的写法（图~\ref{fig:00434_zip_plain}），\code{for/list} 展现出了惊人的可读性：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00434.png}
-  \captionof{figure}{列表组合处理代数形式}\label{fig:00434_zip_plain}
-\end{center}
+\begin{replbox}
+> (local ((define i-s (build-list 2 (lambda (i) i)))
+          (define j-s '(a b)))
+    (map list i-s j-s))
+(list (list 0 'a) (list 1 'b))
+\end{replbox}
+\captionof{figure}{列表组合处理代数形式}\label{fig:00434_zip_plain}
 
 \begin{notebox}[样例问题：设计 enumerate 函数]
 设计函数 \code{enumerate}，接收一个列表，产生由每个元素与其对应的索引编号组成的二元对列表。
@@ -211,9 +311,11 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 相比之下，\code{for*/list} 则展开为嵌套循环（笛卡尔积）：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00435.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(for/list ([i 2])
+  (for/list ([j '(a b)])
+    ...))
+\end{lstlisting}
 
 \begin{exercise}{对比 for/list 与 for*/list}{304}
 在 DrRacket 交互区中分别求值：
@@ -226,37 +328,92 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 图~\ref{fig:00436_interaction}、\ref{fig:00437_table} 和 \ref{fig:00438_nest} 详细演示了两者在多子句依赖下的行为细节：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00436.png}
-  \captionof{figure}{语法结构交互分析}\label{fig:00436_interaction}
-\end{center}
+\begin{replbox}
+> (define width 2)
+> (for/list ([width 3][height width])
+    (list width height))
+(list (list 0 0) (list 1 1))
+> (for*/list ([width 3][height width])
+    (list width height))
+(list (list 1 0) (list 2 0) (list 2 1))
+\end{replbox}
+\captionof{figure}{语法结构交互分析}\label{fig:00436_interaction}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00437.png}
-  \captionof{figure}{语法结构对照表}\label{fig:00437_table}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\centering\footnotesize
+\begin{tabular}{lcl}
+\toprule
+\textit{width}  & $=$ & \texttt{0, 1, 2} \\
+\textit{height} & $=$ & \texttt{0, 1} \\
+\textit{body}   & $=$ & \texttt{(list 0 0) (list 1 1)} \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
+\captionof{figure}{语法结构对照表}\label{fig:00437_table}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00438.png}
-  \captionof{figure}{嵌套语法分析}\label{fig:00438_nest}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lclll}
+\toprule
+\textit{width}  & $=$ & \texttt{0} & \texttt{1} & \texttt{2} \\
+\textit{height} & $=$ &            & \texttt{0} & \texttt{0, 1} \\
+\textit{body}   & $=$ &            & \texttt{(list 1 0)} & \texttt{(list 2 0) (list 2 1)} \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
+\captionof{figure}{嵌套语法分析}\label{fig:00438_nest}
 
 借助 \code{for*/list}，计算两个列表的笛卡尔乘积函数 \code{cross} 可以轻松写出：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00439.png}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l|lll}
+\toprule
+\texttt{cross} & \texttt{'a} & \texttt{'b} & \texttt{'c} \\
+\midrule
+\texttt{1} & \texttt{(list 'a 1)} & \texttt{(list 'b 1)} & \texttt{(list 'c 1)} \\
+\texttt{2} & \texttt{(list 'a 2)} & \texttt{(list 'b 2)} & \texttt{(list 'c 2)} \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00440.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; [List-of X] [List-of Y] -> [List-of [List X Y]]
+; generates all pairs of items from l1 and l2
+
+(check-satisfied (cross '(a b c) '(1 2))
+                 (lambda (c) (= (length c) 6)))
+
+(define (cross l1 l2)
+  (for*/list ([x1 l1][x2 l2])
+    (list x1 x2)))
+\end{lstlisting}
 
 图~\ref{fig:108} 更是展现了抽象的无上威力：仅用 5 行代码，通过 \code{for*/list} 搞定了第 12.4 节极为复杂的字母全排列生成算法！
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00441.png}
-  \captionof{figure}{利用 for*/list 紧凑实现的字母全排列程序}\label{fig:108}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of X] -> [List-of [List-of X]]
+; creates a list of all rearrangements of the items in w
+(define (arrangements w)
+  (cond
+    [(empty? w) '(())]
+    [else (for*/list ([item w]
+                      [arrangement-without-item
+                       (arrangements (remove item w))])
+            (cons item arrangement-without-item))]))
+
+; [List-of X] -> Boolean
+(define (all-words-from-rat? w)
+  (and (member? (explode "rat") w)
+       (member? (explode "art") w)
+       (member? (explode "tar") w)))
+
+(check-satisfied (arrangements '("r" "a" "t"))
+                 all-words-from-rat?)
+\end{lstlisting}
+\captionof{figure}{利用 for*/list 紧凑实现的字母全排列程序}\label{fig:108}
 
 其他循环变体同样顾名思义：
 \begin{itemize}
@@ -269,10 +426,22 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 配合图~\ref{fig:109} 中的无限自然数发生器 \code{in-naturals} 和步长发生器 \code{in-range}，循环的能力进一步大放异彩：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00442.png}
-  \captionof{figure}{构造自然数序列的高级生成器}\label{fig:109}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; N -> sequence?
+; constructs the infinite sequence of natural numbers,
+; starting from n
+(define (in-naturals n) ...)
+
+; N N N -> sequence?
+; constructs the following finite sequence of natural numbers:
+;   start
+;   (+ start step)
+;   (+ start step step)
+;   ...
+; until the number exceeds end
+(define (in-range start end step) ...)
+\end{lstlisting}
+\captionof{figure}{构造自然数序列的高级生成器}\label{fig:109}
 
 例如简洁定义求前 $n$ 个偶数和的函数：
 \begin{lstlisting}[language=BSL]
@@ -311,10 +480,19 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 图~\ref{fig:110} 给出了 \code{match} 的文法规范：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00443.png}
-  \captionof{figure}{ISL+ 模式匹配表达式文法}\label{fig:110}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+\makebox[4em][r]{\textit{expr}} = ...
+\makebox[4em][r]{} | (match \textit{expr} [\textit{pattern} \textit{expr}] ...)
+
+\makebox[4em][r]{\textit{pattern}} = \textit{variable}
+\makebox[4em][r]{} | \textit{literal-constant}
+\makebox[4em][r]{} | (\textit{cons} \textit{pattern} \textit{pattern})
+\makebox[4em][r]{} | (\textit{structure-name} \textit{pattern} ...)
+\makebox[4em][r]{} | (? \textit{predicate-name})
+\end{Verbatim}
+\end{stepperbox}
+\captionof{figure}{ISL+ 模式匹配表达式文法}\label{fig:110}
 
 \begin{lstlisting}[language=BSL]
 (match expr
@@ -332,17 +510,32 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 模式匹配支持极其丰富的解构语法：
 \begin{itemize}
   \item \textbf{字面量常量}：仅匹配相等的具体常量；
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00445.png}
-\end{center}
+\begin{replbox}
+> (match 4
+    ['four  1]
+    ["four" 2]
+    [#true  3]
+    [4      "hello world"])
+"hello world"
+\end{replbox}
   \item \textbf{变量模式}：匹配任意值，并将其绑定到该变量名上；
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00446.png}
-\end{center}
+\begin{replbox}
+> (match 2
+    [3 "one"]
+    [x (+ x 3)])
+5
+\end{replbox}
   \item \textbf{\code{(cons p1 p2)} 列表模式}：直接解构列表的首项与剩余部分；
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00447.png}
-\end{center}
+\begin{replbox}
+> (match (cons 1 '())
+    [(cons 1 tail) tail]
+    [(cons head tail) head])
+'()
+> (match (cons 2 '())
+    [(cons 1 tail) tail]
+    [(cons head tail) head])
+2
+\end{replbox}
   \item \textbf{结构体模式 \code{(struct-name p1 ... pn)}}：直接解构结构体的各个字段：
 \begin{lstlisting}[language=BSL]
 (define p (make-posn 3 4))
@@ -385,10 +578,21 @@ ISL+ 中的循环与传统命令式语言有着根本不同：传统循环往往
 
 图~\ref{fig:00448_moveright} 展示了太空战游戏中向右平移目标坐标的完整实现：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00448.png}
-  \captionof{figure}{太空战舰游戏向右移动实现}\label{fig:00448_moveright}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; [List-of Posn] -> [List-of Posn]
+; moves each object right by delta-x pixels
+
+(define input  `(,(make-posn 1 1) ,(make-posn 10 14)))
+(define expect `(,(make-posn 4 1) ,(make-posn 13 14)))
+
+(check-expect (move-right input 3) expect)
+
+(define (move-right lop delta-x)
+  (for/list ((p lop))
+    (match p
+      [(posn x y) (make-posn (+ x delta-x) y)])))
+\end{lstlisting}
+\captionof{figure}{太空战舰游戏向右移动实现}\label{fig:00448_moveright}
 
 \begin{exercise}{更新电话号码区号}{308}
 使用 \code{match} 设计函数 \code{replace}，将电话记录列表中所有区号为 713 的号码替换为 281。

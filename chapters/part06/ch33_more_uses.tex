@@ -150,7 +150,29 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00765.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Lam -> Lam
+(define (undeclareds le0)
+  (local (; Lam [List-of Symbol] -> Lam
+          ; accumulator declareds is a list of all λ
+          ; parameters on the path from le0 to le
+          (define (undeclareds/a le declareds)
+            (cond
+              [(is-var? le)
+               (if (member? le declareds) le '*undeclared)]
+              [(is-λ? le)
+               (local ((define para (λ-para le))
+                       (define body (λ-body le))
+                       (define newd (cons para declareds)))
+                 (list 'λ (list para)
+                       (undeclareds/a body newd)))]
+              [(is-app? le)
+               (local ((define fun (app-fun le))
+                       (define arg (app-arg le)))
+                 (list (undeclareds/a fun declareds)
+                       (undeclareds/a arg declareds)))])))
+    (undeclareds/a le0 '())))
+\end{lstlisting}
   \caption{使用累加器在抽象语法树中查找并替换未声明变量}
   \label{fig:187}
 \end{figure}
@@ -189,7 +211,26 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00767.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define-struct pair [left right])
+; ConsOrEmpty is one of:
+; -- '()
+; -- (make-pair Any ConsOrEmpty)
+
+; Any ConsOrEmpty -> ConsOrEmpty
+(define (our-cons a-value a-list)
+  (cond
+    [(empty? a-list) (make-pair a-value a-list)]
+    [(our-cons? a-list) (make-pair a-value a-list)]
+    [else (error "our-cons: ...")]))
+
+; ConsOrEmpty -> Any
+; extracts the left part of the given pair
+(define (our-first mimicked-list)
+  (if (empty? mimicked-list)
+      (error "our-first: ...")
+      (pair-left mimicked-list)))
+\end{lstlisting}
   \caption{在 BSL 中基于结构体自定义实现的列表机制}
   \label{fig:189}
 \end{figure}
@@ -298,7 +339,29 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00772.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Image Posn Posn Posn -> Image
+; generative adds the triangle (a, b, c) to s,
+; subdivides it into three triangles by taking the
+; midpoints of its sides; stop if (a, b, c) is too small
+(define (add-sierpinski scene0 a b c)
+  (cond
+    [(too-small? a b c) scene0]
+    [else
+      (local
+        ((define scene1 (add-triangle scene0 a b c))
+         (define mid-a-b (mid-point a b))
+         (define mid-b-c (mid-point b c))
+         (define mid-c-a (mid-point c a))
+         (define scene2
+           (add-sierpinski scene0 a mid-a-b mid-c-a))
+         (define scene3
+           (add-sierpinski scene0 b mid-b-c mid-a-b))
+         (define scene4
+           (add-sierpinski scene0 c mid-c-a mid-b-c)))
+        ; ---IN---
+        (... scene1 ... scene2 ... scene3 ...))]))
+\end{lstlisting}
   \caption{作为生成型递归结果的累加器骨架设计}
   \label{fig:191}
 \end{figure}
@@ -314,7 +377,30 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00780.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; Image Posn Posn Posn -> Image
+; generative adds the triangle (a, b, c) to s,
+; subdivides it into three triangles by taking the
+; midpoints of its sides; stop if (a, b, c) is too small
+; accumulator the function accumulates the triangles scene0
+(define (add-sierpinski scene0 a b c)
+  (cond
+    [(too-small? a b c) scene0]
+    [else
+      (local
+        ((define scene1 (add-triangle scene0 a b c))
+         (define mid-a-b (mid-point a b))
+         (define mid-b-c (mid-point b c))
+         (define mid-c-a (mid-point c a))
+         (define scene2
+           (add-sierpinski \hl{scene1} a mid-a-b mid-c-a))
+         (define scene3
+           (add-sierpinski \hl{scene2} b mid-b-c mid-a-b)))
+        ; ---IN---
+        (add-sierpinski \hl{scene3} c mid-c-a mid-b-c))]))
+\end{Verbatim}
+\end{stepperbox}
   \caption{累加器作为计算结果的生成型递归函数实现}
   \label{fig:192}
 \end{figure}

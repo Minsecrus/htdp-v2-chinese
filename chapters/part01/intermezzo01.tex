@@ -30,7 +30,29 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00134.png}
+  \begin{minipage}{\linewidth}
+    \hrule height 0.6pt
+    \vspace{4pt}
+    \footnotesize\raggedright
+    A \textit{name} or a \textit{variable} is a sequence of characters, not including a space or one of the following:
+    \hl{\texttt{\textquotedbl}}\hspace{1pt}\hl{\texttt{,}}\hspace{1pt}\hl{\texttt{\textquotesingle}}\hspace{1pt}\hl{\texttt{\textasciigrave}}\hspace{1pt}\hl{\texttt{(}}\hspace{1pt}\hl{\texttt{)}}\hspace{1pt}\hl{\texttt{[}}\hspace{1pt}\hl{\texttt{]}}\hspace{1pt}\hl{\texttt{\{}}\hspace{1pt}\hl{\texttt{\}}}\hspace{1pt}\hl{\texttt{|}}\hspace{1pt}\hl{\texttt{;}}\hspace{1pt}\hl{\texttt{\#}}:
+    \begin{itemize}[leftmargin=1.4em, itemsep=1.5pt, parsep=0pt, topsep=2pt]
+      \item A \textit{primitive} is a name to which BSL assigns meaning, for example, \texttt{+} or \texttt{sqrt}.
+      \item A \textit{variable} is a name without preassigned meaning.
+    \end{itemize}
+    \vspace{2pt}
+    A \textit{value} is one of:
+    \begin{itemize}[leftmargin=1.4em, itemsep=1.5pt, parsep=0pt, topsep=2pt]
+      \item A \textit{number} is one of: \texttt{1}, \texttt{-1}, \texttt{3/5}, \texttt{1.22}, \texttt{\#i1.22}, \texttt{0+1i}, and so on. The syntax for BSL numbers is complicated because it accommodates a range of formats: positive and negative numbers, fractions and decimal numbers, exact and inexact numbers, real and complex numbers, numbers in bases other than \texttt{10}, and more. Understanding the precise notation for numbers requires a thorough understanding of grammars and parsing, which is out of scope for this intermezzo.
+      \item A \textit{Boolean} is one of: \texttt{\#true} or \texttt{\#false}.
+      \item A \textit{string} is one of: \texttt{\textquotedbl\textquotedbl}, \texttt{\textquotedbl he says \textbackslash\textquotedbl hello world\textbackslash\textquotedbl\ to you\textquotedbl}, \texttt{\textquotedbl doll\textquotedbl}, and so on. In general, it is a sequence of characters enclosed by a pair of \hl{\texttt{\textquotedbl}}.
+      \item An \textit{image} is a png, jpg, tiff, and various other formats. We intentionally omit a precise definition.
+    \end{itemize}
+    \vspace{2pt}
+    We use \texttt{v}, \texttt{v-1}, \texttt{v-2} and the like when we wish to say ``any possible value.''
+    \vspace{4pt}
+    \hrule height 0.6pt
+  \end{minipage}
   \caption{BSL 核心词汇体系}
   \label{fig:bsl_vocab}
 \end{figure}
@@ -44,7 +66,23 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00135.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+ \textit{program} = \textit{def-expr} ...
+
+\textit{def-expr} = \textit{def}
+         | \textit{expr}
+
+     \textit{def} = (define (\textit{variable} \textit{variable} \textit{variable} ...) \textit{expr})
+
+    \textit{expr} = \textit{variable}
+         | \textit{value}
+         | (\textit{primitive} \textit{expr} \textit{expr} ...)
+         | (\textit{variable} \textit{expr} \textit{expr} ...)
+         | (cond [\textit{expr} \textit{expr}] ... [\textit{expr} \textit{expr}])
+         | (cond [\textit{expr} \textit{expr}] ... [else \textit{expr}])
+\end{Verbatim}
+\end{stepperbox}
   \caption{BSL 核心表达式与定义文法}
   \label{fig:bsl_grammar}
 \end{figure}
@@ -63,7 +101,25 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00136.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+; function application:
+(\textit{function} \textit{argument} ... \textit{argument})
+
+; function definition:
+(define (\textit{function-name} \textit{parameter} ... \textit{parameter})
+  \textit{function-body})
+
+; conditional expression:
+(cond
+  \textit{cond-clause}
+  ...
+  \textit{cond-clause})
+
+; cond clause
+[\textit{condition} \textit{answer}]
+\end{Verbatim}
+\end{stepperbox}
   \caption{BSL 句法命名规范与元变量说明}
   \label{fig:bsl_naming_conventions}
 \end{figure}
@@ -124,7 +180,21 @@ number?
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00138.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(boolean? (= (string-length (string-append "h" "w"))
+             \hl{(+ 1 3)}))
+==
+(boolean? (= (string-length \hl{(string-append "h" "w")}) 4))
+==
+(boolean? (= \hl{(string-length "hw")} 4))
+==
+(boolean? \hl{(= 2 4)})
+==
+\hl{(boolean? #false)}
+== #true
+\end{Verbatim}
+\end{stepperbox}
   \caption{基于等量代换的算术归约示例}
   \label{fig:equals_by_equals}
 \end{figure}
@@ -261,7 +331,35 @@ number?
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00141.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+  \textit{def-expr} = \textit{definition}
+           | \textit{expr}
+           | \textit{test-case}
+
+\textit{definition} = (define (\textit{name} \textit{variable} \textit{variable} ...) \textit{expr})
+           | (define \textit{name} \textit{expr})
+           | (define-struct \textit{name} [\textit{name} ...])
+
+      \textit{expr} = (\textit{name} \textit{expr} \textit{expr} ...)
+           | (cond [\textit{expr} \textit{expr}] ... [\textit{expr} \textit{expr}])
+           | (cond [\textit{expr} \textit{expr}] ... [else \textit{expr}])
+           | (and \textit{expr} \textit{expr} \textit{expr} ...)
+           | (or \textit{expr} \textit{expr} \textit{expr} ...)
+           | \textit{name}
+           | \textit{number}
+           | \textit{string}
+           | \textit{image}
+
+ \textit{test-case} = (check-expect \textit{expr} \textit{expr})
+           | (check-within \textit{expr} \textit{expr} \textit{expr})
+           | (check-member-of \textit{expr} \textit{expr} ...)
+           | (check-range \textit{expr} \textit{expr} \textit{expr})
+           | (check-error \textit{expr})
+           | (check-random \textit{expr} \textit{expr})
+           | (check-satisfied \textit{expr} \textit{name})
+\end{Verbatim}
+\end{stepperbox}
   \caption{BSL 完整语法规范（包含测试套件）}
   \label{fig:bsl_full_grammar}
 \end{figure}
@@ -297,22 +395,58 @@ BSL 提供了三种核心测试断言：
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00145.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(\hl{f} 1)
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+f: this function is not defined
+\end{minipage}
+\end{stepperbox}
   \caption{未定义函数错误：调用了不存在的函数名}
   \label{fig:err_undefined_fn}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00146.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(\hl{1} 3 "three" #true)
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+function call: expected a function after the open parenthesis, but found a number
+\end{minipage}
+\end{stepperbox}
   \caption{括号后缺少函数名：开括号后紧跟了数值而不是操作符}
   \label{fig:err_expected_fn}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00147.png}\\[1ex]
-  \includegraphics[width=0.75\textwidth]{images/00148.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+\hl{(average 7)}
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+average: expects 2 arguments, but found only 1
+\end{minipage}
+\end{stepperbox}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+\hl{(average 1 2 3)}
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+average: expects 2 arguments, but found 3
+\end{minipage}
+\end{stepperbox}
   \caption{实参个数不匹配：传入参数过少（上）或过多（下）}
   \label{fig:err_arg_mismatch}
 \end{figure}
@@ -321,8 +455,26 @@ BSL 提供了三种核心测试断言：
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00150.png}\\[1ex]
-  \includegraphics[width=0.75\textwidth]{images/00151.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(posn-x #true)
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+posn-x: expects a posn, given \#true
+\end{minipage}
+\end{stepperbox}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(average "one" "two")
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
++: expects a number as 1st argument, given \texttt{"one"}
+\end{minipage}
+\end{stepperbox}
   \caption{类型契约违背：向选择器或算术操作符传递了错误类型的值}
   \label{fig:err_type_contract}
 \end{figure}
@@ -333,16 +485,60 @@ BSL 提供了三种核心测试断言：
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00152.png}\\[1ex]
-  \includegraphics[width=0.75\textwidth]{images/00153.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[fontsize=\footnotesize]
+; N in [0,1,...10)
+(define 0-to-9 (random 10))
+\end{Verbatim}
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(cond
+  \hl{((>= 0-to-9 5))})
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+cond: expected a clause with a question and an answer, but found a clause with only one part
+\end{minipage}
+\end{stepperbox}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(cond
+  [\hl{(>= 0-to-9 5)}
+   \hl{"head"}
+   \hl{"tail"}])
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+cond: expected a clause with a question and an answer, but found a clause with 3 parts
+\end{minipage}
+\end{stepperbox}
   \caption{cond 分支格式错误}
   \label{fig:err_cond_shape}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00157.png}\\[1ex]
-  \includegraphics[width=0.75\textwidth]{images/00158.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define \hl{(g)} x)
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+define: expected at least one variable after the function name, but found none
+\end{minipage}
+\end{stepperbox}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[c]{0.46\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (f (\hl{x})) x)
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\footnotesize\sffamily\raggedright
+define: expected a variable, but found a part
+\end{minipage}
+\end{stepperbox}
   \caption{函数头缺少参数或语法格式错误}
   \label{fig:err_redefinition}
 \end{figure}

@@ -188,7 +188,23 @@ BSL+ 在 \code{first} 和 \code{rest} 之外还提供了许多便利的选择器
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00259.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; List-of-numbers -> List-of-numbers
+; produces a sorted version of l
+(define (sort> l)
+  (cond
+    [(empty? l) '()]
+    [(cons? l) (insert (first l) (sort> (rest l)))]))
+
+; Number List-of-numbers -> List-of-numbers
+; inserts n into the sorted list of numbers l
+(define (insert n l)
+  (cond
+    [(empty? l) (cons n '())]
+    [else (if (>= n (first l))
+              (cons n l)
+              (cons (first l) (insert n (rest l))))]))
+\end{lstlisting}
   \caption{基于插入排序实现的完整排序程序}
   \label{fig:sorting_lists_of_numbers}
 \end{figure}
@@ -240,7 +256,34 @@ BSL+ 在 \code{first} 和 \code{rest} 之外还提供了许多便利的选择器
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00275.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Image Polygon -> Image
+; adds an image of p to MT
+(define (render-polygon img p)
+  (render-line (connect-dots img p) (first p) (last p)))
+
+; Image NELoP -> Image
+; connects the Posns in p in an image
+(define (connect-dots img p)
+  (cond
+    [(empty? (rest p)) MT]
+    [else (render-line (connect-dots img (rest p))
+                       (first p)
+                       (second p))]))
+
+; Image Posn Posn -> Image
+; draws a red line from Posn p to Posn q into im
+(define (render-line im p q)
+  (scene+line
+    im (posn-x p) (posn-y p) (posn-x q) (posn-y q) "red"))
+
+; Polygon -> Posn
+; extracts the last item from p
+(define (last p)
+  (cond
+    [(empty? (rest (rest (rest p)))) (third p)]
+    [else (last (rest p))]))
+\end{lstlisting}
   \caption{多边形绘制程序的正确设计与分解}
   \label{fig:drawing_polygon}
 \end{figure}

@@ -125,7 +125,19 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00529.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Symbol] N -> Symbol
+; extracts the nth symbol from l;
+; signals an error if there is no such symbol
+(define (list-pick l n)
+  (cond
+    [(and (= n 0) (empty? l))
+     (error 'list-pick "list too short")]
+    [(and (> n 0) (empty? l))
+     (error 'list-pick "list too short")]
+    [(and (= n 0) (cons? l)) (first l)]
+    [(and (> n 0) (cons? l)) (list-pick (rest l) (sub1 n))]))
+\end{lstlisting}
   \caption{基于全状态分支矩阵的列表索引检索 (Indexing into a list)}
   \label{fig:134}
 \end{figure}
@@ -141,7 +153,16 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00534.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; list-pick: [List-of Symbol] N[>= 0] -> Symbol
+; determines the nth symbol from alos, counting from 0;
+; signals an error if there is no nth symbol
+(define (list-pick alos n)
+  (cond
+    [(empty? alos) (error 'list-pick "list too short")]
+    [(= n 0) (first alos)]
+    [(> n 0) (list-pick (rest alos) (sub1 n))]))
+\end{lstlisting}
   \caption{化简后的列表索引函数 (Indexing into a list, simplified)}
   \label{fig:135}
 \end{figure}
@@ -191,7 +212,32 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00537.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; An HM-Word is a [List-of Letter or "_"]
+; interpretation "_" represents a letter to be guessed
+
+; HM-Word N -> String
+; runs a simplistic hangman game, produces the current state
+(define (play the-pick time-limit)
+  (local ((define the-word  (explode the-pick))
+          (define the-guess (make-list (length the-word) "_"))
+          ; HM-Word -> HM-Word
+          (define (do-nothing s) s)
+          ; HM-Word KeyEvent -> HM-Word
+          (define (checked-compare current-status ke)
+            (if (member? ke LETTERS)
+                (compare-word the-word current-status ke)
+                current-status)))
+    (implode
+      (big-bang the-guess ; HM-Word
+        [to-draw render-word]
+        [on-tick do-nothing 1 time-limit]
+        [on-key  checked-compare]))))
+
+; HM-Word -> Image
+(define (render-word w)
+  (text (implode w) 22 "black"))
+\end{lstlisting}
   \caption{简易猜词游戏 (A simple hangman game)}
   \label{fig:136}
 \end{figure}
@@ -233,7 +279,30 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00539.png}
+\begin{stepperbox}[unbreakable]
+  \centering\scriptsize
+  \begin{tabular}[t]{@{}lll@{}}
+    \toprule
+    \textbf{Name} & \textbf{Age} & \textbf{Present} \\
+    String & Integer & Boolean \\
+    \midrule
+    \texttt{"Alice"} & \texttt{35} & \texttt{\#true} \\
+    \texttt{"Bob"}   & \texttt{25} & \texttt{\#false} \\
+    \texttt{"Carol"} & \texttt{30} & \texttt{\#true} \\
+    \texttt{"Dave"}  & \texttt{32} & \texttt{\#false} \\
+    \bottomrule
+  \end{tabular}%
+  \hspace{1.2em}%
+  \begin{tabular}[t]{@{}ll@{}}
+    \toprule
+    \textbf{Present} & \textbf{Description} \\
+    Boolean & String \\
+    \midrule
+    \texttt{\#true}  & \texttt{"presence"} \\
+    \texttt{\#false} & \texttt{"absence"} \\
+    \bottomrule
+  \end{tabular}
+\end{stepperbox}
   \caption{作为二维数据表的数据库 (Databases as tables)}
   \label{fig:137}
 \end{figure}
@@ -242,7 +311,41 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00540.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define school-schema
+  `(("Name"    ,string?)
+    ("Age"     ,integer?)
+    ("Present" ,boolean?)))
+
+(define school-content
+  `(("Alice" 35 #true)
+    ("Bob"   25 #false)
+    ("Carol" 30 #true)
+    ("Dave"  32 #false)))
+
+(define school-db
+  (make-db school-schema
+           school-content))
+\end{Verbatim}
+\end{minipage}\hfill
+\noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define presence-schema
+  `(("Present"     ,boolean?)
+    ("Description" ,string?)))
+
+(define presence-content
+  `((#true  "presence")
+    (#false "absence")))
+
+(define presence-db
+  (make-db presence-schema
+           presence-content))
+\end{Verbatim}
+\end{minipage}
+\end{stepperbox}
   \caption{数据库在 ISL+ 中的数据表示 (Databases as ISL+ data)}
   \label{fig:138}
 \end{figure}
@@ -259,14 +362,39 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00547.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (integrity-check.v3 db)
+  (local ((define schema  (db-schema db))
+          (define content (db-content db))
+          (define width   (length schema))
+          ; Row -> Boolean
+          ; does row satisfy (I1) and (I2)
+          (define (row-integrity-check row)
+            (and (= (length row) width)
+                 (andmap (lambda (s c) [(second s) c])
+                         schema
+                         row))))
+    (andmap row-integrity-check content)))
+\end{lstlisting}
   \caption{系统的表达式外提优化结果 (The result of systematic expression hoisting)}
   \label{fig:139}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00550.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (project db labels)
+  (local ((define schema  (db-schema db))
+          (define content (db-content db))
+          ; Spec -> Boolean
+          ; does this spec belong to the new schema
+          (define (keep? c) ...)
+          ; Row -> Row
+          ; retains those columns whose name is in labels
+          (define (row-project row) ...))
+    (make-db (filter keep? schema)
+             (map row-project content))))
+\end{lstlisting}
   \caption{数据库投影项目模板 (A template for project)}
   \label{fig:140}
 \end{figure}
@@ -279,14 +407,61 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00552.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (project.v1 db labels)
+  (local ((define schema  (db-schema db))
+          (define content (db-content db))
+
+          ; Spec -> Boolean
+          ; does this column belong to the new schema
+          (define (keep? c)
+            (member? (first c) labels))
+
+          ; Row -> Row
+          ; retains those columns whose name is in labels
+          (define (row-project row)
+            (row-filter row (map first schema)))
+
+          ; Row [List-of Label] -> Row
+          ; retains those cells whose name is in labels
+          (define (row-filter row names)
+            (cond
+              [(empty? names) '()]
+              [else
+               (if (member? (first names) labels)
+                   (cons (first row)
+                         (row-filter (rest row) (rest names)))
+                   (row-filter (rest row) (rest names)))])))
+    (make-db (filter keep? schema)
+             (map row-project content))))
+\end{lstlisting}
   \caption{数据库列投影示意图 (Database projection)}
   \label{fig:141}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00553.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (project db labels)
+  (local ((define schema  (db-schema db))
+          (define content (db-content db))
+
+          ; Spec -> Boolean
+          ; does this column belong to the new schema
+          (define (keep? c)
+            (member? (first c) labels))
+
+          ; Row -> Row
+          ; retains those columns whose name is in labels
+          (define (row-project row)
+            (foldr (lambda (cell m c) (if m (cons cell c) c))
+                   '()
+                   row
+                   mask))
+          (define mask (map keep? schema)))
+    (make-db (filter keep? schema)
+             (map row-project content))))
+\end{lstlisting}
   \caption{基于模式投影的完整流程 (Database projection)}
   \label{fig:142}
 \end{figure}

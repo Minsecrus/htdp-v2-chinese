@@ -70,7 +70,19 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00215.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; List-of-numbers -> List-of-numbers
+; computes the weekly wages for all given weekly hours
+(define (wage* whrs)
+  (cond
+    [(empty? whrs) '()]
+    [else (cons (wage (first whrs)) (wage* (rest whrs)))]))
+
+; Number -> Number
+; computes the wage for h hours of work
+(define (wage h)
+  (* 12 h))
+\end{lstlisting}
   \caption{计算所有员工薪资的 wage* 函数}
   \label{fig:wage_star_definition}
 \end{figure}
@@ -136,7 +148,25 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00222.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Low -> List-of-numbers
+; computes the weekly wages for all weekly work records
+
+(check-expect
+  (wage*.v2 (cons (make-work "Robby" 11.95 39) '()))
+  (cons (* 11.95 39) '()))
+
+(define (wage*.v2 an-low)
+  (cond
+    [(empty? an-low) '()]
+    [(cons? an-low) (cons (wage.v2 (first an-low))
+                          (wage*.v2 (rest an-low)))]))
+
+; Work -> Number
+; computes the wage for the given work record w
+(define (wage.v2 w)
+  (* (work-rate w) (work-hours w)))
+\end{lstlisting}
   \caption{从工作记录计算周薪的完整程序}
   \label{fig:computing_wages_from_work_records}
 \end{figure}
@@ -187,7 +217,30 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00227.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; String -> String
+; produces the content of file f as a string
+(define (read-file f) ...)
+
+; String -> List-of-string
+; produces the content of file f as a list of strings,
+; one per line
+(define (read-lines f) ...)
+
+; String -> List-of-string
+; produces the content of file f as a list of strings,
+; one per word
+(define (read-words f) ...)
+
+; String -> List-of-list-of-string
+; produces the content of file f as a list of list of
+; strings, one list per line and one string per word
+(define (read-words/line f) ...)
+
+; The above functions consume the name of a file as a String
+; argument. If the specified file does not exist in the
+; same folder as the program, they signal an error.
+\end{lstlisting}
   \caption{文件读取函数概览}
   \label{fig:reading_files}
 \end{figure}
@@ -217,7 +270,30 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00232.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; An LLS is one of:
+; -- '()
+; -- (cons Los LLS)
+; interpretation a list of lines, each is a list of Strings
+
+(define line0 (cons "hello" (cons "world" '())))
+(define line1 '())
+
+(define lls0 '())
+(define lls1 (cons line0 (cons line1 '())))
+
+; LLS -> List-of-numbers
+; determines the number of words on each line
+
+(check-expect (words-on-line lls0) '())
+(check-expect (words-on-line lls1) (cons 2 (cons 0 '())))
+
+(define (words-on-line lls)
+  (cond
+    [(empty? lls) '()]
+    [else (cons (length (first lls))
+                (words-on-line (rest lls)))]))
+\end{lstlisting}
   \caption{统计每行字数的函数设计}
   \label{fig:counting_words_on_line}
 \end{figure}
@@ -236,7 +312,32 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00234.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; 1String -> String
+; converts the given 1String to a 3-letter numeric String
+
+(check-expect (encode-letter "z") (code1 "z"))
+(check-expect (encode-letter "\t")
+              (string-append "00" (code1 "\t")))
+(check-expect (encode-letter "a")
+              (string-append "0" (code1 "a")))
+
+(define (encode-letter s)
+  (cond
+    [(>= (string->int s) 100) (code1 s)]
+    [(< (string->int s) 10)
+     (string-append "00" (code1 s))]
+    [(< (string->int s) 100)
+     (string-append "0" (code1 s))]))
+
+; 1String -> String
+; converts the given 1String into a String
+
+(check-expect (code1 "z") "122")
+
+(define (code1 c)
+  (number->string (string->int c)))
+\end{lstlisting}
   \caption{单字符编码函数}
   \label{fig:encoding_strings}
 \end{figure}
@@ -262,7 +363,21 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00235.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Matrix -> Matrix
+; transposes the given matrix along the diagonal
+
+(define wor1 (cons 11 (cons 21 '())))
+(define wor2 (cons 12 (cons 22 '())))
+(define tam1 (cons wor1 (cons wor2 '())))
+
+(check-expect (transpose mat1) tam1)
+
+(define (transpose lln)
+  (cond
+    [(empty? (first lln)) '()]
+    [else (cons (first* lln) (transpose (rest* lln)))]))
+\end{lstlisting}
   \caption{矩阵转置函数}
   \label{fig:transpose_matrix}
 \end{figure}
@@ -293,7 +408,30 @@
 为此，我们需要列表逆序函数 \code{rev}（或 BSL 内置的 \code{reverse}）：
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{images/00239.png}
+  \begin{stepperbox}[unbreakable]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lllll}
+      \toprule
+      \texttt{l} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(first}\\\texttt{~~l)}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(rest}\\\texttt{~~l)}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(rev}\\\texttt{~~(rest l))}\end{tabular} &
+      \texttt{(rev l)} \\
+      \midrule
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~'())}\end{tabular} &
+      \texttt{"a"} & \texttt{'()} & \texttt{'()} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~'())}\end{tabular} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~(cons "b"}\\\texttt{~~~~(cons "c"}\\\texttt{~~~~~~'())))}\end{tabular} &
+      \texttt{"a"} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "b"}\\\texttt{~~(cons "c"}\\\texttt{~~~~'()))}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "c"}\\\texttt{~~(cons "b"}\\\texttt{~~~~'()))}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "c"}\\\texttt{~~(cons "b"}\\\texttt{~~~~(cons "a"}\\\texttt{~~~~~~'())))}\end{tabular} \\
+      \bottomrule
+    \end{tabular}
+  \end{stepperbox}
   \caption{rev 函数的设计推导表}
   \label{fig:tabulating_rev}
 \end{figure}

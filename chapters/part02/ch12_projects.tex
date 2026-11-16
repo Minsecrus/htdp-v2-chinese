@@ -16,7 +16,15 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00276.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; On OS X:
+(define LOCATION "/usr/share/dict/words")
+; On LINUX: /usr/share/dict/words or /var/lib/dict/words
+; On WINDOWS: borrow the word file from your Linux friend
+
+; A Dictionary is a List-of-strings.
+(define AS-LIST (read-lines LOCATION))
+\end{lstlisting}
   \caption{从操作系统中读取整本英语词典}
   \label{fig:reading_dictionary}
 \end{figure}
@@ -72,14 +80,58 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00277.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; the 2htdp/itunes library documentation, part 1:
+
+; An LTracks is one of:
+; -- '()
+; -- (cons Track LTracks)
+
+(define-struct track
+  [name artist album time track# added play# played])
+; A Track is a structure:
+;   (make-track String String String N N Date N Date)
+; interpretation An instance records in order: the track's
+; title, its producing artist, to which album it belongs,
+; its playing time in milliseconds, its position within the
+; album, the date it was added, how often it has been
+; played, and the date when it was last played
+
+(define-struct date [year month day hour minute second])
+; A Date is a structure:
+;   (make-date N N N N N N)
+; interpretation An instance records six pieces of information:
+; the date's year, month (between 1 and 12 inclusive),
+; day (between 1 and 31), hour (between 0
+; and 23), minute (between 0 and 59), and
+; second (also between 0 and 59).
+\end{lstlisting}
   \caption{基于结构体的 iTunes 曲目数据定义}
   \label{fig:itunes_structures}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00278.png}
+\begin{lstlisting}[language=BSL]
+; Any Any Any Any Any Any Any Any -> Track or #false
+; creates an instance of Track for legitimate inputs
+; otherwise it produces #false
+(define (create-track name artist album time
+                      track# added play# played)
+  ...)
+
+; Any Any Any Any Any Any -> Date or #false
+; creates an instance of Date for legitimate inputs
+; otherwise it produces #false
+(define (create-date y mo day h m s)
+  ...)
+
+; String -> LTracks
+; creates a list-of-tracks representation from the
+; text in file-name (an XML export from iTunes)
+(define (read-itunes-as-tracks file-name)
+  ...)
+\end{lstlisting}
   \caption{iTunes 库函数接口}
   \label{fig:itunes_functions}
 \end{figure}
@@ -114,7 +166,32 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00279.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; the 2htdp/itunes library documentation, part 2:
+
+; An LLists is one of:
+; -- '()
+; -- (cons LAssoc LLists)
+
+; An LAssoc is one of:
+; -- '()
+; -- (cons Association LAssoc)
+;
+; An Association is a list of two items:
+;   (cons String (cons BSDN '()))
+
+; A BSDN is one of:
+; -- Boolean
+; -- Number
+; -- String
+; -- Date
+
+; String -> LLists
+; creates a list of lists representation for all tracks in
+; file-name, which must be an XML export from iTunes
+(define (read-itunes-as-lists file-name)
+  ...)
+\end{lstlisting}
   \caption{基于键值对关联列表的 iTunes 数据表示}
   \label{fig:itunes_lists}
 \end{figure}
@@ -159,7 +236,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00284.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; List-of-strings -> Boolean
+(define (all-words-from-rat? w)
+  (and
+    (member? "rat" w) (member? "art" w) (member? "tar" w)))
+
+; String -> List-of-strings
+; finds all words that the letters of some given word spell
+
+(check-member-of (alternative-words "cat")
+                 (list "act" "cat")
+                 (list "cat" "act"))
+
+(check-satisfied (alternative-words "rat")
+                 all-words-from-rat?)
+
+(define (alternative-words s)
+  (in-dictionary
+    (words->strings (arrangements (string->word s)))))
+
+; List-of-words -> List-of-strings
+; turns all Words in low into Strings
+(define (words->strings low) '())
+
+; List-of-strings -> List-of-strings
+; picks out all those Strings that occur in the dictionary
+(define (in-dictionary los) '())
+\end{lstlisting}
   \caption{单词异序词查找程序的组合设计架构}
   \label{fig:finding_alternative_words}
 \end{figure}
@@ -251,7 +355,25 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00290.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Posn -> Posn
+; ???
+(check-satisfied (food-create (make-posn 1 1)) not=-1-1?)
+(define (food-create p)
+  (food-check-create
+    p (make-posn (random MAX) (random MAX))))
+
+; Posn Posn -> Posn
+; generative recursion
+; ???
+(define (food-check-create p candidate)
+  (if (equal? p candidate) (food-create p) candidate))
+
+; Posn -> Boolean
+; use for testing only
+(define (not=-1-1? p)
+  (not (and (= (posn-x p) 1) (= (posn-y p) 1))))
+\end{lstlisting}
   \caption{食物的随机坐标生成逻辑}
   \label{fig:random_food}
 \end{figure}
@@ -317,7 +439,21 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00295.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; An FSM is one of:
+; -- '()
+; -- (cons Transition FSM)
+
+(define-struct transition [current next])
+; A Transition is a structure:
+;   (make-transition FSM-State FSM-State)
+
+; FSM-State is a Color.
+
+; interpretation An FSM represents the transitions that a
+; finite state machine can take from one state to another
+; in reaction to keystrokes
+\end{lstlisting}
   \caption{通用有限状态机的数据表示与模拟器框架}
   \label{fig:general_fsm}
 \end{figure}

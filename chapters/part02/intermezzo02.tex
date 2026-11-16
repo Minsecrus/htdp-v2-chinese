@@ -97,7 +97,19 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00301.png}
+\begin{lstlisting}[language=BSL]
+; String String -> ... deeply nested list ...
+; produces a web page with given author and title
+(define (my-first-web-page author title)
+  `(html
+     (head
+       (title ,title)
+       (meta ((http-equiv "content-type")
+              (content "text-html"))))
+     (body
+       (h1 ,title)
+       (p "I, " ,author ", made this page."))))
+\end{lstlisting}
   \caption{基于准引用与反引用的简易 HTML 页面生成器}
   \label{fig:html_generator}
 \end{figure}
@@ -106,7 +118,55 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00302.png}
+  \begin{stepperbox}[unbreakable]
+    \begin{minipage}[t]{0.47\linewidth}
+      \footnotesize\textbf{Nested List Representation}\par
+      \vspace{2pt}\hrule height 0.4pt\vspace{3pt}
+\begin{Verbatim}[fontsize=\scriptsize]
+'(html
+   (head
+     (title "Hello World")
+
+     (meta
+       ((http-equiv "content-type")
+        (content "text-html"))))
+
+   (body
+     (h1 "Hello World")
+
+     (p "I, "
+        "Matthias"
+        ", made this page.")))
+\end{Verbatim}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.49\linewidth}
+      \footnotesize\textbf{Web Page Code (HTML)}\par
+      \vspace{2pt}\hrule height 0.4pt\vspace{3pt}
+\begin{Verbatim}[fontsize=\scriptsize]
+<html>
+  <head>
+    <title>
+      Hello World
+    </title>
+    <meta
+      http-equiv="content-type"
+      content="text-html" />
+  </head>
+  <body>
+    <h1>
+      Hello World
+    </h1>
+    <p>
+      I,
+      Matthias,
+      made this page.
+    </p>
+  </body>
+</html>
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{嵌套列表与对应生成的 HTML 网页源代码}
   \label{fig:nested_lists_webpage}
 \end{figure}

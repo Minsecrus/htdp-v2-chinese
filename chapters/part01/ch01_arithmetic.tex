@@ -150,9 +150,18 @@ BSL 中只有一个专门接收字符串并产出字符串的原生操作：\cod
 \end{replbox}
 
 就像 \code{+} 相加时不会破坏或更改原有的数字一样，\code{string-append} 拼接时也绝不会篡改任何传入的字符串。要演算此类表达式，只需应用显而易见的运算法则即可：
-\begin{center}
-  \includegraphics[width=0.7\textwidth]{images/00039.png}
-\end{center}
+\begin{stepperbox}[unbreakable]
+\centering
+\scriptsize\ttfamily
+\begin{tabular}{@{}ll@{}}
+\toprule
+(+ 1 1) == 2 & (string-append "a" "b") == "ab" \\
+(+ 1 2) == 3 & (string-append "ab" "c") == "abc" \\
+(+ 2 2) == 4 & (string-append "a" " ") == "a " \\
+...          & ... \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
 
 \begin{exercise}{字符串拼接与连接符}{2}
 在定义区添加以下两行代码：
@@ -323,9 +332,11 @@ string-length: expects a string, given 42
 
 \begin{exercise}{计算图像的像素数}{6}
 在定义区添加以下代码：
-\begin{center}
-  \includegraphics[width=0.55\textwidth]{images/00042.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define cat \inlinesprite[2.4em]{images/sprites/cat1.png})
+\end{Verbatim}
+\end{stepperbox}
 
 \textbf{图片复制技巧：}你可以直接从电子书中复制该小猫图片，并直接粘贴到 DrRacket 的定义区代码中。
 
@@ -463,9 +474,11 @@ string-length: expects a string, given 42
 
 \begin{exercise}{图像长宽比分类}{8}
 在定义区添加以下代码：
-\begin{center}
-  \includegraphics[width=0.55\textwidth]{images/00043.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define cat \inlinesprite[2.4em]{images/sprites/cat1.png})
+\end{Verbatim}
+\end{stepperbox}
 
 编写一个条件表达式，判断该图像是瘦高形（\code{"tall"}）还是矮宽形（\code{"wide"}）。如果高度大于等于宽度，判定为 \code{"tall"}；否则判定为 \code{"wide"}。在测试时，可以把小猫图片临时替换为你自己创建的不同长宽的矩形，以确保能够预测并验证答案。
 

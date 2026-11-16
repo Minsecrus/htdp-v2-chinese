@@ -54,7 +54,27 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.88\textwidth]{images/00001.jpeg}
+  \begin{minipage}{\linewidth}
+    \hrule height 0.6pt
+    \vspace{4pt}
+    \footnotesize
+    \begin{enumerate}[leftmargin=1.4em, itemsep=2.5pt, parsep=0pt, topsep=1pt]
+      \item \textbf{From Problem Analysis to Data Definitions}\par
+      Identify the information that must be represented and how it is represented in the chosen programming language. Formulate data definitions and illustrate them with examples.
+      \item \textbf{Signature, Purpose Statement, Header}\par
+      State what kind of data the desired function consumes and produces. Formulate a concise answer to the question \textit{what} the function computes. Define a stub that lives up to the signature.
+      \item \textbf{Functional Examples}\par
+      Work through examples that illustrate the function's purpose.
+      \item \textbf{Function Template}\par
+      Translate the data definitions into an outline of the function.
+      \item \textbf{Function Definition}\par
+      Fill in the gaps in the function template. Exploit the purpose statement and the examples.
+      \item \textbf{Testing}\par
+      Articulate the examples as tests and ensure that the function passes all. Doing so discovers mistakes. Tests also supplement examples in that they help others read and understand the definition when the need arises---and it will arise for any serious program.
+    \end{enumerate}
+    \vspace{4pt}
+    \hrule height 0.6pt
+  \end{minipage}
   \caption{函数设计配方的核心步骤}
   \label{fig:design_recipe_steps}
 \end{figure}

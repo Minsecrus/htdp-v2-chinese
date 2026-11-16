@@ -17,14 +17,68 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.88\textwidth]{images/00353.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [X] N [N -> X] -> [List-of X]
+; constructs a list by applying f to 0, 1, ..., (sub1 n)
+; (build-list n f) == (list (f 0) ... (f (- n 1)))
+(define (build-list n f) ...)
+
+; [X] [X -> Boolean] [List-of X] -> [List-of X]
+; produces a list from those items on lx for which p holds
+(define (filter p lx) ...)
+
+; [X] [List-of X] [X X -> Boolean] -> [List-of X]
+; produces a version of lx that is sorted according to cmp
+(define (sort lx cmp) ...)
+
+; [X Y] [X -> Y] [List-of X] -> [List-of Y]
+; constructs a list by applying f to each item on lx
+; (map f (list x-1 ... x-n)) == (list (f x-1) ... (f x-n))
+(define (map f lx) ...)
+
+; [X] [X -> Boolean] [List-of X] -> Boolean
+; determines whether p holds for every item on lx
+; (andmap p (list x-1 ... x-n)) == (and (p x-1) ... (p x-n))
+(define (andmap p lx) ...)
+
+; [X] [X -> Boolean] [List-of X] -> Boolean
+; determines whether p holds for at least one item on lx
+; (ormap p (list x-1 ... x-n)) == (or (p x-1) ... (p x-n))
+(define (ormap p lx) ...)
+\end{lstlisting}
   \caption{ISL 列表处理抽象函数 (1)}
   \label{fig:95}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.88\textwidth]{images/00354.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; [X Y] [X Y -> Y] Y [List-of X] -> Y
+; applies f from right to left to each item in lx and b
+; (foldr f b (list x-1 ... x-n)) == (f x-1 ... (f x-n b))
+(define (foldr f b lx) ...)
+
+(foldr + 0 '(1 2 3 4 5))
+== (+ 1 (+ 2 (+ 3 (+ 4 \hl{(+ 5 0)}))))
+== (+ 1 (+ 2 (+ 3 \hl{(+ 4 5)})))
+== (+ 1 (+ 2 \hl{(+ 3 9)}))
+== (+ 1 \hl{(+ 2 12)})
+== (+ 1 14)
+
+; [X Y] [X Y -> Y] Y [List-of X] -> Y
+; applies f from left to right to each item in lx and b
+; (foldl f b (list x-1 ... x-n)) == (f x-n ... (f x-1 b))
+(define (foldl f b lx) ...)
+
+(foldl + 0 '(1 2 3 4 5))
+== (+ 5 (+ 4 (+ 3 (+ 2 \hl{(+ 1 0)}))))
+== (+ 5 (+ 4 (+ 3 \hl{(+ 2 1)})))
+== (+ 5 (+ 4 \hl{(+ 3 3)}))
+== (+ 5 \hl{(+ 4 6)})
+== \hl{(+ 5 10)}
+\end{Verbatim}
+\end{stepperbox}
   \caption{ISL 列表处理抽象函数 (2)}
   \label{fig:96}
 \end{figure}
@@ -44,7 +98,32 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00355.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define-struct address [first-name last-name street])
+; An Addr is a structure:
+;   (make-address String String String)
+; interpretation associates an address with a person's name
+
+; [List-of Addr] -> String
+; creates a string from first names,
+; sorted in alphabetical order,
+; separated and surrounded by blank spaces
+(define (listing l)
+  (foldr string-append-with-space " "
+         (sort (map address-first-name l) string<?)))
+
+; String String -> String
+; appends two strings, prefixes with " "
+(define (string-append-with-space s t)
+  (string-append " " s t))
+
+(define ex0
+  (list (make-address "Robert"   "Findler" "South")
+        (make-address "Matthew"  "Flatt"   "Canyon")
+        (make-address "Shriram"  "Krishna" "Yellow")))
+
+(check-expect (listing ex0) " Matthew Robert Shriram ")
+\end{lstlisting}
   \caption{借助抽象构建程序}
   \label{fig:97}
 \end{figure}
@@ -52,9 +131,16 @@
 \begin{exercise}{解读复杂的抽象函数}{256}
 详细解释以下抽象函数的用途与运行机制：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00356.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; [X Y] [X Y -> Y] Y [List-of X] -> Y
+; f*oldl works just like foldl
+(check-expect (f*oldl cons '() '(a b c))
+              (foldl cons '() '(a b c)))
+(check-expect (f*oldl / 1 '(6 3 2))
+              (foldl / 1 '(6 3 2)))
+(define (f*oldl f e l)
+  (foldr f e (reverse l)))
+\end{lstlisting}
 
 它的签名是什么？它可以用于解决哪些实际问题？
 \end{exercise}
@@ -81,7 +167,25 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00357.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Addr] -> String
+; creates a string of first names,
+; sorted in alphabetical order,
+; separated and surrounded by blank spaces
+(define (listing.v2 l)
+  (local (; 1. extract names
+          (define names  (map address-first-name l))
+          ; 2. sort the names
+          (define sorted (sort names string<?))
+          ; 3. append them, add spaces
+          ; String String -> String
+          ; appends two strings, prefix with " "
+          (define (helper s t)
+            (string-append " " s t))
+          (define concat+spaces
+            (foldr helper " " sorted)))
+    concat+spaces))
+\end{lstlisting}
   \caption{利用 local 组织函数定义}
   \label{fig:98}
 \end{figure}
@@ -90,7 +194,30 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00359.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Number] [Number Number -> Boolean]
+; -> [List-of Number]
+; produces a version of alon, sorted according to cmp
+(define (sort-cmp alon0 cmp)
+  (local (; [List-of Number] -> [List-of Number]
+          ; produces the sorted version of alon
+          (define (isort alon)
+            (cond
+              [(empty? alon) '()]
+              [else
+               (insert (first alon) (isort (rest alon)))]))
+
+          ; Number [List-of Number] -> [List-of Number]
+          ; inserts n into the sorted list of numbers alon
+          (define (insert n alon)
+            (cond
+              [(empty? alon) (cons n '())]
+              [else (if (cmp n (first alon))
+                        (cons n alon)
+                        (cons (first alon)
+                              (insert n (rest alon))))])))
+    (isort alon0)))
+\end{lstlisting}
   \caption{利用 local 组织相互关联的函数定义}
   \label{fig:99}
 \end{figure}
@@ -101,7 +228,20 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00360.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; Nelon -> Number
+; determines the smallest number on l
+(define (inf.v2 l)
+  (cond
+    [(empty? (rest l)) (first l)]
+    [else
+     (local (\hl{(define smallest-in-rest (inf.v2 (rest l)))})
+       (if (< (first l) smallest-in-rest)
+           (first l)
+           smallest-in-rest))]))
+\end{Verbatim}
+\end{stepperbox}
   \caption{使用 local 显著提升计算性能}
   \label{fig:100}
 \end{figure}
@@ -121,10 +261,22 @@
 \begin{exercise}{库存函数性能优化}{261}
 请观察图~\ref{fig:101} 中的库存处理函数。在嵌套的 \code{cond} 表达式中，两个分支都重复计算了 \code{(extract1 (rest an-inv))}。使用 \code{local} 为该公共表达式命名。这种优化是否能显著提升程序的运行速度？为什么？
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00361.png}
-  \captionof{figure}{在库存记录中查找（参见练习 261）}\label{fig:101}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; Inventory -> Inventory
+; creates an Inventory from an-inv for all
+; those items that cost less than a dollar
+(define (extract1 an-inv)
+  (cond
+    [(empty? an-inv) '()]
+    [else
+     (cond
+       [(<= (ir-price (first an-inv)) 1.0)
+        (cons (first an-inv) \hl{(extract1 (rest an-inv))})]
+       [else \hl{(extract1 (rest an-inv))}])]))
+\end{Verbatim}
+\end{stepperbox}
+\captionof{figure}{在库存记录中查找（参见练习 261）}\label{fig:101}
 \end{exercise}
 
 % ------------------------------------------------------------------------------
@@ -137,7 +289,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00362.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; FSM FSM-State -> FSM-State
+; matches the keys pressed by a player with the given FSM
+(define (simulate fsm s0)
+  (local (; State of the World: FSM-State
+          ; FSM-State KeyEvent -> FSM-State
+          (define (find-next-state s key-event)
+            (find fsm s)))
+    (big-bang s0
+      [to-draw state-as-colored-square]
+      [on-key find-next-state])))
+
+; FSM-State -> Image
+; renders current state as colored square
+(define (state-as-colored-square s)
+  (square 100 "solid" s))
+
+; FSM FSM-State -> FSM-State
+; finds the current state in fsm
+(define (find transitions current)
+  (cond
+    [(empty? transitions) (error "not found")]
+    [else
+     (local ((define s (first transitions)))
+       (if (state=? (transition-current s) current)
+           (transition-next s)
+           (find (rest transitions) current)))]))
+\end{lstlisting}
   \caption{局部函数定义赋予的强大表达力}
   \label{fig:102}
 \end{figure}
@@ -170,49 +349,165 @@ ISL 的求值模型采用了一种直观而严谨的语义机制：\term{变量�
 
 图~\ref{fig:100} 及随后的几张求值图演示了这一精妙过程：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00363.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (simulate fsm s0)
+  (local ((define (find-next-state s key-event)
+            (find fsm s)))
+    (big-bang s0
+      [to-draw state-as-colored-square]
+      [on-key find-next-state])))
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00364.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(local ((define (find-next-state s key-event)
+          (find AN-FSM s)))
+  (big-bang A-STATE
+    [to-draw state-as-colored-square]
+    [on-key find-next-state]))
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00365.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(local ((define (\hl{find-next-state-1} s key-event)
+          (find an-fsm a-state)))
+  (big-bang s0
+    [to-draw state-as-colored-square]
+    [on-key \hl{find-next-state-1}]))
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00366.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(define (find-next-state-1 s key-event)
+  (find an-fsm a-state))
+⊕
+(big-bang s0
+  [to-draw state-as-colored-square]
+  [on-key find-next-state-1])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00367.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(inf (list 2 1 3))
+==
+(cond
+  [(empty? (rest (list 2 1 3)))
+   (first (list 2 1 3))]
+  [else
+   (local ((define smallest-in-rest
+             (inf (rest (list 2 1 3)))))
+     (cond
+       [(< (first (list 2 1 3)) smallest-in-rest)
+        (first (list 2 1 3))]
+       [else smallest-in-rest]))])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00368.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+...
+==
+(local ((define smallest-in-rest
+          (inf (rest (list 2 1 3)))))
+  (cond
+    [(< (first (list 2 1 3)) smallest-in-rest)
+     (first (list 2 1 3))]
+    [else smallest-in-rest]))
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00369.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(define smallest-in-rest-1
+  \hl{(inf (rest (list 2 1 3)))})
+⊕
+(cond
+  [(< (first (list 2 1 3)) smallest-in-rest-1)
+   (first (list 2 1 3))]
+  [else smallest-in-rest-1])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00370.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(define smallest-in-rest-1
+  (cond
+    [(empty? (rest (list 1 3))) (first (list 1 3))]
+    [else
+     (local ((define smallest-in-rest
+               (inf (rest (list 1 3)))))
+       (cond
+         [(< (first (list 1 3)) smallest-in-rest)
+          (first (list 1 3))]
+         [else smallest-in-rest]))]))
+⊕
+(cond
+  [(< (first (list 2 1 3)) smallest-in-rest-1)
+   (first (list 2 1 3))]
+  [else smallest-in-rest-1])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00371.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define smallest-in-rest-1
+  (local ((define smallest-in-rest
+            (inf (rest (list 1 3)))))
+    (cond
+      [(< (first (list 1 3)) smallest-in-rest)
+       (first (list 1 3))]
+      [else smallest-in-rest])))
+⊕
+(cond
+  [(< (first (list 2 1 3)) smallest-in-rest-3)
+   (first (list 2 1 3))]
+  [else smallest-in-rest-3])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00372.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(define smallest-in-rest-2
+  (inf (rest (list 1 3))))
+⊕
+(define smallest-in-rest-2
+  (cond
+    [(< (first (list 1 3)) smallest-in-rest-2)
+     (first (list 1 3))]
+    [else smallest-in-rest-2]))
+⊕
+(cond
+  [(< (first (list 2 1 3)) smallest-in-rest-2)
+   (first (list 2 1 3))]
+  [else smallest-in-rest-2])
+\end{Verbatim}
+\end{stepperbox}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00373.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+((local ((define (f x) (+ (* 4 (sqr x)) 3))) f)
+ 1)
+==
+((local (\hl{(define (f-1 x) (+ (* 4 (sqr x)) 3))})
+   \hl{f-1})
+ 1)
+==
+(define (f-1 x) (+ (* 4 (sqr x)) 3))
+⊕
+(\hl{f-1} 1)
+\end{Verbatim}
+\end{stepperbox}
 
 \begin{exercise}{单步求值器推导 local 单步计算}{263}
 使用 DrRacket 的单步求值器，细致观察并验证上述计算中的每一个代换步骤。
@@ -236,37 +531,81 @@ ISL 的求值模型采用了一种直观而严谨的语义机制：\term{变量�
 
 让我们通过具体的真实问题，演练如何精准挑选并组合现有的抽象函数：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00374.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+((local ((define (f x) (+ x 3))
+         (define (g x) (* x 4)))
+   (if (odd? (f (g 1)))
+       f
+       g))
+ 2)
+\end{lstlisting}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00375.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (add-3-to-all lop)
+  (local (; Posn -> Posn
+          ; ...
+          (define (fp p)
+            ... p ...))
+    (map fp lop)))
+\end{lstlisting}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00376.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (add-3-to-all lop)
+  (local (; Posn -> Posn
+          ; adds 3 to the x-coordinate of p
+          (define (add-3-to-1 p)
+            (make-posn (+ (posn-x p) 3) (posn-y p))))
+    (map add-3-to-1 lop)))
+\end{lstlisting}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00377.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (keep-good lop)
+  (local (; Posn -> Boolean
+          ; should this Posn stay on the list
+          (define (good? p) #true))
+    (filter good? lop)))
+\end{lstlisting}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00378.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (keep-good lop)
+  (local (; Posn -> Posn
+          ; should this Posn stay on the list
+          (define (good? p)
+            (not (> (posn-y p) 100))))
+    (filter good? lop)))
+\end{lstlisting}
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00379.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; [List-of Posn] Posn -> Boolean
+; is any Posn on lop close to pt
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00380.png}
-\end{center}
+(check-expect
+  (close? (list (make-posn 47 54) (make-posn 0 60))
+          (make-posn 50 50))
+  #true)
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00381.png}
-\end{center}
+(define (close? lop pt) #false)
+\end{lstlisting}
+
+\begin{lstlisting}[language=BSL]
+(define (close? lop pt)
+  (local (; Posn -> Boolean
+          ; ...
+          (define (is-one-close? p)
+            ...))
+    (ormap close-to? lop)))
+\end{lstlisting}
+
+\begin{lstlisting}[language=BSL]
+(define (close? lop pt)
+  (local (; Posn -> Boolean
+          ; is one shot close to pt
+          (define (is-one-close? p)
+            (close-to p pt CLOSENESS)))
+    (ormap is-one-close? lop)))
+
+(define CLOSENESS 5) ; in terms of pixels
+\end{lstlisting}
 
 无论是判断列表中是否存在满足条件的点（使用 \code{ormap}），还是对图形元素进行空间距离测算，借助抽象与局部定义的搭配，都能在寥寥数行内优雅搞定。
 
@@ -298,24 +637,42 @@ ISL 的求值模型采用了一种直观而严谨的语义机制：\term{变量�
 以在一个 $200 \times 200$ 的画布上为给定 Posn 列表绘制小红圈为例：
 
 步骤 1 给出的桩函数如下：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00382.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; [List-of Posn] -> Image
+; adds the Posns on lop to the empty scene
+
+(check-expect (dots (list (make-posn 12 31)))
+              (place-image DOT 12 31 MT-SCENE))
+
+(define (dots lop)
+  MT-SCENE)
+\end{lstlisting}
 
 步骤 2 对比输出类型。目标输出是一幅 Image，而能产生折叠结果的抽象正是 \code{foldr}：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00383.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; foldr : [X Y] [X Y -> Y] Y [List-of X] -> Y
+; foldl : [X Y] [X Y -> Y] Y [List-of X] -> Y
+\end{lstlisting}
 
 步骤 3 构建带有 \code{local} 的模板：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00384.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (dots lop)
+  (local (; Posn Image -> Image
+          (define (add-one-dot p scene) ...))
+    (foldr add-one-dot MT-SCENE lop)))
+\end{lstlisting}
 
 步骤 4 最终完成辅助函数定义，组装出清爽健壮的程序：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00385.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (dots lop)
+  (local (; Posn Image -> Image
+          ; adds a DOT at p to scene
+          (define (add-one-dot p scene)
+            (place-image DOT
+                         (posn-x p) (posn-y p)
+                         scene)))
+    (foldr add-one-dot MT-SCENE lop)))
+\end{lstlisting}
 
 % ------------------------------------------------------------------------------
 \section{练手习题：抽象}
@@ -352,9 +709,10 @@ ISL 的求值模型采用了一种直观而严谨的语义机制：\term{变量�
 \begin{exercise}{使用 foldr 实现 append}{272}
 回顾 ISL 中的 \code{append} 函数用于拼接两个列表，在本质上它相当于用第二个列表替换第一个列表末尾的 \code{'()}：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00386.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(equal? (append (list 1 2 3) (list 4 5 6 7 8))
+        (list 1 2 3 4 5 6 7 8))
+\end{lstlisting}
 
 请使用 \code{foldr} 重新定义 \code{append} 函数。
 \end{exercise}

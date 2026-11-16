@@ -23,22 +23,78 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00315.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Los -> Boolean
+; does l contain "dog"
+(define (contains-dog? l)
+  (cond
+    [(empty? l) #false]
+    [else
+      (or
+        (string=? (first l)
+                  \hl{"dog"})
+        (contains-dog?
+          (rest l)))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Los -> Boolean
+; does l contain "cat"
+(define (contains-cat? l)
+  (cond
+    [(empty? l) #false]
+    [else
+      (or
+        (string=? (first l)
+                  \hl{"cat"})
+        (contains-cat?
+          (rest l)))]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{两个相似的函数}
   \label{fig:86}
 \end{figure}
 
 优秀的程序员往往“懒得”去定义好几个高度相近的函数。相反，他们会定义一个通用函数，既能在字符串列表中查找 \code{"dog"}，也能查找 \code{"cat"}。这个通用函数只需额外接收一项数据——即要查找的目标字符串——而在其他方面与原先的两个函数完全一致：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00316.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+; String Los -> Boolean
+; determines whether l contains the string s
+(define (contains? s l)
+  (cond
+    [(empty? l) #false]
+    [else (or (string=? (first l) \hl{s})
+              (contains? s (rest l)))]))
+\end{Verbatim}
+\end{stepperbox}
 
 如果你现在确实需要一个像 \code{contains-dog?} 这样的函数，只需将其定义为单行函数即可，对于 \code{contains-cat?} 也是如此。图~\ref{fig:87} 正是这么做的。你可以将它与图~\ref{fig:86} 进行简短对比，确保理解我们是如何从前者演进到后者的。最棒的是，有了 \code{contains?}，在字符串列表中查找任意字符串都变得轻而易举，我们再也不需要定义像 \code{contains-dog?} 这样专用的特殊函数了。
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00317.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Los -> Boolean
+; does l contain "dog"
+(define (contains-dog? l)
+  (contains? "dog" l))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Los -> Boolean
+; does l contain "cat"
+(define (contains-cat? l)
+  (contains? "cat" l))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{重新审视两个相似函数}
   \label{fig:87}
 \end{figure}
@@ -56,9 +112,34 @@
 \begin{exercise}{数字列表变换与抽象}{236}
 为以下两个函数编写完整的测试套件：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00318.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon -> Lon
+; adds 1 to each item on l
+(define (add1* l)
+  (cond
+    [(empty? l) '()]
+    [else
+      (cons
+        (add1 (first l))
+        (add1* (rest l)))]))
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon -> Lon
+; adds 5 to each item on l
+(define (plus5 l)
+  (cond
+    [(empty? l) '()]
+    [else
+      (cons
+        (+ (first l) 5)
+        (plus5 (rest l)))]))
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 然后对它们进行抽象。借助所提炼出的抽象函数，将上述两个函数重新定义为单行函数，并使用已有的测试套件确认修改后的定义能够正确工作。最后，再设计一个函数，从给定数字列表中的每个数字中减去 2。
 \end{exercise}
@@ -73,7 +154,46 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00319.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon Number -> Lon
+; select those numbers on l
+; that are below t
+(define (small l t)
+  (cond
+    [(empty? l) '()]
+    [else
+      (cond
+        [(\hl{<} (first l) t)
+         (cons (first l)
+           (small
+             (rest l) t))]
+        [else
+         (small
+           (rest l) t)])]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon Number -> Lon
+; select those numbers on l
+; that are above t
+(define (large l t)
+  (cond
+    [(empty? l) '()]
+    [else
+      (cond
+        [(\hl{>} (first l) t)
+         (cons (first l)
+           (large
+             (rest l) t))]
+        [else
+         (large
+           (rest l) t)])]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{另外两个相似的函数}
   \label{fig:88}
 \end{figure}
@@ -82,9 +202,19 @@
 
 让我们遵循第一个示例的思路，引入一个额外的参数对这两个函数进行抽象。这一次，这个额外的参数所代表的不再是一个字符串，而是一个\term{比较运算符}：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00320.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (extract R l t)
+  (cond
+    [(empty? l) '()]
+    [else (cond
+            [(\hl{R} (first l) t)
+             (cons (first l)
+                   (extract R (rest l) t))]
+            [else
+             (extract R (rest l) t)])]))
+\end{Verbatim}
+\end{stepperbox}
 
 要调用这个新函数，我们必须提供三个参数：一个比较两个数字的函数 \code{R}、一个数字列表 \code{l} 以及一个阈值 \code{t}。该函数随后会从 \code{l} 中提取出所有使得 \code{(R i t)} 求值为 \code{\#true} 的元素 \code{i}。
 
@@ -98,15 +228,31 @@
 
 测试表明，\code{(extract < l t)} 的计算结果与 \code{(small l t)} 完全一致：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00321.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(check-expect (extract < '() 5) (small '() 5))
+(check-expect (extract < '(3) 5) (small '(3) 5))
+(check-expect (extract < '(1 6 4) 5)
+              (small '(1 6 4) 5))
+\end{lstlisting}
 
 类似地，\code{(extract > l t)} 产生与 \code{(large l t)} 相同的结果，这意味着你可以像这样重新定义原先的两个函数：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00322.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon Number -> Lon
+(define (small-1 l t)
+  (extract < l t))
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Lon Number -> Lon
+(define (large-1 l t)
+  (extract > l t))
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 这里最重要的领悟，并不仅仅在于 \code{small-1} 和 \code{large-1} 变成了单行定义。一旦拥有了像 \code{extract} 这样的抽象函数，你就可以将其广泛应用在其他场景中：
 
@@ -149,15 +295,51 @@
 将图~\ref{fig:89} 中的两个函数抽象为一个统一的通用函数。这两个函数都接收非空数字列表（Nelon）并返回一个数字。左边的函数求出列表中的最小值，右边的函数求出最大值。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00323.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Nelon -> Number
+; determines the smallest
+; number on l
+(define (inf l)
+  (cond
+    [(empty? (rest l))
+     (first l)]
+    [else
+      (if (< (first l)
+             (inf (rest l)))
+          (first l)
+          (inf (rest l)))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Nelon -> Number
+; determines the largest
+; number on l
+(define (sup l)
+  (cond
+    [(empty? (rest l))
+     (first l)]
+    [else
+      (if (> (first l)
+             (sup (rest l)))
+          (first l)
+          (sup (rest l)))]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{在数字列表中查找下确界 (inf) 与上确界 (sup)}\label{fig:89}
 \end{center}
 
 借助该抽象函数定义 \code{inf-1} 与 \code{sup-1}。使用以下两个列表对它们进行测试：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00324.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(list 25 24 23 22 21 20 19 18 17 16 15 14 13
+      12 11 10 9 8 7 6 5 4 3 2 1)
+(list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+      17 18 19 20 21 22 23 24 25)
+\end{lstlisting}
 
 为什么这些函数在处理某些长列表时会变得异常缓慢？
 
@@ -170,9 +352,24 @@
 
 现在请仔细观察以下两个数据定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00325.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; An Lon (List-of-numbers)
+; is one of:
+; -- '()
+; -- (cons \hl{Number} Lon)
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; An Los (List-of-String)
+; is one of:
+; -- '()
+; -- (cons \hl{String} Los)
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 左边定义了数字列表；右边描述了字符串列表。这两个数据定义极其相似。就像相似的函数一样，它们使用了两个不同的名称，但这无关紧要，因为换成任何名称都可以。唯一实质性的区别在于第二分支中 \code{cons} 内部的第一个位置，它规定了列表中包含哪种类型的元素。
 
@@ -220,15 +417,24 @@
 
 以下是使用该结构体类型的两个不同数据定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00326.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+; A Pair-boolean-string is a structure:
+;   (make-point \hl{Boolean} \hl{String})
+
+; A Pair-number-image is a structure:
+;   (make-point \hl{Number} \hl{Image})
+\end{Verbatim}
+\end{stepperbox}
 
 在这种情况下，数据定义在两处存在差异（均以阴影标出）。\code{hori} 字段的差异彼此对应，\code{veri} 字段的差异亦是如此。因此，必须引入两个参数来构建抽象数据定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00327.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+; A [CP H V] is a structure:
+;   (make-point \hl{H} \hl{V})
+\end{Verbatim}
+\end{stepperbox}
 
 这里 \code{H} 是用于 \code{hori} 字段数据集合的形参，而 \code{V} 则代表出现在 \code{veri} 字段中的数据集合。
 
@@ -237,9 +443,12 @@
 \begin{exercise}{二元对的参数化数据定义}{239}
 由两项构成的列表（二元对）是 ISL 编程中另一种频繁使用的数据形式。以下是带有两个参数的数据定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00328.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; A [List X Y] is a structure:
+;   (cons \hl{X} (cons \hl{Y} '()))
+\end{Verbatim}
+\end{stepperbox}
 
 实例化此定义以描述以下数据类别：
 \begin{enumerate}
@@ -261,9 +470,22 @@
 \begin{exercise}{嵌套结构的参数化抽象}{240}
 以下是两个奇特但极其相似的数据定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00329.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; An LStr is one of:
+; -- String
+; -- (make-layer LStr)
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; An LNum is one of:
+; -- Number
+; -- (make-layer LNum)
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 这两个数据定义都依赖于以下结构体类型定义：
 
@@ -291,9 +513,16 @@
 
 此外，以下函数签名表达了什么含义？
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00330.png}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; String [List-of String] -> [Maybe [List-of String]]
+; returns the remainder of los starting with s
+; #false otherwise
+(check-expect (occurs "a" (list "b" "a" "d" "e"))
+              (list "d" "e"))
+(check-expect (occurs "a" (list "b" "c" "d")) #f)
+(define (occurs s los)
+  los)
+\end{lstlisting}
 
 请为其补全设计配方的其余步骤。
 \end{exercise}
@@ -360,9 +589,25 @@
 
 我们可以运用插曲 1 中的代换法则，继续在函数体内进行计算。与以往一样，形参 \code{R}、\code{l} 和 \code{t} 分别被实参 \code{<}、\code{'()} 和 \code{5} 代换。从这里开始，完全是朴素的算术与条件分支求值：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00331.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+==
+(cond
+  [\hl{(empty? '())} '()]
+  [else (cond
+          [(< (first '()) t)
+           (cons (first '()) (extract < (rest '()) 5))]
+          [else (extract < (rest '()) 5)])])
+==
+(cond
+  \hl{(#true '())}
+  [else (cond
+          [(< (first '()) t)
+           (cons (first '()) (extract < (rest '()) 5))]
+          [else (extract < (rest '()) 5)])])
+== '()
+\end{Verbatim}
+\end{stepperbox}
 
 接下来我们看一个包含单元素的列表：
 
@@ -372,38 +617,98 @@
 
 其结果应该是 \code{(cons 4 '())}，因为列表中唯一的元素是 4，且 \code{(< 4 5)} 为真。以下是单步求值的第一步：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00332.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(extract < (cons 4 '()) 5)
+==
+(cond
+  [(empty? (cons 4 '())) '()]
+  [else (cond
+          [(< (first (cons 4 '())) 5)
+           (cons (first (cons 4 '()))
+                 (extract < (rest (cons 4 '())) 5))]
+          [else (extract < (rest (cons 4 '())) 5)])])
+\end{Verbatim}
+\end{stepperbox}
 
 同样，所有出现的 \code{R} 都被替换为 \code{<}，\code{l} 被替换为 \code{(cons 4 '())}，\code{t} 被替换为 \code{5}。接下来的计算直截了当：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00333.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(cond
+  [\hl{(empty? (cons 4 '()))} '()]
+  [else (cond
+          [(< (first (cons 4 '())) 5)
+           (cons (first (cons 4 '()))
+                 (extract < (rest (cons 4 '())) 5))]
+          [else (extract < (rest (cons 4 '())) 5)])])
+==
+(cond
+  [\hl{#false} '()]
+  [else (cond
+          [(< (first (cons 4 '())) 5)
+           (cons (first (cons 4 '()))
+                 (extract < (rest (cons 4 '())) 5))]
+          [else (extract < (rest (cons 4 '())) 5)])])
+==
+(cond
+  [(< \hl{(first (cons 4 '()))} 5)
+   (cons (first (cons 4 '()))
+         (extract < (rest (cons 4 '())) 5))]
+  [else (extract < (rest (cons 4 '())) 5)])
+==
+(cond
+  [\hl{(< 4 5)}
+   (cons (first (cons 4 '()))
+         (extract < (rest (cons 4 '())) 5))]
+  [else (extract < (rest (cons 4 '())) 5)])
+\end{Verbatim}
+\end{stepperbox}
 
 这是最关键的一步：\code{<} 在被代换到函数调用首位后，作为普通的比较函数被直接应用。随后继续进行算术化简：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00334.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+==
+(cond
+  [\hl{#true}
+   (cons (first (cons 4 '()))
+         (extract < (rest (cons 4 '())) 5))]
+  [else (extract < (rest (cons 4 '())) 5)])
+==
+(cons 4 (extract < \hl{(rest (cons 4 '()))} 5))
+==
+(cons 4 \hl{(extract < '() 5)})
+==
+(cons 4 '())
+\end{Verbatim}
+\end{stepperbox}
 
 最后一步正是上面已经证明过的等式，这意味着我们可以直接应用“等量代换”的代数公理。
 
 我们的最后一个示例是将 \code{extract} 应用于一个包含两个元素的列表：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00335.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(extract < (cons 6 (cons 4 '())) 5)
+== (extract < (cons 4 '()) 5)
+== (cons 4 (extract < '() 5))
+== (cons 4 '())
+\end{Verbatim}
+\end{stepperbox}
 
 其中的步骤 1 是全新的情形，它处理了当列表首项不小于阈值时，\code{extract} 如何将其剔除的情况。
 
 \begin{exercise}{验证单步求值}{246}
 使用 DrRacket 的单步求值器（Stepper），单步检验上一计算过程中的步骤 1：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00336.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(extract < (cons 6 (cons 4 '())) 5)
+==
+(extract < (cons 4 '()) 5)
+\end{Verbatim}
+\end{stepperbox}
 \end{exercise}
 
 \begin{exercise}{单步求值器跟踪 extract}{247}
@@ -421,9 +726,34 @@
 
 以下是单步求值器展示的部分关键步骤：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00337.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(extract squared>? (list 3 4 5) 10)\hfill(1)
+==\hfill(2)
+(cond
+  [(empty? (list 3 4 5)) '()]
+  [else
+    (cond
+      [(squared>? (first (list 3 4 5)) 10)
+       (cons (first (list 3 4 5))
+             (extract squared>?
+                      (rest (list 3 4 5))
+                      10))]
+      [else (extract squared>?
+                     (rest (list 3 4 5))
+                     10)])])
+== ... ==\hfill(3)
+(cond
+  [\hl{(squared>? 3 10)}
+   (cons (first (list 3 4 5))
+         (extract squared>?
+                  (rest (list 3 4 5))
+                  10))]
+  [else (extract squared>?
+                 (rest (list 3 4 5))
+                 10)])
+\end{Verbatim}
+\end{stepperbox}
 
 使用单步求值器确认从第 (1) 步到第 (2) 步的推导。继续步进以填补第 (2) 步和第 (3) 步之间的细节空白。将每一步推导解释为代数法则的具体应用。
 \end{exercise}

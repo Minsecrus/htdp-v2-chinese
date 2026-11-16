@@ -216,17 +216,22 @@ function call: expected a function after the open parenthesis, found a number
 
 伴随着所有这些新鲜的数据类型（没错，数字、字符串与布尔值都是数据）以及眼花缭乱的操作符，我们很容易遗忘之前学过的基本法则，比如嵌套算术：
 
-\begin{center}
-  \includegraphics[width=0.88\textwidth]{images/00005.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(and (or (= (string-length "hello world")
+            (string->number "11"))
+         (string=? "hello world" "good morning"))
+     (>= (+ (string-length "hello world") 60) 80))
+\end{lstlisting}
 
 这个表达式的求值结果是什么？你是如何推导出来的？是完全凭自己的心算，还是仅仅在 DrRacket 交互区中输入并按下了回车键？如果你是靠后者，你觉得脱离了电脑你自己能搞定吗？毕竟，如果你无法准确预测 DrRacket 对小型表达式的行为，当提交更庞大的程序时，你又怎敢轻易信赖它的运行结果呢？
 
 在向你展示如何编写“真正”的程序之前，让我们再讨论一种更具趣味性的全新数据形态：\term{图像}（images）。当你在交互区中直接插入一张图片并按下回车时，如图：
 
-\begin{center}
-  \includegraphics[width=0.45\textwidth]{images/00006.jpeg}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+> \inlinesprite[1.4em]{images/sprites/rocket.png}
+\end{Verbatim}
+\end{stepperbox}
 
 DrRacket 会原样回显这张图片！与其他许多编程语言截然不同，BSL 天生理解图像，并且支持针对图像的完整“图像算术”，就像它支持数字算术或字符串算术一样。简而言之，你的程序可以直接用图像进行加减组合等数学计算，而且在交互区就能即时演算。此外，BSL 程序员——正如其他语言的程序员一样——会编写出他人可以直接复用的代码库。使用这些库就像用新词汇扩充你的日常词典，或者用新原语扩充你的编程武器库一样自然。我们将这些专门用于辅助教学的库亲切地称为\term{教学包}（teachpacks）。
 
@@ -236,9 +241,11 @@ DrRacket 会原样回显这张图片！与其他许多编程语言截然不同�
 
 一个极其重要的核心库是 \code{2htdp/image} 图像教学包，它支持测量图像宽度与高度的原语操作：
 
-\begin{center}
-  \includegraphics[width=0.6\textwidth]{images/00007.jpeg}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(* (image-width \inlinesprite[1.4em]{images/sprites/rocket.png}) (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}))
+\end{Verbatim}
+\end{stepperbox}
 
 一旦在程序中引入了该库，点击“Run”就会得到 \code{1176}，因为这正是一张 28 像素宽、42 像素高的小火箭图像的面积。
 
@@ -268,17 +275,24 @@ DrRacket 会原样回显这张图片！与其他许多编程语言截然不同�
 
 正如你所见，\code{overlay}（重叠）在感觉上比 \code{+} 更接近 \code{string-append}，但它确实是在“相加”图像，正如字符串拼接相加文本、加法操作相加数值一样。以下是关于这一思想的另一个例证：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00011.png}
-\end{center}
+\begin{replbox}
+> (image-width (square 10 "solid" "red"))
+10
+> (image-width
+    (overlay (rectangle 20 20 "solid" "blue")
+             (circle 5 "solid" "red")))
+20
+\end{replbox}
 
 上述与 DrRacket 的交互根本没有绘制任何画面，它们实际上只是在精确度量组合图像的宽度。
 
 最后两个关键操作是 \code{empty-scene}（空场景）与 \code{place-image}（放置图像）。前者用于创建一个被称为\term{场景}（scene）的特殊矩形画布；后者则负责将指定图像精确放置到该场景中：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00012.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(place-image (circle 5 "solid" "green")
+             50 80
+             (empty-scene 100 100))
+\end{lstlisting}
 
 你将获得如下画面：
 
@@ -413,7 +427,12 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00020.jpeg}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(define (picture-of-rocket height)
+  (place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 height (empty-scene 100 60)))
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 1）}
   \label{fig:rocket_v1}
 \end{figure}
@@ -477,9 +496,13 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 在 DrRacket 中，你可以借助\term{条件表达式}（conditional expression，简称 \code{cond}）毫无困难地将这种分段函数原汁原味地翻译为代码：
 
-\begin{center}
-  \includegraphics[width=0.65\textwidth]{images/00022.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (sign x)
+  (cond
+    [(> x 0) 1]
+    [(= x 0) 0]
+    [(< x 0) -1]))
+\end{lstlisting}
 
 点击“Run”后，你就可以像测试任何普通函数一样在交互区与 \code{sign} 进行交互：
 \begin{replbox}
@@ -525,7 +548,18 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00024.jpeg}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define (picture-of-rocket.v2 height)
+  (cond
+    [(<= height 60)
+     (place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 height
+                  (empty-scene 100 60))]
+    [(> height 60)
+     (place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 60
+                  (empty-scene 100 60))]))
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 2）}
   \label{fig:rocket_v2}
 \end{figure}
@@ -550,23 +584,30 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 把各方线索串联起来，你就能通过算术推导出：
 
-\begin{center}
-  \includegraphics[width=0.55\textwidth]{images/00026.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(- 60 (/ (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}) 2))
+\end{Verbatim}
+\end{stepperbox}
 
 正是火箭停止下降时其中心点应当停留的准确位置！你可以通过直接修改程序来验证这一推断，也可以在交互区利用图像算术即时验证。
 
 以下是初步的尝试：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00027.jpeg}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 (- 60 (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}))
+             (empty-scene 100 60))
+\end{Verbatim}
+\end{stepperbox}
 
 现在，把上面调用中的第三个实参替换为：
 
-\begin{center}
-  \includegraphics[width=0.55\textwidth]{images/00026.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(- 60 (/ (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}) 2))
+\end{Verbatim}
+\end{stepperbox}
 
 \begin{notebox}[动手实验]
 停下来，在 DrRacket 中亲身运行对比这两个调用。你更钟意哪一个视觉呈现？
@@ -576,7 +617,18 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00028.jpeg}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(define (picture-of-rocket.v3 height)
+  (cond
+    [(<= height (- 60 (/ (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}) 2)))
+     (place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 height
+                  (empty-scene 100 60))]
+    [(> height (- 60 (/ (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}) 2)))
+     (place-image \inlinesprite[1.4em]{images/sprites/rocket.png} 50 (- 60 (/ (image-height \inlinesprite[1.4em]{images/sprites/rocket.png}) 2))
+                  (empty-scene 100 60))]))
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 3）}
   \label{fig:rocket_v3}
 \end{figure}
@@ -612,7 +664,22 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00029.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+(define (picture-of-rocket.v4 h)
+  (cond
+    [(<= h (- HEIGHT (/ (image-height ROCKET) 2)))
+     (place-image ROCKET 50 h (empty-scene WIDTH HEIGHT))]
+    [(> h (- HEIGHT (/ (image-height ROCKET) 2)))
+     (place-image ROCKET
+                  50 (- HEIGHT (/ (image-height ROCKET) 2))
+                  (empty-scene WIDTH HEIGHT))]))
+
+(define WIDTH 100)
+(define HEIGHT 60)
+(define ROCKET \inlinesprite[1.4em]{images/sprites/rocket.png})
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 4）}
   \label{fig:rocket_v4}
 \end{figure}
@@ -656,7 +723,25 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00030.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; constants
+(define WIDTH  100)
+(define HEIGHT  60)
+(define MTSCN  (empty-scene WIDTH HEIGHT))
+(define ROCKET \inlinesprite[1.4em]{images/sprites/rocket.png})
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v5 h)
+  (cond
+    [(<= h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 50 h MTSCN)]
+    [(> h ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 50 ROCKET-CENTER-TO-TOP MTSCN)]))
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 5）}
   \label{fig:rocket_v5}
 \end{figure}
@@ -665,9 +750,10 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 \begin{itemize}
   \item 如何修改程序，使其呈现 200 $\times$ 400 的宽阔场景？
   \item 如何修改程序，使其降落的不再是火箭，而是一个绿色的不明飞行物（UFO 飞碟）？绘制飞碟其实极其容易：
-  \begin{center}
-    \includegraphics[width=0.7\textwidth]{images/00031.png}
-  \end{center}
+\begin{lstlisting}[language=BSL]
+(overlay (circle 10 "solid" "green")
+         (rectangle 40 4 "solid" "green"))
+\end{lstlisting}
   \item 如何修改程序，使太空背景始终呈现出深邃的纯蓝色？
   \item 如何修改程序，让火箭最终停靠在一块比场景底部高出 10 像素的平坦岩石停机坪上？别忘了相应更新背景场景中的地貌绘制！
 \end{itemize}
@@ -687,9 +773,16 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 请回想一下：\code{animate} 传递给其处理函数的实参，本质上是自启动以来\textbf{所经历的时钟滴答总数}！也就是说，传入 \code{picture-of-rocket} 的参数根本不是什么“高度”，而是“\textbf{时间}”。我们之前在所有版本的 \code{picture-of-rocket} 中使用的形参名称其实全都是错误的；我们不应使用代表高度的 \code{h}，而应当使用代表时间的 \code{t}：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00032.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (picture-of-rocket t)
+  (cond
+    [(<= t ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET 50 t MTSCN)]
+    [(> t ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET
+                  50 ROCKET-CENTER-TO-TOP
+                  MTSCN)]))
+\end{lstlisting}
 
 而对参数命名的这一微小修正，立刻把程序深层隐藏的一个荒谬漏洞暴露无遗：这个程序竟然把“时间”硬生生当成了“空间距离”来使用！这是多么离谱的设计纰漏啊。
 
@@ -731,7 +824,32 @@ DrRacket 会立即生成一个空白的矩形场景。我们可以利用 \code{p
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.88\textwidth]{images/00035.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\scriptsize]
+; properties of the "world" and the descending rocket
+(define WIDTH  100)
+(define HEIGHT  60)
+(define V 3)
+(define X 50)
+
+; graphical constants
+(define MTSCN  (empty-scene WIDTH HEIGHT))
+(define ROCKET \inlinesprite[1.4em]{images/sprites/rocket.png})
+(define ROCKET-CENTER-TO-TOP
+  (- HEIGHT (/ (image-height ROCKET) 2)))
+
+; functions
+(define (picture-of-rocket.v6 t)
+  (cond
+    [(<= (distance t) ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET X (distance t) MTSCN)]
+    [(> (distance t) ROCKET-CENTER-TO-TOP)
+     (place-image ROCKET X ROCKET-CENTER-TO-TOP MTSCN)]))
+
+(define (distance t)
+  (* V t))
+\end{Verbatim}
+\end{stepperbox}
   \caption{火箭降落程序（版本 6）}
   \label{fig:rocket_v6}
 \end{figure}

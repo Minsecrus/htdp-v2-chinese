@@ -82,14 +82,53 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00185.png}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{\dimexpr0.35\linewidth-\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.65\linewidth-\tabcolsep\relax}@{}}
+    \toprule
+    \textbf{Question} & \textbf{Answer} \\
+    \midrule
+    Does the data definition distinguish among different sub-classes of data? &
+    Your template needs as many \texttt{cond} clauses as sub-classes that the data definition distinguishes. \\
+    \addlinespace[4pt]
+    How do the sub-classes differ from each other? &
+    Use the differences to formulate a condition per clause. \\
+    \addlinespace[4pt]
+    Do any of the clauses deal with structured values? &
+    If so, add appropriate selector expressions to the clause. \\
+    \addlinespace[4pt]
+    Does the data definition use self-references? &
+    Formulate ``natural recursions'' for the template to represent the self-references of the data definition. \\
+    \addlinespace[4pt]
+    \textbf{If the data definition refers to some other data definition,} where is this cross-reference to another data definition? &
+    Specialize the template for the other data definition. Refer to this template. See chapter~6.1, steps~4 and~5 of the design recipe. \\
+    \bottomrule
+  \end{tabular}
   \caption{如何将数据定义转换为模板}
   \label{fig:translate_data_def_to_template}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00189.png}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{\dimexpr0.35\linewidth-\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.65\linewidth-\tabcolsep\relax}@{}}
+    \toprule
+    \textbf{Question} & \textbf{Answer} \\
+    \midrule
+    What are the answers for the non-recursive \texttt{cond} clauses? &
+    The examples should tell you which values you need here. If not, formulate appropriate examples and tests. \\
+    \addlinespace[4pt]
+    What do the selector expressions in the recursive clauses compute? &
+    The data definitions tell you what kind of data these expressions extract, and the interpretations of the data definitions tell you what this data represents. \\
+    \addlinespace[4pt]
+    What do the natural recursions compute? &
+    Use the purpose statement of the function to determine what the value of the recursion means, \textbf{not how it computes this answer}. If the purpose statement doesn't tell you the answer, improve the purpose statement. \\
+    \addlinespace[4pt]
+    How can the function combine these values to get the desired answer? &
+    Find a function in BSL that combines the values. Or, if that doesn't work, make a wish for a helper function. For many functions, this last step is straightforward. The purpose, the examples, and the template together tell you which function or expression \textbf{combines} the available values into the proper result. We refer to this function or expression as a \textit{combinator}, slightly abusing existing terminology. \\
+    \bottomrule
+  \end{tabular}
   \caption{如何将模板转换为函数定义}
   \label{fig:turn_template_into_function}
 \end{figure}
@@ -108,14 +147,52 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{images/00190.png}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{\dimexpr0.35\linewidth-\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.65\linewidth-\tabcolsep\relax}@{}}
+    \toprule
+    \textbf{Question} & \textbf{Answer} \\
+    \midrule
+    \textbf{So, if you are stuck here,} $\cdots$ &
+    $\cdots$ arrange the examples from the third step in a table. Place the given input in the first column and the desired output in the last column. In the intermediate columns enter the values of the selector expressions and the natural recursion(s). Add examples until you see a pattern emerge that suggests a combinator. \\
+    \addlinespace[4pt]
+    \textbf{If the template refers to some other template,} what does the auxiliary function compute? &
+    Consult the other function's purpose statement and examples to determine what it computes, and assume you may use the result even if you haven't finished the design of this helper function. \\
+    \bottomrule
+  \end{tabular}
   \caption{将模板转化为函数的表格方法}
   \label{fig:table_method}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{images/00191.png}
+  \begin{stepperbox}[unbreakable]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lllll}
+      \toprule
+      \texttt{alos} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(first}\\\texttt{~~alos)}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(rest}\\\texttt{~~alos)}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(how-many}\\\texttt{~~(rest alos))}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(how-many}\\\texttt{~~alos)}\end{tabular} \\
+      \midrule
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~'())}\end{tabular} &
+      \texttt{"a"} & \texttt{'()} & \texttt{0} & \texttt{1} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "b"}\\\texttt{~~(cons "a"}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{"b"} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~'())}\end{tabular} &
+      \texttt{1} & \texttt{2} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "x"}\\\texttt{~~(cons "b"}\\\texttt{~~~~(cons "a"}\\\texttt{~~~~~~'())))}\end{tabular} &
+      \texttt{"x"} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "b"}\\\texttt{~~(cons "a"}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{2} & \texttt{3} \\
+      \bottomrule
+    \end{tabular}
+  \end{stepperbox}
   \caption{制表演算参数、中间值与结果}
   \label{fig:tabulating_args}
 \end{figure}
@@ -124,7 +201,31 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.9\textwidth]{images/00192.png}
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{\dimexpr0.16\linewidth-\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.20\linewidth-1.5\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.64\linewidth-1.5\tabcolsep\relax}@{}}
+    \toprule
+    \textbf{steps} & \textbf{outcome} & \textbf{activity} \\
+    \midrule
+    problem analysis & data definition &
+    Develop a data representation for the information; create examples for specific items of information and interpret data as information; identify self-references. \\
+    \addlinespace[4pt]
+    header & signature; purpose; dummy definition &
+    Write down a signature using defined names; formulate a concise purpose statement; create a dummy function that produces a constant value from the specified range. \\
+    \addlinespace[4pt]
+    examples & examples and tests &
+    Work through several examples, at least one per clause in the data definition. \\
+    \addlinespace[4pt]
+    template & function template &
+    Translate the data definition into a template: one \texttt{cond} clause per data clause; selectors where the condition identifies a structure; one natural recursion per self-reference. \\
+    \addlinespace[4pt]
+    definition & full-fledged definition &
+    Find a function that combines the values of the expressions in the \texttt{cond} clauses into the expected answer. \\
+    \addlinespace[4pt]
+    test & validated tests &
+    Turn them into \texttt{check-expect} tests and run them. \\
+    \bottomrule
+  \end{tabular}
   \caption{针对自引用数据设计函数的完整配方}
   \label{fig:design_recipe_self_referential}
 \end{figure}
@@ -184,13 +285,6 @@
 使用单步求值器观察 \code{(cat (cons "a" '()))} 的求值。
 \end{exercise}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{images/00194.png}
-  \caption{函数 cat 的辅助推导表}
-  \label{fig:table_for_cat}
-\end{figure}
-
 \begin{exercise}{查找不合尺寸的图像 ill-sized?}{142}
 设计函数 \code{ill-sized?}，消耗图像列表 \code{loi} 和一个正数 $n$。它返回 \code{loi} 中第一张\textbf{不是} $n \times n$ 正方形的图像；若所有图像均符合尺寸要求，则返回 \code{\#false}。
 
@@ -201,6 +295,28 @@
 ; -- #false
 \end{lstlisting}
 \end{exercise}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{stepperbox}[unbreakable]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lllll}
+      \toprule
+      \texttt{l} & \texttt{(first l)} & \texttt{(rest l)} & \texttt{(cat (rest l))} & \texttt{(cat l)} \\
+      \midrule
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons "a"}\\\texttt{~~(cons "b"}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{???} & \texttt{???} & \texttt{???} & \texttt{"ab"} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons}\\\texttt{~~"ab"}\\\texttt{~~(cons "cd"}\\\texttt{~~~~(cons "ef"}\\\texttt{~~~~~~'())))}\end{tabular} &
+      \texttt{???} & \texttt{???} & \texttt{???} & \texttt{"abcdef"} \\
+      \bottomrule
+    \end{tabular}
+  \end{stepperbox}
+  \caption{函数 cat 的辅助推导表}
+  \label{fig:table_for_cat}
+\end{figure}
 
 \section{非空列表}
 \label{sec:ch09_non_empty_lists}
@@ -279,7 +395,31 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{images/00197.png}
+  \begin{stepperbox}[unbreakable]
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{ccccc}
+      \toprule
+      \texttt{l} &
+      \texttt{(first l)} &
+      \texttt{(rest l)} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(sorted>?}\\\texttt{~~(rest l))}\end{tabular} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(sorted>?}\\\texttt{~~l)}\end{tabular} \\
+      \midrule
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons 1}\\\texttt{~~(cons 2}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{1} & \texttt{???} & \texttt{\#true} & \texttt{\#false} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons 3}\\\texttt{~~(cons 2}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{3} & \texttt{(cons 2 '())} & \texttt{???} & \texttt{\#true} \\
+      \addlinespace[3pt]
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons 0}\\\texttt{~~(cons 3}\\\texttt{~~~~(cons 2}\\\texttt{~~~~~~'())))}\end{tabular} &
+      \texttt{0} &
+      \begin{tabular}[t]{@{}l@{}}\texttt{(cons 3}\\\texttt{~~(cons 2}\\\texttt{~~~~'()))}\end{tabular} &
+      \texttt{???} & \texttt{???} \\
+      \bottomrule
+    \end{tabular}
+  \end{stepperbox}
   \caption{sorted>? 辅助推导表}
   \label{fig:table_for_sorted}
 \end{figure}
@@ -335,7 +475,19 @@ BSL 提供了诸如 \code{make-list} 的内置函数：它消耗一个数字 $n$
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00199.png}
+\begin{lstlisting}[language=BSL]
+; N String -> List-of-strings
+; creates a list of n copies of s
+
+(check-expect (copier 0 "hello") '())
+(check-expect (copier 2 "hello")
+              (cons "hello" (cons "hello" '())))
+
+(define (copier n s)
+  (cond
+    [(zero? n) '()]
+    [(positive? n) (cons s (copier (sub1 n) s))]))
+\end{lstlisting}
   \caption{创建复制项列表}
   \label{fig:copier_definition}
 \end{figure}
@@ -468,7 +620,34 @@ BSL 提供了诸如 \code{make-list} 的内置函数：它消耗一个数字 $n$
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.9\textwidth]{images/00205.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; ShotWorld -> ShotWorld
+(define (main w0)
+  (big-bang w0
+    [on-tick tock]
+    [on-key keyh]
+    [to-draw to-image]))
+
+; ShotWorld -> ShotWorld
+; moves each shot up by one pixel
+(define (tock w)
+  (cond
+    [(empty? w) '()]
+    [else (cons (sub1 (first w)) (tock (rest w)))]))
+
+; ShotWorld KeyEvent -> ShotWorld
+; adds a shot to the world if the space bar is hit
+(define (keyh w ke)
+  (if (key=? ke " ") (cons HEIGHT w) w))
+
+; ShotWorld -> Image
+; adds each shot y on w at (XSHOTS,y) to BACKGROUND
+(define (to-image w)
+  (cond
+    [(empty? w) BACKGROUND]
+    [else (place-image SHOT XSHOTS (first w)
+                       (to-image (rest w)))]))
+\end{lstlisting}
   \caption{基于列表的世界程序完整代码}
   \label{fig:list_based_world_program}
 \end{figure}
@@ -521,7 +700,28 @@ BSL 提供了诸如 \code{make-list} 的内置函数：它消耗一个数字 $n$
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00210.png}
+  \begin{stepperbox}[unbreakable]
+    \begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; A \textit{Son.L} is one of:
+; -- empty
+; -- (cons Number Son.L)
+;
+; \textit{Son} is used when it
+; applies to Son.L and Son.R
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; A \textit{Son.R} is one of:
+; -- empty
+; -- (cons Number Son.R)
+;
+; \textbf{Constraint} If s is a Son.R,
+; no number occurs twice in s
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{集合的两种列表数据表示形式}
   \label{fig:two_representations_of_sets}
 \end{figure}
@@ -530,7 +730,36 @@ BSL 提供了诸如 \code{make-list} 的内置函数：它消耗一个数字 $n$
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00211.png}
+  \begin{stepperbox}[unbreakable]
+    \begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Number Son.L -> Son.L
+; removes x from s
+(define s1.L
+  \hl{(cons 1 (cons 1 \textquotesingle()))})
+
+(check-expect
+  (set-.L 1 s1.L) es)
+
+(define (set-.L x s)
+  (\hl{remove-all} x s))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Number Son.R -> Son.R
+; removes x from s
+(define s1.R
+  \hl{(cons 1 \textquotesingle())})
+
+(check-expect
+  (set-.R 1 s1.R) es)
+
+(define (set-.R x s)
+  (\hl{remove} x s))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \caption{两种集合表示下的差集函数对比}
   \label{fig:set_functions_comparison}
 \end{figure}

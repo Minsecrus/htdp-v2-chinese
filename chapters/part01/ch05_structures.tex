@@ -134,7 +134,12 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00098.png}
+\begin{lstlisting}[language=BSL]
+(define (distance-to-0 ap)
+  (sqrt
+    (+ (sqr (posn-x ap))
+       (sqr (posn-y ap)))))
+\end{lstlisting}
   \caption{distance-to-0 函数的设计全貌与测试}
   \label{fig:distance_to_0_design}
 \end{figure}
@@ -174,7 +179,18 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{images/00103.png}
+\begin{replbox}
+> (make-vel -10 5)
+(make-vel -10 5)
+> (make-entry "Tara Harp" "666-7770" "th@smlu.edu")
+(make-entry "Tara Harp" "666-7770" "th@smlu.edu")
+> (make-centry
+   "Shriram Fisler"
+   (make-phone 207 "363-2421")
+   (make-phone 101 "776-1099")
+   (make-phone 208 "112-9981"))
+(make-centry ...)
+\end{replbox}
   \caption{define-struct 自动派生的一组函数簇}
   \label{fig:struct_functions_derived}
 \end{figure}
@@ -455,7 +471,11 @@ HtDP 传授了一个精妙绝伦的数据表示——\textbf{将文本按光标�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00112.png}
+\begin{lstlisting}[language=BSL]
+(overlay/align "left" "center"
+               (text "hello world" 11 "black")
+               (empty-scene 200 20))
+\end{lstlisting}
   \caption{文本编辑器的渲染函数 render}
   \label{fig:editor_render}
 \end{figure}
@@ -496,8 +516,20 @@ HtDP 传授了一个精妙绝伦的数据表示——\textbf{将文本按光标�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.6\textwidth]{images/00113.png}\\[1ex]
-  \includegraphics[width=0.6\textwidth]{images/00114.png}
+\begin{stepperbox}[unbreakable]
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define cham \inlinesprite[2.6em]{images/sprites/cham.png})
+\end{Verbatim}
+\end{stepperbox}
+\begin{lstlisting}[language=BSL]
+(define background
+  (rectangle (image-width cham)
+             (image-height cham)
+             "solid"
+             "red"))
+
+(overlay cham background)
+\end{lstlisting}
   \caption{行走的小猫（上）与快乐指数仪表盘（下）}
   \label{fig:cat_and_gauge}
 \end{figure}
@@ -520,7 +552,12 @@ HtDP 传授了一个精妙绝伦的数据表示——\textbf{将文本按光标�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.7\textwidth]{images/00115.png}
+\begin{lstlisting}[language=BSL]
+(define BACKGROUND
+  (beside (empty-scene WIDTH HEIGHT "green")
+          (empty-scene WIDTH HEIGHT "white")
+          (empty-scene WIDTH HEIGHT "red")))
+\end{lstlisting}
   \caption{三色背景上行走的变色龙}
   \label{fig:cham_tricolor}
 \end{figure}

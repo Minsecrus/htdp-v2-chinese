@@ -179,7 +179,19 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00058.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Number String Image -> Image
+; adds s to img, y pixels from top, 10 pixels to the left
+; given:
+;     5 for y,
+;     "hello" for s, and
+;     (empty-scene 100 100) for img
+; expected:
+;     (place-image (text "hello" 10 "red") 10 5 ...)
+;     where ... is (empty-scene 100 100)
+(define (add-image y s img)
+  (place-image (text s 10 "red") 10 y img))
+\end{lstlisting}
   \caption{函数设计第 5 步（编码兑现）的完成形态}
   \label{fig:ch03_step5}
 \end{figure}
@@ -310,7 +322,17 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00059.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Number -> Number
+; converts Fahrenheit temperatures to Celsius temperatures
+
+(check-expect (f2c -40) -40)
+(check-expect (f2c 32) 0)
+(check-expect (f2c 212) 100)
+
+(define (f2c f)
+  (* 5/9 (- f 32)))
+\end{lstlisting}
   \caption{在 BSL 中运用 check-expect 构建自动化单元测试}
   \label{fig:ch03_testing}
 \end{figure}
@@ -320,9 +342,12 @@
   \includegraphics[width=0.85\textwidth]{images/00060.png}
 \end{center}
 或者，也可以使用绘图公式进行测试断言：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00061.png}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(check-expect (render 50)
+              (place-image CAR 50 Y-CAR BACKGROUND))
+(check-expect (render 200)
+              (place-image CAR 200 Y-CAR BACKGROUND))
+\end{lstlisting}
 后一种方式还能反哺指导我们推导函数体的具体实现逻辑。
 
 这种由系统自动执行、针对独立软件组件开展的自动化测试机制被称为\term{单元测试}（Unit Testing）。在本书后续的所有章节中，我们将全面普及这种规范的测试实践。未来当你切换到其他主流编程语言时，你最先应该探索的也正是其对应的单元测试框架。
@@ -340,7 +365,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00062.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; WorldState: data that represents the state of the world (cw)
+
+; WorldState -> Image
+; when needed, big-bang obtains the image of the current
+; state of the world by evaluating (render cw)
+(define (render ws) ...)
+
+; WorldState -> WorldState
+; for each tick of the clock, big-bang obtains the next
+; state of the world from (clock-tick-handler cw)
+(define (clock-tick-handler cw) ...)
+
+; WorldState String -> WorldState
+; for each keystroke, big-bang obtains the next state
+; from (keystroke-handler cw ke); ke represents the key
+(define (keystroke-handler cw ke) ...)
+
+; WorldState Number Number String -> WorldState
+; for each mouse gesture, big-bang obtains the next state
+; from (mouse-event-handler cw x y me) where x and y are
+; the coordinates of the event and me is its description
+(define (mouse-event-handler cw x y me) ...)
+
+; WorldState -> Boolean
+; after each event, big-bang evaluates (end? cw)
+(define (end? cw) ...)
+\end{lstlisting}
   \caption{设计交互式世界程序的通用初始愿望清单}
   \label{fig:ch03_wish_list}
 \end{figure}
@@ -438,17 +490,25 @@
 
 \paragraph{第四步：编写 main 函数并点火运行}
 将所有零件齐备后，主函数只需负责把初始状态和事件蓝图组装进 \code{big-bang} 中：
-\begin{center}
-  \includegraphics[width=0.75\textwidth]{images/00064.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+; WorldState -> WorldState
+; launches the program from some initial state
+(define (main ws)
+   (big-bang ws
+     [on-tick tock]
+     [to-draw render]))
+\end{lstlisting}
 
 在交互区执行 \code{(main 13)}，你就能亲眼见证一辆小汽车从距左边缘 13 像素处平稳匀速驶向屏幕右侧！
 
 \begin{exercise}{组装运行小车动画并添加树木背景}{41}
 在完成练习~\ref{ex:39} 的基础上，定义 \code{BACKGROUND} 和 \code{Y-CAR} 常量，将上述所有函数组装成完整程序并在 DrRacket 中顺利运行。程序运转正常后，为背景增添一棵生动的绿树作为点缀。例如可以使用以下代码组合出一棵小树：
-\begin{center}
-  \includegraphics[width=0.55\textwidth]{images/00066.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define tree
+  (underlay/xy (circle 10 "solid" "green")
+               9 15
+               (rectangle 2 20 "solid" "brown")))
+\end{lstlisting}
 此外，在 \code{big-bang} 中增加一个 \code{stop-when} 子句，使小汽车在完全开出右边界时自动优雅停止。
 \end{exercise}
 
@@ -484,9 +544,13 @@
   x-position-of-car)
 \end{lstlisting}
   \item 在主函数 \code{main} 的 \code{big-bang} 中直接追加一行 \code{[on-mouse hyper]} 即可：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00067.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (main ws)
+  (big-bang ws
+    [on-tick tock]
+    [on-mouse hyper]
+    [to-draw render]))
+\end{lstlisting}
 \end{enumerate}
 
 接下来只需运用函数设计配方兑现 \code{hyper} 函数：
@@ -506,9 +570,15 @@
 \end{exercise}
 
 随后使用条件分支 \code{cond} 实现该函数：
-\begin{center}
-  \includegraphics[width=0.75\textwidth]{images/00068.png}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; WorldState Number Number String -> WorldState
+; places the car at x-mouse
+; if the given me is "button-down"
+(define (hyper x-position-of-car x-mouse y-mouse me)
+  (cond
+    [(string=? "button-down" me) x-mouse]
+    [else x-position-of-car]))
+\end{lstlisting}
 再次点击运行，测试全部通过！执行 \code{(main 1)}，尽情享受鼠标遥控小车瞬间跃迁的超快感！
 
 
@@ -521,9 +591,11 @@
 本节的综合项目练习将带领大家构建一个经典的电子虚拟宠物（Virtual Pet）游戏原型。我们的小猫会在画布上持续漫步前行；然而孤独漫步会让小猫逐渐感到失落不开心。正如真实宠物一样，你可以尝试抚摸小猫（提升一点快乐度），或者给它喂食小鱼干（让它超级开心满足）！
 
 首先在代码中定义我们钟爱的小猫形象：
-\begin{center}
-  \includegraphics[width=0.4\textwidth]{images/00069.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define cat1 \inlinesprite[2.2em]{images/sprites/cat1.png})
+\end{Verbatim}
+\end{stepperbox}
 
 \begin{exercise}{虚拟宠物：循环移动的小猫}{45}
 设计一个名为 \code{cat-prog} 的世界程序，让小猫以每个时钟周期 3 个像素的速度在屏幕上自左向右匀速漫步。该程序接收小猫的初始横坐标作为启动参数。当小猫从右侧边缘完全走出屏幕时，它能像环游世界一样，瞬间从最左侧边界重新出现并循环行进。
@@ -533,9 +605,11 @@
 
 \begin{exercise}{双帧交替步态动画}{46}
 为了让小猫的步伐更加生动逼真，我们准备了另一张迈出不同步伐的小猫图片：
-\begin{center}
-  \includegraphics[width=0.4\textwidth]{images/00070.png}
-\end{center}
+\begin{stepperbox}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\footnotesize]
+(define cat2 \inlinesprite[2.2em]{images/sprites/cat2.png})
+\end{Verbatim}
+\end{stepperbox}
 修改练习~\ref{ex:45} 中的渲染函数：根据当前小猫横坐标数值是奇数还是偶数，交替选用两张不同姿态的小猫图片（查阅文档中的 \code{odd?} 谓词），从而呈现出生动连贯的漫步动画！
 \end{exercise}
 

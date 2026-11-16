@@ -104,7 +104,18 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00497.png}
+\begin{lstlisting}[language=BSL]
+(define (xexpr-attr xe)
+  (local ((define optional-loa+content (rest xe)))
+    (cond
+      [(empty? optional-loa+content) '()]
+      [else
+       (local ((define loa-or-x
+                 (first optional-loa+content)))
+         (if (list-of-attributes? loa-or-x)
+             loa-or-x
+             '()))])))
+\end{lstlisting}
   \caption{xexpr-attr 的完整函数定义 (The complete definition of xexpr-attr)}
   \label{fig:126}
 \end{figure}
@@ -185,7 +196,17 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00506.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; An XItem.v2 is one of:
+; -- (cons 'li (cons XWord '()))
+; -- (cons 'li (cons [List-of Attribute] (list XWord)))
+; -- (cons 'li (cons XEnum.v2 '()))
+; -- (cons 'li (cons [List-of Attribute] (list XEnum.v2)))
+;
+; An XEnum.v2 is one of:
+; -- (cons 'ul [List-of XItem.v2])
+; -- (cons 'ul (cons [List-of Attribute] [List-of XItem.v2]))
+\end{lstlisting}
   \caption{支持任意嵌套的 XML 枚举数据定义 (A realistic data representation of XML enumerations)}
   \label{fig:127}
 \end{figure}
@@ -194,7 +215,36 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00507.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define SIZE 12) ; font size
+(define COLOR "black") ; font color
+(define BT ; a graphical constant
+  (beside (circle 1 'solid 'black) (text " " SIZE COLOR)))
+
+; Image -> Image
+; marks item with bullet
+(define (bulletize item)
+  (beside/align 'center BT item))
+
+; XEnum.v2 -> Image
+; renders an XEnum.v2 as an image
+(define (render-enum xe)
+  (local ((define content (xexpr-content xe))
+          ; XItem.v2 Image -> Image
+          (define (deal-with-one item so-far)
+            (above/align 'left (render-item item) so-far)))
+    (foldr deal-with-one empty-image content)))
+
+; XItem.v2 -> Image
+; renders one XItem.v2 as an image
+(define (render-item an-item)
+  (local ((define content (first (xexpr-content an-item))))
+    (bulletize
+      (cond
+        [(word? content)
+         (text (word-text content) SIZE 'black)]
+        [else (render-enum content)]))))
+\end{lstlisting}
   \caption{数据精炼所驱动的渲染函数精炼 (Refining functions to match refinements of data definitions)}
   \label{fig:128}
 \end{figure}
@@ -234,7 +284,33 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00508.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; An FSM is a [List-of 1Transition]
+; A 1Transition is a list of two items:
+;   (cons FSM-State (cons FSM-State '()))
+; An FSM-State is a String that specifies a color
+
+; data examples
+(define fsm-traffic
+  '(("red" "green") ("green" "yellow") ("yellow" "red")))
+
+; FSM FSM-State -> FSM-State
+; matches the keys pressed by a player with the given FSM
+(define (simulate state0 transitions)
+  (big-bang state0 ; FSM-State
+    [to-draw
+      (lambda (current)
+        (square 100 "solid" current))]
+    [on-key
+      (lambda (current key-event)
+        (find transitions current))]))
+
+; [X Y] [List-of [List X Y]] X -> Y
+; finds the matching Y for the given X in alist
+(define (find alist x)
+  (local ((define fm (assoc x alist)))
+    (if (cons? fm) (second fm) (error "not found"))))
+\end{lstlisting}
   \caption{有限状态机模拟器重温 (Finite state machines, revisited)}
   \label{fig:129}
 \end{figure}
@@ -283,7 +359,32 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00512.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; XMachine -> FSM-State
+; interprets the given configuration as a state machine
+(define (simulate-xmachine xm)
+  (simulate (xm-state0 xm) (xm->transitions xm)))
+
+; XMachine -> FSM-State
+; extracts and translates the transition table from xm0
+
+(check-expect (xm-state0 xm0) "red")
+
+(define (xm-state0 xm0)
+  (find-attr (xexpr-attr xm0) 'initial))
+
+; XMachine -> [List-of 1Transition]
+; extracts the transition table from xm
+
+(check-expect (xm->transitions xm0) fsm-traffic)
+
+(define (xm->transitions xm)
+  (local (; X1T -> 1Transition
+          (define (xaction->action xa)
+            (list (find-attr (xexpr-attr xa) 'state)
+                  (find-attr (xexpr-attr xa) 'next))))
+    (map xaction->action (xexpr-content xm))))
+\end{lstlisting}
   \caption{DSL 配置解释器完整实现 (Interpreting a DSL program)}
   \label{fig:130}
 \end{figure}
@@ -319,7 +420,15 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00514.png}
+\begin{stepperbox}[unbreakable, title={machine-configuration.xml}, fonttitle=\footnotesize\ttfamily\bfseries, colbacktitle=CodeFrame!60!white, coltitle=NavyTheme]
+\begin{Verbatim}[fontsize=\footnotesize]
+<machine initial="red">
+  <action state="red"    next="green" />
+  <action state="green"  next="yellow" />
+  <action state="yellow" next="red" />
+</machine>
+\end{Verbatim}
+\end{stepperbox}
   \caption{磁盘上的状态机配置文件 (A file with a machine configuration)}
   \label{fig:131}
 \end{figure}
@@ -328,7 +437,30 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00516.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Any -> Boolean
+; is x an Xexpr.v3
+; effect displays bad piece if x is not an Xexpr.v3
+(define (xexpr? x) ...)
+
+; String -> Xexpr.v3
+; produces the first XML element in file f
+(define (read-xexpr f) ...)
+
+; String -> Boolean
+; #false, if this url returns a '404'; #true otherwise
+(define (url-exists? u) ...)
+
+; String -> [Maybe Xexpr.v3]
+; retrieves the first XML (HTML) element from URL u
+; #false if (not (url-exists? u))
+(define (read-plain-xexpr/web u) ...)
+
+; String -> [Maybe Xexpr.v3]
+; retrieves the first XML (HTML) element from URL u
+; #false if (not (url-exists? u))
+(define (read-xexpr/web u) ...)
+\end{lstlisting}
   \caption{X-表达式读取函数规范 (Reading X-expressions)}
   \label{fig:132}
 \end{figure}
@@ -343,7 +475,35 @@ XML 的一大核心应用是 Web 内容的排版与呈现。在 HTML 中，\code
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00517.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define PREFIX "https://www.google.com/finance?q=")
+(define SIZE 22) ; font size
+
+(define-struct data [price delta])
+; A StockWorld is a structure: (make-data String String)
+
+; String -> StockWorld
+; retrieves the stock price of co and its change every 15s
+(define (stock-alert co)
+  (local ((define url (string-append PREFIX co))
+          ; [StockWorld -> StockWorld]
+          (define (retrieve-stock-data ___w)
+            (local ((define x (read-xexpr/web url)))
+              (make-data (get x "price")
+                         (get x "priceChange"))))
+          ; StockWorld -> Image
+          (define (render-stock-data w)
+            (local (; [StockWorld -> String] -> Image
+                    (define (word sel col)
+                      (text (sel w) SIZE col)))
+              (overlay (beside (word data-price 'black)
+                               (text "   " SIZE 'white)
+                               (word data-delta 'red))
+                       (rectangle 300 35 'solid 'white)))))
+    (big-bang (retrieve-stock-data 'no-use)
+      [on-tick retrieve-stock-data 15]
+      [to-draw render-stock-data])))
+\end{lstlisting}
   \caption{将实时网络数据作为事件驱动源 (Web data as an event)}
   \label{fig:133}
 \end{figure}

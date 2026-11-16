@@ -29,14 +29,96 @@
 图~\ref{fig:90} 展示了一对相似的函数定义。这两个函数的作用都是将某种变换应用于列表中的每一个元素。它们唯一的本质区别在于：对列表中的元素具体应用了哪一个函数（图中以阴影高亮强调了这一本质差异）。除此之外，它们还存在两处非本质的差异：函数名称与列表形参的名称。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00338.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; List-of-numbers -> List-of-numbers
+; converts a list of Celsius
+; temperatures to Fahrenheit
+(define (cf* l)
+  (cond
+    [(empty? l) '()]
+    [else
+      (cons
+        (\hl{C2F} (first l))
+        (cf* (rest l)))]))
+
+; Number -> Number
+; converts one Celsius
+; temperature to Fahrenheit
+(define (C2F c)
+  (+ (* 9/5 c) 32))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Inventory -> List-of-strings
+; extracts the names of
+; toys from an inventory
+(define (names i)
+  (cond
+    [(empty? i) '()]
+    [else
+      (cons
+        (\hl{IR-name} (first i))
+        (names (rest i)))]))
+
+(define-struct IR
+  [name price])
+; An IR is a structure:
+;   (make-IR String Number)
+; An Inventory is one of:
+; -- '()
+; -- (cons IR Inventory)
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{一对相似的函数}\label{fig:90}
 \end{center}
 
 在步骤 2 中，我们用新参数 \code{g} 替换对应代码中的差异，得到如图~\ref{fig:91} 所示的一对函数。这一关键改动消除了本质差异：现在每个函数都遍历列表并将给定的函数参数 \code{g} 应用于每一项。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00339.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (cf* l \hl{g})
+  (cond
+    [(empty? l) '()]
+    [else
+      (cons
+        (\hl{g} (first l))
+        (cf* (rest l) g))]))
+
+(define (map1 k g)
+  (cond
+    [(empty? k) '()]
+    [else
+      (cons
+        (g (first k))
+        (map1 (rest k) g))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (names i \hl{g})
+  (cond
+    [(empty? i) '()]
+    [else
+      (cons
+        (\hl{g} (first i))
+        (names (rest i) g))]))
+
+(define (map1 k g)
+  (cond
+    [(empty? k) '()]
+    [else
+      (cons
+        (g (first k))
+        (map1 (rest k) g))]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{抽象后的两个相似函数}\label{fig:91}
 \end{center}
 
@@ -67,15 +149,31 @@
 
 一个完整的程序必然附带测试。我们假设 \code{cf*} 和 \code{names} 本身就带有完备的测试：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00340.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(check-expect (cf* (list 100 0 -40))
+              (list 212 32 -40))
+
+(check-expect (names
+                (list
+                  (make-IR "doll" 21.0)
+                  (make-IR "bear" 13.0)))
+              (list "doll" "bear"))
+\end{lstlisting}
 
 为了确保通过 \code{map1} 定义的函数能够正确工作，只需复制测试并将函数名替换为新定义的函数：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00341.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(check-expect
+  (cf*-from-map1 (list 100 0 -40))
+                 (list 212 32 -40))
+
+(check-expect
+  (names-from-map1
+    (list
+      (make-IR "doll" 21.0)
+      (make-IR "bear" 13.0)))
+  (list "doll" "bear"))
+\end{lstlisting}
 
 在步骤 4 中，新的抽象需要一个签名。正如第 16 章将要阐述的，复用抽象正是从其签名开始的。为抽象函数寻找普适而有用的签名是一个极为严肃的问题。我们将在第 15.2 节中彻底解决这一问题。
 
@@ -93,7 +191,36 @@
 设计函数 \code{tabulate}，它是图~\ref{fig:92} 中两个函数的抽象。当 \code{tabulate} 正确设计完成后，使用它来分别定义对平方函数 \code{sqr} 和正切函数 \code{tan} 进行表格制表的函数。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00342.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Number -> [List-of Number]
+; tabulates sin between n
+; and 0 (incl.) in a list
+(define (tab-sin n)
+  (cond
+    [(= n 0) (list (sin 0))]
+    [else
+      (cons
+        (sin n)
+        (tab-sin (sub1 n)))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; Number -> [List-of Number]
+; tabulates sqrt between n
+; and 0 (incl.) in a list
+(define (tab-sqrt n)
+  (cond
+    [(= n 0) (list (sqrt 0))]
+    [else
+      (cons
+        (sqrt n)
+        (tab-sqrt (sub1 n)))]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{练习 250 中的相似函数}\label{fig:92}
 \end{center}
 \end{exercise}
@@ -102,7 +229,34 @@
 设计函数 \code{fold1}，它是图~\ref{fig:93} 中两个函数（求和 \code{sum} 与求积 \code{product}）的抽象。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00343.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Number] -> Number
+; computes the sum of
+; the numbers on l
+(define (sum l)
+  (cond
+    [(empty? l) 0]
+    [else
+      (+ (first l)
+         (sum (rest l)))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Number] -> Number
+; computes the product of
+; the numbers on l
+(define (product l)
+  (cond
+    [(empty? l) 1]
+    [else
+      (* (first l)
+         (product (rest l)))]))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{练习 251 中的相似函数}\label{fig:93}
 \end{center}
 \end{exercise}
@@ -111,7 +265,45 @@
 设计函数 \code{fold2}，它是图~\ref{fig:94} 中两个函数的抽象。
 
 \begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00344.png}
+  \begin{stepperbox}[unbreakable]
+    \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Number] -> Number
+(define (product l)
+  (cond
+    [(empty? l) 1]
+    [else
+      (* (first l)
+         (product
+           (rest l)))]))
+\end{Verbatim}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Posn] -> Image
+(define (image* l)
+  (cond
+    [(empty? l) emt]
+    [else
+      (place-dot
+        (first l)
+        (image* (rest l)))]))
+
+; Posn Image -> Image
+(define (place-dot p img)
+  (place-image
+    dot
+    (posn-x p) (posn-y p)
+    img))
+
+; graphical constants:
+(define emt
+  (empty-scene 100 100))
+(define dot
+  (circle 3 "solid" "red"))
+\end{Verbatim}
+    \end{minipage}
+  \end{stepperbox}
   \captionof{figure}{练习 252 中的相似函数}\label{fig:94}
 \end{center}
 
@@ -199,9 +391,32 @@
 
 为了提炼出二者的抽象签名，我们遵循设计配方的前两个步骤：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00348.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (pr* l bs jn)
+  (cond
+    [(empty? l) bs]
+    [else
+      (jn (first l)
+          (pr* (rest l)
+               bs
+               jn))]))
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (im* l bs jn)
+  (cond
+    [(empty? l) bs]
+    [else
+      (jn (first l)
+          (im* (rest l)
+               bs
+               jn))]))
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 由于两个函数在两组值上存在差异，修改后的版本额外接收两个参数：一个是基础情形下的基本值，另一个是用于将自然递归的结果与给定列表的首项进行结合的函数。
 
@@ -311,24 +526,46 @@
 
 请观察我们熟悉的列表处理模板：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00350.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (fun-for-l l)
+  (cond
+    [(empty? l) ...]
+    [else (... (first l) ...
+               ... (fun-for-l (rest l)) ...)]))
+\end{lstlisting}
 
 该模板包含两个空白待填处，每个分支各有一个。当你利用此模板定义具体的列表处理函数时，你通常在第一个 \code{cond} 分支中填入一个具体的基准值，并在第二个分支中填入一个组合函数 \code{combine}。该 \code{combine} 函数接收列表的首项以及自然递归的结果，并将这两部分数据融合成最终的结果。
 
 现在你已经掌握了如何创建抽象，完全可以从上述描述中直接定义出该模板的终极抽象函数——\code{reduce}：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00351.png}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [X Y] [List-of X] Y [X Y -> Y] -> Y
+(define (reduce l base combine)
+  (cond
+    [(empty? l) base]
+    [else (combine (first l)
+                   (reduce (rest l) base combine))]))
+\end{lstlisting}
 
 它接收两个额外的实参：\code{base}（基准情形下的默认返回值）以及 \code{combine}（在第二分支中执行结果合并的二元函数）。
 
 借助 \code{reduce}，你可以将绝大多数常规的列表处理函数直接写成优雅的“单行函数”。以下是求和 \code{sum} 与求积 \code{product} 的单行定义：
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00352.png}
-\end{center}
+\begin{stepperbox}
+  \noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Number] -> Number
+(define (sum lon)
+  (reduce lon 0 +))
+\end{Verbatim}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[commandchars=\\\{\}, fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+; [List-of Number] -> Number
+(define (product lon)
+  (reduce lon 1 *))
+\end{Verbatim}
+  \end{minipage}
+\end{stepperbox}
 
 对于 \code{sum}，基础情形始终返回 0；而在第二分支中，通过 \code{+} 将首项与自然递归的结果相加。同样的推理完全解释了 \code{product}（基础情形返回 1，组合函数为 \code{*}）。几乎所有基础的列表处理函数，都可以通过这种方式用 \code{reduce} 简洁利落地定义出来！

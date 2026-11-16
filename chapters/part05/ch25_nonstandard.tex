@@ -79,7 +79,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00583.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; N as compound, s considered atomic (chapter 23.1)
+(define (bundle s n)
+  (cond
+    [(zero? n) (...)]
+    [else (... s ... n ... (bundle s (sub1 n)))]))
+
+; [List-of 1String] as compound, n atomic (chapter 23.1)
+(define (bundle s n)
+  (cond
+    [(empty? s) (...)]
+    [else (... s ... n ... (bundle (rest s) n))]))
+
+; [List-of 1String] and N are on equal footing (chapter 23.2)
+(define (bundle s n)
+  (cond
+    [(and (empty? s) (zero? n)) (...)]
+    [else (... s ... n ... (bundle (rest s) (sub1 n)))]))
+
+; consider all possibilities (chapter 23.3)
+(define (bundle s n)
+  (cond
+    [(and (empty? s) (zero? n)) (...)]
+    [(and (cons? s) (zero? n)) (...)]
+    [(and (empty? s) (positive? n)) (...)]
+    [else (... (bundle s (sub1 n)) ...
+           ... (bundle (rest s) n) ...)]))
+\end{lstlisting}
   \caption{将字符串切块的四种无效模板}
   \label{fig:bundle-templates}
 \end{figure}
@@ -95,7 +122,32 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00584.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of 1String] N -> [List-of String]
+; bundles chunks of s into strings of length n
+; idea take n items and drop n at a time
+(define (bundle s n)
+  (cond
+    [(empty? s) '()]
+    [else
+     (cons (implode (take s n)) (bundle (drop s n) n))]))
+
+; [List-of X] N -> [List-of X]
+; keeps the first n items from l if possible or everything
+(define (take l n)
+  (cond
+    [(zero? n) '()]
+    [(empty? l) '()]
+    [else (cons (first l) (take (rest l) (sub1 n)))]))
+
+; [List-of X] N -> [List-of X]
+; removes the first n items from l if possible or everything
+(define (drop l n)
+  (cond
+    [(zero? n) l]
+    [(empty? l) l]
+    [else (drop (rest l) (sub1 n))]))
+\end{lstlisting}
   \caption{生成型递归：\code{bundle} 及其辅助函数的完整定义}
   \label{fig:bundle-generative}
 \end{figure}
@@ -179,7 +231,34 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00587.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of Number] -> [List-of Number]
+; produces a sorted version of alon
+; assume the numbers are all distinct
+(define (quick-sort< alon)
+  (cond
+    [(empty? alon) '()]
+    [else (local ((define pivot (first alon)))
+            (append (quick-sort< (smallers alon pivot))
+                    (list pivot)
+                    (quick-sort< (largers alon pivot))))]))
+
+; [List-of Number] Number -> [List-of Number]
+(define (largers alon n)
+  (cond
+    [(empty? alon) '()]
+    [else (if (> (first alon) n)
+              (cons (first alon) (largers (rest alon) n))
+              (largers (rest alon) n))]))
+
+; [List-of Number] Number -> [List-of Number]
+(define (smallers alon n)
+  (cond
+    [(empty? alon) '()]
+    [else (if (< (first alon) n)
+              (cons (first alon) (smallers (rest alon) n))
+              (smallers (rest alon) n))]))
+\end{lstlisting}
   \caption{快速排序算法及辅助函数}
   \label{fig:quicksort-full}
 \end{figure}

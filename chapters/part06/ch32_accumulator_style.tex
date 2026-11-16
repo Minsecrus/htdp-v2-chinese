@@ -28,7 +28,29 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00727.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; [List-of X] -> [List-of X]
+; constructs the reverse of alox
+
+(check-expect (invert '(a b c)) '(c b a))
+
+(define (invert alox)
+  (cond
+    [(empty? alox) '()]
+    [else
+      (add-as-last (first alox) (invert (rest alox)))]))
+
+; X [List-of X] -> [List-of X]
+; adds an-x to the end of alox
+
+(check-expect (add-as-last 'a '(c b)) '(c b a))
+
+(define (add-as-last an-x alox)
+  (cond
+    [(empty? alox) (list an-x)]
+    [else
+      (cons (first alox) (add-as-last an-x (rest alox)))]))
+\end{lstlisting}
   \caption{运用累加器进行结构化设计的初始函数对比}
   \label{fig:182}
 \end{figure}
@@ -199,7 +221,28 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00734.png}
+\begin{stepperbox}[unbreakable]
+\begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(sum.v1 '(10 4))
+== (+ 10 (sum.v1 '(4)))
+== (+ 10 (+ 4 (sum.v1 '())))
+== (+ 10 (+ 4 (+ 0)))
+...
+== 14
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(sum.v2 '(10 4))
+== (sum/a '(10 4) a0)
+== (sum/a '(4) ... 10 ... a0)
+== (sum/a '() ... 4 ... 10 ... a0)
+...
+== 14
+\end{Verbatim}
+\end{minipage}
+\end{stepperbox}
   \caption{常规模板与累加器模板的求值演算对比}
   \label{fig:183}
 \end{figure}
@@ -358,7 +401,24 @@
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00745.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Tree -> N
+; measures the height of abt0
+(check-expect (height.v2 example) 3)
+(define (height.v2 abt0)
+  (local (; Tree N -> N
+          ; measures the height of abt
+          ; accumulator a is the number of steps
+          ; it takes to reach abt from abt0
+          (define (height/a abt a)
+            (cond
+              [(empty? abt) a]
+              [else
+                (max
+                  (height/a (node-left abt)  (+ a 1))
+                  (height/a (node-right abt) (+ a 1)))])))
+    (height/a abt0 0)))
+\end{lstlisting}
   \caption{二叉树高度计算的累加器版本实现}
   \label{fig:185}
 \end{figure}

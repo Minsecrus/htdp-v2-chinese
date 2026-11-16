@@ -312,17 +312,26 @@ DrRacket 发出的报错信息与原生操作参数个数不符时的报错如�
 
 \begin{exercise}{通过单步调试修正图像分类函数}{25}
 仔细研读下面这段试图解答练习~\ref{ex:17} 的初学者代码：
-\begin{center}
-  \includegraphics[width=0.8\textwidth]{images/00045.png}
-\end{center}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (image-classify img)
+  (cond
+    [(>= (image-height img) (image-width img)) "tall"]
+    [(= (image-height img) (image-width img)) "square"]
+    [(<= (image-height img) (image-width img)) "wide"]))
+\end{lstlisting}
 在单步求值器中跟踪该函数在不同测试输入下的执行过程，你能发现代码中的缺陷并找到修复方案吗？
 \end{exercise}
 
 \begin{exercise}{单步跟踪复合字符串操作}{26}
 在阅读并运行以下代码之前，先在脑海中预测它的执行结果：
-\begin{center}
-  \includegraphics[width=0.7\textwidth]{images/00046.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (string-insert s i)
+  (string-append (substring s 0 i)
+                 "_"
+                 (substring s i)))
+
+(string-insert "helloworld" 6)
+\end{lstlisting}
 随后在 DrRacket 中使用单步求值器验证你的预测。
 \end{exercise}
 
@@ -339,7 +348,31 @@ DrRacket 发出的报错信息与原生操作参数个数不符时的报错如�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00047.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (letter fst lst signature-name)
+  (string-append
+    (opening fst)
+    "\n\n"
+    (body fst lst)
+    "\n\n"
+    (closing signature-name)))
+
+(define (opening fst)
+  (string-append "Dear " fst ","))
+
+(define (body fst lst)
+  (string-append
+    "We have discovered that all people with the" "\n"
+    "last name " lst " have won our lottery. So, " "\n"
+    fst ", " "hurry and pick up your prize."))
+
+(define (closing signature-name)
+  (string-append
+    "Sincerely,"
+    "\n\n"
+    signature-name
+    "\n"))
+\end{lstlisting}
   \caption{一个清晰模块化的批处理程序：信件生成器}
   \label{fig:ch02_batch_letter}
 \end{figure}
@@ -435,9 +468,18 @@ Fell
 \end{exercise}
 
 作为对比，再看下面这个将所有计算步骤强行拼凑在单个函数体内部的“一体化单体版本”：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00049.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (profit price)
+  (- (* (+ 120
+           (* (/ 15 0.1)
+              (- 5.0 price)))
+        price)
+     (+ 180
+        (* 0.04
+           (+ 120
+              (* (/ 15 0.1)
+                 (- 5.0 price)))))))
+\end{lstlisting}
 
 将这个臃肿的单体函数输入 DrRacket，验证它在 \$1 到 \$5 票价下产生的结果确实与我们前面的模块化版本完全相同。但只需瞄上一眼，任何人都能立刻体会到：理解这个晦涩冗长的单体函数，比理解前面拆解明确的四个小巧函数要痛苦费力得多！
 
@@ -581,9 +623,16 @@ Fell
 
 现在，我们希望将该核心算法封装进一个真正的批处理程序中：从指定文件读取华氏温度数值，进行换算，并将摄氏度结果写入输出文件。
 
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00051.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (convert in out)
+  (write-file out
+    (string-append
+      (number->string
+        (C
+          (string->number
+            (read-file in))))
+      "\n")))
+\end{lstlisting}
 
 主函数 \code{convert} 接收两个文件名参数：输入文件 \code{in} 与输出文件 \code{out}。它由 5 个函数无缝复合而成：
 \begin{enumerate}
@@ -609,9 +658,13 @@ Fell
 
 \begin{exercise}{运行信件生成批处理程序}{31}
 回顾第~2.3~节的信件生成程序 \code{letter}。在交互区中针对至少三组不同的真实姓名调用 \code{letter} 并使用 \code{write-file} 输出到 \code{'stdout}。随后，利用下面的批处理函数，实现从三个独立文件读取姓名并生成信件文件：
-\begin{center}
-  \includegraphics[width=0.85\textwidth]{images/00052.png}
-\end{center}
+\begin{lstlisting}[language=BSL]
+(define (main in-fst in-lst in-signature out)
+  (write-file out
+              (letter (read-file in-fst)
+                      (read-file in-lst)
+                      (read-file in-signature))))
+\end{lstlisting}
 创建输入文件，运行测试，并检查输出文件的内容。
 \end{exercise}
 
@@ -701,7 +754,22 @@ Fell
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.95\textwidth]{images/00054.png}
+\begin{stepperbox}[unbreakable]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+current state & $cw_0$ & $cw_1$ & $\cdots$ \\
+event & $e_0$ & $e_1$ & $\cdots$ \\
+\midrule
+on clock tick & \texttt{(tock $cw_0$)} & \texttt{(tock $cw_1$)} & $\cdots$ \\
+on keystroke & \texttt{(ke-h $cw_0$ $e_0$)} & \texttt{(ke-h $cw_1$ $e_1$)} & $\cdots$ \\
+on mouse event & \texttt{(me-h $cw_0$ $e_0$ ...)} & \texttt{(me-h $cw_1$ $e_1$ ...)} & $\cdots$ \\
+its image & \texttt{(render $cw_0$)} & \texttt{(render $cw_1$)} & $\cdots$ \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
   \caption{big-bang 交互式事件驱动引擎的工作机制}
   \label{fig:ch02_big_bang}
 \end{figure}
@@ -718,7 +786,23 @@ Fell
 图~\ref{fig:ch02_interactive_program} 给出了一个设计精巧、结构完整的第一个交互式世界程序范例：
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00055.png}
+\begin{lstlisting}[language=BSL]
+(define BACKGROUND (empty-scene 100 100))
+(define DOT (circle 3 "solid" "red"))
+
+(define (main y)
+  (big-bang y
+    [on-tick sub1]
+    [stop-when zero?]
+    [to-draw place-dot-at]
+    [on-key stop]))
+
+(define (place-dot-at y)
+  (place-image DOT 50 y BACKGROUND))
+
+(define (stop y ke)
+  0)
+\end{lstlisting}
   \caption{一个完整的初级交互式世界程序}
   \label{fig:ch02_interactive_program}
 \end{figure}

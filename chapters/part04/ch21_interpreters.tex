@@ -52,7 +52,25 @@ DrRacket 本身就是一个程序。它是一个极其复杂的软件，处理�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00483.png}
+\begin{stepperbox}[unbreakable]
+\centering\scriptsize\ttfamily
+\begin{tabular}{@{}l@{\hspace{8pt}}l@{}}
+\toprule
+{\normalfont\bfseries BSL expression} & {\normalfont\bfseries representation of BSL expression} \\
+\midrule
+(+ (* 1 1) 10) & (make-add (make-mul 1 1) 10) \\
+\addlinespace
+(+ (* 3 3) & (make-add (make-mul 3 3) \\
+\phantom{(+ }(* 4 4)) & \phantom{(make-add }(make-mul 4 4)) \\
+\addlinespace
+(+ (* (+ 1 2) 3) & (make-add (make-mul (make-add 1 2) 3) \\
+\phantom{(+ }(* (* (+ 1 1) & \phantom{(make-add }(make-mul (make-mul \\
+\phantom{(+ (* (* }2) & \phantom{(make-add (make-mul (make-}(make-add 1 1) \\
+\phantom{(+ (* }4)) & \phantom{(make-add (make-mul (make-add 1 }2) \\
+ & \phantom{(make-add (make-mul (make-mul }4)) \\
+\bottomrule
+\end{tabular}
+\end{stepperbox}
   \caption{在 BSL 中表示 BSL 表达式 (Representing BSL expressions in BSL)}
   \label{fig:124}
 \end{figure}
@@ -99,7 +117,34 @@ DrRacket 本身就是一个程序。它是一个极其复杂的软件，处理�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00486.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; S-expr -> BSL-expr
+(define (parse s)
+  (cond
+    [(atom? s) (parse-atom s)]
+    [else (parse-sl s)]))
+
+; SL -> BSL-expr
+(define (parse-sl s)
+  (local ((define L (length s)))
+    (cond
+      [(< L 3) (error WRONG)]
+      [(and (= L 3) (symbol? (first s)))
+       (cond
+         [(symbol=? (first s) '+)
+          (make-add (parse (second s)) (parse (third s)))]
+         [(symbol=? (first s) '*)
+          (make-mul (parse (second s)) (parse (third s)))]
+         [else (error WRONG)])]
+      [else (error WRONG)])))
+
+; Atom -> BSL-expr
+(define (parse-atom s)
+  (cond
+    [(number? s) s]
+    [(string? s) (error WRONG)]
+    [(symbol? s) (error WRONG)]))
+\end{lstlisting}
   \caption{从 S-表达式到 BSL 解析树 (From S-expr to BSL-expr)}
   \label{fig:125}
 \end{figure}

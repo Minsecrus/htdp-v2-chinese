@@ -112,7 +112,20 @@ Bettina 和 Fred 也用类似的 \code{child} 实例表示。而 Adam 则需要�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00453.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; Oldest Generation:
+(define Carl (make-child NP NP "Carl" 1926 "green"))
+(define Bettina (make-child NP NP "Bettina" 1926 "green"))
+
+; Middle Generation:
+(define Adam (make-child Carl Bettina "Adam" 1950 "hazel"))
+(define Dave (make-child Carl Bettina "Dave" 1955 "black"))
+(define Eva (make-child Carl Bettina "Eva" 1965 "blue"))
+(define Fred (make-child NP NP "Fred" 1966 "pink"))
+
+; Youngest Generation:
+(define Gustav (make-child Fred Eva "Gustav" 1988 "brown"))
+\end{lstlisting}
   \caption{样本家谱的数据表示 (A data representation of the sample family tree)}
   \label{fig:112}
 \end{figure}
@@ -216,7 +229,21 @@ Bettina 和 Fred 也用类似的 \code{child} 实例表示。而 Adam 则需要�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00458.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; FT -> Boolean
+; does an-ftree contain a child
+; structure with "blue" in the eyes field
+
+(check-expect (blue-eyed-child? Carl) #false)
+(check-expect (blue-eyed-child? Gustav) #true)
+
+(define (blue-eyed-child? an-ftree)
+  (cond
+    [(no-parent? an-ftree) #false]
+    [else (or (string=? (child-eyes an-ftree) "blue")
+              (blue-eyed-child? (child-father an-ftree))
+              (blue-eyed-child? (child-mother an-ftree)))]))
+\end{lstlisting}
   \caption{在祖先树中寻找蓝眼睛的孩子 (Finding a blue-eyed child in an ancestor tree)}
   \label{fig:113}
 \end{figure}
@@ -225,7 +252,27 @@ Bettina 和 Fred 也用类似的 \code{child} 实例表示。而 Adam 则需要�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00461.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+1. (child-eyes (make-child NP NP "Carl" 1926 "green"))
+   ==
+   "green"
+
+2. (blue-eyed-child?
+     (child-father
+       (make-child NP NP "Carl" 1926 "green")))
+   ==
+   (blue-eyed-child? NP)
+   ==
+   #false
+
+3. (blue-eyed-child?
+     (child-mother
+       (make-child NP NP "Carl" 1926 "green")))
+   ==
+   (blue-eyed-child? NP)
+   ==
+   #false
+\end{lstlisting}
   \caption{树结构的求值推导计算 (Calculating with trees)}
   \label{fig:114}
 \end{figure}
@@ -306,7 +353,21 @@ Bettina 和 Fred 也用类似的 \code{child} 实例表示。而 Adam 则需要�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00463.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; FF -> Boolean
+; does the forest contain any child with "blue" eyes
+
+(check-expect (blue-eyed-child-in-forest? ff1) #false)
+(check-expect (blue-eyed-child-in-forest? ff2) #true)
+(check-expect (blue-eyed-child-in-forest? ff3) #true)
+
+(define (blue-eyed-child-in-forest? a-forest)
+  (cond
+    [(empty? a-forest) #false]
+    [else
+     (or (blue-eyed-child? (first a-forest))
+         (blue-eyed-child-in-forest? (rest a-forest)))]))
+\end{lstlisting}
   \caption{在家族森林中寻找蓝眼睛的孩子 (Finding a blue-eyed child in a family forest)}
   \label{fig:115}
 \end{figure}
@@ -422,7 +483,37 @@ S-表达式的思想源自约翰·麦卡锡（John McCarthy）及其 Lisp 团队
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00470.png}
+\begin{stepperbox}[unbreakable]
+\noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (count sexp sy)
+  (cond
+    [(atom? sexp)
+     (count-atom sexp sy)]
+    [else
+     (count-sl sexp sy)]))
+
+(define (count-sl sl sy)
+  (cond
+    [(empty? sl) ...]
+    [else
+     (...
+      (count (first sl) sy)
+      ...
+      (count-sl (rest sl) sy)
+      ...)]))
+\end{Verbatim}
+\end{minipage}\hfill
+\noindent\begin{minipage}[t]{0.48\linewidth}\vspace{0pt}
+\begin{Verbatim}[fontsize=\fontsize{6.0pt}{7.2pt}\selectfont]
+(define (count-atom at sy)
+  (cond
+    [(number? at) ...]
+    [(string? at) ...]
+    [(symbol? at) ...]))
+\end{Verbatim}
+\end{minipage}
+\end{stepperbox}
   \caption{S-表达式的处理模板 (A template for S-expressions)}
   \label{fig:116}
 \end{figure}
@@ -431,7 +522,30 @@ S-表达式的思想源自约翰·麦卡锡（John McCarthy）及其 Lisp 团队
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00471.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; S-expr Symbol -> N
+; counts all occurrences of sy in sexp
+(define (count sexp sy)
+  (cond
+    [(atom? sexp) (count-atom sexp sy)]
+    [else (count-sl sexp sy)]))
+
+; SL Symbol -> N
+; counts all occurrences of sy in sl
+(define (count-sl sl sy)
+  (cond
+    [(empty? sl) 0]
+    [else
+     (+ (count (first sl) sy) (count-sl (rest sl) sy))]))
+
+; Atom Symbol -> N
+; counts all occurrences of sy in at
+(define (count-atom at sy)
+  (cond
+    [(number? at) 0]
+    [(string? at) 0]
+    [(symbol? at) (if (symbol=? at sy) 1 0)]))
+\end{lstlisting}
   \caption{S-表达式的计数程序 (A program for S-expressions)}
   \label{fig:117}
 \end{figure}
@@ -608,7 +722,33 @@ S-表达式的思想源自约翰·麦卡锡（John McCarthy）及其 Lisp 团队
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00477.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+; S-expr Symbol Atom -> S-expr
+; replaces all occurrences of old in sexp with new
+
+(check-expect (substitute '(((world) bye) bye) 'bye '42)
+              '(((world) 42) 42))
+
+(define (substitute sexp old new)
+  (local (; S-expr -> S-expr
+          (define (for-sexp sexp)
+            (cond
+              [(atom? sexp) (for-atom sexp)]
+              [else (for-sl sexp)]))
+          ; SL -> S-expr
+          (define (for-sl sl)
+            (cond
+              [(empty? sl) '()]
+              [else (cons (for-sexp (first sl))
+                          (for-sl (rest sl)))]))
+          ; Atom -> S-expr
+          (define (for-atom at)
+            (cond
+              [(number? at) at]
+              [(string? at) at]
+              [(symbol? at) (if (equal? at old) new at)])))
+    (for-sexp sexp)))
+\end{lstlisting}
   \caption{待化简的 S-表达式替换程序 (A program to be simplified)}
   \label{fig:120}
 \end{figure}
@@ -621,7 +761,24 @@ S-表达式的思想源自约翰·麦卡锡（John McCarthy）及其 Lisp 团队
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00478.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (substitute sexp old new)
+  (local (; S-expr -> S-expr
+          (define (for-sexp sexp)
+            (cond
+              [(atom? sexp) (for-atom sexp)]
+              [else (for-sl sexp)]))
+          ; SL -> S-expr
+          (define (for-sl sl)
+            (map for-sexp sl))
+          ; Atom -> S-expr
+          (define (for-atom at)
+            (cond
+              [(number? at) at]
+              [(string? at) at]
+              [(symbol? at) (if (equal? at old) new at)])))
+    (for-sexp sexp)))
+\end{lstlisting}
   \caption{程序化简第一步：引入 map (Program simplification, step 1)}
   \label{fig:121}
 \end{figure}
@@ -630,7 +787,30 @@ S-表达式的思想源自约翰·麦卡锡（John McCarthy）及其 Lisp 团队
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\textwidth]{images/00479.png}
+\begin{lstlisting}[language=BSL, basicstyle=\scriptsize\ttfamily]
+(define (substitute sexp old new)
+  (local (; S-expr -> S-expr
+          (define (for-sexp sexp)
+            (cond
+              [(atom? sexp) (for-atom sexp)]
+              [else (for-sl sexp)]))
+          ; SL -> S-expr
+          (define (for-sl sl) (map for-sexp sl))
+          ; Atom -> S-expr
+          (define (for-atom at)
+            (if (equal? at old) new at)))
+    (for-sexp sexp)))
+
+(define (substitute.v3 sexp old new)
+  (local (; S-expr -> S-expr
+          (define (for-sexp sexp)
+            (cond
+              [(atom? sexp)
+               (if (equal? sexp old) new sexp)]
+              [else
+               (map for-sexp sexp)])))
+    (for-sexp sexp)))
+\end{lstlisting}
   \caption{程序化简第二与第三步 (Program simplification, steps 2 and 3)}
   \label{fig:122}
 \end{figure}
