@@ -119,7 +119,7 @@
 \lstset{
   language=BSL,
   basicstyle=\footnotesize\ttfamily,
-  backgroundcolor=\color{CodeBg},
+  backgroundcolor=\color{white},
   frame=single,
   rulecolor=\color{CodeFrame},
   frameround=tttt,
@@ -135,19 +135,34 @@
            {ε}{{$\varepsilon$}}1
 }
 
-% 行内代码样式
-% 通过 xeCJK 边界/空格节点让 \colorbox 与前后中文及空格保持对称间距
+% 彩色方框定义 (tcolorbox) - 紧凑双栏优化
+\usepackage[most]{tcolorbox}
+
+% 行内代码样式（纯白底 + 圆角细边框）
+% 通过 xeCJK 边界/空格节点让 \tcbox 与前后中文及空格保持对称间距
+\newtcbox{\inlinecodebox}{
+  on line,
+  boxrule=0.4pt,
+  arc=1.8pt,
+  colback=white,
+  colframe=CodeFrame,
+  boxsep=0pt,
+  left=1.6pt,
+  right=1.6pt,
+  top=1.5pt,
+  bottom=1.5pt
+}
+
 \ExplSyntaxOn
 \NewDocumentCommand{\code}{m}
   {
     \ifmmode
-      \textnormal{\setlength{\fboxsep}{2pt}\colorbox{CodeBg}{\footnotesize\ttfamily\textcolor{NavyTheme}{#1}}}
+      \textnormal{\inlinecodebox{\footnotesize\ttfamily\textcolor{NavyTheme}{#1}}}
     \else
       \leavevmode
       \xeCJK_Boundary_and_Default:
       \group_begin:
-        \setlength{\fboxsep}{2pt}
-        \colorbox{CodeBg}{\footnotesize\ttfamily\textcolor{NavyTheme}{#1}}
+        \inlinecodebox{\footnotesize\ttfamily\textcolor{NavyTheme}{#1}}
       \group_end:
       \peek_catcode:NTF \c_space_token
         { \xeCJK_make_space_node: }
@@ -155,9 +170,6 @@
     \fi
   }
 \ExplSyntaxOff
-
-% 彩色方框定义 (tcolorbox) - 紧凑双栏优化
-\usepackage[most]{tcolorbox}
 
 % 1. 设计配方环境 (Design Recipe)
 \newtcolorbox{recipebox}[1][]{
@@ -235,7 +247,7 @@
 \newtcolorbox{stepperbox}[1][]{
   enhanced,
   breakable,
-  colback=CodeBg,
+  colback=white,
   colframe=CodeFrame,
   arc=1.2mm,
   boxrule=0.5pt,
@@ -291,9 +303,9 @@
   \origchapter*{#1}%
   \addcontentsline{toc}{chapter}{#1}%
   \markboth{#1}{#1}%
-  \renewcommand{\thefigure}{插曲\arabic{intermezzocnt}.\arabic{figure}}%
+  \renewcommand{\thefigure}{I\arabic{intermezzocnt}.\arabic{figure}}%
   \setcounter{figure}{0}%
-  \renewcommand{\thetable}{插曲\arabic{intermezzocnt}.\arabic{table}}%
+  \renewcommand{\thetable}{I\arabic{intermezzocnt}.\arabic{table}}%
   \setcounter{table}{0}%
 }
 \newcommand{\intermezzosection}[1]{%
